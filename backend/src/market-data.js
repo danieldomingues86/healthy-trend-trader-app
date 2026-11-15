@@ -121,9 +121,17 @@ const BDR_ORIGINALS = {
 };
 const BDR_CATALOG_VERSION = 5;
 
+const STOCK_UNITS_ENDING_IN_11 = new Set([
+  'ALUP11', 'BIDI11', 'BPAC11', 'CPLE11', 'ENGI11', 'IGTI11', 'KLBN11', 'MODL11',
+  'RANI11', 'SANB11', 'SAPR11', 'SULA11', 'TAEE11', 'TIET11', 'BRBI11', 'ALLD11'
+]);
+
 function assetClassForSymbol(symbol) {
   const normalized = String(symbol || '').trim().toUpperCase();
   if (FII_CATALOG.some(([ticker]) => ticker === normalized)) return 'fii';
+  if (normalized.endsWith('11') && !STOCK_UNITS_ENDING_IN_11.has(normalized) && !normalized.startsWith('IBOV') && !normalized.startsWith('IFIX') && !normalized.startsWith('SMLL')) {
+    return 'fii';
+  }
   if (BDR_CATALOG.some(([ticker]) => ticker === normalized) || BDR_SYMBOLS.includes(normalized) || /(31|32|33|34|35|39)$/.test(normalized)) return 'bdr';
   return 'stock';
 }
@@ -582,10 +590,15 @@ const STOCK_CATALOG_FALLBACK = {
   MBRF3: { name: 'MBRF GLOBAL FOODS COMPANY S.A.', sector: 'Bens de consumo não duráveis' },
   RIAA3: { name: 'RIACHUELO S.A.', sector: 'Comércio varejista' },
   WDCN3: { name: 'WDC NETWORKS (LIVETECH DA BAHIA S.A.)', sector: 'Serviços de tecnologia' },
-  SAUD3: { name: 'BRADSAÚDE S.A.', sector: 'Tecnologia em saúde' }
+  SAUD3: { name: 'BRADSAÚDE S.A.', sector: 'Tecnologia em saúde' },
+  SEQL3: { name: 'SEQUOIA LOGÍSTICA S.A.', sector: 'Transporte e logística' }
 };
 function metadataFromCache(cache) {
-  const items = cache?.relativeStrength || [];
+  const items = [
+    ...(cache?.relativeStrength || []),
+    ...(cache?.relativeStrengthByClass?.stock_ibov?.excludedByLiquidity || []),
+    ...(cache?.relativeStrengthByClass?.stock_other?.excludedByLiquidity || [])
+  ];
   const map = new Map(items.filter((item) => item?.symbol).map((item) => [item.symbol, {
     type: 'stock', subType: 'stock', name: item.name || item.symbol, sector: item.sector || 'Não classificado'
   }]));

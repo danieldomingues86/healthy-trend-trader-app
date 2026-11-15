@@ -25,6 +25,7 @@ const zenPractices = require('./zen-practices');
 const habits = require('./habits');
 const { nasdaqRelativeStrengthEngine } = require('./nasdaq-relative-strength');
 const tickerChart = require('./ticker-chart');
+const bdrInternational = require('./bdr-international');
 const traderTraining = require('./trader-training');
 const tradeSimulator = require('./trade-simulator');
 const marketNews = require('./market-news');
@@ -1037,6 +1038,12 @@ const server = http.createServer(async (request, response) => {
       const tickerParam = url.searchParams.get('ticker');
       if (!tickerParam) return send(response, 400, { error: 'Parâmetro ticker é obrigatório.' });
       return send(response, 200, await tickerChart.getTickerChartData(tickerParam));
+    }
+    if (url.pathname === '/api/market-data/bdr-international') {
+      const symParam = url.searchParams.get('symbol') || url.searchParams.get('ticker');
+      if (!symParam) return send(response, 400, { error: 'Parâmetro symbol é obrigatório.' });
+      const bdrData = await bdrInternational.getBdrIntegrationData(symParam);
+      return send(response, 200, bdrData || { isBdr: false });
     }
     if (url.pathname === '/api/fundamentals') return send(response, 200, await fetchFundamentals(url.searchParams.get('ticker')));
     if (url.pathname === '/api/health') {

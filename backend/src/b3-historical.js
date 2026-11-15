@@ -25,8 +25,13 @@ function parseLine(line){
   if(line.slice(0,2)!=='01')return null;
   const symbol=line.slice(12,24).trim().toUpperCase();
   const date=line.slice(2,10).trim();
+  const open=line.length>=69?number(line.slice(56,69)):null;
+  const high=line.length>=82?number(line.slice(69,82)):null;
+  const low=line.length>=95?number(line.slice(82,95)):null;
   const close=number(line.slice(108,121));
-  return symbol&&/^\d{8}$/.test(date)&&Number.isFinite(close)&&close>0?{symbol,date,close}:null;
+  const trades=line.length>=152?Number(line.slice(147,152).trim())||0:0;
+  const volume=line.length>=188?number(line.slice(170,188)):0;
+  return symbol&&/^\d{8}$/.test(date)&&Number.isFinite(close)&&close>0?{symbol,date,open,high,low,close,volume,trades}:null;
 }
 function parseQuotes(text,symbols){
   const wanted=new Set(symbols.map(value=>String(value).trim().toUpperCase()));
@@ -39,8 +44,13 @@ function parseQuotes(text,symbols){
         const symbol=text.toString('ascii',start+12,start+24).trim().toUpperCase();
         if(wanted.has(symbol)){
           const date=text.toString('ascii',start+2,start+10).trim();
+          const open=end-start>=69?number(text.toString('ascii',start+56,start+69)):null;
+          const high=end-start>=82?number(text.toString('ascii',start+69,start+82)):null;
+          const low=end-start>=95?number(text.toString('ascii',start+82,start+95)):null;
           const close=number(text.toString('ascii',start+108,start+121));
-          if(/^\d{8}$/.test(date)&&Number.isFinite(close)&&close>0){const history=values.get(symbol)||[];history.push({symbol,date,close});values.set(symbol,history)}
+          const trades=end-start>=152?Number(text.toString('ascii',start+147,start+152).trim())||0:0;
+          const volume=end-start>=188?number(text.toString('ascii',start+170,start+188)):0;
+          if(/^\d{8}$/.test(date)&&Number.isFinite(close)&&close>0){const history=values.get(symbol)||[];history.push({symbol,date,open,high,low,close,volume,trades});values.set(symbol,history)}
         }
       }
       start=end+1;
@@ -49,7 +59,7 @@ function parseQuotes(text,symbols){
   }
   for(const line of text.split(/\r?\n/)){
     const item=parseLine(line);if(!item||!wanted.has(item.symbol))continue;
-    const history=values.get(item.symbol)||[];history.push({date:item.date,close:item.close});values.set(item.symbol,history);
+    const history=values.get(item.symbol)||[];history.push(item);values.set(item.symbol,history);
   }
   return values;
 }
@@ -80,8 +90,9 @@ async function archive(year,{fetchImpl=fetch,cacheDirectory,force=false}={}){
     }
     if(!response.ok)throw Object.assign(new Error(`B3 HTTP ${response.status}`),{status:response.status});
     const zip=Buffer.from(await response.arrayBuffer());
+    const extracted=extractZip(zip);
     if(file){await fs.mkdir(cacheDirectory,{recursive:true});await fs.writeFile(file,zip)}
-    return extractZip(zip);
+    return extracted;
   }catch(error){
     if(file){try{return extractZip(await fs.readFile(file))}catch{}}
     throw error;
@@ -90,6 +101,14 @@ async function archive(year,{fetchImpl=fetch,cacheDirectory,force=false}={}){
 async function fetchHistories(symbols,{years,fetchImpl,cacheDirectory,force=false}={}){
   const merged=new Map();
   for(const year of years){for(const [symbol,items] of (await parseQuotes(await archive(year,{fetchImpl,cacheDirectory,force}),symbols)).entries())merged.set(symbol,[...(merged.get(symbol)||[]),...items])}
-  return new Map([...merged].map(([symbol,items])=>[symbol,adjustHistoricalSeries(items.sort((a,b)=>a.date.localeCompare(b.date)), symbol).map(item=>({date:item.date,close:item.close}))]));
+  return new Map([...merged].map(([symbol,items])=>[symbol,adjustHistoricalSeries(items.sort((a,b)=>a.date.localeCompare(b.date)), symbol).map(item=>({
+    date:item.date,
+    open:item.open,
+    high:item.high,
+    low:item.low,
+    close:item.close,
+    volume:item.volume,
+    trades:item.trades
+  }))]));
 }
 module.exports={parseLine,parseQuotes,fetchHistories,extractZip};

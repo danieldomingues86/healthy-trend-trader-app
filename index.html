@@ -2959,12 +2959,11 @@ function wealthDate(value){return new Date(value).toLocaleDateString('pt-BR',{da
 function wealthHeat(){return (operationalState?.positions||[]).filter(item=>item.mode==='real').reduce((sum,item)=>sum+operationMetrics(item).riskPct,0)}
 function renderWealth(){
   if(typeof window.renderWealthV2==='function')return window.renderWealthV2();
-  if(typeof window.loadWealth==='function')return window.loadWealth();
 }
-async function loadWealth(){
-  if(typeof window.loadWealth==='function')return window.loadWealth();
+function loadWealth(){
+  if(typeof window.renderWealthV2==='function')return window.renderWealthV2();
 }
-window.addEventListener('healthyTrend:authenticated',()=>{if(typeof window.loadWealth==='function')window.loadWealth();});
+window.addEventListener('healthyTrend:authenticated',()=>{if(typeof window.renderWealthV2==='function')window.renderWealthV2();});
 const renderOperationalAppWithWealth=renderOperationalApp;
 renderOperationalApp=function(){renderOperationalAppWithWealth();renderWealth()};
 renderWealth();

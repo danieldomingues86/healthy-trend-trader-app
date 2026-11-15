@@ -504,8 +504,30 @@
     if (lEma200) lEma200.style.display = indicatorPrefs.ema200 ? 'inline' : 'none';
   }
 
-    function ensureSma7Series() {
-    if (!chartInstance || !tickerData?.ohlc) return;
+    function calculateSmaSeriesFromCloses(ohlc, period = 7) {
+    if (!Array.isArray(ohlc) || ohlc.length < period) return [];
+    const closes = ohlc.map(c => c.close);
+    let rawSma = null;
+    if (window.TickerChartModel && typeof window.TickerChartModel.calculateSma === 'function') {
+      rawSma = window.TickerChartModel.calculateSma(closes, period);
+    } else {
+      rawSma = new Array(closes.length).fill(null);
+      let sum = 0;
+      for (let i = 0; i < closes.length; i++) {
+        sum += Number(closes[i]) || 0;
+        if (i >= period) sum -= Number(closes[i - period]) || 0;
+        if (i >= period - 1) rawSma[i] = Number((sum / period).toFixed(4));
+      }
+    }
+    return ohlc.map((c, idx) => ({
+      time: c.time,
+      value: rawSma[idx]
+    })).filter(p => Number.isFinite(p.value));
+  }
+
+  function ensureSma7Series(sourceData) {
+    const d = sourceData || tickerData;
+    if (!chartInstance || !d?.ohlc) return;
     if (!sma7Series) {
       sma7Series = chartInstance.addLineSeries({
         color: '#f59e0b',
@@ -514,17 +536,13 @@
         visible: !!indicatorPrefs.sma7
       });
     }
-    const closes = tickerData.ohlc.map(c => c.close);
-    if (window.TickerChartModel && typeof window.TickerChartModel.calculateSma === 'function') {
-      const rawSma = window.TickerChartModel.calculateSma(closes, 7);
-      const data = tickerData.ohlc.map((c, idx) => ({
-        time: c.time,
-        value: rawSma[idx]
-      })).filter(p => Number.isFinite(p.value));
-      sma7Series.setData(data);
-    } else if (tickerData.indicators?.sma7) {
-      sma7Series.setData(tickerData.indicators.sma7);
+    const smaData = (d.indicators?.sma7 && d.indicators.sma7.length)
+      ? d.indicators.sma7
+      : calculateSmaSeriesFromCloses(d.ohlc, 7);
+    if (smaData && smaData.length) {
+      sma7Series.setData(smaData);
     }
+    sma7Series.applyOptions({ visible: !!indicatorPrefs.sma7 });
   }
 
   function ensureEma21Series() {
@@ -1306,6 +1324,59 @@
             ${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? 'Na Watchlist' : 'Adicionar à Watchlist'}
           </button>
           <button class="btn-icon-more" id="btnMoreTickerOptions" title="Mais opções">⋮</button>
+
+          <!-- BDR INTERNACIONAL: STOCKCHARTS LINK & ALERTA DE EARNINGS AO LADO DA WATCHLIST -->
+          ${(() => {
+            const bdr = tickerData.bdrInfo || tickerData.tickerInfo?.bdrInfo;
+            if (!bdr || !bdr.isBdr) return '';
+
+            const underlying = bdr.underlyingSymbol;
+            const stockUrl = bdr.stockChartsUrl;
+            const earnings = bdr.earnings;
+            const hasAlert = Boolean(earnings && earnings.isWithinWindow);
+
+            let html = '';
+
+            // 1. Botão StockCharts (somente se houver mapeamento confiável do ativo internacional)
+            if (stockUrl && underlying) {
+              html += `
+                <a href="${escapeHtml(stockUrl)}" target="_blank" rel="noopener noreferrer" class="btn-hero-stockcharts" title="Abrir gráfico original de ${escapeHtml(underlying)} (${escapeHtml(bdr.exchange || 'EUA')}) no StockCharts (nova aba)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                  <span>StockCharts (${escapeHtml(underlying)})</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.75;">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+              `;
+            }
+
+            // 2. Alerta de Earnings Próximos (ao lado do botão StockCharts)
+            if (hasAlert) {
+              const daysText = earnings.daysRemaining === 0 ? 'HOJE' : (earnings.daysRemaining === 1 ? 'em 1 dia' : `em ${earnings.daysRemaining} dias`);
+              const dateStr = earnings.dateFormatted || earnings.date;
+              const estimatedLabel = earnings.isEstimated ? ' · Data Estimada*' : ' · Data Confirmada';
+              const timingText = earnings.timeOfDay ? ` · ${earnings.timeOfDay}` : '';
+              const tooltipText = `Divulgação de resultados (Earnings) prevista para ${dateStr}${estimatedLabel}${timingText}. Risco elevado de volatilidade e abertura em gap. Cuidado ao operar este ativo.`;
+
+              html += `
+                <div class="hero-bdr-earnings-alert" title="${escapeHtml(tooltipText)}">
+                  <span class="earnings-alert-icon" aria-hidden="true">⚠️</span>
+                  <div class="earnings-alert-body">
+                    <span class="earnings-alert-pill">Earnings ${daysText} (${escapeHtml(dateStr)}${earnings.isEstimated ? ' · Est.*' : ''})</span>
+                    <span class="earnings-alert-text">Earnings próximo de acontecer — cuidado ao operar este ativo.</span>
+                  </div>
+                </div>
+              `;
+            }
+
+            return html;
+          })()}
         </div>
       </div>
 
@@ -1352,7 +1423,7 @@
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
                         <span class="indicator-color-dot" style="background: #f59e0b;"></span>
-                        <span>SMA 7 (Média Móvel Simples · Alvo IFR 2)</span>
+                        <span>SMA 7</span>
                       </div>
                       <input type="checkbox" id="chkIndSma7" ${indicatorPrefs.sma7 ? 'checked' : ''} />
                     </label>
@@ -2375,6 +2446,22 @@
     const container = document.getElementById('lightweightChartContainer');
     if (!container || !window.LightweightCharts) return;
 
+    if (window.__pendingChartIndicatorIfr2) {
+      indicatorPrefs.ifr2 = true;
+      saveIndicatorPrefs(indicatorPrefs);
+      window.__pendingChartIndicatorIfr2 = false;
+      const chk = document.getElementById('chkIndIfr2');
+      if (chk) chk.checked = true;
+    }
+
+    if (window.__pendingChartIndicatorSma7) {
+      indicatorPrefs.sma7 = true;
+      saveIndicatorPrefs(indicatorPrefs);
+      window.__pendingChartIndicatorSma7 = false;
+      const chk = document.getElementById('chkIndSma7');
+      if (chk) chk.checked = true;
+    }
+
     if (chartInstance) {
       try { chartInstance.remove(); } catch {}
       chartInstance = null;
@@ -2386,6 +2473,7 @@
     ema72Series = null;
     ema9Series = null;
     ema30Series = null;
+    sma7Series = null;
     volumeSeries = null;
     candleSeries = null;
     lineSeries = null;
@@ -2467,8 +2555,17 @@
     ema30Series = ema72Series;
 
     // SMA 7 Line (Média Móvel Simples - Default para Volatility Trading)
-    if (indicatorPrefs.sma7) {
-      ensureSma7Series();
+    sma7Series = chartInstance.addLineSeries({
+      color: '#f59e0b',
+      lineWidth: 2,
+      title: 'SMA 7',
+      visible: !!indicatorPrefs.sma7
+    });
+    const smaData = (data.indicators?.sma7 && data.indicators.sma7.length)
+      ? data.indicators.sma7
+      : calculateSmaSeriesFromCloses(data.ohlc, 7);
+    if (smaData && smaData.length) {
+      sma7Series.setData(smaData);
     }
 
     // EMA 21 Line (se ativada pelo usuário)
@@ -2513,14 +2610,6 @@
 
     // Aplica configurações visuais (grade suave/oculta, escala logarítmica)
     applyChartSettings();
-
-    if (window.__pendingChartIndicatorIfr2) {
-      indicatorPrefs.ifr2 = true;
-      saveIndicatorPrefs(indicatorPrefs);
-      window.__pendingChartIndicatorIfr2 = false;
-      const chk = document.getElementById('chkIndIfr2');
-      if (chk) chk.checked = true;
-    }
 
     if (indicatorPrefs.ifr2) {
       initIfr2Oscillator(data);
@@ -2842,6 +2931,14 @@
 
     if (chkE10) chkE10.onchange = () => { indicatorPrefs.ema10 = chkE10.checked; indicatorPrefs.ema9 = chkE10.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE72) chkE72.onchange = () => { indicatorPrefs.ema72 = chkE72.checked; indicatorPrefs.ema30 = chkE72.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    const chkSma7 = document.getElementById('chkIndSma7');
+    if (chkSma7) {
+      chkSma7.onchange = () => {
+        indicatorPrefs.sma7 = chkSma7.checked;
+        saveIndicatorPrefs(indicatorPrefs);
+        applyIndicatorVisibility();
+      };
+    }
     if (chkE21) chkE21.onchange = () => { indicatorPrefs.ema21 = chkE21.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE50) chkE50.onchange = () => { indicatorPrefs.ema50 = chkE50.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE200) chkE200.onchange = () => { indicatorPrefs.ema200 = chkE200.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };

@@ -11,6 +11,7 @@ const TickerChartModel = require('../../frontend/ticker-chart-model');
 const FundamentalScore = require('../../frontend/fundamental-score');
 const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
 const VolatilityTradingEngineModel = require('../../frontend/volatility-trading-engine-model');
+const bdrInternational = require('./bdr-international');
 
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 const NASDAQ_PRICES_FILE = path.join(__dirname, '..', 'data', 'nasdaq-daily-prices.json');
@@ -700,6 +701,10 @@ async function getTickerChartData(rawSymbol) {
     { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation }
   ];
 
+  const bdrInfo = await bdrInternational.getBdrIntegrationData(symbol, {
+    referenceDate: latestCandle?.time || new Date().toISOString().slice(0, 10)
+  });
+
   return {
     tickerInfo: {
       symbol,
@@ -718,7 +723,10 @@ async function getTickerChartData(rawSymbol) {
       marketCapFormatted,
       volumeAvg21,
       volumeAvg21Formatted,
-      assetClass: normalizeAssetClassLabel(assetClass)
+      assetClass: normalizeAssetClassLabel(assetClass),
+      isBdr: Boolean(bdrInfo && bdrInfo.isBdr),
+      originalSymbol: bdrInfo?.underlyingSymbol || null,
+      bdrInfo: bdrInfo || null
     },
     ohlc: candles,
     indicators: {
@@ -822,7 +830,8 @@ async function getTickerChartData(rawSymbol) {
       emasAligned: ema10AboveEma72,
       nearAllTimeHigh: true,
       isSectorLeader: rsScore >= 85
-    }
+    },
+    bdrInfo: bdrInfo || null
   };
 }
 

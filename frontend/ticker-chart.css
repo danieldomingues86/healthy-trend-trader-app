@@ -510,6 +510,7 @@ body:has(#charts.page.active) #marketFocusGuard {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .btn-watchlist-toggle {
@@ -3822,3 +3823,134 @@ body[data-theme="gold"] .oscillator-tag {
   background: rgba(16, 185, 129, 0.2);
   color: #34d399;
 }
+
+/* =========================================================================
+   BDR INTERNATIONAL LINK (STOCKCHARTS) & EARNINGS ALERT
+   ========================================================================= */
+
+.btn-hero-stockcharts,
+.chart-stockcharts-btn {
+  text-decoration: none;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  font-weight: 600;
+  font-size: 12.5px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.btn-hero-stockcharts:hover,
+.chart-stockcharts-btn:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.12);
+}
+
+.hero-bdr-earnings-alert,
+.chart-bdr-earnings-alert {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 5px 12px;
+  color: #92400e;
+  font-size: 11px;
+  line-height: 1.25;
+  cursor: help;
+  user-select: none;
+  animation: earningsAlertGlow 3s ease-in-out infinite;
+}
+
+@keyframes earningsAlertGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    border-color: #fde68a;
+  }
+  50% {
+    box-shadow: 0 0 6px 1px rgba(245, 158, 11, 0.25);
+    border-color: #f59e0b;
+  }
+}
+
+.earnings-alert-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.earnings-alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.earnings-alert-pill {
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #b45309;
+}
+
+.earnings-alert-text {
+  font-weight: 600;
+  color: #78350f;
+}
+
+/* Responsividade em telas menores */
+@media (max-width: 1150px) {
+  .earnings-alert-text {
+    display: none;
+  }
+  .earnings-alert-pill {
+    font-size: 11px;
+  }
+}
+
+/* Gold Theme Overrides */
+[data-theme="gold"] .btn-hero-stockcharts,
+body[data-theme="gold"] .btn-hero-stockcharts,
+[data-theme="gold"] .chart-stockcharts-btn,
+body[data-theme="gold"] .chart-stockcharts-btn {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+[data-theme="gold"] .btn-hero-stockcharts:hover,
+body[data-theme="gold"] .btn-hero-stockcharts:hover,
+[data-theme="gold"] .chart-stockcharts-btn:hover,
+body[data-theme="gold"] .chart-stockcharts-btn:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #34d399;
+  color: #ffffff;
+}
+
+[data-theme="gold"] .hero-bdr-earnings-alert,
+body[data-theme="gold"] .hero-bdr-earnings-alert,
+[data-theme="gold"] .chart-bdr-earnings-alert,
+body[data-theme="gold"] .chart-bdr-earnings-alert {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fde68a;
+}
+
+[data-theme="gold"] .earnings-alert-pill,
+body[data-theme="gold"] .earnings-alert-pill {
+  color: #fbbf24;
+}
+
+[data-theme="gold"] .earnings-alert-text,
+body[data-theme="gold"] .earnings-alert-text {
+  color: #fef3c7;
+}
+

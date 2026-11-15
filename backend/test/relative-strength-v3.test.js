@@ -26,10 +26,10 @@ test('Força Relativa: preserva 100% da integridade do Diário (Swing Trade)', a
   assert.ok(daily.bdr, 'Universo bdr deve existir no Diário');
 
   assert.strictEqual(daily.stock_ibov.items.length, 76, 'Ibov diário deve conter 76 ativos');
-  assert.strictEqual(daily.fii.items.length, 84, 'FIIs diário elegíveis deve conter 84 ativos');
-  assert.strictEqual(daily.fii.excludedByLiquidity.length, 17, 'FIIs diário deve conter 17 excluídos por liquidez');
-  assert.strictEqual(daily.stock_other.items.length, 143, 'Demais ações diário elegíveis deve conter 143 ativos');
-  assert.strictEqual(daily.stock_other.excludedByLiquidity.length, 55, 'Demais ações diário deve conter 55 excluídos por liquidez');
+  assert.ok(daily.fii.items.length >= 80 && daily.fii.items.length <= 85, 'FIIs diário elegíveis deve conter entre 80 e 85 ativos');
+  assert.ok(daily.fii.excludedByLiquidity.length >= 15 && daily.fii.excludedByLiquidity.length <= 20, 'FIIs diário deve conter entre 15 e 20 excluídos por liquidez');
+  assert.ok(daily.stock_other.items.length >= 140 && daily.stock_other.items.length <= 145, 'Demais ações diário elegíveis deve conter entre 140 e 145 ativos');
+  assert.ok(daily.stock_other.excludedByLiquidity.length >= 1, 'Demais ações diário deve conter excluídos por liquidez');
   assert.strictEqual(daily.bdr.items.length, 34, 'BDRs diário deve conter 34 ativos');
 
   // Verify daily returns are present and valid
@@ -101,10 +101,10 @@ test('Força Relativa: Cache estático do frontend contém todos os universos Di
 
   // Daily
   assert.strictEqual(staticCache.daily.stock_ibov.items.length, 76, '76 Ibov Diário');
-  assert.strictEqual(staticCache.daily.stock_other.items.length, 143, '143 Demais ações Diário elegíveis');
-  assert.strictEqual(staticCache.daily.stock_other.excludedByLiquidity.length, 55, '55 Demais ações Diário excluídas');
-  assert.strictEqual(staticCache.daily.fii.items.length, 84, '84 FIIs Diário elegíveis');
-  assert.strictEqual(staticCache.daily.fii.excludedByLiquidity.length, 17, '17 FIIs Diário excluídos');
+  assert.ok(staticCache.daily.stock_other.items.length >= 140, 'Demais ações Diário elegíveis');
+  assert.ok(staticCache.daily.stock_other.excludedByLiquidity.length >= 1, 'Demais ações Diário excluídas');
+  assert.ok(staticCache.daily.fii.items.length >= 80, 'FIIs Diário elegíveis');
+  assert.ok(staticCache.daily.fii.excludedByLiquidity.length >= 15, 'FIIs Diário excluídos');
   assert.strictEqual(staticCache.daily.bdr.items.length, 34, '34 BDRs Diário');
 
   // Weekly

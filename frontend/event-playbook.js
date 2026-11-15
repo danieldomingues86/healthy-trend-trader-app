@@ -543,26 +543,32 @@
     modalWizardState.eventToEdit = eventToEdit;
 
     const ev = eventToEdit || {};
+    const dateVal = ev.date || ev.eventDate || ev.event_date || new Date().toISOString().slice(0, 10);
+    const timeVal = ev.time || ev.eventTime || ev.event_time || '10:00';
+    const impactVal = Model?.normalizeImpact ? Model.normalizeImpact(ev.impact || ev.impactLevel || ev.impact_level || 5) : (Number(ev.impact) || 5);
+
     modalWizardState.formData = {
       id: ev.id || null,
-      name: ev.name || '',
+      name: ev.name || ev.title || '',
       category: ev.category || 'Política',
-      date: ev.date || ev.eventDate || new Date().toISOString().slice(0, 10),
-      time: ev.time || ev.eventTime || '10:00',
+      date: dateVal,
+      eventDate: dateVal,
+      time: timeVal,
+      eventTime: timeVal,
       country: ev.country || 'Brasil',
-      impact: Number(ev.impact) || 5,
-      affectedAssets: ev.affectedAssets || ev.relatedAssets || 'IBOV, Dólar',
-      whatHappened: ev.whatHappened || ev.description || '',
-      tradingImplications: ev.tradingImplications || '',
-      marketImpactHeadline: ev.marketImpactHeadline || 'Volatilidade elevada',
-      marketImpactSummary: ev.marketImpactSummary || ev.marketReaction || '',
-      initialDirection: ev.initialDirection || 'Alta',
+      impact: impactVal,
+      affectedAssets: ev.affectedAssets || ev.relatedAssets || ev.affected_assets || 'IBOV, Dólar',
+      whatHappened: ev.whatHappened || ev.description || ev.what_happened || '',
+      tradingImplications: ev.tradingImplications || ev.trading_implications || '',
+      marketImpactHeadline: ev.marketImpactHeadline || ev.market_impact_headline || (impactVal >= 5 ? 'Volatilidade elevada' : 'Reação pontual'),
+      marketImpactSummary: ev.marketImpactSummary || ev.marketReaction || ev.market_impact_summary || '',
+      initialDirection: ev.initialDirection || ev.initial_direction || 'Alta',
       gap: ev.gap || '+2.4%',
       volume: ev.volume || '2.8x média',
       atr: ev.atr || '2.6x (Diário)',
-      impactDuration: ev.impactDuration || 'Semanas',
-      lessonsLearned: ev.lessonsLearned || '',
-      coverImage: ev.coverImage || ''
+      impactDuration: ev.impactDuration || ev.impact_duration || 'Semanas',
+      lessonsLearned: ev.lessonsLearned || ev.lessons_learned || '',
+      coverImage: ev.coverImage || ev.cover_image || ''
     };
 
     renderModalWizard(isEditing);
@@ -754,49 +760,56 @@
         </div>
       </div>
     `;
+    modalEl.querySelectorAll('input, select, textarea').forEach(el => {
+      el.addEventListener('input', saveStepInputs);
+      el.addEventListener('change', saveStepInputs);
+    });
   }
 
   function saveStepInputs() {
-    const cur = modalWizardState.currentStep;
     const d = modalWizardState.formData;
 
-    if (cur === 1) {
-      const nameInput = document.getElementById('wizName');
-      const dateInput = document.getElementById('wizDate');
-      const timeInput = document.getElementById('wizTime');
-      const countryInput = document.getElementById('wizCountry');
-      const assetsInput = document.getElementById('wizAssets');
+    const nameInput = document.getElementById('wizName');
+    const dateInput = document.getElementById('wizDate');
+    const timeInput = document.getElementById('wizTime');
+    const countryInput = document.getElementById('wizCountry');
+    const assetsInput = document.getElementById('wizAssets');
 
-      if (nameInput) d.name = nameInput.value.trim();
-      if (dateInput) d.date = dateInput.value;
-      if (timeInput) d.time = timeInput.value;
-      if (countryInput) d.country = countryInput.value.trim();
-      if (assetsInput) d.affectedAssets = assetsInput.value.trim();
-    } else if (cur === 2) {
-      const what = document.getElementById('wizWhatHappened');
-      const imp = document.getElementById('wizTradingImplications');
-      const hl = document.getElementById('wizImpactHeadline');
-      const sm = document.getElementById('wizImpactSummary');
-
-      if (what) d.whatHappened = what.value.trim();
-      if (imp) d.tradingImplications = imp.value.trim();
-      if (hl) d.marketImpactHeadline = hl.value.trim();
-      if (sm) d.marketImpactSummary = sm.value.trim();
-    } else if (cur === 3) {
-      const dir = document.getElementById('wizDirection');
-      const gap = document.getElementById('wizGap');
-      const vol = document.getElementById('wizVolume');
-      const atr = document.getElementById('wizAtr');
-      const dur = document.getElementById('wizDuration');
-      const les = document.getElementById('wizLessons');
-
-      if (dir) d.initialDirection = dir.value;
-      if (gap) d.gap = gap.value.trim();
-      if (vol) d.volume = vol.value.trim();
-      if (atr) d.atr = atr.value.trim();
-      if (dur) d.impactDuration = dur.value.trim();
-      if (les) d.lessonsLearned = les.value.trim();
+    if (nameInput) d.name = nameInput.value.trim();
+    if (dateInput) {
+      d.date = dateInput.value;
+      d.eventDate = dateInput.value;
     }
+    if (timeInput) {
+      d.time = timeInput.value;
+      d.eventTime = timeInput.value;
+    }
+    if (countryInput) d.country = countryInput.value.trim();
+    if (assetsInput) d.affectedAssets = assetsInput.value.trim();
+
+    const what = document.getElementById('wizWhatHappened');
+    const imp = document.getElementById('wizTradingImplications');
+    const hl = document.getElementById('wizImpactHeadline');
+    const sm = document.getElementById('wizImpactSummary');
+
+    if (what) d.whatHappened = what.value.trim();
+    if (imp) d.tradingImplications = imp.value.trim();
+    if (hl) d.marketImpactHeadline = hl.value.trim();
+    if (sm) d.marketImpactSummary = sm.value.trim();
+
+    const dir = document.getElementById('wizDirection');
+    const gap = document.getElementById('wizGap');
+    const vol = document.getElementById('wizVolume');
+    const atr = document.getElementById('wizAtr');
+    const dur = document.getElementById('wizDuration');
+    const les = document.getElementById('wizLessons');
+
+    if (dir) d.initialDirection = dir.value;
+    if (gap) d.gap = gap.value.trim();
+    if (vol) d.volume = vol.value.trim();
+    if (atr) d.atr = atr.value.trim();
+    if (dur) d.impactDuration = dur.value.trim();
+    if (les) d.lessonsLearned = les.value.trim();
   }
 
   function goToStep(stepNum) {
@@ -822,11 +835,13 @@
   }
 
   function setModalCategory(cat) {
+    saveStepInputs();
     modalWizardState.formData.category = cat;
     renderModalWizard(Boolean(modalWizardState.eventToEdit));
   }
 
   function setModalImpact(impactNum) {
+    saveStepInputs();
     modalWizardState.formData.impact = impactNum;
     renderModalWizard(Boolean(modalWizardState.eventToEdit));
   }
@@ -840,31 +855,55 @@
     }
 
     try {
+      const isEditing = Boolean(modalWizardState.eventToEdit && modalWizardState.eventToEdit.id);
       let saved;
-      if (modalWizardState.eventToEdit && modalWizardState.eventToEdit.id) {
+      if (isEditing) {
         saved = Model.updateEvent(modalWizardState.eventToEdit.id, d);
       } else {
         saved = Model.addEvent(d);
       }
 
-      // Fecha modal
+      // Fecha modal imediatamente
       const modalEl = document.getElementById('epSteppedModalContainer');
       if (modalEl) modalEl.remove();
 
+      // Atualização otimista e imediata do estado da UI (sem esperar rede!)
       state.selectedEventId = saved.id;
-      loadData().then(render);
+      const allEvents = Model.getAllEvents();
+      state.events = Model.filterEvents(allEvents, state.filters);
+      if (!state.events.some(e => e.id === saved.id)) {
+        state.selectedCategory = 'Todos';
+        state.filters.category = 'Todos';
+        state.filters.search = '';
+        state.filters.impact = '';
+        state.filters.period = '';
+        state.events = Model.filterEvents(allEvents, state.filters);
+      }
+      state.selectedEventId = saved.id;
+      render();
 
-      // Dispara alarme ou e-mail se impacto for extremo (Nível 5 ou Black Swan)
-      if (Number(saved.impact) >= 5 || saved.category === 'Black Swan') {
-        if (typeof window !== 'undefined') {
-          if (window.StormAlert && typeof window.StormAlert.refresh === 'function') {
-            window.StormAlert.refresh();
-          }
-          if (window.TodayCockpit && typeof window.TodayCockpit.render === 'function') {
-            window.TodayCockpit.render();
-          }
+      // Dispara alarme patrimonial e atualiza o Dashboard se for evento extremo
+      const isExtreme = Number(saved.impact) >= 5 ||
+        String(saved.impactLevel || '').toUpperCase() === 'EXTREMO' ||
+        String(saved.category || '').toUpperCase() === 'BLACK SWAN';
+
+      if (typeof window !== 'undefined') {
+        if (window.StormAlert && typeof window.StormAlert.refresh === 'function') {
+          window.StormAlert.refresh();
+        }
+        if (window.TodayCockpit && typeof window.TodayCockpit.render === 'function') {
+          window.TodayCockpit.render();
+        }
+        if (typeof window.showToast === 'function') {
+          window.showToast(isEditing ? 'Evento atualizado com sucesso!' : 'Evento criado com sucesso!', 'success');
         }
       }
+
+      // Sincroniza em background de forma suave e não-destrutiva
+      loadData().then(() => {
+        if (saved && saved.id) state.selectedEventId = saved.id;
+        render();
+      }).catch(() => {});
     } catch (err) {
       alert(`Erro ao salvar evento: ${err.message}`);
     }
@@ -884,10 +923,28 @@
     Model.deleteEvent(id);
     if (state.selectedEventId === id) state.selectedEventId = null;
 
-    if (typeof window !== 'undefined' && window.StormAlert && typeof window.StormAlert.refresh === 'function') {
-      window.StormAlert.refresh();
+    const allEvents = Model.getAllEvents();
+    state.events = Model.filterEvents(allEvents, state.filters);
+    if (state.events.length > 0) {
+      state.selectedEventId = state.events[0].id;
+    } else {
+      state.selectedEventId = null;
     }
-    loadData().then(render);
+    render();
+
+    if (typeof window !== 'undefined') {
+      if (window.StormAlert && typeof window.StormAlert.refresh === 'function') {
+        window.StormAlert.refresh();
+      }
+      if (window.TodayCockpit && typeof window.TodayCockpit.render === 'function') {
+        window.TodayCockpit.render();
+      }
+      if (typeof window.showToast === 'function') {
+        window.showToast('Evento excluído com sucesso.', 'info');
+      }
+    }
+
+    loadData().then(render).catch(() => {});
   }
 
   /* EVIDENCE MODAL & LIGHTBOX */
@@ -1025,7 +1082,17 @@
 
   // Public Interface
   const api = {
-    render: () => loadData().then(render),
+    render: () => {
+      if (Model && typeof Model.getAllEvents === 'function') {
+        const localEvents = Model.getAllEvents();
+        state.events = Model.filterEvents(localEvents, state.filters);
+        if (state.events.length > 0 && (!state.selectedEventId || !state.events.some(e => e.id === state.selectedEventId))) {
+          state.selectedEventId = state.events[0].id;
+        }
+        render();
+      }
+      return loadData().then(render).catch(() => {});
+    },
     selectEvent,
     setCategory,
     applyFilters,

@@ -154,3 +154,18 @@ test('ticker-chart: avaliação de fundamentos reflete FundamentalScore oficial 
   assert.equal(petrFundCriteria.obs, 'Forte');
 });
 
+test('ticker-chart: expõe bdrInfo para BDRs (StockCharts + Earnings) e mantém nulo para ações nacionais', async () => {
+  const nvdc = await tickerChart.getTickerChartData('NVDC34');
+  assert.equal(nvdc.tickerInfo.symbol, 'NVDC34');
+  assert.equal(nvdc.tickerInfo.isBdr, true);
+  assert.equal(nvdc.tickerInfo.originalSymbol, 'NVDA');
+  assert.ok(nvdc.bdrInfo);
+  assert.equal(nvdc.bdrInfo.underlyingSymbol, 'NVDA');
+  assert.equal(nvdc.bdrInfo.stockChartsUrl, 'https://stockcharts.com/acp/?s=NVDA');
+
+  const petr = await tickerChart.getTickerChartData('PETR4');
+  assert.equal(petr.tickerInfo.isBdr, false);
+  assert.equal(petr.tickerInfo.originalSymbol, null);
+  assert.equal(petr.bdrInfo, null);
+});
+

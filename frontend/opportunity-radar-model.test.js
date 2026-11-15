@@ -54,6 +54,21 @@ test('OpportunityRadarModel.resolveMarketCategory classifica corretamente em IBO
     OpportunityRadarModel.resolveMarketCategory({ symbol: 'NVDC34', sector: 'Tecnologia' }),
     'BDRs'
   );
+
+  // FIIs e Fiagros terminados em 11 (mesmo sem assetClass explícito ou com market legado incorreto) devem ser IFIX
+  const fiis = ['HCTR11', 'RBRF11', 'XBCI11', 'VCRA11', 'RURA11', 'XPCA11', 'TRXF11', 'TEPP11', 'QBTC11'];
+  for (const sym of fiis) {
+    assert.equal(OpportunityRadarModel.resolveMarketCategory({ symbol: sym }), 'IFIX', `${sym} deve ser IFIX`);
+    assert.equal(OpportunityRadarModel.resolveMarketCategory({ symbol: sym, market: 'IBOV' }), 'IFIX', `${sym} mesmo com market=IBOV corrompido deve ser IFIX`);
+    assert.equal(OpportunityRadarModel.resolveMarketCategory(sym), 'IFIX', `String ${sym} deve ser IFIX`);
+  }
+
+  // Units de Ações da B3 terminadas em 11 devem ser IBOV (Ações)
+  const stockUnits = ['BPAC11', 'KLBN11', 'TAEE11', 'SANB11', 'ALUP11', 'CPLE11', 'ENGI11', 'SAPR11', 'BRBI11'];
+  for (const sym of stockUnits) {
+    assert.equal(OpportunityRadarModel.resolveMarketCategory({ symbol: sym }), 'IBOV', `Unit ${sym} deve ser IBOV`);
+    assert.equal(OpportunityRadarModel.resolveMarketCategory(sym), 'IBOV', `String unit ${sym} deve ser IBOV`);
+  }
 });
 
 test('OpportunityRadarModel.evaluateAssetReadiness aprova apenas ativo que cumpre todos os critérios e tem gatilho confirmado', () => {

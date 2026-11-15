@@ -134,6 +134,9 @@ function adjustHistoricalSeries(history, symbol) {
 
     return {
       ...item,
+      open: Number.isFinite(item.open) ? Number((item.open * factor).toFixed(4)) : item.open,
+      high: Number.isFinite(item.high) ? Number((item.high * factor).toFixed(4)) : item.high,
+      low: Number.isFinite(item.low) ? Number((item.low * factor).toFixed(4)) : item.low,
       close: Number((item.close * factor).toFixed(4)),
       adjustedClose: Number(((item.adjustedClose ?? item.close) * factor).toFixed(4))
     };

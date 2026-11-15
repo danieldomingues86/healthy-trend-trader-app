@@ -646,9 +646,32 @@ async function update(userId, id, data, persistence = database) {
   if (!id) throw invalid('Identificador do evento é obrigatório.');
 
   if (!persistence.configured()) {
-    const existing = DEFAULT_SEEDS.find(e => e.id === id);
-    if (!existing) throw invalid('Evento não encontrado.', 404);
-    Object.assign(existing, data, { updatedAt: new Date().toISOString() });
+    let existing = DEFAULT_SEEDS.find(e => e.id === id);
+    if (!existing) {
+      existing = {
+        id,
+        userId,
+        name: data.name || 'Evento de Mercado',
+        eventDate: data.date || data.eventDate || new Date().toISOString().slice(0, 10),
+        eventTime: data.time || data.eventTime || '10:00',
+        timezone: data.timezone || 'America/Sao_Paulo',
+        category: data.category || 'Macro',
+        impact: normalizeImpact(data.impact),
+        impactLevel: data.impactLevel || impactToLevel(normalizeImpact(data.impact)),
+        country: data.country || 'Brasil',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        ...data
+      };
+      DEFAULT_SEEDS.unshift(existing);
+    } else {
+      Object.assign(existing, data, {
+        eventDate: data.date || data.eventDate || existing.eventDate,
+        eventTime: data.time || data.eventTime || existing.eventTime,
+        impact: data.impact !== undefined ? normalizeImpact(data.impact) : existing.impact,
+        updatedAt: new Date().toISOString()
+      });
+    }
     return existing;
   }
 

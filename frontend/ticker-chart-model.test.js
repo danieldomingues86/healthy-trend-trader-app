@@ -435,4 +435,41 @@ test('TickerChartModel: fins de semana liberam o gráfico para estudos sem modal
   assert.equal(approved.trendAudit.isValid, true);
 });
 
+test('TickerChartModel: suporte a BDRs, StockCharts link e janela de earnings', () => {
+  assert.equal(TickerChartModel.isBdr('NVDC34'), true);
+  assert.equal(TickerChartModel.isBdr('AAPL34'), true);
+  assert.equal(TickerChartModel.isBdr('PETR4'), false);
+  assert.equal(TickerChartModel.isBdr('VALE3'), false);
+
+  assert.equal(TickerChartModel.getStockChartsUrl('NVDA'), 'https://stockcharts.com/acp/?s=NVDA');
+  assert.equal(TickerChartModel.getStockChartsUrl(null), null);
+
+  const ref = '2026-11-13';
+  // Evento em 4 dias
+  const win4 = TickerChartModel.evaluateEarningsWindow('2026-11-17', ref);
+  assert.equal(win4.isWithinWindow, true);
+  assert.equal(win4.daysRemaining, 4);
+
+  // Evento em 10 dias (limite)
+  const win10 = TickerChartModel.evaluateEarningsWindow('2026-11-23', ref);
+  assert.equal(win10.isWithinWindow, true);
+  assert.equal(win10.daysRemaining, 10);
+
+  // Evento em 11 dias (fora)
+  const win11 = TickerChartModel.evaluateEarningsWindow('2026-11-24', ref);
+  assert.equal(win11.isWithinWindow, false);
+
+  // Alerta formatado
+  const alert = TickerChartModel.formatEarningsAlert({
+    isWithinWindow: true,
+    daysRemaining: 4,
+    dateFormatted: '17/11/2026',
+    isEstimated: true
+  });
+  assert.ok(alert);
+  assert.equal(alert.messageText, 'Earnings próximo de acontecer — cuidado ao operar este ativo.');
+  assert.ok(alert.badgeText.includes('em 4 dias'));
+  assert.ok(alert.badgeText.includes('Estimada*'));
+});
+
 
