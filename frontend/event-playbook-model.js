@@ -515,6 +515,7 @@
   }
 
   async function fetchEvents(filters = {}) {
+    const localEvents = getAllEvents();
     if (typeof window !== 'undefined' && window.healthyTrendApi && typeof window.healthyTrendApi.request === 'function') {
       try {
         const query = new URLSearchParams();
@@ -526,13 +527,32 @@
         const res = await window.healthyTrendApi.request(`/api/event-playbook${qs}`);
         if (res && Array.isArray(res.items)) {
           const remoteNormalized = res.items.map(normalizeEvent);
-          saveAllEvents(remoteNormalized);
-          return filterEvents(remoteNormalized, filters);
+          const mergedMap = new Map();
+          remoteNormalized.forEach(e => mergedMap.set(e.id, e));
+          // Preserva itens locais se forem mais novos ou se não existirem no servidor
+          localEvents.forEach(e => {
+            const remoteItem = mergedMap.get(e.id);
+            if (!remoteItem) {
+              mergedMap.set(e.id, e);
+            } else {
+              const localUpdated = new Date(e.updatedAt || e.createdAt || 0).getTime();
+              const remoteUpdated = new Date(remoteItem.updatedAt || remoteItem.createdAt || 0).getTime();
+              if (localUpdated > remoteUpdated) {
+                mergedMap.set(e.id, e);
+              }
+            }
+          });
+          const mergedList = Array.from(mergedMap.values()).sort((a, b) => {
+            const dateA = a.date || a.eventDate || '';
+            const dateB = b.date || b.eventDate || '';
+            return dateB.localeCompare(dateA);
+          });
+          saveAllEvents(mergedList);
+          return filterEvents(mergedList, filters);
         }
       } catch (_) {}
     }
 
-    const localEvents = getAllEvents();
     return filterEvents(localEvents, filters);
   }
 

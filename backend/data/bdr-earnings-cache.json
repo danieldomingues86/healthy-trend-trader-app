@@ -1,0 +1,28 @@
+{
+  "MSTR": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "MSTR Earnings Date",
+      "announcement": "Earnings announcement* for MSTR: ",
+      "eQRResposeModel": {
+        "text": null,
+        "boldText": null,
+        "dataLinkUrl": null
+      }
+    },
+    "timestamp": 1794758587127
+  },
+  "COIN": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "COIN Earnings Date",
+      "announcement": "Earnings announcement* for COIN: ",
+      "eQRResposeModel": {
+        "text": null,
+        "boldText": null,
+        "dataLinkUrl": null
+      }
+    },
+    "timestamp": 1794758587208
+  }
+}

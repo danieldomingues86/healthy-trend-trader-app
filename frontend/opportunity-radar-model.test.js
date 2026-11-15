@@ -54,6 +54,21 @@ test('OpportunityRadarModel.resolveMarketCategory classifica corretamente em IBO
     OpportunityRadarModel.resolveMarketCategory({ symbol: 'NVDC34', sector: 'Tecnologia' }),
     'BDRs'
   );
+
+  // FIIs e Fiagros terminados em 11 (mesmo sem assetClass explícito ou com market legado incorreto) devem ser IFIX
+  const fiis = ['HCTR11', 'RBRF11', 'XBCI11', 'VCRA11', 'RURA11', 'XPCA11', 'TRXF11', 'TEPP11', 'QBTC11'];
+  for (const sym of fiis) {
+    assert.equal(OpportunityRadarModel.resolveMarketCategory({ symbol: sym }), 'IFIX', `${sym} deve ser IFIX`);
+    assert.equal(OpportunityRadarModel.resolveMarketCategory({ symbol: sym, market: 'IBOV' }), 'IFIX', `${sym} mesmo com market=IBOV corrompido deve ser IFIX`);
+    assert.equal(OpportunityRadarModel.resolveMarketCategory(sym), 'IFIX', `String ${sym} deve ser IFIX`);
+  }
+
+  // Units de Ações da B3 terminadas em 11 devem ser IBOV (Ações)
+  const stockUnits = ['BPAC11', 'KLBN11', 'TAEE11', 'SANB11', 'ALUP11', 'CPLE11', 'ENGI11', 'SAPR11', 'BRBI11'];
+  for (const sym of stockUnits) {
+    assert.equal(OpportunityRadarModel.resolveMarketCategory({ symbol: sym }), 'IBOV', `Unit ${sym} deve ser IBOV`);
+    assert.equal(OpportunityRadarModel.resolveMarketCategory(sym), 'IBOV', `String unit ${sym} deve ser IBOV`);
+  }
 });
 
 test('OpportunityRadarModel.evaluateAssetReadiness aprova apenas ativo que cumpre todos os critérios e tem gatilho confirmado', () => {
@@ -436,3 +451,58 @@ test('OpportunityRadarModel.resolveActiveMarketCycle reflete com fidelidade o ci
   assert.equal(fiiDefensive.score, 25);
 });
 
+
+
+test('OpportunityRadarModel.calculateVolatilityStatus classifica IFR2 corretamente', () => {
+  const oversold = OpportunityRadarModel.calculateVolatilityStatus(8.5, 10);
+  assert.equal(oversold.code, 'OVERSOLD');
+  assert.equal(oversold.status, 'SOBREVENDA');
+  assert.equal(oversold.distance, -1.5);
+  assert.equal(oversold.sortPriority, 1);
+
+  const exactOversold = OpportunityRadarModel.calculateVolatilityStatus(10.0, 10);
+  assert.equal(exactOversold.code, 'OVERSOLD');
+  assert.equal(exactOversold.distance, 0);
+
+  const near = OpportunityRadarModel.calculateVolatilityStatus(14.2, 10);
+  assert.equal(near.code, 'NEAR_OVERSOLD');
+  assert.equal(near.status, 'PRÓXIMO DA SOBREVENDA');
+  assert.equal(near.distance, 4.2);
+  assert.equal(near.sortPriority, 2);
+
+  const noOpp = OpportunityRadarModel.calculateVolatilityStatus(45.0, 10);
+  assert.equal(noOpp.code, 'NO_OPPORTUNITY');
+  assert.equal(noOpp.status, 'SEM OPORTUNIDADE');
+  assert.equal(noOpp.distance, 35.0);
+  assert.equal(noOpp.sortPriority, 3);
+});
+
+test('OpportunityRadarModel.filterVolatilityOpportunities filtra corretamente por Mercado, Condição e Busca', () => {
+  const items = [
+    { symbol: 'PETR4', name: 'Petrobras', market: 'IBOV', strategyType: 'VOLATILITY_TRADING', statusCode: 'OVERSOLD', status: 'SOBREVENDA', ifr2: 7.5, liquidity: { isEligible: true } },
+    { symbol: 'VALE3', name: 'Vale', market: 'IBOV', strategyType: 'VOLATILITY_TRADING', statusCode: 'NEAR_OVERSOLD', status: 'PRÓXIMO DA SOBREVENDA', ifr2: 14.0, liquidity: { isEligible: true } },
+    { symbol: 'HGLG11', name: 'CSHG Logística', market: 'IFIX', strategyType: 'VOLATILITY_TRADING', statusCode: 'OVERSOLD', status: 'SOBREVENDA', ifr2: 9.2, liquidity: { isEligible: true } },
+    { symbol: 'AAPL34', name: 'Apple BDR', market: 'BDRs', strategyType: 'VOLATILITY_TRADING', statusCode: 'NO_OPPORTUNITY', status: 'SEM OPORTUNIDADE', ifr2: 55.0, liquidity: { isEligible: true } },
+    { symbol: 'TOXIC3', name: 'Sem Liquidez', market: 'IBOV', strategyType: 'VOLATILITY_TRADING', statusCode: 'OVERSOLD', status: 'SOBREVENDA', ifr2: 5.0, liquidity: { isEligible: false } }
+  ];
+
+  // 1. Sem filtros (ALL) - exclui apenas ilíquido
+  const allRes = OpportunityRadarModel.filterVolatilityOpportunities(items, { market: 'ALL', volatilityStatus: 'ALL', search: '' });
+  assert.equal(allRes.length, 4);
+  assert.ok(!allRes.find(x => x.symbol === 'TOXIC3'), 'Ativo reprovado pelo Liquidity Gate deve ser excluído');
+
+  // 2. Filtro de Mercado (IFIX)
+  const ifixRes = OpportunityRadarModel.filterVolatilityOpportunities(items, { market: 'IFIX', volatilityStatus: 'ALL' });
+  assert.equal(ifixRes.length, 1);
+  assert.equal(ifixRes[0].symbol, 'HGLG11');
+
+  // 3. Filtro de Condição (SOBREVENDA)
+  const oversoldRes = OpportunityRadarModel.filterVolatilityOpportunities(items, { market: 'ALL', volatilityStatus: 'SOBREVENDA' });
+  assert.equal(oversoldRes.length, 2);
+  assert.deepEqual(oversoldRes.map(x => x.symbol), ['PETR4', 'HGLG11']);
+
+  // 4. Busca por Ticker ou Nome
+  const searchRes = OpportunityRadarModel.filterVolatilityOpportunities(items, { search: 'petr' });
+  assert.equal(searchRes.length, 1);
+  assert.equal(searchRes[0].symbol, 'PETR4');
+});

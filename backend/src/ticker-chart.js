@@ -10,6 +10,8 @@ const TradingRubrics = require('../../frontend/trading-rubrics');
 const TickerChartModel = require('../../frontend/ticker-chart-model');
 const FundamentalScore = require('../../frontend/fundamental-score');
 const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
+const VolatilityTradingEngineModel = require('../../frontend/volatility-trading-engine-model');
+const bdrInternational = require('./bdr-international');
 
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 const NASDAQ_PRICES_FILE = path.join(__dirname, '..', 'data', 'nasdaq-daily-prices.json');
@@ -362,11 +364,31 @@ async function getTickerChartData(rawSymbol) {
   const { latestAtr, latestAtrPct } = TickerChartModel.calculateAtr(candles, 21);
 
   // Formata séries para o Lightweight Charts
+  const ifr2Array = VolatilityTradingEngineModel.calculateRSI(closePrices, 2, 'WILDER');
+  const ifr2Series = [];
+  for (let i = 0; i < candles.length; i++) {
+    if (ifr2Array[i] !== null && Number.isFinite(ifr2Array[i])) {
+      ifr2Series.push({ time: candles[i].time, value: ifr2Array[i] });
+    }
+  }
+  const latestIfr2 = ifr2Array[ifr2Array.length - 1];
+
   const ema10Series = [];
   const ema72Series = [];
   for (let i = 0; i < candles.length; i++) {
     if (ema10Array[i] !== null) ema10Series.push({ time: candles[i].time, value: ema10Array[i] });
     if (ema72Array[i] !== null) ema72Series.push({ time: candles[i].time, value: ema72Array[i] });
+  }
+
+  // SMA 7 para Volatility Trading (Média Móvel Simples de 7 períodos)
+  const sma7Array = typeof TickerChartModel.calculateSma === 'function'
+    ? TickerChartModel.calculateSma(closePrices, 7)
+    : [];
+  const sma7Series = [];
+  for (let i = 0; i < candles.length; i++) {
+    if (sma7Array[i] !== null && Number.isFinite(sma7Array[i])) {
+      sma7Series.push({ time: candles[i].time, value: sma7Array[i] });
+    }
   }
 
   // Volume médio 21 dias
@@ -653,7 +675,14 @@ async function getTickerChartData(rawSymbol) {
 
   const liquidity = (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function')
     ? LiquidityGateModel.evaluateLiquidity({ candles, symbol })
-    : { isEligible: true, status: 'APROVADO', badge: { text: 'LIQUIDEZ APROVADA' } };
+    : {
+        isEligible: false,
+        status: 'DADOS_INDISPONIVEIS',
+        code: 'DATA_UNAVAILABLE',
+        reason: 'LiquidityGateModel não disponível para avaliação de liquidez.',
+        metrics: null,
+        badge: { text: 'BLOQUEADO POR LIQUIDEZ', shortText: 'Sem dados', class: 'badge-liquidity-blocked', color: '#b91c1c' }
+      };
 
   const finalGrade = chartRubricEval.finalGrade || 'B';
   const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
@@ -671,6 +700,10 @@ async function getTickerChartData(rawSymbol) {
     { name: 'Gatilho', status: triggerHasTrigger, obs: triggerHasTrigger ? `${trigger.name} (${finalGrade})` : (trigger.hasTrigger ? `${trigger.name} (Bloqueado — Ciclo Defensivo)` : 'Nenhum') },
     { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation }
   ];
+
+  const bdrInfo = await bdrInternational.getBdrIntegrationData(symbol, {
+    referenceDate: latestCandle?.time || new Date().toISOString().slice(0, 10)
+  });
 
   return {
     tickerInfo: {
@@ -690,7 +723,10 @@ async function getTickerChartData(rawSymbol) {
       marketCapFormatted,
       volumeAvg21,
       volumeAvg21Formatted,
-      assetClass: normalizeAssetClassLabel(assetClass)
+      assetClass: normalizeAssetClassLabel(assetClass),
+      isBdr: Boolean(bdrInfo && bdrInfo.isBdr),
+      originalSymbol: bdrInfo?.underlyingSymbol || null,
+      bdrInfo: bdrInfo || null
     },
     ohlc: candles,
     indicators: {
@@ -698,9 +734,12 @@ async function getTickerChartData(rawSymbol) {
       ema72: ema72Series,
       ema9: ema10Series,
       ema30: ema72Series,
+      sma7: sma7Series,
       atr21: atrVal,
       atrPct: atrPctVal,
-      volumeAvg21
+      volumeAvg21,
+      ifr2: ifr2Series,
+      currentIfr2: latestIfr2 != null ? Number(latestIfr2.toFixed(2)) : null
     },
     relativeStrength: {
       score: rsScore,
@@ -781,6 +820,7 @@ async function getTickerChartData(rawSymbol) {
       status: liquidity.status,
       badge: liquidity.badge,
       reason: liquidity.reason,
+      metrics: liquidity.metrics || null,
       gate: liquidity
     },
     context: {
@@ -790,7 +830,8 @@ async function getTickerChartData(rawSymbol) {
       emasAligned: ema10AboveEma72,
       nearAllTimeHigh: true,
       isSectorLeader: rsScore >= 85
-    }
+    },
+    bdrInfo: bdrInfo || null
   };
 }
 

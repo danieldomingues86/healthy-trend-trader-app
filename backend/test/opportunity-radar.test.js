@@ -87,3 +87,91 @@ test('getOpportunityRadarData expõe marketCycles canônico por mercado e reflet
   // ALL não pode ser defensivo se houver mercado saudável com oportunidades
   assert.equal(result.marketCycles.ALL.state, 'healthy');
 });
+
+
+test('getOpportunityRadarData suporta Volatility Trading (IFR 2) sem bloqueio por modo defesa', async () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const cacheFile = path.join(__dirname, '..', 'data', 'market-cache.json');
+  if (!fs.existsSync(cacheFile)) return;
+
+  const rawCache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+
+  // Força todos os mercados em ciclo defensivo para provar independência do ciclo de mercado
+  const defensiveCache = {
+    ...rawCache,
+    cycle: { state: 'defensive', score: 20 },
+    cycles: {
+      stock_b3: { cycle: { state: 'defensive', score: 20 } },
+      fii: { cycle: { state: 'defensive', score: 20 } },
+      bdr: { cycle: { state: 'defensive', score: 20 } }
+    }
+  };
+
+  const result = await getOpportunityRadarData(defensiveCache, { strategy: 'VOLATILITY_TRADING' });
+
+  assert.ok(result.volatilitySummary, 'volatilitySummary deve existir no payload');
+  assert.equal(result.volatilitySummary.oversoldLevel, 10, 'Nível padrão de sobrevenda deve ser 10');
+  assert.ok(typeof result.volatilitySummary.totalEvaluated === 'number');
+  assert.ok(result.volatilitySummary.totalEvaluated > 0, 'Deve avaliar o universo elegível');
+
+  assert.ok(Array.isArray(result.items), 'items deve ser array');
+  assert.ok(Array.isArray(result.volatilityItems), 'volatilityItems deve existir');
+  assert.ok(result.items.length > 0, 'Volatility Trading não deve ser bloqueado por ciclo de mercado defensivo');
+
+  for (const item of result.items) {
+    assert.equal(item.strategyType, 'VOLATILITY_TRADING');
+    assert.ok(typeof item.ifr2 === 'number', `Ativo ${item.symbol} deve possuir IFR(2) numérico`);
+    assert.equal(item.oversoldLevel, 10);
+    assert.ok(typeof item.distanceToOversold === 'number');
+    assert.equal(item.status, 'SOBREVENDA', 'Radar de Volatilidade deve listar apenas ativos em SOBREVENDA');
+    assert.equal(item.statusCode, 'OVERSOLD');
+    assert.ok(item.ifr2 <= 10, 'IFR2 deve ser <= 10');
+    assert.ok(item.liquidity && item.liquidity.isEligible, `Ativo ${item.symbol} deve ser elegível no Liquidity Gate`);
+  }
+
+  // Validação estrita de categorização de mercado para Volatility Trading
+  const stockUnits = new Set(['ALUP11', 'BIDI11', 'BPAC11', 'CPLE11', 'ENGI11', 'IGTI11', 'KLBN11', 'MODL11', 'RANI11', 'SANB11', 'SAPR11', 'SULA11', 'TAEE11', 'TIET11', 'BRBI11', 'ALLD11']);
+  for (const item of result.volatilityItems) {
+    const sym = item.symbol;
+    if (/(31|32|33|34|35|39)$/.test(sym)) {
+      assert.equal(item.market, 'BDRs', `BDR ${sym} deve ser classificada como BDRs`);
+    } else if (sym.endsWith('11') && !stockUnits.has(sym)) {
+      assert.equal(item.market, 'IFIX', `FII/Fiagro ${sym} deve ser classificado como IFIX e nunca IBOV`);
+      assert.equal(item.marketCategory, 'IFIX', `FII/Fiagro ${sym} deve ter marketCategory=IFIX`);
+    } else if (stockUnits.has(sym) || /(3|4|5|6|7|8)$/.test(sym)) {
+      assert.equal(item.market, 'IBOV', `Ação/Unit ${sym} deve ser classificada como IBOV`);
+    }
+  }
+});
+
+
+test('getOpportunityRadarData expõe metadados de BDR e alerta de earnings na janela de 0 a 10 dias corridos', async () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const cacheFile = path.join(__dirname, '..', 'data', 'market-cache.json');
+  if (!fs.existsSync(cacheFile)) return;
+
+  const rawCache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+  const result = await getOpportunityRadarData(rawCache, { strategy: 'ALL' });
+
+  // Procura por BDR conhecida com earnings próximos (ex: WALM34)
+  const walm = result.items.find(i => i.symbol === 'WALM34');
+  if (walm) {
+    assert.ok(walm.bdrInfo, 'WALM34 deve possuir bdrInfo');
+    assert.equal(walm.bdrInfo.isBdr, true);
+    assert.equal(walm.bdrInfo.underlyingSymbol, 'WMT');
+    assert.ok(walm.bdrInfo.stockChartsUrl.includes('stockcharts.com/acp/?s=WMT'));
+    assert.equal(walm.hasUpcomingEarnings, true, 'WALM34 deve ter hasUpcomingEarnings true');
+    assert.ok(walm.earnings, 'WALM34 deve possuir objeto earnings');
+    assert.equal(walm.earnings.isWithinWindow, true);
+    assert.ok(walm.earnings.daysRemaining >= 0 && walm.earnings.daysRemaining <= 10);
+    assert.ok(walm.earnings.dateFormatted);
+  }
+
+  // Garante isolamento: ações brasileiras não devem possuir hasUpcomingEarnings
+  const nonBdrs = result.items.filter(i => !/(31|32|33|34|35|39)$/.test(i.symbol));
+  for (const item of nonBdrs) {
+    assert.equal(item.hasUpcomingEarnings, undefined, 'Ação brasileira não deve ter alerta de earnings');
+  }
+});

@@ -711,6 +711,11 @@
       const sourceLabel = timeframe === 'weekly' ? 'Twelve Data (Semanal)' : (nasdaqCache?.source || 'Twelve Data');
       const dateLabel = nasdaqCache?.displayDate || formatDisplayDate(nasdaqCache?.baseDate || '2026-10-07');
 
+      const nasdaqItems = ranking.map((item, idx) => ({
+        ...item,
+        name: item.companyName || item.name || item.symbol,
+        globalRank: Number.isFinite(item.rank) && item.rank > 0 ? item.rank : (idx + 1)
+      }));
       return {
         market: 'nasdaq',
         universeKey: 'nasdaq_100',
@@ -718,11 +723,10 @@
         benchmarkLabel: 'QQQ',
         sourceLabel,
         dateLabel,
-        items: ranking.map((item, idx) => ({
-          ...item,
-          name: item.companyName || item.name || item.symbol,
-          globalRank: Number.isFinite(item.rank) && item.rank > 0 ? item.rank : (idx + 1)
-        }))
+        items: nasdaqItems,
+        excludedItems: [],
+        totalEligible: nasdaqItems.length,
+        totalExcluded: 0
       };
     }
 
@@ -771,11 +775,36 @@
       sourceLabel += ' · ' + text('Dados em Cache Offline', 'Offline Cached Data');
     }
 
-    // Normalização defensiva: assegura posições globais imutáveis 1..N e ordenação consistente por força relativa
+    // Normalização defensiva e aplicação obrigatória do Liquidity Gate:
+    // Separa os ativos elegíveis dos ativos excluídos pelo Liquidity Gate
     const rawItems = activeClass.items || [];
+    const rawExcluded = activeClass.excludedByLiquidity || [];
+
+    const eligibleRaw = [];
+    const excludedRaw = [...rawExcluded];
+    const seenExcluded = new Set(excludedRaw.map(it => it.symbol));
+
+    for (const it of rawItems) {
+      const isEligible = it.liquidity ? it.liquidity.isEligible : true;
+      if (isEligible === false) {
+        if (!seenExcluded.has(it.symbol)) {
+          seenExcluded.add(it.symbol);
+          excludedRaw.push({
+            ...it,
+            rank: null,
+            score: null,
+            globalRank: null,
+            trendTemplate: 'below_filter'
+          });
+        }
+      } else {
+        eligibleRaw.push(it);
+      }
+    }
+
     const hasDuplicateRanks = (() => {
       const seen = new Set();
-      for (const it of rawItems) {
+      for (const it of eligibleRaw) {
         if (it.rank != null) {
           if (seen.has(it.rank)) return true;
           seen.add(it.rank);
@@ -786,7 +815,7 @@
 
     let items;
     if (hasDuplicateRanks) {
-      items = [...rawItems].sort((a, b) => {
+      items = [...eligibleRaw].sort((a, b) => {
         const scoreDiff = (Number(b.score ?? b.rsScore ?? 0)) - (Number(a.score ?? a.rsScore ?? 0));
         if (scoreDiff !== 0) return scoreDiff;
         const m3Diff = (Number(b.m3 ?? 0)) - (Number(a.m3 ?? 0));
@@ -798,11 +827,18 @@
         globalRank: idx + 1
       }));
     } else {
-      items = rawItems.map((item, idx) => ({
+      items = eligibleRaw.map((item, idx) => ({
         ...item,
         globalRank: Number.isFinite(item.rank) && item.rank > 0 ? item.rank : (idx + 1)
       }));
     }
+
+    const excludedItems = excludedRaw.map(it => ({
+      ...it,
+      rank: null,
+      score: null,
+      globalRank: null
+    }));
 
     return {
       market: 'b3',
@@ -811,14 +847,50 @@
       benchmarkLabel: benchmarkLabels[key] || 'IBOV',
       sourceLabel,
       dateLabel,
-      items
+      items,
+      excludedItems,
+      totalEligible: items.length,
+      totalExcluded: excludedItems.length
     };
   }
 
-  function getFilteredAndPagedItems(allItems) {
+  function getFilteredAndPagedItems(allItems, excludedItems = []) {
     const query = (window.relativeStrengthSearchQuery || '').trim().toLowerCase();
     const groupFilter = (window.relativeStrengthSelectedGroup || '').trim();
+    const isExcludedMode = window.relativeStrengthViewMode === 'excluded';
 
+    if (isExcludedMode) {
+      let filtered = (excludedItems || []).filter(item => {
+        if (groupFilter) {
+          const itemSec = String(item.sector || '').trim();
+          const locSec = localizedSector(itemSec);
+          if (itemSec !== groupFilter && locSec !== groupFilter) return false;
+        }
+        if (query) {
+          const sym = String(item.symbol || '').toLowerCase();
+          const name = String(item.name || item.companyName || '').toLowerCase();
+          const sec = String(item.sector || '').toLowerCase();
+          const locSec = localizedSector(item.sector).toLowerCase();
+          if (!sym.includes(query) && !name.includes(query) && !sec.includes(query) && !locSec.includes(query)) {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      const pageSize = window.relativeStrengthPageSize;
+      if (pageSize === 'all' || !Number.isFinite(Number(pageSize))) {
+        return { filtered, paged: filtered, totalPages: 1, currentPage: 1, totalCount: filtered.length, matchedExcluded: [] };
+      }
+      const size = Number(pageSize);
+      const totalPages = Math.max(1, Math.ceil(filtered.length / size));
+      const currentPage = Math.min(Math.max(1, window.relativeStrengthCurrentPage || 1), totalPages);
+      const start = (currentPage - 1) * size;
+      const paged = filtered.slice(start, start + size);
+      return { filtered, paged, totalPages, currentPage, totalCount: filtered.length, matchedExcluded: [] };
+    }
+
+    // Modo normal: ranking oficial
     let filtered = (allItems || []).filter(item => {
       if (groupFilter) {
         const itemSec = String(item.sector || '').trim();
@@ -842,9 +914,21 @@
       filtered = resModel.filterByResilienceTier(filtered, window.relativeStrengthSelectedResilience);
     }
 
+    // Identifica ativos excluídos que correspondem à pesquisa direta
+    let matchedExcluded = [];
+    if (query) {
+      matchedExcluded = (excludedItems || []).filter(item => {
+        const sym = String(item.symbol || '').toLowerCase();
+        const name = String(item.name || item.companyName || '').toLowerCase();
+        const sec = String(item.sector || '').toLowerCase();
+        const locSec = localizedSector(item.sector).toLowerCase();
+        return sym.includes(query) || name.includes(query) || sec.includes(query) || locSec.includes(query);
+      });
+    }
+
     const pageSize = window.relativeStrengthPageSize;
     if (pageSize === 'all' || !Number.isFinite(Number(pageSize))) {
-      return { filtered, paged: filtered, totalPages: 1, currentPage: 1, totalCount: filtered.length };
+      return { filtered, paged: filtered, totalPages: 1, currentPage: 1, totalCount: filtered.length, matchedExcluded };
     }
 
     const size = Number(pageSize);
@@ -853,7 +937,7 @@
     const start = (currentPage - 1) * size;
     const paged = filtered.slice(start, start + size);
 
-    return { filtered, paged, totalPages, currentPage, totalCount: filtered.length };
+    return { filtered, paged, totalPages, currentPage, totalCount: filtered.length, matchedExcluded };
   }
 
   // --- Render Sub-Components ---
@@ -978,6 +1062,133 @@
           </article>
         `).join('')}
       </section>
+    `;
+  }
+
+  function renderExcludedTableRows(pagedItems, market) {
+    if (!pagedItems || pagedItems.length === 0) {
+      return `
+        <tr>
+          <td colspan="8">
+            <div class="rs-table-empty">
+              <span>🔍</span>
+              <p>${text('Nenhum ativo excluído encontrado para a pesquisa.', 'No excluded assets found for this search.')}</p>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+    const isUs = market === 'nasdaq';
+    const minDefault = isUs ? 'US$ 1.000.000,00' : 'R$ 500.000,00';
+
+    return pagedItems.map((item, index) => {
+      const symbol = item.symbol;
+      const company = item.name || item.companyName || symbol;
+      const sector = localizedSector(item.sector || '—');
+      const liq = item.liquidity || {};
+      const metrics = liq.metrics || {};
+      const volFormatted = metrics.averageDailyVolumeFormatted || metrics.averageDailyVolumeCompact || '—';
+      const minFormatted = metrics.minDailyVolumeFormatted || metrics.minDailyVolumeCompact || minDefault;
+      const reason = liq.reason || text('Volume financeiro diário insuficiente na janela de 21 pregões.', 'Insufficient daily financial volume in the 21-session window.');
+
+      return `
+        <tr class="rs-data-row rs-row-excluded" data-symbol="${symbol}">
+          <td class="td-rank td-excluded-idx">${index + 1}</td>
+          <td class="td-symbol">
+            <div class="rs-symbol-box">
+              <span class="rs-symbol-ticker">${symbol}</span>
+            </div>
+          </td>
+          <td class="td-company">
+            <span class="rs-company-name" title="${company}">${company}</span>
+          </td>
+          <td class="td-group">
+            <span class="rs-group-pill">${sector}</span>
+          </td>
+          <td class="td-vol-metrics">
+            <span class="rs-vol-pill bad">${volFormatted}</span>
+          </td>
+          <td class="td-vol-min">
+            <span class="rs-vol-min-label">${minFormatted}</span>
+          </td>
+          <td class="td-gate-status">
+            <span class="rs-status-pill-blocked">BLOQUEADO</span>
+          </td>
+          <td class="td-gate-reason">
+            <span class="rs-reason-cell" title="${reason}">${reason}</span>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderLiquiditySearchAlert(matchedExcluded, market) {
+    if (!matchedExcluded || !matchedExcluded.length) return '';
+    const isUs = market === 'nasdaq';
+    const minDefault = isUs ? 'US$ 1.000.000,00' : 'R$ 500.000,00';
+
+    return `
+      <div class="rs-liquidity-search-alert" role="alert" aria-live="polite">
+        <div class="rs-lsa-banner-head">
+          <div class="rs-lsa-badge-title">
+            <span class="rs-lsa-pill-badge">REPROVADO — LIQUIDITY GATE</span>
+            <span class="rs-lsa-head-desc">${text('Ativo com restrição mandatória de liquidez operacional · Inelegível para operação e ranking', 'Mandatory liquidity restriction · Ineligible for trading & ranking')}</span>
+          </div>
+          <span class="rs-lsa-rule-tag">${text('HARD GATE', 'HARD GATE')}</span>
+        </div>
+        <div class="rs-lsa-cards-list">
+          ${matchedExcluded.map(item => {
+            const liq = item.liquidity || {};
+            const metrics = liq.metrics || {};
+            const volFormatted = metrics.averageDailyVolumeFormatted || metrics.averageDailyVolumeCompact || '—';
+            const minFormatted = metrics.minDailyVolumeFormatted || metrics.minDailyVolumeCompact || minDefault;
+            const sessions = metrics.windowSessions || 21;
+            const reason = liq.reason || text(
+              `Volume financeiro médio diário nos últimos ${sessions} pregões está abaixo do mínimo exigido de ${minFormatted}.`,
+              `Average daily financial volume in the last ${sessions} sessions is below the minimum required of ${minFormatted}.`
+            );
+
+            return `
+              <div class="rs-lsa-card">
+                <div class="rs-lsa-card-header">
+                  <div class="rs-lsa-ticker-group">
+                    <span class="rs-lsa-symbol">${item.symbol}</span>
+                    <span class="rs-lsa-company">${item.name || item.companyName || item.symbol}</span>
+                    <span class="rs-lsa-sector">${localizedSector(item.sector || '—')}</span>
+                  </div>
+                  <span class="rs-lsa-status-tag">BLOQUEADO POR LIQUIDEZ</span>
+                </div>
+                <div class="rs-lsa-metrics-row">
+                  <div class="rs-lsa-metric-item">
+                    <span class="rs-lsa-metric-label">${text('Volume Médio (21d)', 'Avg Volume (21d)')}</span>
+                    <span class="rs-lsa-metric-val val-bad">${volFormatted}</span>
+                  </div>
+                  <div class="rs-lsa-metric-item">
+                    <span class="rs-lsa-metric-label">${text('Mínimo Exigido', 'Minimum Required')}</span>
+                    <span class="rs-lsa-metric-val">${minFormatted}</span>
+                  </div>
+                  <div class="rs-lsa-metric-item">
+                    <span class="rs-lsa-metric-label">${text('Janela Avaliada', 'Evaluated Window')}</span>
+                    <span class="rs-lsa-metric-val">${sessions} ${text('pregões', 'sessions')}</span>
+                  </div>
+                  <div class="rs-lsa-metric-item">
+                    <span class="rs-lsa-metric-label">${text('Status Operacional', 'Operational Status')}</span>
+                    <span class="rs-lsa-metric-val val-bad">${text('Elegibilidade Negada', 'Eligibility Denied')}</span>
+                  </div>
+                </div>
+                <p class="rs-lsa-reason-text"><strong>${text('Motivo da Reprovação:', 'Rejection Reason:')}</strong> ${reason}</p>
+                <div class="rs-lsa-policy-warning">
+                  <span class="rs-lsa-warning-icon" aria-hidden="true">⚠</span>
+                  <span>${text(
+                    'Regra inviolável de proteção de capital: Variações percentuais extremas ou movimentos pontuais de preço não compensam a ausência de liquidez operacional. O ativo foi excluído preventivamente do ranking de Força Relativa para impedir distorções estatísticas, desvios de percentil e falsas lideranças.',
+                    'Inviolable capital protection rule: Extreme percentage moves do not compensate for lack of liquidity. The asset is strictly excluded from ranking to prevent statistical distortions.'
+                  )}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
     `;
   }
 
@@ -1112,19 +1323,34 @@
 
   function updateTableAndPaginationOnly() {
     const dataset = getActiveDataset();
-    const { paged, totalPages, currentPage, totalCount } = getFilteredAndPagedItems(dataset.items);
-    const tbody = document.getElementById('rsRankingTableBody');
-    const paginationContainer = document.getElementById('rsPaginationContainer');
-    const resultsCountEl = document.getElementById('rsResultsCount');
+    const isExcludedView = window.relativeStrengthViewMode === 'excluded';
+    const { paged, totalPages, currentPage, totalCount, matchedExcluded } = getFilteredAndPagedItems(
+      dataset.items,
+      dataset.excludedItems
+    );
 
+    const alertContainer = document.getElementById('rsLiquidityAlertContainer');
+    if (alertContainer) {
+      alertContainer.innerHTML = (!isExcludedView && matchedExcluded?.length > 0)
+        ? renderLiquiditySearchAlert(matchedExcluded, dataset.market)
+        : '';
+    }
+
+    const tbody = document.getElementById('rsRankingTableBody');
     if (tbody) {
-      tbody.innerHTML = renderTableRows(paged, window.currentRelativeStrengthTimeframe, dataset.universeKey === 'fii');
+      if (isExcludedView) {
+        tbody.innerHTML = renderExcludedTableRows(paged, dataset.market);
+      } else {
+        tbody.innerHTML = renderTableRows(paged, window.currentRelativeStrengthTimeframe, dataset.universeKey === 'fii');
+      }
     }
     if (paginationContainer) {
       paginationContainer.innerHTML = renderPaginationControls(currentPage, totalPages, totalCount);
     }
     if (resultsCountEl) {
-      resultsCountEl.textContent = text(`Resultados: ${totalCount} ativos`, `Results: ${totalCount} assets`);
+      resultsCountEl.textContent = isExcludedView
+        ? text(`Ativos Excluídos: ${totalCount} ativos`, `Excluded Assets: ${totalCount} assets`)
+        : text(`Resultados: ${totalCount} ativos elegíveis`, `Results: ${totalCount} eligible assets`);
     }
     const topSelect = document.getElementById('rsPerPageSelect');
     if (topSelect) {
@@ -1171,7 +1397,11 @@
       return `<option value="${s}" ${isSel ? 'selected' : ''}>${label}</option>`;
     }).join('');
 
-    const { paged, totalPages, currentPage, totalCount } = getFilteredAndPagedItems(dataset.items);
+    const isExcludedView = window.relativeStrengthViewMode === 'excluded';
+    const { paged, totalPages, currentPage, totalCount, matchedExcluded } = getFilteredAndPagedItems(
+      dataset.items,
+      dataset.excludedItems
+    );
 
     const subtitleText = isWeekly
       ? text('Selecione tendências estruturais de médio a longo prazo no gráfico Semanal.', 'Select structural medium-to-long term trends based on the Weekly chart.')
@@ -1266,7 +1496,21 @@
                 </div>
 
                 <div class="rs-toolbar-meta">
-                  <span class="rs-results-count" id="rsResultsCount">${text(`Resultados: ${totalCount} ativos`, `Results: ${totalCount} assets`)}</span>
+                  <div class="rs-results-group">
+                    <span class="rs-results-count" id="rsResultsCount">${isExcludedView
+                      ? text(`Ativos Excluídos: ${totalCount} ativos`, `Excluded Assets: ${totalCount} assets`)
+                      : text(`Resultados: ${totalCount} ativos elegíveis`, `Results: ${totalCount} eligible assets`)
+                    }</span>
+                    ${dataset.totalExcluded > 0 ? `
+                      <button type="button" class="rs-excluded-badge-btn ${isExcludedView ? 'active' : ''}" onclick="window.toggleRelativeStrengthExcludedView()" title="${text('Alternar visualização de ativos excluídos pelo Liquidity Gate', 'Toggle view of assets excluded by Liquidity Gate')}">
+                        <span class="rs-excluded-dot" aria-hidden="true"></span>
+                        <span>${isExcludedView
+                          ? text('← Ver Ranking Oficial', '← View Official Ranking')
+                          : text(`${dataset.totalExcluded} excluídos por liquidez`, `${dataset.totalExcluded} excluded by liquidity`)
+                        }</span>
+                      </button>
+                    ` : ''}
+                  </div>
                   <div class="rs-per-page-wrap">
                     <select id="rsPerPageSelect" class="rs-select-per-page" onchange="window.handleRelativeStrengthPageSizeChange(this.value)" aria-label="${text('Itens por página', 'Items per page')}">
                       <option value="10" ${window.relativeStrengthPageSize === 10 ? 'selected' : ''}>10 ${text('por página', 'per page')}</option>
@@ -1278,36 +1522,78 @@
                 </div>
               </div>
 
+              <!-- Diagnostic / Liquidity Alert Container -->
+              <div id="rsLiquidityAlertContainer">
+                ${(!isExcludedView && matchedExcluded?.length > 0) ? renderLiquiditySearchAlert(matchedExcluded, dataset.market) : ''}
+              </div>
+
+              ${isExcludedView ? `
+                <!-- Excluded Assets Explanatory Banner -->
+                <div class="rs-excluded-view-banner">
+                  <div class="rs-evb-content">
+                    <div class="rs-evb-title-group">
+                      <span class="rs-evb-shield">🛡️</span>
+                      <div>
+                        <h3 class="rs-evb-title">${text(`Ativos Excluídos pelo Liquidity Gate (${dataset.totalExcluded} ativos)`, `Assets Excluded by Liquidity Gate (${dataset.totalExcluded} assets)`)}</h3>
+                        <p class="rs-evb-desc">${text(
+                          'Estes ativos foram reprovados pelo Liquidity Gate global por apresentarem volume médio diário inferior a R$ 500.000,00 na B3 (ou dados insuficientes/descontínuos). Eles não participam do ranking nem da classificação de líderes para proteger seu capital contra falsas lideranças e ordens em ativos ilíquidos.',
+                          'These assets failed the global Liquidity Gate due to average daily volume below R$ 500,000.00 in B3. They do not participate in ranking or leader classification to protect against false leadership.'
+                        )}</p>
+                      </div>
+                    </div>
+                    <button type="button" class="rs-btn-back-ranking" onclick="window.toggleRelativeStrengthExcludedView()">
+                      ← ${text('Voltar ao Ranking Oficial', 'Back to Official Ranking')}
+                    </button>
+                  </div>
+                </div>
+              ` : ''}
+
               <!-- Table -->
-              <div class="rs-table-wrapper">
+              <div class="rs-table-wrapper ${isExcludedView ? 'rs-table-excluded-mode' : ''}">
                 <table class="rs-table">
                   <thead>
-                    <tr class="rs-super-header-row">
-                      <th rowspan="2" class="th-rank">#</th>
-                      <th rowspan="2" class="th-symbol">${text('Ativo', 'Asset')}</th>
-                      <th rowspan="2" class="th-company">${text('Empresa', 'Company')}</th>
-                      <th rowspan="2" class="th-group">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}</th>
-                      <th colspan="4" class="th-super-header th-super-rs">
-                        <span class="rs-super-header-title">${text('Força Relativa (RS)', 'Relative Strength (RS)')}</span>
-                      </th>
-                      <th rowspan="2" class="th-resilience-col" title="${text('Ver resiliência (12M)', 'View resilience (12M)')}">
-                        <span class="rs-header-shield-icon" aria-label="${text('Ver resiliência (12M)', 'View resilience (12M)')}">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                          </svg>
-                        </span>
-                      </th>
-                      <th rowspan="2" class="th-actions">${text('Ações', 'Actions')}</th>
-                    </tr>
-                    <tr class="rs-sub-header-row">
-                      <th class="th-m1">1M</th>
-                      <th class="th-m3">3M</th>
-                      <th class="th-rs">RS</th>
-                      <th class="th-reading" title="${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.rsReading : ''}">${text('Leitura RS', 'RS Reading')}</th>
-                    </tr>
+                    ${isExcludedView ? `
+                      <tr class="rs-super-header-row">
+                        <th class="th-rank">#</th>
+                        <th class="th-symbol">${text('Ativo', 'Asset')}</th>
+                        <th class="th-company">${text('Empresa', 'Company')}</th>
+                        <th class="th-group">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}</th>
+                        <th class="th-vol-metrics">${text('Volume Médio (21d)', 'Avg Volume (21d)')}</th>
+                        <th class="th-vol-min">${text('Mínimo Exigido', 'Min Required')}</th>
+                        <th class="th-gate-status">${text('Status do Gate', 'Gate Status')}</th>
+                        <th class="th-gate-reason">${text('Motivo da Reprovação', 'Rejection Reason')}</th>
+                      </tr>
+                    ` : `
+                      <tr class="rs-super-header-row">
+                        <th rowspan="2" class="th-rank">#</th>
+                        <th rowspan="2" class="th-symbol">${text('Ativo', 'Asset')}</th>
+                        <th rowspan="2" class="th-company">${text('Empresa', 'Company')}</th>
+                        <th rowspan="2" class="th-group">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}</th>
+                        <th colspan="4" class="th-super-header th-super-rs">
+                          <span class="rs-super-header-title">${text('Força Relativa (RS)', 'Relative Strength (RS)')}</span>
+                        </th>
+                        <th rowspan="2" class="th-resilience-col" title="${text('Ver resiliência (12M)', 'View resilience (12M)')}">
+                          <span class="rs-header-shield-icon" aria-label="${text('Ver resiliência (12M)', 'View resilience (12M)')}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                          </span>
+                        </th>
+                        <th rowspan="2" class="th-actions">${text('Ações', 'Actions')}</th>
+                      </tr>
+                      <tr class="rs-sub-header-row">
+                        <th class="th-m1">1M</th>
+                        <th class="th-m3">3M</th>
+                        <th class="th-rs">RS</th>
+                        <th class="th-reading" title="${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.rsReading : ''}">${text('Leitura RS', 'RS Reading')}</th>
+                      </tr>
+                    `}
                   </thead>
                   <tbody id="rsRankingTableBody">
-                    ${renderTableRows(paged, activeTimeframe, isFii)}
+                    ${isExcludedView
+                      ? renderExcludedTableRows(paged, dataset.market)
+                      : renderTableRows(paged, activeTimeframe, isFii)
+                    }
                   </tbody>
                 </table>
               </div>
@@ -1379,6 +1665,9 @@
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       getActiveDataset,
+      getFilteredAndPagedItems,
+      renderLiquiditySearchAlert,
+      renderExcludedTableRows,
       getFilteredAndPagedItems,
       getLeituraInfo,
       getScoreBadgeClass,

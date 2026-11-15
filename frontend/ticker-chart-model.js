@@ -306,6 +306,25 @@
   }
 
   /**
+   * Cálculo de Média Móvel Simples (SMA)
+   */
+  function calculateSma(values, period) {
+    if (!Array.isArray(values) || values.length < period || period <= 0) return [];
+    const result = new Array(values.length).fill(null);
+    let sum = 0;
+    for (let i = 0; i < values.length; i++) {
+      sum += Number(values[i]) || 0;
+      if (i >= period) {
+        sum -= Number(values[i - period]) || 0;
+      }
+      if (i >= period - 1) {
+        result[i] = Number((sum / period).toFixed(4));
+      }
+    }
+    return result;
+  }
+
+  /**
    * Cálculo do ATR (Average True Range)
    */
   function calculateAtr(candles, period = 21) {
@@ -1350,6 +1369,14 @@
         score: funds.score ?? null,
         ...funds
       },
+      liquidity: tickerData?.liquidity ? {
+        isEligible: tickerData.liquidity.isEligible !== false,
+        status: tickerData.liquidity.status || (tickerData.liquidity.isEligible ? 'APPROVED' : 'VOLUME_BELOW_MINIMUM'),
+        badge: tickerData.liquidity.badge || null,
+        reason: tickerData.liquidity.reason || '',
+        metrics: tickerData.liquidity.metrics || null,
+        gate: tickerData.liquidity.gate || tickerData.liquidity
+      } : null,
       context: {
         title: ctx.title || 'Super Contexto',
         description: ctx.description || 'Ativo em tendência alinhada no gráfico Diário.'
@@ -1565,6 +1592,51 @@
     return `Contexto da oportunidade (importado de Gráficos):\n` + parts.join('\n');
   }
 
+  function isBdr(symbol) {
+    if (!symbol) return false;
+    const sym = String(symbol).trim().toUpperCase();
+    return /(31|32|33|34|35|39)$/.test(sym);
+  }
+
+  function getStockChartsUrl(underlyingSymbol) {
+    if (!underlyingSymbol) return null;
+    const clean = String(underlyingSymbol).trim().toUpperCase();
+    if (!clean) return null;
+    // URL direta para a plataforma moderna StockCharts ACP (Advanced Charting Platform)
+    return `https://stockcharts.com/acp/?s=${encodeURIComponent(clean)}`;
+  }
+
+  function evaluateEarningsWindow(earningsDateStr, referenceDateStr) {
+    if (!earningsDateStr) return { isWithinWindow: false, daysRemaining: null };
+    const ref = referenceDateStr ? String(referenceDateStr).slice(0, 10) : new Date().toISOString().slice(0, 10);
+    const earn = String(earningsDateStr).slice(0, 10);
+
+    const [refY, refM, refD] = ref.split('-').map(Number);
+    const [eY, eM, eD] = earn.split('-').map(Number);
+
+    const refUtc = Date.UTC(refY, refM - 1, refD);
+    const earnUtc = Date.UTC(eY, eM - 1, eD);
+    const diffDays = Math.round((earnUtc - refUtc) / (1000 * 60 * 60 * 24));
+
+    return {
+      isWithinWindow: diffDays >= 0 && diffDays <= 10,
+      daysRemaining: diffDays
+    };
+  }
+
+  function formatEarningsAlert(earnings) {
+    if (!earnings || !earnings.isWithinWindow) return null;
+    const days = earnings.daysRemaining;
+    const daysText = days === 0 ? 'HOJE' : (days === 1 ? 'em 1 dia' : `em ${days} dias`);
+    const dateFormatted = earnings.dateFormatted || earnings.date;
+    const statusNote = earnings.isEstimated ? ' · Estimada*' : ' · Confirmada';
+    return {
+      badgeText: `Earnings ${daysText} (${dateFormatted}${statusNote})`,
+      messageText: 'Earnings próximo de acontecer — cuidado ao operar este ativo.',
+      riskWarning: 'Divulgação de resultados pode causar gaps extraordinários e volatilidade severa.'
+    };
+  }
+
   return {
     STORAGE_KEY,
     MAX_PLANNED_SESSIONS_PER_DAY,
@@ -1580,6 +1652,7 @@
     logBypassMotive,
     evaluatePatienceIndex,
     calculateEma,
+    calculateSma,
     calculateCausalEmaSeries,
     calculateAtr,
     OFFICIAL_EMA_FAST,
@@ -1599,6 +1672,10 @@
     buildTradeContext,
     inferRubricRatingsFromContext,
     evaluateChartRubric,
-    formatTradeThesis
+    formatTradeThesis,
+    isBdr,
+    getStockChartsUrl,
+    evaluateEarningsWindow,
+    formatEarningsAlert
   };
 });

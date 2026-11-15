@@ -1203,3 +1203,451 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-page-btn.active 
   background: #3a331c !important;
   color: #ffd875 !important;
 }
+
+/* ==========================================================================
+   Liquidity Gate Global Integration — Força Relativa
+   ========================================================================== */
+
+.rs-results-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rs-excluded-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.28);
+  color: #b91c1c;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rs-excluded-badge-btn:hover {
+  background: rgba(220, 38, 38, 0.16);
+  border-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.rs-excluded-badge-btn.active {
+  background: #b91c1c;
+  color: #ffffff;
+  border-color: #b91c1c;
+}
+
+.rs-excluded-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #ef4444;
+}
+
+.rs-excluded-badge-btn.active .rs-excluded-dot {
+  background-color: #ffffff;
+}
+
+/* Diagnóstico Direto / Alerta de Liquidez em Pesquisa */
+.rs-liquidity-search-alert {
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(15, 23, 42, 0.02) 100%);
+  border: 1.5px solid rgba(220, 38, 38, 0.35);
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.05);
+}
+
+.rs-lsa-banner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rs-lsa-badge-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rs-lsa-pill-badge {
+  background: #b91c1c;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.rs-lsa-head-desc {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #7f1d1d;
+}
+
+.rs-lsa-rule-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #991b1b;
+  background: rgba(220, 38, 38, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.rs-lsa-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rs-lsa-card {
+  background: #ffffff;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.rs-lsa-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rs-lsa-ticker-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rs-lsa-symbol {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.03em;
+}
+
+.rs-lsa-company {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.rs-lsa-sector {
+  font-size: 11.5px;
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.rs-lsa-status-tag {
+  font-size: 11px;
+  font-weight: 750;
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.rs-lsa-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.rs-lsa-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rs-lsa-metric-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  font-weight: 650;
+}
+
+.rs-lsa-metric-val {
+  font-size: 13px;
+  font-weight: 750;
+  color: #1e293b;
+}
+
+.rs-lsa-metric-val.val-bad {
+  color: #b91c1c;
+}
+
+.rs-lsa-reason-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #334155;
+  margin-bottom: 10px;
+}
+
+.rs-lsa-policy-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(234, 88, 12, 0.08);
+  border: 1px solid rgba(234, 88, 12, 0.25);
+  padding: 9px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #9a3412;
+}
+
+.rs-lsa-warning-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Banner da Visão de Ativos Excluídos */
+.rs-excluded-view-banner {
+  margin-bottom: 18px;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.08) 0%, rgba(30, 41, 59, 0.04) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.rs-evb-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.rs-evb-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.rs-evb-shield {
+  font-size: 22px;
+}
+
+.rs-evb-title {
+  font-size: 15px;
+  font-weight: 750;
+  color: #991b1b;
+  margin: 0 0 4px 0;
+}
+
+.rs-evb-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #475569;
+  margin: 0;
+}
+
+.rs-btn-back-ranking {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+}
+
+.rs-btn-back-ranking:hover {
+  background: #1e293b;
+}
+
+/* Tabela em Modo Excluídos */
+.rs-row-excluded td {
+  background: rgba(220, 38, 38, 0.015);
+}
+
+.rs-row-excluded:hover td {
+  background: rgba(220, 38, 38, 0.04) !important;
+}
+
+.td-vol-metrics, .td-vol-min, .td-gate-status {
+  white-space: nowrap;
+}
+
+.rs-vol-pill.bad {
+  font-weight: 750;
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12.5px;
+}
+
+.rs-vol-min-label {
+  font-weight: 600;
+  color: #475569;
+  font-size: 12.5px;
+}
+
+.rs-status-pill-blocked {
+  display: inline-block;
+  background: #b91c1c;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.rs-reason-cell {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #475569;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --- Theme Gold / Dark Adaptations --- */
+body[data-theme="gold"] .rs-excluded-badge-btn,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-excluded-badge-btn {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+body[data-theme="gold"] .rs-excluded-badge-btn:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-excluded-badge-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+body[data-theme="gold"] .rs-liquidity-search-alert,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-liquidity-search-alert {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(20, 20, 18, 0.95) 100%);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+body[data-theme="gold"] .rs-lsa-head-desc,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-head-desc {
+  color: #fca5a5;
+}
+
+body[data-theme="gold"] .rs-lsa-card,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-card {
+  background: #191814;
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+body[data-theme="gold"] .rs-lsa-symbol,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-symbol {
+  color: #f1f5f9;
+}
+
+body[data-theme="gold"] .rs-lsa-company,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-company {
+  color: #cbd5e1;
+}
+
+body[data-theme="gold"] .rs-lsa-sector,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-sector {
+  background: #23221b;
+  color: #94a3b8;
+}
+
+body[data-theme="gold"] .rs-lsa-metrics-row,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-metrics-row {
+  background: #121210;
+  border-color: #2b271d;
+}
+
+body[data-theme="gold"] .rs-lsa-metric-val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-metric-val {
+  color: #e2e8f0;
+}
+
+body[data-theme="gold"] .rs-lsa-metric-val.val-bad,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-metric-val.val-bad {
+  color: #f87171;
+}
+
+body[data-theme="gold"] .rs-lsa-reason-text,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-reason-text {
+  color: #cbd5e1;
+}
+
+body[data-theme="gold"] .rs-lsa-policy-warning,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-lsa-policy-warning {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(249, 115, 22, 0.35);
+  color: #fdba74;
+}
+
+body[data-theme="gold"] .rs-excluded-view-banner,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-excluded-view-banner {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(20, 20, 18, 0.95) 100%);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+body[data-theme="gold"] .rs-evb-title,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-evb-title {
+  color: #f87171;
+}
+
+body[data-theme="gold"] .rs-evb-desc,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-evb-desc {
+  color: #cbd5e1;
+}
+
+body[data-theme="gold"] .rs-btn-back-ranking,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-btn-back-ranking {
+  background: #2a2517;
+  color: #ffd875;
+  border: 1px solid #4a3e21;
+}
+
+body[data-theme="gold"] .rs-btn-back-ranking:hover,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-btn-back-ranking:hover {
+  background: #38301c;
+}
+
+body[data-theme="gold"] .rs-vol-min-label,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-vol-min-label {
+  color: #94a3b8;
+}
+
+body[data-theme="gold"] .rs-reason-cell,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .rs-reason-cell {
+  color: #cbd5e1;
+}

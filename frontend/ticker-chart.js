@@ -6,18 +6,22 @@
   let tickerData = null;
   let searchUniverse = [];
   let chartInstance = null;
+  let ifrChartInstance = null;
+  let ifrLineSeries = null;
   let candleSeries = null;
   let lineSeries = null;
   let ema10Series = null;
   let ema72Series = null;
   let ema9Series = null;
   let ema30Series = null;
+  let sma7Series = null;
   let ema21Series = null;
   let ema50Series = null;
   let ema200Series = null;
   let volumeSeries = null;
   let activeBenchmark = null;
   let disciplineState = null;
+  let currentLiquidityEvaluation = null;
   let selectedNoteCategory = 'plano';
 
   const NOTES_STORAGE_KEY = 'healthy-trend-ticker-notes';
@@ -89,6 +93,7 @@
       atrPct: d.volatility?.atrPct ?? null,
       fundamentals: fundamentals.evaluation || fundamentals.classification || '—',
       context: d.context?.title || d.context?.description || '—',
+      liquidity: currentLiquidityEvaluation?.badge?.text || (currentLiquidityEvaluation?.isEligible ? 'Aprovada' : 'Reprovada'),
       ema10: d.indicators?.ema10?.at?.(-1)?.value ?? d.indicators?.ema9?.at?.(-1)?.value ?? null,
       ema72: d.indicators?.ema72?.at?.(-1)?.value ?? d.indicators?.ema30?.at?.(-1)?.value ?? null,
       ema9: d.indicators?.ema10?.at?.(-1)?.value ?? d.indicators?.ema9?.at?.(-1)?.value ?? null,
@@ -185,14 +190,61 @@
         return Object.assign({
           ema10: parsed.ema10 ?? parsed.ema9 ?? true,
           ema72: parsed.ema72 ?? parsed.ema30 ?? true,
+          sma7: parsed.sma7 ?? false,
           ema21: false,
           ema50: false,
           ema200: false,
-          volume: true
+          volume: true,
+          ifr2: parsed.ifr2 ?? false
         }, parsed);
       }
     } catch (e) {}
-    return { ema10: true, ema72: true, ema21: false, ema50: false, ema200: false, volume: true };
+    return { ema10: true, ema72: true, sma7: false, ema21: false, ema50: false, ema200: false, volume: true, ifr2: false };
+  }
+
+    function applyStrategyDefaultIndicatorProfile(strategy) {
+    if (strategy === 'VOLATILITY_TRADING') {
+      indicatorPrefs = {
+        ema10: false,
+        ema72: false,
+        ema9: false,
+        ema30: false,
+        sma7: true,
+        ema21: false,
+        ema50: false,
+        ema200: false,
+        volume: true,
+        ifr2: true
+      };
+      saveIndicatorPrefs(indicatorPrefs);
+    } else if (strategy === 'TREND_FOLLOWING') {
+      indicatorPrefs = {
+        ema10: true,
+        ema72: true,
+        ema9: true,
+        ema30: true,
+        sma7: false,
+        ema21: false,
+        ema50: false,
+        ema200: false,
+        volume: true,
+        ifr2: false
+      };
+      saveIndicatorPrefs(indicatorPrefs);
+    }
+  }
+
+  function checkAndApplyPendingStrategyProfile() {
+    if (window.__pendingChartStrategy) {
+      applyStrategyDefaultIndicatorProfile(window.__pendingChartStrategy);
+      window.__pendingChartStrategy = null;
+      window.__pendingChartVolatilityProfile = false;
+      window.__pendingChartIndicatorIfr2 = false;
+    } else if (window.__pendingChartVolatilityProfile) {
+      applyStrategyDefaultIndicatorProfile('VOLATILITY_TRADING');
+      window.__pendingChartVolatilityProfile = false;
+      window.__pendingChartIndicatorIfr2 = false;
+    }
   }
 
   function saveIndicatorPrefs(prefs) {
@@ -405,6 +457,9 @@
   }
 
   function applyIndicatorVisibility() {
+    if (typeof toggleIfr2Subpanel === 'function') {
+      toggleIfr2Subpanel(indicatorPrefs.ifr2);
+    }
     const isEma10Vis = !!(indicatorPrefs.ema10 ?? indicatorPrefs.ema9);
     const isEma72Vis = !!(indicatorPrefs.ema72 ?? indicatorPrefs.ema30);
     if (ema10Series) ema10Series.applyOptions({ visible: isEma10Vis });
@@ -412,6 +467,11 @@
     if (ema9Series) ema9Series.applyOptions({ visible: isEma10Vis });
     if (ema30Series) ema30Series.applyOptions({ visible: isEma72Vis });
     if (volumeSeries) volumeSeries.applyOptions({ visible: !!indicatorPrefs.volume });
+    if (sma7Series) {
+      sma7Series.applyOptions({ visible: !!indicatorPrefs.sma7 });
+    } else if (indicatorPrefs.sma7 && chartInstance && tickerData?.ohlc) {
+      ensureSma7Series();
+    }
     if (ema21Series) {
       ema21Series.applyOptions({ visible: !!indicatorPrefs.ema21 });
     } else if (indicatorPrefs.ema21 && chartInstance && tickerData?.ohlc) {
@@ -434,12 +494,55 @@
     if (lEma72) lEma72.style.display = isEma72Vis ? 'inline' : 'none';
     const lVol = document.querySelector('.legend-vol');
     if (lVol) lVol.style.display = indicatorPrefs.volume ? 'inline' : 'none';
+    const lSma7 = document.querySelector('.legend-sma7');
+    if (lSma7) lSma7.style.display = indicatorPrefs.sma7 ? 'inline' : 'none';
     const lEma21 = document.querySelector('.legend-ema21');
     if (lEma21) lEma21.style.display = indicatorPrefs.ema21 ? 'inline' : 'none';
     const lEma50 = document.querySelector('.legend-ema50');
     if (lEma50) lEma50.style.display = indicatorPrefs.ema50 ? 'inline' : 'none';
     const lEma200 = document.querySelector('.legend-ema200');
     if (lEma200) lEma200.style.display = indicatorPrefs.ema200 ? 'inline' : 'none';
+  }
+
+    function calculateSmaSeriesFromCloses(ohlc, period = 7) {
+    if (!Array.isArray(ohlc) || ohlc.length < period) return [];
+    const closes = ohlc.map(c => c.close);
+    let rawSma = null;
+    if (window.TickerChartModel && typeof window.TickerChartModel.calculateSma === 'function') {
+      rawSma = window.TickerChartModel.calculateSma(closes, period);
+    } else {
+      rawSma = new Array(closes.length).fill(null);
+      let sum = 0;
+      for (let i = 0; i < closes.length; i++) {
+        sum += Number(closes[i]) || 0;
+        if (i >= period) sum -= Number(closes[i - period]) || 0;
+        if (i >= period - 1) rawSma[i] = Number((sum / period).toFixed(4));
+      }
+    }
+    return ohlc.map((c, idx) => ({
+      time: c.time,
+      value: rawSma[idx]
+    })).filter(p => Number.isFinite(p.value));
+  }
+
+  function ensureSma7Series(sourceData) {
+    const d = sourceData || tickerData;
+    if (!chartInstance || !d?.ohlc) return;
+    if (!sma7Series) {
+      sma7Series = chartInstance.addLineSeries({
+        color: '#f59e0b',
+        lineWidth: 2,
+        title: 'SMA 7',
+        visible: !!indicatorPrefs.sma7
+      });
+    }
+    const smaData = (d.indicators?.sma7 && d.indicators.sma7.length)
+      ? d.indicators.sma7
+      : calculateSmaSeriesFromCloses(d.ohlc, 7);
+    if (smaData && smaData.length) {
+      sma7Series.setData(smaData);
+    }
+    sma7Series.applyOptions({ visible: !!indicatorPrefs.sma7 });
   }
 
   function ensureEma21Series() {
@@ -760,6 +863,7 @@
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.volatility}</span><span>Volatilidade</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.fundamentals}</span><span>Fundamentos</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.context}</span><span>Contexto</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.liquidity}</span><span>Liquidez</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
           </div>
         </div>
       </div>
@@ -800,6 +904,7 @@
 
   // Busca dados analíticos completos do ticker
   async function loadTickerData(symbol) {
+    checkAndApplyPendingStrategyProfile();
     const sym = String(symbol || defaultTicker).trim().toUpperCase();
     currentTicker = sym;
     const root = document.getElementById('tickerChartRoot');
@@ -1077,6 +1182,62 @@
 
     const contextStatus = (trendStatus === 'good' && cycleStatus === 'good') ? 'good' : (trendStatus === 'bad' ? 'bad' : 'neutral');
 
+    // 8. Liquidity Gate — Avaliação oficial integrada ao modelo global
+    let liqGateResult = tickerData.liquidity?.gate || null;
+    const activeRiskPolicy = (typeof window !== 'undefined' && (window.riskPolicyState || window.tradingRubricPolicy)) || undefined;
+    if (typeof window !== 'undefined' && window.LiquidityGateModel && typeof window.LiquidityGateModel.evaluateLiquidity === 'function') {
+      const clientLiqEval = window.LiquidityGateModel.evaluateLiquidity({
+        candles: tickerData.ohlc,
+        symbol: tickerData.tickerInfo?.symbol,
+        market: tickerData.tickerInfo?.assetClass,
+        policy: activeRiskPolicy
+      });
+      if (clientLiqEval) {
+        liqGateResult = clientLiqEval;
+      }
+    } else if (!liqGateResult && tickerData.liquidity && typeof tickerData.liquidity.isEligible === 'boolean') {
+      liqGateResult = tickerData.liquidity;
+    }
+
+    currentLiquidityEvaluation = liqGateResult;
+
+    // Fail closed: dados vazios, nulos ou histórico insuficiente
+    const isLiqEligible = Boolean(liqGateResult && liqGateResult.isEligible === true);
+    const isLiqHistoryShort = Boolean(liqGateResult && (liqGateResult.status === 'HISTORICO_INSUFICIENTE' || liqGateResult.code === 'INSUFFICIENT_HISTORY'));
+    const isLiqUnavailable = !liqGateResult ||
+      liqGateResult.status === 'DADOS_INDISPONIVEIS' || liqGateResult.status === 'DATA_UNAVAILABLE' ||
+      liqGateResult.code === 'DATA_UNAVAILABLE' || isLiqHistoryShort;
+    const liqStatus = isLiqEligible ? 'good' : 'bad';
+
+    const liqMetrics = liqGateResult?.metrics || tickerData.liquidity?.metrics || null;
+    const compactVol = liqMetrics?.averageDailyVolumeCompact && liqMetrics.averageDailyVolumeCompact !== '—'
+      ? liqMetrics.averageDailyVolumeCompact
+      : (tickerData.tickerInfo?.volumeAvg21Formatted || tickerData.liquidity?.volumeAvg21Formatted || null);
+
+    let liqText = '● Aprovada';
+    if (isLiqUnavailable) {
+      liqText = isLiqHistoryShort ? '● Histórico Insuficiente' : '● Dados Indisponíveis';
+    } else if (isLiqEligible) {
+      liqText = compactVol ? `● Aprovada (${compactVol}/dia)` : '● Aprovada';
+    } else {
+      liqText = compactVol ? `● Reprovada (${compactVol}/dia)` : '● Reprovada (Não elegível)';
+    }
+
+    const liqReason = liqGateResult?.reason || tickerData.liquidity?.reason || (isLiqEligible ? 'Ativo cumpre todos os requisitos do Liquidity Gate.' : 'Ativo reprovado no Liquidity Gate (não elegível operacionalmente).');
+    const liqSource = tickerData.tickerInfo?.syncSource || 'B3 (COTAHIST)';
+    const liqSessionDate = sessionDateFormatted || tickerData.tickerInfo?.sessionDate || 'Último pregão';
+
+    const liqTooltip = [
+      `[LIQUIDITY GATE] ${isLiqEligible ? 'APROVADA (Elegível)' : (isLiqUnavailable ? 'DADOS INDISPONÍVEIS (Bloqueado)' : 'REPROVADA (Não Elegível)')}`,
+      liqMetrics?.averageDailyVolumeFormatted ? `• Volume Médio Diário: ${liqMetrics.averageDailyVolumeFormatted}` : (compactVol ? `• Volume Médio: ${compactVol}/dia` : null),
+      liqMetrics?.minDailyVolumeFormatted ? `• Mínimo Exigido: ${liqMetrics.minDailyVolumeFormatted}` : null,
+      liqMetrics?.averageDailyTrades ? `• Média de Negócios: ${liqMetrics.averageDailyTrades} neg/dia (mínimo: ${liqMetrics.minDailyTrades || 100})` : null,
+      `• Janela de Avaliação: ${liqMetrics?.windowSessions || 21} pregões${liqMetrics?.windowStartDate && liqMetrics?.windowEndDate ? ` (${liqMetrics.windowStartDate} a ${liqMetrics.windowEndDate})` : ''}`,
+      `• Data-Base: ${liqSessionDate}`,
+      `• Fonte dos Dados: ${liqSource}`,
+      `• Motivo: ${liqReason}`
+    ].filter(Boolean).join('\n');
+
     // Constrói HTML estrutural
     root.innerHTML = `
       ${renderReturnToRadarBanner(tickerData.tickerInfo.symbol)}
@@ -1163,6 +1324,59 @@
             ${isTickerInWatchlist(tickerData.tickerInfo.symbol) ? 'Na Watchlist' : 'Adicionar à Watchlist'}
           </button>
           <button class="btn-icon-more" id="btnMoreTickerOptions" title="Mais opções">⋮</button>
+
+          <!-- BDR INTERNACIONAL: STOCKCHARTS LINK & ALERTA DE EARNINGS AO LADO DA WATCHLIST -->
+          ${(() => {
+            const bdr = tickerData.bdrInfo || tickerData.tickerInfo?.bdrInfo;
+            if (!bdr || !bdr.isBdr) return '';
+
+            const underlying = bdr.underlyingSymbol;
+            const stockUrl = bdr.stockChartsUrl;
+            const earnings = bdr.earnings;
+            const hasAlert = Boolean(earnings && earnings.isWithinWindow);
+
+            let html = '';
+
+            // 1. Botão StockCharts (somente se houver mapeamento confiável do ativo internacional)
+            if (stockUrl && underlying) {
+              html += `
+                <a href="${escapeHtml(stockUrl)}" target="_blank" rel="noopener noreferrer" class="btn-hero-stockcharts" title="Abrir gráfico original de ${escapeHtml(underlying)} (${escapeHtml(bdr.exchange || 'EUA')}) no StockCharts (nova aba)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                  <span>StockCharts (${escapeHtml(underlying)})</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="opacity: 0.75;">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+              `;
+            }
+
+            // 2. Alerta de Earnings Próximos (ao lado do botão StockCharts)
+            if (hasAlert) {
+              const daysText = earnings.daysRemaining === 0 ? 'HOJE' : (earnings.daysRemaining === 1 ? 'em 1 dia' : `em ${earnings.daysRemaining} dias`);
+              const dateStr = earnings.dateFormatted || earnings.date;
+              const estimatedLabel = earnings.isEstimated ? ' · Data Estimada*' : ' · Data Confirmada';
+              const timingText = earnings.timeOfDay ? ` · ${earnings.timeOfDay}` : '';
+              const tooltipText = `Divulgação de resultados (Earnings) prevista para ${dateStr}${estimatedLabel}${timingText}. Risco elevado de volatilidade e abertura em gap. Cuidado ao operar este ativo.`;
+
+              html += `
+                <div class="hero-bdr-earnings-alert" title="${escapeHtml(tooltipText)}">
+                  <span class="earnings-alert-icon" aria-hidden="true">⚠️</span>
+                  <div class="earnings-alert-body">
+                    <span class="earnings-alert-pill">Earnings ${daysText} (${escapeHtml(dateStr)}${earnings.isEstimated ? ' · Est.*' : ''})</span>
+                    <span class="earnings-alert-text">Earnings próximo de acontecer — cuidado ao operar este ativo.</span>
+                  </div>
+                </div>
+              `;
+            }
+
+            return html;
+          })()}
         </div>
       </div>
 
@@ -1208,6 +1422,13 @@
                     </label>
                     <label class="chart-indicator-item">
                       <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #f59e0b;"></span>
+                        <span>SMA 7</span>
+                      </div>
+                      <input type="checkbox" id="chkIndSma7" ${indicatorPrefs.sma7 ? 'checked' : ''} />
+                    </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
                         <span class="indicator-color-dot" style="background: #3b82f6;"></span>
                         <span>EMA 21</span>
                       </div>
@@ -1233,6 +1454,13 @@
                         <span>Volume Diário</span>
                       </div>
                       <input type="checkbox" id="chkIndVolume" ${indicatorPrefs.volume ? 'checked' : ''} />
+                    </label>
+                    <label class="chart-indicator-item">
+                      <div class="chart-indicator-left">
+                        <span class="indicator-color-dot" style="background: #eab308;"></span>
+                        <span>IFR (2) — Volatility Trading</span>
+                      </div>
+                      <input type="checkbox" id="chkIndIfr2" ${indicatorPrefs.ifr2 ? 'checked' : ''} />
                     </label>
                   </div>
                 </div>
@@ -1316,6 +1544,7 @@
               <div class="legend-row-indicators" id="legendIndicatorsRow">
                 <span class="legend-ema10" style="display: ${(indicatorPrefs.ema10 ?? indicatorPrefs.ema9) ? 'inline' : 'none'}">EMA 10: ${formatNumber(tickerData.indicators.ema10?.at(-1)?.value ?? tickerData.indicators.ema9?.at(-1)?.value)}</span>
                 <span class="legend-ema72" style="display: ${(indicatorPrefs.ema72 ?? indicatorPrefs.ema30) ? 'inline' : 'none'}">EMA 72: ${formatNumber(tickerData.indicators.ema72?.at(-1)?.value ?? tickerData.indicators.ema30?.at(-1)?.value)}</span>
+                <span class="legend-sma7" style="display: ${indicatorPrefs.sma7 ? 'inline' : 'none'}; color: #f59e0b; font-weight: 700;">SMA 7: ${formatNumber(tickerData.indicators.sma7?.at(-1)?.value ?? (sma7Series ? tickerData.ohlc.at(-1)?.close : null))}</span>
                 <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: —</span>
                 <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: —</span>
                 <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: —</span>
@@ -1323,6 +1552,22 @@
                 <span id="legendCompareTag" style="display: none;"></span>
               </div>
             </div>
+          </div>
+
+          <!-- SUBPAINEL OSCILADOR IFR(2) VOLATILITY TRADING -->
+          <div class="chart-oscillator-wrapper" id="chartOscillatorWrapper" style="display: ${indicatorPrefs.ifr2 ? 'flex' : 'none'};">
+            <div class="oscillator-head">
+              <div class="oscillator-title-row">
+                <span class="oscillator-tag">IFR 2</span>
+                <span class="oscillator-name">Volatility Trading · Reversão à Média</span>
+                <span class="oscillator-current-val" id="oscillatorCurrentVal">—</span>
+                <span class="oscillator-status-badge" id="oscillatorStatusBadge" style="display: none;">⚡ SOBREVENDA (IFR 2 ≤ 10)</span>
+              </div>
+              <div class="oscillator-levels-legend">
+                <span style="font-size: 10px; color: #9ca3af;">Sobrecompra: <strong style="color: #ef4444;">90</strong> · Sobrevenda: <strong style="color: #10b981;">10</strong></span>
+              </div>
+            </div>
+            <div class="chart-oscillator-canvas" id="ifr2SubChartContainer" style="width: 100%; height: 120px;"></div>
           </div>
         </div>
 
@@ -1407,6 +1652,14 @@
               </div>
               <div class="summary-check-right">
                 <span class="vision-status ${contextStatus}">● ${escapeHtml(tickerData.context?.title || 'Contexto')}</span>
+              </div>
+            </div>
+            <div class="summary-check-row" id="visionLiquidityRow" title="${escapeHtml(liqTooltip)}">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.liquidity}</span> Liquidez
+              </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${liqStatus}" id="visionLiquidityPill" role="button" tabindex="0" style="cursor: pointer;">${escapeHtml(liqText)}</span>
               </div>
             </div>
           </div>
@@ -1974,10 +2227,240 @@
     return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+
+  function updateIfrLegendAndBadge(val) {
+    const currentValEl = document.getElementById('oscillatorCurrentVal');
+    const badgeEl = document.getElementById('oscillatorStatusBadge');
+    if (!currentValEl) return;
+    if (val == null || !Number.isFinite(Number(val))) {
+      currentValEl.textContent = '—';
+      if (badgeEl) badgeEl.style.display = 'none';
+      return;
+    }
+    const num = Number(val);
+    currentValEl.textContent = num.toFixed(2);
+    if (badgeEl) {
+      if (num <= 10) {
+        badgeEl.style.display = 'inline-flex';
+        badgeEl.className = 'oscillator-status-badge is-oversold';
+        badgeEl.textContent = '⚡ SOBREVENDA (IFR 2 ≤ 10)';
+      } else if (num <= 20) {
+        badgeEl.style.display = 'inline-flex';
+        badgeEl.className = 'oscillator-status-badge is-near';
+        badgeEl.textContent = 'PRÓXIMO DA SOBREVENDA (≤ 20)';
+      } else {
+        badgeEl.style.display = 'none';
+      }
+    }
+  }
+
+  function toggleIfr2Subpanel(visible) {
+    const wrapper = document.getElementById('chartOscillatorWrapper');
+    if (!wrapper) return;
+    if (visible) {
+      wrapper.style.display = 'flex';
+      if (!ifrChartInstance && tickerData) {
+        initIfr2Oscillator(tickerData);
+      } else if (ifrChartInstance) {
+        const subContainer = document.getElementById('ifr2SubChartContainer');
+        if (subContainer) {
+          ifrChartInstance.resize(subContainer.clientWidth, 120);
+        }
+      }
+    } else {
+      wrapper.style.display = 'none';
+      if (ifrChartInstance) {
+        try { ifrChartInstance.remove(); } catch (_) {}
+        ifrChartInstance = null;
+        ifrLineSeries = null;
+      }
+    }
+  }
+
+  function initIfr2Oscillator(data) {
+    const subContainer = document.getElementById('ifr2SubChartContainer');
+    const wrapper = document.getElementById('chartOscillatorWrapper');
+    if (!subContainer || !wrapper || !window.LightweightCharts) return;
+
+    if (ifrChartInstance) {
+      try { ifrChartInstance.remove(); } catch (_) {}
+      ifrChartInstance = null;
+      ifrLineSeries = null;
+    }
+
+    if (!indicatorPrefs.ifr2) {
+      wrapper.style.display = 'none';
+      return;
+    }
+
+    wrapper.style.display = 'flex';
+
+    // Calcula ou extrai série IFR(2)
+    let ifrSeriesData = [];
+    if (Array.isArray(data.indicators?.ifr2) && data.indicators.ifr2.length > 0) {
+      ifrSeriesData = data.indicators.ifr2;
+    } else if (Array.isArray(data.ohlc)) {
+      const closes = data.ohlc.map(c => c.close);
+      let ifrArr = null;
+      if (window.VolatilityTradingEngineModel && typeof window.VolatilityTradingEngineModel.calculateRSI === 'function') {
+        ifrArr = window.VolatilityTradingEngineModel.calculateRSI(closes, 2, 'WILDER');
+      } else {
+        // Fallback robusto Welles Wilder RSI 2
+        ifrArr = new Array(closes.length).fill(null);
+        if (closes.length > 2) {
+          let g = 0, l = 0;
+          for (let i = 1; i <= 2; i++) {
+            const d = closes[i] - closes[i - 1];
+            if (d > 0) g += d; else if (d < 0) l += Math.abs(d);
+          }
+          let avgG = g / 2, avgL = l / 2;
+          ifrArr[2] = avgL === 0 ? 100 : Number((100 - (100 / (1 + avgG / avgL))).toFixed(2));
+          for (let i = 3; i < closes.length; i++) {
+            const d = closes[i] - closes[i - 1];
+            const gain = d > 0 ? d : 0;
+            const loss = d < 0 ? Math.abs(d) : 0;
+            avgG = (avgG * 1 + gain) / 2;
+            avgL = (avgL * 1 + loss) / 2;
+            ifrArr[i] = avgL === 0 ? 100 : Number((100 - (100 / (1 + avgG / avgL))).toFixed(2));
+          }
+        }
+      }
+      for (let i = 0; i < data.ohlc.length; i++) {
+        if (ifrArr[i] !== null && Number.isFinite(ifrArr[i])) {
+          ifrSeriesData.push({ time: data.ohlc[i].time, value: ifrArr[i] });
+        }
+      }
+    }
+
+    if (!ifrSeriesData.length) return;
+
+    const isDark = document.body.getAttribute('data-theme') === 'gold';
+    const chartBg = isDark ? '#181612' : '#ffffff';
+    const textColor = isDark ? '#c9b99a' : '#64748b';
+    const gridColor = isDark ? 'rgba(212, 175, 55, 0.08)' : 'rgba(0, 0, 0, 0.04)';
+
+    ifrChartInstance = window.LightweightCharts.createChart(subContainer, {
+      width: subContainer.clientWidth || (wrapper.clientWidth - 20) || 800,
+      height: 120,
+      layout: {
+        background: { type: 'solid', color: chartBg },
+        textColor: textColor,
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+      },
+      grid: {
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor }
+      },
+      crosshair: {
+        mode: 1 // Magnet
+      },
+      rightPriceScale: {
+        borderColor: gridColor,
+        scaleMargins: { top: 0.1, bottom: 0.1 },
+        autoScale: false
+      },
+      timeScale: {
+        borderColor: gridColor,
+        visible: false
+      }
+    });
+
+    ifrLineSeries = ifrChartInstance.addLineSeries({
+      color: '#10b981',
+      lineWidth: 2,
+      priceScaleId: 'right',
+      autoscaleInfoProvider: () => ({
+        priceRange: {
+          minValue: 0,
+          maxValue: 100
+        }
+      })
+    });
+
+    // Linhas horizontais de referência (90 sobrecompra / 10 sobrevenda)
+    ifrLineSeries.createPriceLine({
+      price: 90,
+      color: 'rgba(239, 68, 68, 0.65)',
+      lineWidth: 1,
+      lineStyle: 2, // Dashed
+      axisLabelVisible: true,
+      title: '90'
+    });
+
+    ifrLineSeries.createPriceLine({
+      price: 10,
+      color: '#10b981',
+      lineWidth: 1.5,
+      lineStyle: 2, // Dashed
+      axisLabelVisible: true,
+      title: '10 (Sobrevenda)'
+    });
+
+    ifrLineSeries.setData(ifrSeriesData);
+
+    const lastIfr = ifrSeriesData[ifrSeriesData.length - 1]?.value;
+    updateIfrLegendAndBadge(lastIfr);
+
+    // Sincroniza faixa visível entre o gráfico principal e o oscilador
+    if (chartInstance) {
+      let syncingFromMain = false;
+      let syncingFromIfr = false;
+
+      try {
+        const mainLogicalRange = chartInstance.timeScale().getVisibleLogicalRange();
+        if (mainLogicalRange) {
+          ifrChartInstance.timeScale().setVisibleLogicalRange(mainLogicalRange);
+        }
+      } catch (_) {}
+
+      chartInstance.timeScale().subscribeVisibleLogicalRangeChange(range => {
+        if (syncingFromMain || !ifrChartInstance || !range) return;
+        syncingFromMain = true;
+        try { ifrChartInstance.timeScale().setVisibleLogicalRange(range); } catch (_) {}
+        syncingFromMain = false;
+      });
+
+      ifrChartInstance.timeScale().subscribeVisibleLogicalRangeChange(range => {
+        if (syncingFromIfr || !chartInstance || !range) return;
+        syncingFromIfr = true;
+        try { chartInstance.timeScale().setVisibleLogicalRange(range); } catch (_) {}
+        syncingFromIfr = false;
+      });
+
+      // Sincroniza crosshair move
+      chartInstance.subscribeCrosshairMove(param => {
+        if (!param || !param.time) {
+          updateIfrLegendAndBadge(ifrSeriesData[ifrSeriesData.length - 1]?.value);
+          return;
+        }
+        const match = ifrSeriesData.find(item => item.time === param.time);
+        if (match) {
+          updateIfrLegendAndBadge(match.value);
+        }
+      });
+    }
+  }
+
   // Inicializa o Lightweight Charts
   function initLightweightChart(data) {
     const container = document.getElementById('lightweightChartContainer');
     if (!container || !window.LightweightCharts) return;
+
+    if (window.__pendingChartIndicatorIfr2) {
+      indicatorPrefs.ifr2 = true;
+      saveIndicatorPrefs(indicatorPrefs);
+      window.__pendingChartIndicatorIfr2 = false;
+      const chk = document.getElementById('chkIndIfr2');
+      if (chk) chk.checked = true;
+    }
+
+    if (window.__pendingChartIndicatorSma7) {
+      indicatorPrefs.sma7 = true;
+      saveIndicatorPrefs(indicatorPrefs);
+      window.__pendingChartIndicatorSma7 = false;
+      const chk = document.getElementById('chkIndSma7');
+      if (chk) chk.checked = true;
+    }
 
     if (chartInstance) {
       try { chartInstance.remove(); } catch {}
@@ -1990,6 +2473,7 @@
     ema72Series = null;
     ema9Series = null;
     ema30Series = null;
+    sma7Series = null;
     volumeSeries = null;
     candleSeries = null;
     lineSeries = null;
@@ -2070,6 +2554,20 @@
     ema72Series.setData(data.indicators.ema72 || data.indicators.ema30);
     ema30Series = ema72Series;
 
+    // SMA 7 Line (Média Móvel Simples - Default para Volatility Trading)
+    sma7Series = chartInstance.addLineSeries({
+      color: '#f59e0b',
+      lineWidth: 2,
+      title: 'SMA 7',
+      visible: !!indicatorPrefs.sma7
+    });
+    const smaData = (data.indicators?.sma7 && data.indicators.sma7.length)
+      ? data.indicators.sma7
+      : calculateSmaSeriesFromCloses(data.ohlc, 7);
+    if (smaData && smaData.length) {
+      sma7Series.setData(smaData);
+    }
+
     // EMA 21 Line (se ativada pelo usuário)
     if (indicatorPrefs.ema21) {
       ensureEma21Series();
@@ -2113,6 +2611,10 @@
     // Aplica configurações visuais (grade suave/oculta, escala logarítmica)
     applyChartSettings();
 
+    if (indicatorPrefs.ifr2) {
+      initIfr2Oscillator(data);
+    }
+
     // Zoom inicial próximo (exibe ~75 barras com 4 barras de respiro à direita)
     resetChartZoom();
 
@@ -2140,6 +2642,7 @@
         legendInd.innerHTML = `
           <span class="legend-ema10" style="display: ${isEma10Vis ? 'inline' : 'none'}">EMA 10: ${formatNumber(data.indicators.ema10?.at(-1)?.value ?? data.indicators.ema9?.at(-1)?.value)}</span>
           <span class="legend-ema72" style="display: ${isEma72Vis ? 'inline' : 'none'}">EMA 72: ${formatNumber(data.indicators.ema72?.at(-1)?.value ?? data.indicators.ema30?.at(-1)?.value)}</span>
+          <span class="legend-sma7" style="display: ${indicatorPrefs.sma7 ? 'inline' : 'none'}; color: #f59e0b; font-weight: 700;">SMA 7: ${formatNumber(data.indicators.sma7?.at(-1)?.value ?? (sma7Series ? data.ohlc.at(-1)?.close : null))}</span>
           <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(ema21Series ? data.ohlc.at(-1)?.close : null)}</span>
           <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: ${formatNumber(ema50Series ? data.ohlc.at(-1)?.close : null)}</span>
           <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: ${formatNumber(ema200Series ? data.ohlc.at(-1)?.close : null)}</span>
@@ -2152,6 +2655,7 @@
       const bar = param.seriesData.get(candleSeries) || param.seriesData.get(lineSeries);
       const e10 = (ema10Series && param.seriesData.get(ema10Series)) || (ema9Series && param.seriesData.get(ema9Series));
       const e72 = (ema72Series && param.seriesData.get(ema72Series)) || (ema30Series && param.seriesData.get(ema30Series));
+      const s7 = sma7Series ? param.seriesData.get(sma7Series) : null;
       const e21 = ema21Series ? param.seriesData.get(ema21Series) : null;
       const e50 = ema50Series ? param.seriesData.get(ema50Series) : null;
       const e200 = ema200Series ? param.seriesData.get(ema200Series) : null;
@@ -2171,12 +2675,13 @@
           </span>
         `;
       }
-      if (e10 || e72 || vol || e21 || e50 || e200) {
+      if (e10 || e72 || vol || s7 || e21 || e50 || e200) {
         const isEma10Vis = !!(indicatorPrefs.ema10 ?? indicatorPrefs.ema9);
         const isEma72Vis = !!(indicatorPrefs.ema72 ?? indicatorPrefs.ema30);
         legendInd.innerHTML = `
           <span class="legend-ema10" style="display: ${isEma10Vis ? 'inline' : 'none'}">EMA 10: ${formatNumber(e10?.value)}</span>
           <span class="legend-ema72" style="display: ${isEma72Vis ? 'inline' : 'none'}">EMA 72: ${formatNumber(e72?.value)}</span>
+          <span class="legend-sma7" style="display: ${indicatorPrefs.sma7 ? 'inline' : 'none'}; color: #f59e0b; font-weight: 700;">SMA 7: ${formatNumber(s7?.value ?? data.indicators.sma7?.at(-1)?.value)}</span>
           <span class="legend-ema21" style="display: ${indicatorPrefs.ema21 ? 'inline' : 'none'}; color: #3b82f6; font-weight: 700;">EMA 21: ${formatNumber(e21?.value)}</span>
           <span class="legend-ema50" style="display: ${indicatorPrefs.ema50 ? 'inline' : 'none'}; color: #a855f7; font-weight: 700;">EMA 50: ${formatNumber(e50?.value)}</span>
           <span class="legend-ema200" style="display: ${indicatorPrefs.ema200 ? 'inline' : 'none'}; color: #ef4444; font-weight: 700;">EMA 200: ${formatNumber(e200?.value)}</span>
@@ -2426,10 +2931,26 @@
 
     if (chkE10) chkE10.onchange = () => { indicatorPrefs.ema10 = chkE10.checked; indicatorPrefs.ema9 = chkE10.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE72) chkE72.onchange = () => { indicatorPrefs.ema72 = chkE72.checked; indicatorPrefs.ema30 = chkE72.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    const chkSma7 = document.getElementById('chkIndSma7');
+    if (chkSma7) {
+      chkSma7.onchange = () => {
+        indicatorPrefs.sma7 = chkSma7.checked;
+        saveIndicatorPrefs(indicatorPrefs);
+        applyIndicatorVisibility();
+      };
+    }
     if (chkE21) chkE21.onchange = () => { indicatorPrefs.ema21 = chkE21.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE50) chkE50.onchange = () => { indicatorPrefs.ema50 = chkE50.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkE200) chkE200.onchange = () => { indicatorPrefs.ema200 = chkE200.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
     if (chkVol) chkVol.onchange = () => { indicatorPrefs.volume = chkVol.checked; saveIndicatorPrefs(indicatorPrefs); applyIndicatorVisibility(); };
+    const chkIfr2 = document.getElementById('chkIndIfr2');
+    if (chkIfr2) {
+      chkIfr2.onchange = () => {
+        indicatorPrefs.ifr2 = chkIfr2.checked;
+        saveIndicatorPrefs(indicatorPrefs);
+        applyIndicatorVisibility();
+      };
+    }
 
     // 3. Settings Popover
     const btnSettings = document.getElementById('btnChartSettings');
@@ -2549,6 +3070,7 @@
     setupNotesDrawerEvents();
     setupWatchlistButtonEvents();
     setupTriggerBannerEvents();
+    setupLiquidityEvents();
 
     const btnRegisterAnalysis = document.getElementById('btnRegisterChartAnalysis');
     if (btnRegisterAnalysis) btnRegisterAnalysis.onclick = captureAndRegisterAnalysis;
@@ -2578,6 +3100,124 @@
         }
       });
     }
+  }
+
+  function setupLiquidityEvents() {
+    const row = document.getElementById('visionLiquidityRow');
+    const pill = document.getElementById('visionLiquidityPill');
+    const handler = (e) => {
+      e?.preventDefault?.();
+      showLiquidityDetailsModal(currentLiquidityEvaluation, tickerData);
+    };
+    if (pill) {
+      pill.onclick = handler;
+      pill.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handler(e);
+        }
+      };
+    }
+    if (row) {
+      row.style.cursor = 'pointer';
+      row.onclick = handler;
+    }
+  }
+
+  function showLiquidityDetailsModal(liqResult, tData) {
+    const old = document.getElementById('liquidityModalOverlay');
+    if (old) old.remove();
+
+    const sym = tData?.tickerInfo?.symbol || currentTicker || 'ATIVO';
+    const isEligible = Boolean(liqResult && liqResult.isEligible === true);
+    const isUnavailable = !liqResult ||
+      liqResult.status === 'DADOS_INDISPONIVEIS' || liqResult.status === 'DATA_UNAVAILABLE' ||
+      liqResult.status === 'HISTORICO_INSUFICIENTE' || liqResult.status === 'INSUFFICIENT_HISTORY' ||
+      liqResult.code === 'DATA_UNAVAILABLE' || liqResult.code === 'INSUFFICIENT_HISTORY';
+    const metrics = liqResult?.metrics || tData?.liquidity?.metrics || null;
+    const reason = liqResult?.reason || tData?.liquidity?.reason || (isEligible ? 'Ativo cumpre todos os requisitos do Liquidity Gate.' : 'Ativo reprovado no Liquidity Gate (não elegível operacionalmente).');
+    const source = tData?.tickerInfo?.syncSource || 'B3 (COTAHIST)';
+    const sessionDate = (tData?.tickerInfo?.sessionDate ? formatSessionDate(tData.tickerInfo.sessionDate) : null) || tData?.tickerInfo?.sessionDate || 'Último pregão';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'liquidity-modal-overlay';
+    overlay.id = 'liquidityModalOverlay';
+
+    overlay.innerHTML = `
+      <div class="liquidity-modal-card">
+        <div class="liquidity-modal-head">
+          <div class="liquidity-modal-title-group">
+            <div class="liquidity-modal-icon ${isEligible ? 'good' : 'bad'}">
+              ${ICONS.liquidity}
+            </div>
+            <div>
+              <h3 class="liquidity-modal-title">Liquidity Gate · ${escapeHtml(sym)}</h3>
+              <div class="liquidity-modal-subtitle">Avaliação oficial de liquidez operacional</div>
+            </div>
+          </div>
+          <button class="discipline-modal-close" id="btnCloseLiquidityModal" type="button" aria-label="Fechar">✕</button>
+        </div>
+
+        <div class="liquidity-modal-status-pill ${isEligible ? 'good' : 'bad'}">
+          ${isEligible
+            ? '● LIQUIDEZ APROVADA — Ativo Elegível para Operações'
+            : (isUnavailable ? '● DADOS INDISPONÍVEIS — Bloqueio Cautelar (Fail Closed)' : '● BLOQUEADO POR LIQUIDEZ — Ativo Não Elegível')}
+        </div>
+
+        <div class="liquidity-modal-grid">
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Volume Médio Diário</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(metrics?.averageDailyVolumeFormatted || metrics?.averageDailyVolumeCompact || tData?.tickerInfo?.volumeAvg21Formatted || '—')}</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Mínimo Exigido</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(metrics?.minDailyVolumeFormatted || metrics?.minDailyVolumeCompact || 'R$ 500.000')}</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Média de Negócios</span>
+            <span class="liquidity-modal-cell-value">${metrics?.averageDailyTrades ? `${escapeHtml(metrics.averageDailyTrades)} neg/dia` : '—'}</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Janela de Avaliação</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(metrics?.windowSessions || 21)} pregões</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Data-Base dos Dados</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(sessionDate)}</span>
+          </div>
+          <div class="liquidity-modal-cell">
+            <span class="liquidity-modal-cell-label">Fonte de Informação</span>
+            <span class="liquidity-modal-cell-value">${escapeHtml(source)}</span>
+          </div>
+        </div>
+
+        <div class="liquidity-modal-reason-box ${isEligible ? 'good' : 'bad'}">
+          <strong>Diagnóstico do Gate:</strong> ${escapeHtml(reason)}
+        </div>
+
+        <div class="liquidity-modal-actions">
+          <button class="primary" id="btnConfirmLiquidityModal" type="button" style="padding: 9px 22px;">Entendido</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    const btnClose = overlay.querySelector('#btnCloseLiquidityModal');
+    const btnConfirm = overlay.querySelector('#btnConfirmLiquidityModal');
+    if (btnClose) btnClose.onclick = close;
+    if (btnConfirm) btnConfirm.onclick = close;
+    overlay.onclick = (e) => {
+      if (e.target === overlay) close();
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        close();
+        document.removeEventListener('keydown', onKey);
+      }
+    };
+    document.addEventListener('keydown', onKey);
   }
 
   function setupTriggerBannerEvents() {
@@ -2665,6 +3305,7 @@
 
   // Ponto de entrada chamado ao navegar para a tela 'charts'
   function onOpenChartsPage(requestedTicker) {
+    checkAndApplyPendingStrategyProfile();
     initDiscipline();
     const target = requestedTicker || window.__pendingChartsTicker || currentTicker || defaultTicker;
     window.__pendingChartsTicker = null;

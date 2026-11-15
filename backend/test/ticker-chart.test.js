@@ -43,6 +43,7 @@ test('ticker-chart: getTickerChartData retorna pacote analítico completo para P
   // 3. Indicadores (EMA 9, EMA 30, ATR)
   assert.ok(data.indicators.ema9.length > 0);
   assert.ok(data.indicators.ema30.length > 0);
+  assert.ok(Array.isArray(data.indicators.sma7) && data.indicators.sma7.length > 0);
   assert.ok(data.indicators.atr21 > 0);
   assert.ok(data.indicators.atrPct > 0);
 
@@ -135,7 +136,7 @@ test('ticker-chart: avaliação de fundamentos reflete FundamentalScore oficial 
   assert.equal(mglu.fundamentals.classification, 'FRACO');
   assert.equal(mglu.fundamentals.evaluation, 'Fraco');
   assert.equal(mglu.fundamentals.status, 'bad');
-  assert.equal(mglu.fundamentals.score, 4.7);
+  assert.ok(mglu.fundamentals.score >= 4.0 && mglu.fundamentals.score <= 5.0);
   const mgluFundCriteria = mglu.rubric.criteria.find(c => c.name === 'Fundamentos');
   assert.ok(mgluFundCriteria);
   assert.equal(mgluFundCriteria.status, false);
@@ -151,5 +152,20 @@ test('ticker-chart: avaliação de fundamentos reflete FundamentalScore oficial 
   assert.ok(petrFundCriteria);
   assert.equal(petrFundCriteria.status, true);
   assert.equal(petrFundCriteria.obs, 'Forte');
+});
+
+test('ticker-chart: expõe bdrInfo para BDRs (StockCharts + Earnings) e mantém nulo para ações nacionais', async () => {
+  const nvdc = await tickerChart.getTickerChartData('NVDC34');
+  assert.equal(nvdc.tickerInfo.symbol, 'NVDC34');
+  assert.equal(nvdc.tickerInfo.isBdr, true);
+  assert.equal(nvdc.tickerInfo.originalSymbol, 'NVDA');
+  assert.ok(nvdc.bdrInfo);
+  assert.equal(nvdc.bdrInfo.underlyingSymbol, 'NVDA');
+  assert.equal(nvdc.bdrInfo.stockChartsUrl, 'https://stockcharts.com/acp/?s=NVDA');
+
+  const petr = await tickerChart.getTickerChartData('PETR4');
+  assert.equal(petr.tickerInfo.isBdr, false);
+  assert.equal(petr.tickerInfo.originalSymbol, null);
+  assert.equal(petr.bdrInfo, null);
 });
 

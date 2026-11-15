@@ -86,6 +86,18 @@ async function getAnalytics({
     };
   }
 
+  // Visão Comparativa de Sistemas (Tendência vs Volatilidade)
+  if (strategy === 'COMPARISON') {
+    const comparison = StrategyAnalyticsModel.compareStrategies(filtered, { initialCapital });
+    return {
+      scope: 'COMPARISON',
+      initialCapital,
+      comparison,
+      trades: closed,
+      definitions: StrategyAnalyticsModel.METRIC_DEFINITIONS
+    };
+  }
+
   // Visão Consolidada de Carteira (Default / ALL)
   const consolidated = StrategyAnalyticsModel.calculateConsolidatedPortfolio(filtered, { initialCapital });
   const trendBreakdowns = StrategyAnalyticsModel.calculateTrendBreakdowns(filtered);
@@ -95,6 +107,7 @@ async function getAnalytics({
     scope: 'CONSOLIDATED',
     initialCapital,
     consolidated,
+    comparison: consolidated.comparison,
     breakdowns: {
       trendFollowing: trendBreakdowns,
       volatilityTrading: volBreakdowns

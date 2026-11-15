@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-08T12:31:36.934Z",
+  "generatedAt": "2026-11-09T18:43:12.233Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -560,13 +560,13 @@
       "presentInStaticHtml": true,
       "headingsCount": 2,
       "cardsCount": 1,
-      "buttonsCount": 27,
+      "buttonsCount": 29,
       "inputsCount": 1,
       "tablesCount": 0,
       "svgCount": 0,
       "badgesCount": 0,
       "gridsCount": 0,
-      "structuralHash": "c3cfc53cdd63c5b7"
+      "structuralHash": "ca1256eedd9e6b76"
     },
     "glossary": {
       "screenId": "glossary",

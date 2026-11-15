@@ -6,6 +6,7 @@ const OpportunityRadarModel = require('../../frontend/opportunity-radar-model');
 const MarketCycleModel = require('../../frontend/market-cycle-model');
 const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
 const VolatilityEngineModel = require('../../frontend/volatility-trading-engine-model');
+const bdrInternational = require('./bdr-international');
 
 async function getOpportunityRadarData(cache, options = {}) {
   const strategy = options.strategy ? String(options.strategy).toUpperCase() : 'TREND_FOLLOWING';
@@ -142,6 +143,13 @@ async function getOpportunityRadarData(cache, options = {}) {
           readyItem.rubricScore = chartData.rubric.score;
           readyItem.rubricSummary = chartData.rubric.summaryText;
         }
+        if (chartData?.tickerInfo?.bdrInfo) {
+          readyItem.bdrInfo = chartData.tickerInfo.bdrInfo;
+          if (chartData.tickerInfo.bdrInfo.earnings?.isWithinWindow) {
+            readyItem.hasUpcomingEarnings = true;
+            readyItem.earnings = chartData.tickerInfo.bdrInfo.earnings;
+          }
+        }
       } catch {
         // Preserva avaliação padrão em caso de exceção isolada
       }
@@ -152,41 +160,130 @@ async function getOpportunityRadarData(cache, options = {}) {
   filteredReadyItems.forEach(item => { item.strategyType = 'TREND_FOLLOWING'; });
 
   const volatilityItems = [];
-  if (strategy === 'ALL' || strategy === 'VOLATILITY_TRADING' || strategy === 'VOLATILITY') {
+  const oversoldLevel = 10;
+  if (true) {
     for (const [symbol, candles] of b3Histories.entries()) {
-      if (!Array.isArray(candles) || candles.length < 200) continue;
+      if (!Array.isArray(candles) || candles.length < 30) continue;
+      const marketCat = OpportunityRadarModel.resolveMarketCategory({ symbol });
+
+      // Salvaguarda mandatória: Liquidity Gate (Hard Gate global)
+      let liqCheck = null;
       if (LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
-        const liqCheck = LiquidityGateModel.evaluateLiquidity({ candles, symbol, market: 'Ações B3' });
+        liqCheck = LiquidityGateModel.evaluateLiquidity({ candles, symbol, market: marketCat });
         if (!liqCheck || !liqCheck.isEligible) continue;
       }
-      const signal = VolatilityEngineModel.evaluateSignal(candles, candles.length - 1, { symbol });
-      if (signal && signal.isValid) {
-        volatilityItems.push({
-          symbol,
-          name: symbol,
-          market: 'IBOV',
-          marketCategory: 'B3',
-          strategyType: 'VOLATILITY_TRADING',
-          setupName: 'Volatility Swing IFR2',
-          setupTrigger: 'IFR2_OVERSOLD',
-          ifr2: signal.indicators?.ifr,
-          close: signal.indicators?.close,
-          sma7: signal.indicators?.smaShort,
-          sma200: signal.indicators?.smaLong,
-          grade: 'A',
-          isReady: true,
-          liquidityApproved: true,
-          lastCandleDate: signal.signalDate
-        });
+
+      const closes = candles.map((c) => c.close);
+      const ifr2Array = VolatilityEngineModel.calculateRSI(closes, 2, 'WILDER');
+      const latestIfr2 = ifr2Array[ifr2Array.length - 1];
+      if (!Number.isFinite(latestIfr2)) continue;
+
+      const sma7Array = VolatilityEngineModel.calculateSMA(closes, 7);
+      const sma200Array = VolatilityEngineModel.calculateSMA(closes, 200);
+      const latestSma7 = sma7Array[sma7Array.length - 1];
+      const latestSma200 = sma200Array[sma200Array.length - 1];
+
+      const currentCandle = candles[candles.length - 1];
+      const currentPrice = currentCandle.close;
+      const lastCandleDate = currentCandle.time;
+
+      const ifr2Val = Number(latestIfr2.toFixed(2));
+      const distanceToOversold = Number((latestIfr2 - oversoldLevel).toFixed(2));
+
+      let status = 'SEM OPORTUNIDADE';
+      let statusLabel = 'Sem Oportunidade';
+      let statusCode = 'NO_OPPORTUNITY';
+      let sortPriority = 3;
+
+      if (latestIfr2 <= oversoldLevel) {
+        status = 'SOBREVENDA';
+        statusLabel = 'Sobrevenda';
+        statusCode = 'OVERSOLD';
+        sortPriority = 1;
+      } else if (latestIfr2 <= 20) {
+        status = 'PRÓXIMO DA SOBREVENDA';
+        statusLabel = 'Próximo da Sobrevenda';
+        statusCode = 'NEAR_OVERSOLD';
+        sortPriority = 2;
       }
+
+      const compName = OpportunityRadarModel.cleanCompanyName(symbol);
+
+      volatilityItems.push({
+        symbol,
+        name: compName,
+        market: marketCat,
+        marketCategory: marketCat,
+        strategyType: 'VOLATILITY_TRADING',
+        price: currentPrice,
+        close: currentPrice,
+        ifr2: ifr2Val,
+        oversoldLevel,
+        distanceToOversold,
+        status,
+        statusLabel,
+        statusCode,
+        sortPriority,
+        sma7: latestSma7 != null ? Number(latestSma7.toFixed(2)) : null,
+        sma200: latestSma200 != null ? Number(latestSma200.toFixed(2)) : null,
+        liquidity: liqCheck,
+        liquidityApproved: true,
+        lastCandleDate
+      });
     }
+
+    // Ordenação: primeiro ativos em SOBREVENDA (menor IFR2 primeiro), depois PRÓXIMO DA SOBREVENDA, depois SEM OPORTUNIDADE
+    volatilityItems.sort((a, b) => {
+      if (a.sortPriority !== b.sortPriority) return a.sortPriority - b.sortPriority;
+      if (a.ifr2 !== b.ifr2) return a.ifr2 - b.ifr2;
+      return a.symbol.localeCompare(b.symbol);
+    });
   }
+
+  const countOversold = volatilityItems.filter((i) => i.statusCode === 'OVERSOLD').length;
+  const countNear = volatilityItems.filter((i) => i.statusCode === 'NEAR_OVERSOLD').length;
+  const countNoOpp = volatilityItems.filter((i) => i.statusCode === 'NO_OPPORTUNITY').length;
+  const volatilitySummary = {
+    oversoldCount: countOversold,
+    nearOversoldCount: countNear,
+    noOpportunityCount: countNoOpp,
+    oversoldLevel: oversoldLevel,
+    totalEvaluated: volatilityItems.length,
+    updatedAt: cache.updatedAt || cache.historyUpdatedAt || null
+  };
+
+  // Somente ativos que cumprem 100% o critério de entrada: SOBREVENDA (IFR 2 <= 10)
+  const oversoldOpportunities = volatilityItems.filter((i) => i.statusCode === 'OVERSOLD');
+
+  // Enriquece ativos BDR com dados internacionais e alerta de earnings na janela de 0 a 10 dias corridos
+  const allRadarItems = [...filteredReadyItems, ...oversoldOpportunities];
+  await Promise.all(
+    allRadarItems.map(async (item) => {
+      if (!item || !item.symbol || item.bdrInfo) return;
+      if (bdrInternational.isBdr(item.symbol)) {
+        try {
+          const bdrInfo = await bdrInternational.getBdrIntegrationData(item.symbol, {
+            referenceDate: item.lastCandleDate || new Date().toISOString().slice(0, 10)
+          });
+          if (bdrInfo && bdrInfo.isBdr) {
+            item.bdrInfo = bdrInfo;
+            if (bdrInfo.earnings?.isWithinWindow) {
+              item.hasUpcomingEarnings = true;
+              item.earnings = bdrInfo.earnings;
+            }
+          }
+        } catch {
+          // Silencioso e resiliente
+        }
+      }
+    })
+  );
 
   let finalItems = filteredReadyItems;
   if (strategy === 'VOLATILITY_TRADING' || strategy === 'VOLATILITY') {
-    finalItems = volatilityItems;
+    finalItems = oversoldOpportunities;
   } else if (strategy === 'ALL') {
-    finalItems = [...filteredReadyItems, ...volatilityItems];
+    finalItems = [...filteredReadyItems, ...oversoldOpportunities];
   }
 
   const latestCandleDates = filteredReadyItems.map((i) => i.lastCandleDate).filter(Boolean).sort();
@@ -257,7 +354,10 @@ async function getOpportunityRadarData(cache, options = {}) {
       }
     },
     totalReady: finalItems.length,
-    items: finalItems
+    items: finalItems,
+    trendItems: filteredReadyItems,
+    volatilityItems: oversoldOpportunities,
+    volatilitySummary
   };
 }
 

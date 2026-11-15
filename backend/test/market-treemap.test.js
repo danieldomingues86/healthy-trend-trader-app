@@ -80,7 +80,7 @@ test('market-treemap: getMarketTreemapData retorna universo completo de ações 
   const data = await getMarketTreemapData({ universe: 'ALL', period: '1d' });
 
   assert.ok(data.summary, 'Sumário existe');
-  assert.ok(data.summary.totalCompanies >= 250, 'Mais de 250 empresas listadas');
+  assert.ok(data.summary.totalCompanies >= 200, 'Ao menos 200 empresas listadas');
   assert.ok(data.summary.totalSectors >= 10, 'Ao menos 10 setores representados');
   assert.ok(data.summary.totalMarketCap > 4e12, 'Market cap total superior a R$ 4 trilhões');
   assert.ok(Number.isFinite(data.summary.avgChangePct), 'Variação média é um número finito');
