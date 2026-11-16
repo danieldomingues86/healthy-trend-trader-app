@@ -1,0 +1,633 @@
+/* ==========================================================================
+   PAINEL DA VERDADE — HEALTHY TREND TRADER
+   Reforma UX/UI completa com 5 Abas e Paleta Exclusiva Pigeon Light
+   ========================================================================== */
+
+/* ── Tokens Exclusivos Pigeon Light ── */
+:root {
+  --tp-bg: #F5F8F7;
+  --tp-card-bg: #FFFFFF;
+  --tp-navy: #173B4B;
+  --tp-navy-dark: #0F2A36;
+  --tp-green: #72B9A0;
+  --tp-green-dark: #15803D;
+  --tp-green-light: #EDF7F2;
+  --tp-red: #DC2626;
+  --tp-red-light: #FEE2E2;
+  --tp-blue: #1E40AF;
+  --tp-blue-light: #EFF6FF;
+  --tp-text-main: #173B4B;
+  --tp-text-sub: #5B707A;
+  --tp-border: #E2E8F0;
+  --tp-border-hover: #CBD5E1;
+  --tp-radius-lg: 16px;
+  --tp-radius-md: 12px;
+  --tp-radius-sm: 8px;
+  --tp-shadow-sm: 0 1px 3px rgba(23, 59, 75, 0.05);
+  --tp-shadow-md: 0 4px 16px rgba(23, 59, 75, 0.05);
+}
+
+/* ── Layout da Página ── */
+#analytics {
+  background-color: var(--tp-bg) !important;
+  color: var(--tp-text-main) !important;
+  min-height: calc(100vh - 78px);
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+body:has(#analytics.active) .content {
+  background-color: var(--tp-bg) !important;
+  padding: 24px var(--workspace-gutter, 32px) 48px !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+.truth-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* ── 1. Header Hero ── */
+.truth-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: #FFFFFF;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--tp-shadow-sm);
+  box-sizing: border-box;
+}
+
+.truth-hero-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.truth-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tp-green);
+}
+
+.truth-hero h1 {
+  margin: 0;
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 800;
+  color: var(--tp-navy);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.truth-hero p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--tp-text-sub);
+  line-height: 1.5;
+  max-width: 720px;
+}
+
+.truth-hero-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--tp-green-light);
+  border: 1px solid rgba(114, 185, 160, 0.4);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--tp-navy);
+  white-space: nowrap;
+}
+
+.truth-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--tp-green);
+}
+
+/* ── 2. Navegação por Abas (5 Abas) ── */
+.truth-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FFFFFF;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-lg);
+  padding: 6px;
+  box-shadow: var(--tp-shadow-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.truth-tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.truth-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--tp-radius-md);
+  background: transparent;
+  color: var(--tp-text-sub);
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.truth-tab-btn:hover {
+  background: #F1F5F9;
+  color: var(--tp-navy);
+}
+
+.truth-tab-btn.active {
+  background: var(--tp-navy);
+  color: #FFFFFF;
+  border-color: var(--tp-navy);
+  box-shadow: 0 2px 8px rgba(23, 59, 75, 0.2);
+}
+
+.truth-tab-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ── 3. Barra de Filtros Global ── */
+.truth-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-lg);
+  padding: 14px 20px;
+  box-shadow: var(--tp-shadow-sm);
+  box-sizing: border-box;
+}
+
+.truth-filter-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.truth-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.truth-filter-group label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tp-text-sub);
+}
+
+.truth-filter-select {
+  height: 36px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-sm);
+  background: #FFFFFF url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%3E%3Cpath%20fill%3D%22%235B707A%22%20d%3D%22M6%208L0%200h12z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 10px center;
+  background-size: 10px;
+  appearance: none;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--tp-navy);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.truth-filter-select:hover,
+.truth-filter-select:focus {
+  border-color: var(--tp-green);
+}
+
+.truth-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.truth-btn-ghost,
+.truth-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--tp-radius-sm);
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.truth-btn-ghost {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tp-text-sub);
+}
+
+.truth-btn-ghost:hover {
+  background: #F1F5F9;
+  color: var(--tp-navy);
+}
+
+.truth-btn-secondary {
+  border: 1px solid var(--tp-border);
+  background: #FFFFFF;
+  color: var(--tp-navy);
+}
+
+.truth-btn-secondary:hover {
+  background: #F8FAFC;
+  border-color: var(--tp-border-hover);
+}
+
+/* ── 4. Cards do Design System ── */
+.truth-card {
+  background: #FFFFFF;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--tp-shadow-sm);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.truth-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.truth-card-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--tp-navy);
+  letter-spacing: -0.02em;
+}
+
+.truth-card-head span {
+  font-size: 12px;
+  color: var(--tp-text-sub);
+}
+
+/* ── 5. KPIs Padronizados ── */
+.truth-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.truth-kpi-card {
+  background: #FFFFFF;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-md);
+  padding: 18px 20px;
+  box-shadow: var(--tp-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.truth-kpi-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tp-text-sub);
+}
+
+.truth-kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--tp-navy);
+  line-height: 1.15;
+  margin: 4px 0 2px;
+}
+
+.truth-kpi-value.positive {
+  color: var(--tp-green-dark);
+}
+
+.truth-kpi-value.negative {
+  color: var(--tp-red);
+}
+
+.truth-kpi-value.neutral {
+  color: var(--tp-blue);
+}
+
+.truth-kpi-sub {
+  font-size: 12px;
+  color: var(--tp-text-sub);
+}
+
+/* ── 6. Grids de Conteúdo das Abas ── */
+.truth-section-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.truth-section-grid.three-col {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.truth-section-grid.four-col {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.truth-col-full {
+  grid-column: 1 / -1;
+}
+
+/* ── 7. Gráficos SVG Nítidos ── */
+.truth-chart-wrap {
+  width: 100%;
+  position: relative;
+  background: #FFFFFF;
+  border-radius: var(--tp-radius-md);
+  padding: 8px 0;
+  box-sizing: border-box;
+}
+
+.truth-svg-chart {
+  width: 100%;
+  height: 230px;
+  display: block;
+  overflow: visible;
+}
+
+.truth-chart-grid-line {
+  stroke: #E2E8F0;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.truth-chart-axis-text {
+  fill: var(--tp-text-sub);
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.truth-chart-line-green {
+  fill: none;
+  stroke: var(--tp-green);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.truth-chart-area-green {
+  fill: var(--tp-green);
+  opacity: 0.12;
+}
+
+.truth-chart-line-red {
+  fill: none;
+  stroke: var(--tp-red);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.truth-chart-area-red {
+  fill: var(--tp-red);
+  opacity: 0.10;
+}
+
+/* ── 8. Tabelas Institucionais ── */
+.truth-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-md);
+}
+
+.truth-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: right;
+  background: #FFFFFF;
+}
+
+.truth-table th,
+.truth-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--tp-border);
+}
+
+.truth-table th:first-child,
+.truth-table td:first-child {
+  text-align: left;
+}
+
+.truth-table th {
+  background: #F8FAFC;
+  color: var(--tp-text-sub);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.truth-table tr:last-child td {
+  border-bottom: none;
+}
+
+.truth-table tr:hover td {
+  background: #F8FAFC;
+}
+
+.truth-table .money.good {
+  color: var(--tp-green-dark);
+  font-weight: 750;
+}
+
+.truth-table .money.bad {
+  color: var(--tp-red);
+  font-weight: 750;
+}
+
+/* ── 9. Badges e Barras de Progresso ── */
+.truth-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.truth-badge.good {
+  background: var(--tp-green-light);
+  color: var(--tp-green-dark);
+}
+
+.truth-badge.bad {
+  background: var(--tp-red-light);
+  color: var(--tp-red);
+}
+
+.truth-badge.neutral {
+  background: var(--tp-blue-light);
+  color: var(--tp-blue);
+}
+
+.truth-badge.grade-a {
+  background: #EDF7F2;
+  color: #15803D;
+  border: 1px solid #C6E7D9;
+}
+
+.truth-badge.grade-b {
+  background: #EFF6FF;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+}
+
+.truth-badge.grade-c {
+  background: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.truth-badge.grade-d {
+  background: #FEE2E2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+
+.truth-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #E2E8F0;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.truth-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tp-green);
+  transition: width 0.3s ease;
+}
+
+/* ── 10. Super Destaques (Eficiência & ROCE) ── */
+.truth-hero-metric-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius-lg);
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+  box-shadow: var(--tp-shadow-sm);
+}
+
+.truth-hero-metric-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tp-green);
+  margin-bottom: 6px;
+}
+
+.truth-hero-metric-val {
+  font-size: clamp(32px, 3vw, 42px);
+  font-weight: 850;
+  color: var(--tp-navy);
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.truth-hero-metric-desc {
+  font-size: 13px;
+  color: var(--tp-text-sub);
+  margin-top: 10px;
+  line-height: 1.45;
+}
+
+.truth-hero-metric-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--tp-text-sub);
+  border-top: 1px solid var(--tp-border);
+  padding-top: 12px;
+  margin-top: 16px;
+}
+
+/* ── 11. Responsive Breakpoints ── */
+@media (max-width: 1200px) {
+  .truth-section-grid {
+    grid-template-columns: 1fr;
+  }
+  .truth-section-grid.three-col,
+  .truth-section-grid.four-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .truth-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .truth-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .truth-filter-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .truth-section-grid.three-col,
+  .truth-section-grid.four-col {
+    grid-template-columns: 1fr;
+  }
+}

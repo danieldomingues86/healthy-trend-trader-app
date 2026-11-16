@@ -2692,10 +2692,14 @@ function exportTruthReport(format){
 }
 const renderAdvancedTruthPanel=renderAnalyticsFromDatabase;
 renderAnalyticsFromDatabase=function(trades=synchronizedTrades){
-  const selected=truthFilteredTrades(trades);
-  renderAdvancedTruthPanel(selected);
   const root=document.getElementById('analytics');
   if(!root||!window.healthyTrendApi?.isAuthenticated())return;
+  if(window.TruthPanel&&typeof window.TruthPanel.render==='function'){
+    window.TruthPanel.render(root,trades);
+    return;
+  }
+  const selected=truthFilteredTrades(trades);
+  renderAdvancedTruthPanel(selected);
   let stratBox = document.getElementById('analyticsStrategyContainer');
     if (!stratBox) {
       stratBox = document.createElement('div');
@@ -2737,7 +2741,7 @@ function renderRiskPolicySqnSection(){
   if(existing){existing.outerHTML=cardHtml;}else{page.insertAdjacentHTML('beforeend',cardHtml);}
 }
 window.renderRiskPolicySqnSection=renderRiskPolicySqnSection;
-go=function(id, ...args){const destination=id==='risk'?'newtrade':id;goWithEmbeddedPositionSizing(destination, ...args);if(destination==='today'||destination==='positions'||destination==='closedpositions'||destination==='analytics'||destination==='riskpolicy'||destination==='systemquality')syncOperationalFromDatabase();if(destination==='closedpositions')renderClosedPositionsView();if(destination==='analytics'){renderAnalyticsFromDatabase();const triggerStrat=()=>{if(window.StrategyAnalytics&&typeof window.StrategyAnalytics.render==='function'){const stratBox=document.getElementById('analyticsStrategyContainer')||document.querySelector('#analytics .hero')?.insertAdjacentElement('afterend',Object.assign(document.createElement('div'),{id:'analyticsStrategyContainer'}));const tr=window.synchronizedTrades||(typeof synchronizedTrades!=='undefined'?synchronizedTrades:[]);if(stratBox)window.StrategyAnalytics.render(stratBox,tr);}};setTimeout(triggerStrat,40);setTimeout(triggerStrat,150);}if(destination==='riskpolicy'||id==='riskpolicy')renderRiskPolicySqnSection();if(destination==='systemquality'&&typeof window.renderSystemQualityPage==='function')window.renderSystemQualityPage();};
+go=function(id, ...args){const destination=id==='risk'?'newtrade':id;goWithEmbeddedPositionSizing(destination, ...args);if(destination==='today'||destination==='positions'||destination==='closedpositions'||destination==='analytics'||destination==='riskpolicy'||destination==='systemquality')syncOperationalFromDatabase();if(destination==='closedpositions')renderClosedPositionsView();if(destination==='analytics'){renderAnalyticsFromDatabase();if(!window.TruthPanel){const triggerStrat=()=>{if(window.StrategyAnalytics&&typeof window.StrategyAnalytics.render==='function'){const stratBox=document.getElementById('analyticsStrategyContainer')||document.querySelector('#analytics .hero')?.insertAdjacentElement('afterend',Object.assign(document.createElement('div'),{id:'analyticsStrategyContainer'}));const tr=window.synchronizedTrades||(typeof synchronizedTrades!=='undefined'?synchronizedTrades:[]);if(stratBox)window.StrategyAnalytics.render(stratBox,tr);}};setTimeout(triggerStrat,40);setTimeout(triggerStrat,150);}}if(destination==='riskpolicy'||id==='riskpolicy')renderRiskPolicySqnSection();if(destination==='systemquality'&&typeof window.renderSystemQualityPage==='function')window.renderSystemQualityPage();};
 </script>
 <!-- Fundamentals styling loaded via frontend/fundamentals.css -->
 <script src="frontend/fundamental-score.js"></script>
@@ -6161,8 +6165,11 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/market-treemap-model.js?v=20261105-finviz-v3"></script>
 <script src="frontend/market-treemap.js?v=20261105-finviz-v3"></script>
 <link rel="stylesheet" href="frontend/deserving-diary.css?v=20261021-1" />
+<link rel="stylesheet" href="frontend/truth-panel.css?v=20261116-pigeon-v1" />
 <link rel="stylesheet" href="frontend/theme-pigeon-light.css?v=20261101-pigeon-light-final" />
 <script src="frontend/deserving-diary-model.js?v=20261021-1"></script>
 <script src="frontend/deserving-diary.js?v=20261021-1"></script>
+<script src="frontend/truth-panel-model.js?v=20261116-v1"></script>
+<script src="frontend/truth-panel.js?v=20261116-v1"></script>
 </body></html>
 

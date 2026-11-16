@@ -1290,6 +1290,7 @@
   function renderAnalyticsSummarySection(customTrades = null) {
     const analyticsPage = document.getElementById('analytics');
     if (!analyticsPage) return;
+    if (analyticsPage.querySelector('.truth-shell')) return;
 
     let section = document.getElementById('analyticsRiskOfRuinSummary');
     if (!section) {
