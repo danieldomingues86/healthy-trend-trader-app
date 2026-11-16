@@ -3,31 +3,33 @@
    Visual Cinematográfico, Metáfora do Arqueiro e Biblioteca de Habilidades
    ========================================================================== */
 
-/* Layout da Página & Expansão de Largura */
+/* Layout da Página & Expansão de Largura Widescreen (Idêntico ao padrão da Missão) */
 body:has(#tradertraining.active) .content,
 body.tt-active-screen .content,
 #tradertraining.page.active {
-  max-width: 1720px !important;
+  max-width: none !important;
   width: 100% !important;
-  margin: 0 auto !important;
-  padding: clamp(16px, 2vw, 32px) !important;
+  margin: 0 !important;
+  padding: 24px 32px 48px 32px !important;
   box-sizing: border-box !important;
 }
 
 #tradertraining {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 .tt-page {
   display: flex;
   flex-direction: column;
   gap: clamp(18px, 1.8vw, 24px);
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* 1. Hero do Arqueiro (Cinematográfico, Arqueiro Visível à esquerda) */

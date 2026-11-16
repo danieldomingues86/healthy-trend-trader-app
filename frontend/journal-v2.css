@@ -201,12 +201,12 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #journal .jv-workspa
 #journal .jv-workspace button{cursor:pointer}
 #journal .jv-workspace button:focus-visible,#journal .jv-workspace summary:focus-visible{outline:2px solid var(--jv-tone-3b8b58);outline-offset:4px}
 #journal .jv-workspace [hidden]{display:none!important}
-#journal .jv-heading{max-width:1700px;margin:0 auto 30px;display:flex;justify-content:space-between;gap:28px;align-items:center;padding-left:clamp(0px,10vw,200px)}
+#journal .jv-heading{width:100%;max-width:none;margin:0 0 30px;display:flex;justify-content:space-between;gap:28px;align-items:center;padding-left:clamp(0px,10vw,200px)}
 #journal .jv-heading h1{font:400 clamp(32px,3vw,48px)/1.2 Georgia,serif;margin:7px 0}
 #journal .jv-heading p{font-size:16px;color:var(--jv-tone-bccbbc)}
 #journal .jv-kicker{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--jv-tone-9bbda3)}
 #journal .jv-heading .jv-heading-quote{font:italic 20px/1.6 Georgia,serif;color:var(--jv-tone-cccfb8);padding-right:35px}
-#journal .jv-layout{max-width:1700px;margin:auto;display:grid;grid-template-columns:205px minmax(0,1fr);align-items:start;gap:0}
+#journal .jv-layout{width:100%;max-width:none;margin:0;display:grid;grid-template-columns:205px minmax(0,1fr);align-items:start;gap:0}
 #journal .jv-history{padding:24px 15px;background:var(--jv-tone-04140cba);border:1px solid var(--jv-tone-6a82613a);border-right:0;border-radius:18px 0 0 18px;position:sticky;top:94px;max-height:calc(100dvh - 110px);overflow:auto;color:var(--jv-tone-d7e1d3)}
 #journal .jv-history h2{font:400 21px Georgia,serif;margin-bottom:14px}
 #journal .jv-history select{width:100%;border:0;border-bottom:1px solid var(--jv-tone-34543a);border-radius:0;padding:5px 0 10px;background:var(--jv-tone-0c2014);color:var(--jv-tone-d7e1d3);font-size:14px}

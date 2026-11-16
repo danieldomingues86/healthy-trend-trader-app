@@ -46,8 +46,9 @@ body:has(#tradeanatomy.active) #marketFocusGuard {
 }
 
 .ta-page {
-  width: min(100%, 1880px);
-  margin: auto;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
   padding: clamp(24px, 2.6vw, 48px);
   box-sizing: border-box;
 }

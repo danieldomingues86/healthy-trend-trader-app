@@ -11,9 +11,9 @@ body:has(#forecast.active) .content {
 }
 
 #forecast {
-  width: 100%;
-  max-width: 1640px;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
 }
 
 .forecast-page-container {

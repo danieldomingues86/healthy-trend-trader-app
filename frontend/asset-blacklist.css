@@ -1,7 +1,7 @@
-#assetblacklist { --ab-gutter:clamp(20px,2vw,40px); width:100%; max-width:none; min-height:calc(100dvh - 78px); margin:0; padding:0 var(--ab-gutter); box-sizing:border-box; background:radial-gradient(ellipse at 77% 4%,rgba(45,86,69,.18),transparent 42%),radial-gradient(ellipse at 83% 94%,rgba(99,22,32,.10),transparent 40%),linear-gradient(145deg,#06130f,#020d0a 72%); color:#f2f7f4; }
+#assetblacklist { --ab-gutter:clamp(20px,2vw,40px); width:100%!important; max-width:none!important; min-height:calc(100dvh - 78px); margin:0!important; padding:0 var(--ab-gutter); box-sizing:border-box; background:radial-gradient(ellipse at 77% 4%,rgba(45,86,69,.18),transparent 42%),radial-gradient(ellipse at 83% 94%,rgba(99,22,32,.10),transparent 40%),linear-gradient(145deg,#06130f,#020d0a 72%); color:#f2f7f4; }
 body:has(#assetblacklist.active) #marketFocusGuard { display:none; }
 body:has(#assetblacklist.active) .main { min-height:100dvh; background:#030f0b; }
-body:has(#assetblacklist.active) .content { width:100%; max-width:none; min-height:calc(100dvh - 78px); margin:0; padding:0; box-sizing:border-box; background:#030f0b; }
+body:has(#assetblacklist.active) .content { width:100%!important; max-width:none!important; min-height:calc(100dvh - 78px); margin:0!important; padding:0!important; box-sizing:border-box; background:#030f0b; }
 body[data-theme="healthy"]:has(#assetblacklist.active) .topbar { background:rgba(4,18,14,.96); border-bottom-color:rgba(80,145,110,.2); }
 body[data-theme="healthy"]:has(#assetblacklist.active) .crumb { color:#a6bcb0; }
 body[data-theme="healthy"]:has(#assetblacklist.active) .crumb b { color:#eaf5ee; }

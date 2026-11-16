@@ -24,9 +24,9 @@ body:has(#traderrules.active) .content {
 
 .mindset-hub,
 .trader-rules-shell {
-  width: 100%;
-  max-width: 1560px;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

@@ -5,18 +5,18 @@
 
 /* Permite que a Central de Mercado utilize toda a largura disponível em telas widescreen */
 body:has(#marketcentral.active) .content {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: clamp(20px, 2vw, 32px) clamp(24px, 2.5vw, 48px);
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: clamp(20px, 2vw, 32px) clamp(24px, 2.5vw, 48px) !important;
+  box-sizing: border-box !important;
 }
 
 #marketcentral {
-  padding: 0;
-  max-width: none;
-  width: 100%;
-  margin: 0;
+  padding: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
   background: transparent;
   color: #0f172a;
   min-height: auto;

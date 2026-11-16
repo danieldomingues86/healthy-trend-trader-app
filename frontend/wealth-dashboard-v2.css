@@ -4,14 +4,15 @@
    ========================================================================== */
 
 #dashboard {
-  width: 100%;
-  max-width: none;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
 }
 
 .wealth-shell {
-  width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
   padding: 8px 12px 48px;
   color: #153426;
   box-sizing: border-box;

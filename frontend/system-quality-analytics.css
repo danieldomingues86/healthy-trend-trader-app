@@ -226,9 +226,9 @@ html[data-theme="pigeon"] {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
   padding-bottom: 48px;
 }
 
