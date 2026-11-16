@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-16T22:34:38.590Z",
+  "updatedAt": "2026-11-16T23:47:53.959Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -737,7 +737,7 @@
     },
     "sidebar-navigation.css": {
       "filename": "sidebar-navigation.css",
-      "rulesCount": 383,
+      "rulesCount": 405,
       "mediaBreakpointsCount": 9,
       "mediaBreakpoints": [
         "@media (max-width: 1024px)",
@@ -751,9 +751,9 @@
         "@media (min-width: 801px)"
       ],
       "healthyRulesCount": 119,
-      "goldRulesCount": 158,
-      "pigeonRulesCount": 95,
-      "footprintHash": "771cbfb96155078f"
+      "goldRulesCount": 166,
+      "pigeonRulesCount": 100,
+      "footprintHash": "17b6cc5e982a2ad5"
     },
     "theme-pigeon-light.css": {
       "filename": "theme-pigeon-light.css",
