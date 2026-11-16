@@ -2019,175 +2019,483 @@ body[data-navigation-layout="top"] #topNavigationMenu {
   line-height: 1.3;
 }
 
-/* ── 3. BLOCK NAVIGATION (TILES HUB - MENU EM BLOCOS) ── */
+/* ── 3. BLOCK NAVIGATION (TILES HUB - MENU EM BLOCOS REFORMULADO) ── */
 
-.navigation-hub-quick-section {
-  margin-bottom: 28px;
-  padding: 18px 20px;
-  background: rgba(6, 26, 18, 0.7);
-  border: 1px solid rgba(224, 185, 82, 0.35);
-  border-radius: 18px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.navigation-hub-section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #f0ce7a;
-  margin-bottom: 14px;
-}
-
-.navigation-hub-quick-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-}
-
-.nav-hub-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background: rgba(10, 30, 22, 0.85);
-  border: 1px solid rgba(143, 224, 170, 0.18);
-  border-radius: 12px;
-  color: #f1f5f9;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: inherit;
-  box-sizing: border-box;
-}
-
-.nav-hub-card:hover {
-  background: rgba(16, 185, 129, 0.18);
-  border-color: rgba(52, 211, 153, 0.45);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-}
-
-.nav-hub-card.quick-card {
-  border-color: rgba(224, 185, 82, 0.3);
-}
-
-.nav-hub-card.quick-card:hover {
-  border-color: #e0b952;
-}
-
-.nav-card-ico {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(143, 224, 170, 0.12);
-  display: flex;
+body[data-navigation-layout="tiles"] #navigationHub.navigation-hub,
+#navigationHub.navigation-hub {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  box-sizing: border-box !important;
+  display: none;
   align-items: center;
   justify-content: center;
-  color: #34d399;
-  font-size: 17px;
-  flex-shrink: 0;
+  overflow: hidden !important;
+  padding: clamp(14px, 2.5vh, 26px) clamp(24px, 3.8vw, 56px) !important;
+  background-color: #02120b !important;
+  background-image: 
+    linear-gradient(135deg, rgba(2, 22, 15, 0.92) 0%, rgba(3, 30, 20, 0.75) 50%, rgba(1, 14, 9, 0.94) 100%),
+    url('assets/navigation-hub-healthy-v1.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: #f7fff9 !important;
 }
 
-.nav-card-info {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  flex: 1;
+body[data-navigation-layout="tiles"] #navigationHub.navigation-hub.open,
+#navigationHub.navigation-hub.open {
+  display: flex !important;
+  animation: navHubFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-.nav-card-title-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+@keyframes navHubFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.nav-card-info b {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1.25;
+body[data-navigation-layout="tiles"]:has(#navigationHub.open) {
+  overflow: hidden !important;
 }
 
-.nav-card-info small {
-  font-size: 11.5px;
-  color: #94a3b8;
-  line-height: 1.35;
-  margin-top: 2px;
+#navigationHub .navigation-hub-inner {
+  width: min(1560px, 94vw) !important;
+  height: min(94vh, 900px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
-.navigation-hub-categories-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+/* Header */
+#navigationHub .nav-hub-header {
+  display: grid !important;
+  grid-template-columns: minmax(200px, 1fr) minmax(420px, 2.2fr) minmax(240px, 1.1fr) !important;
+  align-items: center !important;
+  gap: clamp(16px, 2vw, 28px) !important;
+  flex-shrink: 0 !important;
+  margin-bottom: clamp(12px, 2vh, 22px) !important;
+  position: relative !important;
 }
 
-.nav-category-block {
-  background: rgba(6, 22, 16, 0.65);
-  border: 1px solid rgba(143, 224, 170, 0.14);
-  border-radius: 18px;
-  padding: 18px 20px;
+#navigationHub .nav-hub-brand-col {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
 }
 
-.nav-category-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(143, 224, 170, 0.1);
+#navigationHub .nav-hub-brand-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
 }
 
-.nav-cat-ico {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: rgba(143, 224, 170, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #34d399;
-  flex-shrink: 0;
+#navigationHub .nav-hub-brand-logo-svg {
+  width: 36px !important;
+  height: 36px !important;
+  flex-shrink: 0 !important;
+  filter: drop-shadow(0 2px 8px rgba(52, 211, 153, 0.3)) !important;
 }
 
-.nav-cat-titles h3 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.01em;
+#navigationHub .nav-hub-brand-text {
+  display: flex !important;
+  flex-direction: column !important;
 }
 
-.nav-cat-titles p {
-  margin: 2px 0 0 0;
-  font-size: 11.5px;
-  color: #64748b;
+#navigationHub .nav-hub-brand-text strong {
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
 }
 
-.nav-category-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
+#navigationHub .nav-hub-brand-text small {
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.18em !important;
+  color: #9fe1b6 !important;
+  line-height: 1.2 !important;
+  margin-top: 3px !important;
 }
 
-.nav-hub-settings-link {
-  margin-left: auto;
-  background: transparent;
-  border: none;
-  color: #8fe0aa;
-  font-size: 11.5px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  font-family: inherit;
+#navigationHub .nav-hub-dove-watermark {
+  margin-top: 2px !important;
+  padding-left: 4px !important;
 }
 
-.nav-hub-settings-link:hover {
-  color: #ffffff;
+#navigationHub .nav-hub-title-col {
+  text-align: center !important;
+}
+
+#navigationHub .nav-hub-eyebrow {
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.28em !important;
+  color: #6fe49b !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+}
+
+#navigationHub .nav-hub-heading {
+  margin: 0 !important;
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-size: clamp(26px, 2.8vw, 46px) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.02em !important;
+  color: #f7fff9 !important;
+  line-height: 1.1 !important;
+}
+
+#navigationHub .nav-hub-highlight {
+  font-style: italic !important;
+  color: #63df91 !important;
+}
+
+#navigationHub .nav-hub-subheading {
+  margin: 8px 0 0 0 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.12em !important;
+  color: #9ab4a3 !important;
+  line-height: 1.3 !important;
+}
+
+#navigationHub .nav-hub-quote-card {
+  position: relative !important;
+  justify-self: end !important;
+  width: 100% !important;
+  max-width: 310px !important;
+  padding: 14px 18px !important;
+  background: rgba(4, 30, 20, 0.75) !important;
+  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+  border-radius: 14px !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25) !important;
+  box-sizing: border-box !important;
+}
+
+#navigationHub .nav-hub-quote-text {
+  margin: 0 !important;
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  color: #e6f7eb !important;
+  font-style: italic !important;
+}
+
+#navigationHub .nav-hub-quote-author {
+  display: block !important;
+  margin-top: 6px !important;
+  font-family: inherit !important;
+  font-size: 8.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.16em !important;
+  color: #7ee0a4 !important;
+  text-transform: uppercase !important;
+  font-style: normal !important;
+}
+
+#navigationHub .nav-hub-close-btn {
+  position: absolute !important;
+  top: 6px !important;
+  right: 8px !important;
+  width: 24px !important;
+  height: 24px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #8fe0aa !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  transition: all 0.18s ease !important;
+}
+
+#navigationHub .nav-hub-close-btn:hover {
+  background: rgba(52, 211, 153, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Unified 3x6 Grid */
+#navigationHub .nav-hub-unified-grid {
+  display: grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  grid-template-rows: repeat(3, 1fr) !important;
+  gap: clamp(10px, 1.2vw, 15px) !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+/* The 18 Tile Cards */
+#navigationHub .nav-hub-tile-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: clamp(10px, 1.6vh, 18px) clamp(8px, 1.1vw, 14px) !important;
+  background: rgba(3, 24, 16, 0.72) !important;
+  border: 1px solid rgba(52, 211, 153, 0.16) !important;
+  border-radius: 14px !important;
+  color: #f7fff9 !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(8px) !important;
+  transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  user-select: none !important;
+  font-family: inherit !important;
+}
+
+#navigationHub .nav-hub-tile-card:hover {
+  transform: translateY(-2px) !important;
+  background: rgba(5, 36, 24, 0.88) !important;
+  border-color: rgba(52, 211, 153, 0.55) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+#navigationHub .nav-hub-tile-card.active {
+  background: rgba(5, 38, 26, 0.92) !important;
+  border: 1.5px solid #34d399 !important;
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.3), inset 0 0 12px rgba(52, 211, 153, 0.08) !important;
+}
+
+#navigationHub .nav-hub-tile-icon {
+  display: grid !important;
+  place-items: center !important;
+  color: #34d399 !important;
+  margin-bottom: clamp(6px, 1vh, 10px) !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.18s ease, color 0.18s ease !important;
+}
+
+#navigationHub .nav-hub-tile-card:hover .nav-hub-tile-icon {
+  transform: scale(1.08) !important;
+  color: #6ee7b7 !important;
+}
+
+#navigationHub .nav-hub-tile-title {
+  font-family: inherit !important;
+  font-size: clamp(13px, 1.05vw, 15px) !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.2 !important;
+  margin-bottom: 4px !important;
+}
+
+#navigationHub .nav-hub-tile-desc {
+  font-size: clamp(10px, 0.82vw, 11.5px) !important;
+  color: #8fa597 !important;
+  line-height: 1.3 !important;
+  font-weight: 400 !important;
+}
+
+#navigationHub .nav-hub-tile-card:hover .nav-hub-tile-desc {
+  color: #b1c7ba !important;
+}
+
+/* PRO Badge if applicable */
+#navigationHub .nav-hub-tile-card .flyout-badge-pro {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  font-size: 8px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  padding: 2px 5px !important;
+  border-radius: 999px !important;
+  background: rgba(52, 211, 153, 0.16) !important;
+  border: 1px solid rgba(52, 211, 153, 0.3) !important;
+  color: #34d399 !important;
+}
+
+/* Pigeon Light Mode Support for Menu em Blocos */
+body[data-theme="pigeon"][data-navigation-layout="tiles"] #navigationHub.navigation-hub,
+body[data-theme="pigeon"] #navigationHub.navigation-hub {
+  background: radial-gradient(circle at 50% 18%, #edf4f2 0%, #F5F8F7 60%, #e2ece9 100%) !important;
+  color: #173B4B !important;
+}
+
+body[data-theme="pigeon"] #navigationHub .nav-hub-brand-logo-svg circle {
+  stroke: #72B9A0 !important;
+  fill: #edf4f2 !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-brand-logo-svg path,
+body[data-theme="pigeon"] #navigationHub .nav-hub-brand-logo-svg polyline {
+  stroke: #72B9A0 !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-brand-text strong {
+  color: #173B4B !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-brand-text small {
+  color: #558778 !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-dove-watermark svg path {
+  fill: rgba(23, 59, 75, 0.18) !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-eyebrow {
+  color: #438f75 !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-heading {
+  color: #173B4B !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-highlight {
+  color: #438f75 !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-subheading {
+  color: #5b736b !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-quote-card {
+  background: #ffffff !important;
+  border-color: #d2e4de !important;
+  box-shadow: 0 10px 24px rgba(23, 59, 75, 0.08) !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-quote-text {
+  color: #173B4B !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-quote-author {
+  color: #438f75 !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-close-btn {
+  color: #558778 !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-close-btn:hover {
+  background: rgba(114, 185, 160, 0.15) !important;
+  color: #173B4B !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card {
+  background: #ffffff !important;
+  border: 1px solid #dce8ef !important;
+  box-shadow: 0 4px 12px rgba(23, 59, 75, 0.04) !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:hover {
+  background: #f0f7f5 !important;
+  border-color: #72B9A0 !important;
+  box-shadow: 0 8px 20px rgba(23, 59, 75, 0.1) !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card.active {
+  background: #eaf5f1 !important;
+  border-color: #438f75 !important;
+  box-shadow: 0 0 16px rgba(114, 185, 160, 0.35) !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-title {
+  color: #173B4B !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-desc {
+  color: #5b736b !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-icon {
+  color: #438f75 !important;
+}
+
+/* Gold Theme Support for Menu em Blocos */
+body[data-theme="gold"][data-navigation-layout="tiles"] #navigationHub.navigation-hub,
+body[data-theme="gold"] #navigationHub.navigation-hub {
+  background: radial-gradient(circle at 50% 18%, #201509 0%, #150e05 60%, #0c0803 100%) !important;
+  color: #f5e7c8 !important;
+}
+
+body[data-theme="gold"] #navigationHub .nav-hub-brand-logo-svg circle {
+  stroke: #efc969 !important;
+  fill: #1f1407 !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-brand-logo-svg path,
+body[data-theme="gold"] #navigationHub .nav-hub-brand-logo-svg polyline {
+  stroke: #efc969 !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-brand-text small {
+  color: #dfbf7b !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-eyebrow {
+  color: #e9c369 !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-highlight {
+  color: #e4ba59 !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-quote-card {
+  background: rgba(35, 23, 9, 0.8) !important;
+  border-color: rgba(239, 201, 105, 0.4) !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-quote-author {
+  color: #e9c369 !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card {
+  background: rgba(24, 16, 6, 0.8) !important;
+  border-color: rgba(239, 201, 105, 0.22) !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card:hover {
+  background: rgba(38, 26, 11, 0.9) !important;
+  border-color: #efc969 !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card.active {
+  background: rgba(42, 29, 12, 0.95) !important;
+  border-color: #efc969 !important;
+  box-shadow: 0 0 20px rgba(239, 201, 105, 0.35) !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-icon {
+  color: #efc969 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1280px) {
+  #navigationHub .nav-hub-unified-grid {
+    gap: 10px !important;
+  }
+  #navigationHub .nav-hub-tile-card {
+    padding: 10px 8px !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  #navigationHub.navigation-hub {
+    overflow-y: auto !important;
+    align-items: flex-start !important;
+    padding: 24px 20px !important;
+  }
+  #navigationHub .navigation-hub-inner {
+    height: auto !important;
+    min-height: 100% !important;
+  }
+  #navigationHub .nav-hub-header {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    text-align: center !important;
+  }
+  #navigationHub .nav-hub-brand-col {
+    align-items: center !important;
+  }
+  #navigationHub .nav-hub-dove-watermark {
+    display: none !important;
+  }
+  #navigationHub .nav-hub-quote-card {
+    justify-self: center !important;
+  }
+  #navigationHub .nav-hub-unified-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #navigationHub .nav-hub-unified-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
 
 /* ── 4. NAVIGATION SETTINGS (CARD EM #settings) ── */
