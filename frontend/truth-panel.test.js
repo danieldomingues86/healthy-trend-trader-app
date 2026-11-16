@@ -257,3 +257,29 @@ test('TruthPanel: Paleta Pigeon Light sem resíduos de gradientes ou blocos azul
   assert.ok(css.includes('--tp-green: #72B9A0'), 'Deve usar verde de destaque #72B9A0');
   assert.ok(!css.includes('#06130f'), 'Não deve conter fundo escuro não-Pigeon');
 });
+
+test('TruthPanel: Presença e navegação clara para o Monthly Tracker em Aba 1 e Aba 3', () => {
+  const container = createMockElement('section', 'analytics');
+
+  // Na Aba 1 (Visão Geral), deve haver a chamada direta para o Monthly Tracker
+  TruthPanel.setActiveTab('overview');
+  TruthPanel.render(container, mockTrades);
+  let html = container.innerHTML;
+  assert.ok(html.includes('Monthly Tracker · Acompanhamento dos 12 Meses'), 'Aba 1 deve conter chamada explícita para o Monthly Tracker');
+  assert.ok(html.includes('data-switch-to-tab="quality"'), 'Aba 1 deve conter botão para abrir Monthly Tracker na Aba 3');
+
+  // Na Aba 3 (Qualidade & Monthly Tracker), a tabela completa de 12 meses deve existir
+  TruthPanel.setActiveTab('quality');
+  TruthPanel.render(container, mockTrades);
+  html = container.innerHTML;
+  assert.ok(html.includes('Monthly Tracker · Ano'), 'Aba 3 deve exibir a tabela Monthly Tracker');
+  assert.ok(html.includes('truth-monthly-tracker-card'), 'Deve possuir a classe do card do Monthly Tracker');
+  assert.ok(html.includes('JAN') && html.includes('DEZ'), 'Deve exibir os meses do ano');
+});
+
+test('TruthPanel: Prevenção de duplicidade ou injeção legada de analyticsStrategyContainer', () => {
+  const container = createMockElement('section', 'analytics');
+  TruthPanel.render(container, mockTrades);
+  assert.ok(!container.innerHTML.includes('analyticsStrategyContainer'), 'Não deve conter container legado');
+  assert.ok(container.innerHTML.includes('truth-shell'), 'Deve conter a casca do TruthPanel');
+});

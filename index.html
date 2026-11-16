@@ -841,7 +841,7 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderprofile .plat
 <div class="decision-card" id="psDecision"><div><small>Decisão do motor de risco</small><h3 id="psDecisionTitle">Camada limitante: risco pelo stop</h3><p id="psDecisionText">A menor quantidade entre as três camadas é a quantidade permitida pelo método.</p></div><div class="decision-qty"><strong id="psDecisionQty">400</strong><span id="psDecisionUnit">ações sugeridas</span></div></div>
 </section>
 
-<section class="page" id="analytics"><div class="hero truth-panel-hero"><div><div class="eyebrow">Painel da Verdade · Healthy Analytics</div><h1>O Espelho do Seu Trading.<br><span style="font-size: 26px; font-weight: 500; opacity: 0.9;">Descubra onde seu processo realmente funciona.</span></h1></div><p>Resultados financeiros ganham clareza absoluta quando confrontados com disciplina, setup, direção e qualidade da decisão.</p></div><div id="analyticsStrategyContainer"></div><div class="grid analytics-grid"><div class="card"><div class="card-head"><div><h3>Resultado por mercado</h3><span>Histórico consolidado 2015–2026</span></div></div><div class="donut-wrap"><div class="donut"></div><div class="legend"><span><i style="background:#4db879"></i>Futuros · R$ 486.959</span><span><i style="background:#b8df73"></i>Ações · R$ 142.685</span><span><i style="background:#e0bd67"></i>FIIs · -R$ 11.642</span><span><i style="background:#d97e72"></i>Outros · -R$ 11.905</span></div></div></div><div class="card"><div class="card-head"><div><h3>Resultado por ano</h3><span>Lucro e perda estimados</span></div></div><div class="bars"><div style="height:35%"><b>30k</b><span>2017</span></div><div style="height:55%"><b>106k</b><span>2018</span></div><div style="height:100%"><b>403k</b><span>2020</span></div><div style="height:25%;background:linear-gradient(#d98b80,#9f4c44)"><b>-95k</b><span>2021</span></div><div style="height:22%;background:linear-gradient(#d98b80,#9f4c44)"><b>-88k</b><span>2022</span></div><div style="height:38%"><b>27k</b><span>2023</span></div><div style="height:72%"><b>193k</b><span>2024</span></div><div style="height:40%"><b>29k</b><span>2025</span></div></div></div></div><div class="grid kpis" style="margin-top:18px"><div class="card kpi"><small>Compras / Long</small><strong>R$ 587.051</strong><div class="delta good">Principal motor de resultado</div></div><div class="card kpi"><small>Vendas / Short</small><strong>R$ 24.360</strong><div class="delta">Profit factor 1,07</div></div><div class="card kpi"><small>Melhor mercado</small><strong>Futuros</strong><div class="delta good">Profit factor 2,02</div></div><div class="card kpi"><small>Melhor ativo</small><strong>CCMX20</strong><div class="delta good">R$ 199.665</div></div></div></section>
+<section class="page" id="analytics" aria-label="Painel da Verdade"></section>
 <section class="page" id="systemquality" aria-label="Qualidade Estatística do Sistema"></section>
 <section class="page" id="tradeanatomy" aria-label="Anatomia dos Trades"></section>
 <section class="page" id="tradertraining" aria-label="Treinamento Trader"><div id="traderTrainingRoot"></div></section>
@@ -2690,45 +2690,23 @@ function exportTruthReport(format){
   const csv=rows.map(row=>row.map(value=>`"${String(value??'').replaceAll('"','""')}"`).join(';')).join('\n');
   const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));link.download='painel-da-verdade.csv';link.click();URL.revokeObjectURL(link.href);
 }
-const renderAdvancedTruthPanel=renderAnalyticsFromDatabase;
-renderAnalyticsFromDatabase=function(trades=synchronizedTrades){
-  const root=document.getElementById('analytics');
-  if(!root||!window.healthyTrendApi?.isAuthenticated())return;
-  if(window.TruthPanel&&typeof window.TruthPanel.render==='function'){
-    window.TruthPanel.render(root,trades);
+renderAnalyticsFromDatabase = function(trades = synchronizedTrades){
+  const root = document.getElementById('analytics');
+  if (!root) return;
+  const tr = trades || window.synchronizedTrades || (typeof synchronizedTrades !== 'undefined' ? synchronizedTrades : []);
+  if (window.TruthPanel && typeof window.TruthPanel.render === 'function') {
+    window.TruthPanel.render(root, tr);
     return;
   }
-  const selected=truthFilteredTrades(trades);
-  renderAdvancedTruthPanel(selected);
-  let stratBox = document.getElementById('analyticsStrategyContainer');
-    if (!stratBox) {
-      stratBox = document.createElement('div');
-      stratBox.id = 'analyticsStrategyContainer';
-      const hero = root.querySelector('.hero');
-      if (hero) hero.insertAdjacentElement('afterend', stratBox);
-      else root.prepend(stratBox);
+  const retry = () => {
+    if (window.TruthPanel && typeof window.TruthPanel.render === 'function') {
+      window.TruthPanel.render(root, tr);
     }
-    if (window.StrategyAnalytics && typeof window.StrategyAnalytics.render === 'function') {
-      window.StrategyAnalytics.render(stratBox, trades);
-    }
-    const existingFilter = root.querySelector('.truth-filter-card');
-    if (existingFilter) existingFilter.remove();
-    stratBox.insertAdjacentHTML('afterend', truthFilterMarkup(trades));
-  root.querySelector('.analytics-breakdown-grid')?.insertAdjacentHTML('beforebegin',truthAdvancedMarkup(selected));
-  if (window.SystemQualityAnalytics && typeof window.SystemQualityAnalytics.generateTruthPanelAccessCardHtml === 'function') {
-    const closedForSqn = selected.map(minerAnalyticsTrade);
-    const existing = document.getElementById('truthSystemQualityAccessCard');
-    const cardHtml = window.SystemQualityAnalytics.generateTruthPanelAccessCardHtml(closedForSqn);
-    if (existing) {
-      existing.outerHTML = cardHtml;
-    } else {
-      root.querySelector('.analytics-breakdown-grid')?.insertAdjacentHTML('beforebegin', cardHtml);
-    }
-
-  }
-  root.querySelectorAll('[data-truth-filter]').forEach(control=>control.addEventListener('change',()=>{truthPanelFilters[control.dataset.truthFilter]=control.value;renderAnalyticsFromDatabase(synchronizedTrades)}));
-  root.querySelector('[data-truth-reset]')?.addEventListener('click',()=>{truthPanelFilters={period:'all',asset:'',setup:'',direction:'',grade:'',account:''};renderAnalyticsFromDatabase(synchronizedTrades)});
-  root.querySelectorAll('[data-truth-export]').forEach(button=>button.addEventListener('click',()=>exportTruthReport(button.dataset.truthExport)));
+  };
+  requestAnimationFrame(retry);
+  setTimeout(retry, 40);
+  setTimeout(retry, 150);
+  setTimeout(retry, 350);
 };
 function renderRiskPolicySqnSection(){
   const page=document.getElementById('riskpolicy');
@@ -2741,7 +2719,7 @@ function renderRiskPolicySqnSection(){
   if(existing){existing.outerHTML=cardHtml;}else{page.insertAdjacentHTML('beforeend',cardHtml);}
 }
 window.renderRiskPolicySqnSection=renderRiskPolicySqnSection;
-go=function(id, ...args){const destination=id==='risk'?'newtrade':id;goWithEmbeddedPositionSizing(destination, ...args);if(destination==='today'||destination==='positions'||destination==='closedpositions'||destination==='analytics'||destination==='riskpolicy'||destination==='systemquality')syncOperationalFromDatabase();if(destination==='closedpositions')renderClosedPositionsView();if(destination==='analytics'){renderAnalyticsFromDatabase();if(!window.TruthPanel){const triggerStrat=()=>{if(window.StrategyAnalytics&&typeof window.StrategyAnalytics.render==='function'){const stratBox=document.getElementById('analyticsStrategyContainer')||document.querySelector('#analytics .hero')?.insertAdjacentElement('afterend',Object.assign(document.createElement('div'),{id:'analyticsStrategyContainer'}));const tr=window.synchronizedTrades||(typeof synchronizedTrades!=='undefined'?synchronizedTrades:[]);if(stratBox)window.StrategyAnalytics.render(stratBox,tr);}};setTimeout(triggerStrat,40);setTimeout(triggerStrat,150);}}if(destination==='riskpolicy'||id==='riskpolicy')renderRiskPolicySqnSection();if(destination==='systemquality'&&typeof window.renderSystemQualityPage==='function')window.renderSystemQualityPage();};
+go=function(id, ...args){const destination=id==='risk'?'newtrade':id;goWithEmbeddedPositionSizing(destination, ...args);if(destination==='today'||destination==='positions'||destination==='closedpositions'||destination==='analytics'||destination==='riskpolicy'||destination==='systemquality')syncOperationalFromDatabase();if(destination==='closedpositions')renderClosedPositionsView();if(destination==='analytics'){renderAnalyticsFromDatabase();}if(destination==='riskpolicy'||id==='riskpolicy')renderRiskPolicySqnSection();if(destination==='systemquality'&&typeof window.renderSystemQualityPage==='function')window.renderSystemQualityPage();};
 </script>
 <!-- Fundamentals styling loaded via frontend/fundamentals.css -->
 <script src="frontend/fundamental-score.js"></script>
@@ -6165,11 +6143,11 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/market-treemap-model.js?v=20261105-finviz-v3"></script>
 <script src="frontend/market-treemap.js?v=20261105-finviz-v3"></script>
 <link rel="stylesheet" href="frontend/deserving-diary.css?v=20261021-1" />
-<link rel="stylesheet" href="frontend/truth-panel.css?v=20261116-pigeon-v1" />
+<link rel="stylesheet" href="frontend/truth-panel.css?v=20261116-pigeon-v2" />
 <link rel="stylesheet" href="frontend/theme-pigeon-light.css?v=20261101-pigeon-light-final" />
 <script src="frontend/deserving-diary-model.js?v=20261021-1"></script>
 <script src="frontend/deserving-diary.js?v=20261021-1"></script>
-<script src="frontend/truth-panel-model.js?v=20261116-v1"></script>
-<script src="frontend/truth-panel.js?v=20261116-v1"></script>
+<script src="frontend/truth-panel-model.js?v=20261116-v2"></script>
+<script src="frontend/truth-panel.js?v=20261116-v2"></script>
 </body></html>
 

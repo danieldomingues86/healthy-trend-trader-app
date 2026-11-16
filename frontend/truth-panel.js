@@ -279,6 +279,22 @@
           </div>
         </div>
       </div>
+
+      <!-- Chamada Direta para o Monthly Tracker -->
+      <div class="truth-card" style="margin-top: 20px; display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; background: #FFFFFF; border-left: 4px solid var(--tp-green); border-radius: 12px; box-shadow: var(--tp-shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <span style="font-size: 28px;">📅</span>
+          <div>
+            <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--tp-green-dark);">Histórico Consolidado Mês a Mês</div>
+            <h4 style="margin: 2px 0 4px; font-size: 16px; color: var(--tp-navy); font-weight: 800;">Monthly Tracker · Acompanhamento dos 12 Meses</h4>
+            <p style="margin: 0; font-size: 13px; color: var(--tp-text-sub);">O histórico detalhado mês a mês (número de trades, win rate, ganho/perda média em R, dias de permanência e maiores payoffs) está centralizado na aba <b>Qualidade & Monthly Tracker</b>.</p>
+          </div>
+        </div>
+        <button type="button" class="truth-tab-switch-btn" data-switch-to-tab="quality" style="background: var(--tp-navy); color: #FFFFFF; border: none; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;">
+          <span>Abrir Monthly Tracker Completo</span>
+          <span>→</span>
+        </button>
+      </div>
     `;
   }
 
@@ -519,10 +535,13 @@
       </div>
 
       <!-- Tabela Monthly Tracker (12 Meses) -->
-      <div class="truth-card" style="margin-top: 20px;">
+      <div class="truth-card truth-monthly-tracker-card" style="margin-top: 20px;">
         <div class="truth-card-head">
           <div>
-            <h3>Monthly Tracker · Ano ${data.year}</h3>
+            <div class="truth-card-eyebrow">Acompanhamento Mensal</div>
+            <h3 style="display: flex; align-items: center; gap: 8px;">
+              <span>📅</span> Monthly Tracker · Ano ${data.year}
+            </h3>
             <span>Acompanhamento sistemático mensal de resultados, perdas e permanência</span>
           </div>
         </div>
@@ -921,7 +940,7 @@
           </button>
           <button type="button" class="truth-tab-btn ${activeTab === 'quality' ? 'active' : ''}" data-truth-tab="quality">
             <span class="truth-tab-icon">🎯</span>
-            <span>Qualidade</span>
+            <span>Qualidade & Monthly Tracker</span>
           </button>
           <button type="button" class="truth-tab-btn ${activeTab === 'behavior' ? 'active' : ''}" data-truth-tab="behavior">
             <span class="truth-tab-icon">🧠</span>
@@ -1038,6 +1057,22 @@
       });
     });
 
+    // 1.1 Mudança direta de aba via links/botões internos
+    container.querySelectorAll('[data-switch-to-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetTab = btn.getAttribute('data-switch-to-tab');
+        if (targetTab) {
+          activeTab = targetTab;
+          render(container, trades);
+          if (targetTab === 'quality') {
+            setTimeout(() => {
+              container.querySelector('.truth-monthly-tracker-card')?.scrollIntoView({ behavior: 'smooth' });
+            }, 60);
+          }
+        }
+      });
+    });
+
     // 2. Mudança nos Filtros
     container.querySelectorAll('[data-truth-filter]').forEach(select => {
       select.addEventListener('change', () => {
@@ -1083,4 +1118,44 @@
     getFilters: () => ({ ...panelFilters }),
     setFilters: (f) => { panelFilters = { ...panelFilters, ...f }; }
   };
+
+  // Garante exposição definitiva do renderizador global para eliminar intermitência
+  root.renderAnalyticsFromDatabase = function (trades) {
+    const container = document.getElementById('analytics');
+    if (!container) return;
+    const tr = trades || root.synchronizedTrades || (typeof synchronizedTrades !== 'undefined' ? synchronizedTrades : []);
+    render(container, tr);
+  };
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('healthyTrend:tradesUpdated', () => {
+      const page = document.getElementById('analytics');
+      if (page && (page.classList.contains('active') || page.querySelector('.truth-shell'))) {
+        const tr = window.synchronizedTrades || [];
+        render(page, tr);
+      }
+    });
+
+    window.addEventListener('healthyTrend:authenticated', () => {
+      const page = document.getElementById('analytics');
+      if (page && page.classList.contains('active')) {
+        const tr = window.synchronizedTrades || [];
+        render(page, tr);
+      }
+    });
+
+    const checkAndMount = () => {
+      const page = document.getElementById('analytics');
+      if (page && page.classList.contains('active')) {
+        const tr = window.synchronizedTrades || (typeof synchronizedTrades !== 'undefined' ? synchronizedTrades : []);
+        render(page, tr);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', checkAndMount);
+    } else {
+      checkAndMount();
+    }
+  }
 })(typeof globalThis !== 'undefined' ? globalThis : this);

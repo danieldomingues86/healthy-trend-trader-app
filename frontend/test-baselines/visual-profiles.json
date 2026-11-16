@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-15T22:37:52.800Z",
+  "generatedAt": "2026-11-16T20:36:42.472Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -363,15 +363,15 @@
     "analytics": {
       "screenId": "analytics",
       "presentInStaticHtml": true,
-      "headingsCount": 3,
-      "cardsCount": 8,
+      "headingsCount": 0,
+      "cardsCount": 0,
       "buttonsCount": 0,
       "inputsCount": 0,
       "tablesCount": 0,
       "svgCount": 0,
       "badgesCount": 0,
-      "gridsCount": 2,
-      "structuralHash": "c20b41a8ef1cc8f5"
+      "gridsCount": 0,
+      "structuralHash": "ae8cf502caec059a"
     },
     "systemquality": {
       "screenId": "systemquality",
