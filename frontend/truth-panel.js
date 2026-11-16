@@ -400,16 +400,16 @@
     const data = Model.calculateQuality(trades);
 
     return `
-      <!-- Breakdowns de Qualidade e Edge Técnico -->
+      <!-- Breakdowns de Qualidade e Edge Técnico (Cards compactos e alinhados) -->
       <div class="truth-section-grid four-col">
-        <div class="truth-card">
+        <div class="truth-card truth-breakdown-card">
           <div class="truth-card-head">
             <div>
               <h3>Resultado por Nível de R</h3>
               <span>Assimetria de retorno</span>
             </div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:8px;">
+          <div class="truth-breakdown-list">
             ${data.byRLevel.map(b => `
               <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:6px 0; border-bottom:1px solid var(--tp-border);">
                 <div>
@@ -422,14 +422,14 @@
           </div>
         </div>
 
-        <div class="truth-card">
+        <div class="truth-card truth-breakdown-card">
           <div class="truth-card-head">
             <div>
               <h3>Motivo de Saída</h3>
-              <span>Disciplina no encerramento</span>
+              <span>Categorias canônicas</span>
             </div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:8px;">
+          <div class="truth-breakdown-list">
             ${data.byExitReason.map(b => `
               <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:6px 0; border-bottom:1px solid var(--tp-border);">
                 <div>
@@ -442,14 +442,14 @@
           </div>
         </div>
 
-        <div class="truth-card">
+        <div class="truth-card truth-breakdown-card">
           <div class="truth-card-head">
             <div>
               <h3>Distância da SMA na Entrada</h3>
               <span>Localização técnica</span>
             </div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:8px;">
+          <div class="truth-breakdown-list">
             ${data.byDistSma.map(b => `
               <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:10px 0; border-bottom:1px solid var(--tp-border);">
                 <b style="color:var(--tp-navy);">${safe(b.label)}</b>
@@ -459,14 +459,14 @@
           </div>
         </div>
 
-        <div class="truth-card">
+        <div class="truth-card truth-breakdown-card">
           <div class="truth-card-head">
             <div>
               <h3>Permanência (Holding)</h3>
               <span>Tempo de exposição</span>
             </div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:8px;">
+          <div class="truth-breakdown-list">
             ${data.byHoldingPeriod.map(b => `
               <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:6px 0; border-bottom:1px solid var(--tp-border);">
                 <div>

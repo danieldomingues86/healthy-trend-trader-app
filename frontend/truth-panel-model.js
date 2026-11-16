@@ -401,21 +401,45 @@
       return { ...b, count, net, pct };
     });
 
-    // 2. Motivo de Saída
+    // 2. Motivo de Saída (Normalização Canônica para evitar listas gigantescas / linguição)
+    function canonicalExitReason(rawReason, trade) {
+      const str = String(rawReason || '').toLowerCase().trim();
+      if (!str) {
+        if (trade.r >= 2) return 'Alvo Técnico / Peel-off';
+        if (trade.holdingSessions >= 7) return 'Saída Temporal (D7+)';
+        if (trade.r < 0) return 'Stop Loss Técnico';
+        return 'Encerramento Normal';
+      }
+      if (str.includes('stop loss') || str.includes('stop') || str.includes('perda') || str.includes('estop') || str.includes('violou') || str.includes('violad')) {
+        return 'Stop Loss Técnico';
+      }
+      if (str.includes('trailing') || str.includes('méd') || str.includes('med') || str.includes('sma') || str.includes('recupera')) {
+        return 'Trailing Stop / Média';
+      }
+      if (str.includes('alvo') || str.includes('peel') || str.includes('parcial') || str.includes('target') || str.includes('strength') || str.includes('lucro') || str.includes('realiza')) {
+        return 'Alvo Técnico / Peel-off';
+      }
+      if (str.includes('tempo') || str.includes('temporal') || str.includes('d7') || str.includes('d5') || str.includes('expir')) {
+        return 'Saída Temporal (D7+)';
+      }
+      if (str.includes('manual') || str.includes('context') || str.includes('virada') || str.includes('doente') || str.includes('ajuste')) {
+        return 'Ajuste de Contexto / Manual';
+      }
+      if (rawReason && rawReason.length <= 25 && !/\d{2}\/\d{2}/.test(rawReason)) {
+        return rawReason.trim();
+      }
+      return 'Outros Encerramentos';
+    }
+
     const exitReasonGroups = {};
     norm.forEach(t => {
-      let reason = t.raw?.exit_reason || t.raw?.metadata?.exitReason || t.exitReason;
-      if (!reason) {
-        if (t.r >= 2) reason = 'Alvo Técnico / Peel-off';
-        else if (t.holdingSessions >= 7) reason = 'Saída Temporal (D7)';
-        else if (t.r < 0) reason = 'Stop Loss Técnico';
-        else reason = 'Encerramento de Mercado';
-      }
+      const raw = t.raw?.exit_reason || t.raw?.metadata?.exitReason || t.exitReason;
+      const reason = canonicalExitReason(raw, t);
       exitReasonGroups[reason] = exitReasonGroups[reason] || [];
       exitReasonGroups[reason].push(t);
     });
 
-    const byExitReason = Object.entries(exitReasonGroups).map(([label, items]) => {
+    let byExitReason = Object.entries(exitReasonGroups).map(([label, items]) => {
       const wins = items.filter(t => t.netResult > 0).length;
       const net = round2(items.reduce((sum, t) => sum + t.netResult, 0));
       return {
@@ -425,6 +449,22 @@
         net
       };
     }).sort((a, b) => b.count - a.count);
+
+    // Limita estritamente a no máximo 5 categorias para manter proporção visual elegante
+    if (byExitReason.length > 5) {
+      const top4 = byExitReason.slice(0, 4);
+      const remaining = byExitReason.slice(4);
+      const otherCount = remaining.reduce((sum, r) => sum + r.count, 0);
+      const otherWins = remaining.reduce((sum, r) => sum + Math.round((r.winRatePct / 100) * r.count), 0);
+      const otherNet = round2(remaining.reduce((sum, r) => sum + r.net, 0));
+      top4.push({
+        label: 'Outros Encerramentos',
+        count: otherCount,
+        winRatePct: otherCount > 0 ? round2((otherWins / otherCount) * 100) : 0,
+        net: otherNet
+      });
+      byExitReason = top4;
+    }
 
     // 3. Distância da SMA na Entrada
     const smaBands = [

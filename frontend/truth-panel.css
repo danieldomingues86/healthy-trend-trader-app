@@ -373,6 +373,30 @@ body:has(#analytics.active) .content {
 
 .truth-section-grid.four-col {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+}
+
+.truth-breakdown-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.truth-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.truth-breakdown-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.truth-breakdown-list::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
 }
 
 .truth-col-full {
