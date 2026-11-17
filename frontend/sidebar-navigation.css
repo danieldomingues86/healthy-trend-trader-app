@@ -2354,104 +2354,104 @@ body[data-navigation-layout="tiles"]:has(#navigationHub.open) {
   color: #34d399 !important;
 }
 
-/* Pigeon / Peach Light Mode Support for Menu em Blocos */
+/* Pigeon Light Mode Support for Menu em Blocos */
 body[data-theme="pigeon"][data-navigation-layout="tiles"] #navigationHub.navigation-hub,
 body[data-theme="pigeon"] #navigationHub.navigation-hub {
-  background-color: #FAF5F0 !important;
+  background-color: #F5FAFD !important;
   background-image: 
-    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.45) 0%, rgba(247, 240, 233, 0.75) 100%),
-    url('assets/nav-hub-bg-pigeon.jpg?v=20261116-v3') !important;
+    radial-gradient(ellipse at 50% 50%, rgba(245, 250, 253, 0.45) 0%, rgba(235, 243, 248, 0.8) 100%),
+    url('assets/nav-hub-bg-pigeon.jpg?v=20261116-v4') !important;
   background-size: cover !important;
   background-position: center center !important;
   background-repeat: no-repeat !important;
-  color: #173B4B !important;
+  color: #182B36 !important;
 }
 
 body[data-theme="pigeon"] #navigationHub .nav-hub-brand-logo-svg circle {
-  stroke: #2D8A6E !important;
-  fill: #edf5f1 !important;
+  stroke: #58A6CA !important;
+  fill: #DCEEF7 !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-brand-logo-svg path,
 body[data-theme="pigeon"] #navigationHub .nav-hub-brand-logo-svg polyline {
-  stroke: #2D8A6E !important;
+  stroke: #4F97B8 !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-brand-text strong {
-  color: #173B4B !important;
+  color: #182B36 !important;
   text-shadow: none !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-brand-text small {
-  color: #2D8A6E !important;
+  color: #4F97B8 !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-eyebrow {
-  color: #2D8A6E !important;
+  color: #4F97B8 !important;
   text-shadow: none !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-heading {
-  color: #173B4B !important;
+  color: #182B36 !important;
   text-shadow: none !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-highlight {
-  color: #2D8A6E !important;
-  text-shadow: 0 0 16px rgba(45, 138, 110, 0.3) !important;
+  color: #4F97B8 !important;
+  text-shadow: 0 0 16px rgba(79, 151, 184, 0.3) !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-subheading {
-  color: #5B7380 !important;
+  color: #627D8E !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-quote-card {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border-color: rgba(220, 195, 182, 0.7) !important;
-  box-shadow: 0 12px 28px rgba(70, 48, 35, 0.08), inset 0 1px 0 #ffffff !important;
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  box-shadow: 0 10px 28px rgba(48, 75, 91, 0.06), inset 0 1px 0 #ffffff !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-quote-text {
-  color: #173B4B !important;
+  color: #182B36 !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-quote-author {
-  color: #2D8A6E !important;
+  color: #4F97B8 !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-viewport-close {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border-color: rgba(23, 59, 75, 0.2) !important;
-  color: #173B4B !important;
+  background: #FFFFFF !important;
+  border-color: #DCE8EF !important;
+  color: #304B5B !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-viewport-close:hover {
-  background: #ffffff !important;
-  border-color: #1F6F57 !important;
-  color: #1F6F57 !important;
-  box-shadow: 0 4px 14px rgba(23, 59, 75, 0.15) !important;
+  background: #EBF3F8 !important;
+  border-color: #58A6CA !important;
+  color: #182B36 !important;
+  box-shadow: 0 4px 14px rgba(48, 75, 91, 0.12) !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(252, 248, 244, 0.96) 100%) !important;
-  border: 1.5px solid rgba(220, 195, 182, 0.65) !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5FAFD 100%) !important;
+  border: 1.5px solid #DCE8EF !important;
   border-top: 1.5px solid #ffffff !important;
-  box-shadow: 0 8px 24px rgba(70, 48, 35, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 8px 24px rgba(48, 75, 91, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:hover {
-  background: linear-gradient(180deg, #ffffff 0%, #f7f3ef 100%) !important;
-  border-color: #72B9A0 !important;
-  box-shadow: 0 14px 32px rgba(70, 48, 35, 0.12), 0 0 16px rgba(114, 185, 160, 0.25) !important;
+  background: #FFFFFF !important;
+  border-color: #79BBD6 !important;
+  box-shadow: 0 14px 32px rgba(48, 75, 91, 0.1), 0 0 16px rgba(121, 187, 214, 0.3) !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card.active {
-  background: linear-gradient(180deg, #F0F9F5 0%, #E8F4EE 100%) !important;
-  border: 2px solid #2D8A6E !important;
-  box-shadow: 0 0 24px rgba(45, 138, 110, 0.35), inset 0 0 12px rgba(45, 138, 110, 0.1) !important;
+  background: linear-gradient(180deg, #FFFFFF 0%, #EAF4F9 100%) !important;
+  border: 2px solid #58A6CA !important;
+  box-shadow: 0 0 24px rgba(88, 166, 202, 0.35), inset 0 0 12px rgba(121, 187, 214, 0.15) !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-title {
-  color: #173B4B !important;
+  color: #182B36 !important;
   text-shadow: none !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-desc {
-  color: #5B7380 !important;
+  color: #627D8E !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-icon {
-  color: #1F6F57 !important;
-  filter: drop-shadow(0 2px 8px rgba(31, 111, 87, 0.3)) !important;
+  color: #4F97B8 !important;
+  filter: drop-shadow(0 2px 8px rgba(79, 151, 184, 0.25)) !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-icon {
-  color: #2D8A6E !important;
-  filter: drop-shadow(0 4px 12px rgba(45, 138, 110, 0.5)) !important;
+  color: #2A6885 !important;
+  filter: drop-shadow(0 4px 12px rgba(42, 104, 133, 0.45)) !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:focus-visible {
-  outline: 2px solid #2D8A6E !important;
+  outline: 2px solid #58A6CA !important;
   outline-offset: 2px !important;
 }
 
