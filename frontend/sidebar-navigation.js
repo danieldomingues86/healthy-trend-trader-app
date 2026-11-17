@@ -1451,16 +1451,6 @@
       }).join('');
 
       hub.innerHTML = `
-        <div class="nav-hub-corner-decor nav-hub-decor-tr" aria-hidden="true">
-          <img src="assets/nav-hub-market-tr.png?v=20261116-v2" class="nav-hub-decor-tr-img" alt="" />
-        </div>
-        <div class="nav-hub-corner-decor nav-hub-decor-bl" aria-hidden="true">
-          <img src="assets/nav-hub-arc-bl.png?v=20261116-v2" class="nav-hub-decor-bl-img" alt="" />
-        </div>
-        <div class="nav-hub-corner-decor nav-hub-decor-br" aria-hidden="true">
-          <img src="assets/nav-hub-foliage-br.png?v=20261116-v2" class="nav-hub-decor-br-img" alt="" />
-        </div>
-
         <div class="navigation-hub-inner">
           <header class="nav-hub-header">
             <div class="nav-hub-brand-col">
@@ -1475,9 +1465,7 @@
                   <small>TRADER WORKSPACE</small>
                 </div>
               </div>
-              <div class="nav-hub-dove-watermark" aria-hidden="true">
-                <img src="assets/nav-hub-dove-transparent.png?v=20261116-v2" class="nav-hub-dove-img" alt="" />
-              </div>
+              <div class="nav-hub-dove-watermark" aria-hidden="true"></div>
             </div>
 
             <div class="nav-hub-title-col">

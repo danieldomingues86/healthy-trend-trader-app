@@ -2034,13 +2034,21 @@ body[data-navigation-layout="tiles"] #navigationHub.navigation-hub,
   justify-content: center;
   overflow: hidden !important;
   padding: clamp(14px, 2.2vh, 28px) clamp(24px, 3.5vw, 60px) !important;
-  background-color: #01120a !important;
+  background-color: #02130b !important;
   background-image: 
-    radial-gradient(ellipse at 50% 38%, rgba(18, 92, 62, 0.88) 0%, rgba(6, 40, 26, 0.94) 55%, #010e07 100%),
-    url('assets/navigation-hub-healthy-v1.png') !important;
+    radial-gradient(ellipse at 50% 50%, rgba(2, 19, 11, 0.38) 0%, rgba(1, 12, 7, 0.78) 100%),
+    url('assets/nav-hub-bg-healthy.jpg?v=20261116-v3') !important;
   background-size: cover !important;
-  background-position: center !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
   color: #f7fff9 !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+#navigationHub,
+#navigationHub *:focus {
+  outline: none !important;
 }
 
 body[data-navigation-layout="tiles"] #navigationHub.navigation-hub.open,
@@ -2065,58 +2073,6 @@ body[data-navigation-layout="tiles"] #navigationHub.navigation-hub.open,
 
 body[data-navigation-layout="tiles"]:has(#navigationHub.open) {
   overflow: hidden !important;
-}
-
-/* Corner Atmospheric Decorations */
-#navigationHub .nav-hub-corner-decor {
-  position: absolute !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
-}
-
-#navigationHub .nav-hub-decor-tr {
-  top: 0 !important;
-  right: 0 !important;
-  width: clamp(190px, 18vw, 300px) !important;
-  mix-blend-mode: screen !important;
-  opacity: 0.98 !important;
-}
-
-#navigationHub .nav-hub-decor-tr-img {
-  width: 100% !important;
-  height: auto !important;
-  display: block !important;
-  filter: brightness(1.28) saturate(1.2) drop-shadow(0 0 18px rgba(245, 207, 104, 0.5)) !important;
-}
-
-#navigationHub .nav-hub-decor-bl {
-  bottom: 0 !important;
-  left: 0 !important;
-  width: clamp(260px, 24vw, 420px) !important;
-  mix-blend-mode: screen !important;
-  opacity: 0.98 !important;
-}
-
-#navigationHub .nav-hub-decor-bl-img {
-  width: 100% !important;
-  height: auto !important;
-  display: block !important;
-  filter: brightness(1.22) saturate(1.25) drop-shadow(0 0 22px rgba(52, 211, 153, 0.5)) drop-shadow(0 0 12px rgba(245, 207, 104, 0.4)) !important;
-}
-
-#navigationHub .nav-hub-decor-br {
-  bottom: 0 !important;
-  right: 0 !important;
-  width: clamp(280px, 26vw, 460px) !important;
-  mix-blend-mode: screen !important;
-  opacity: 0.98 !important;
-}
-
-#navigationHub .nav-hub-decor-br-img {
-  width: 100% !important;
-  height: auto !important;
-  display: block !important;
-  filter: brightness(1.26) saturate(1.2) drop-shadow(0 0 26px rgba(52, 211, 153, 0.5)) drop-shadow(0 0 16px rgba(245, 207, 104, 0.35)) !important;
 }
 
 #navigationHub .navigation-hub-inner {
@@ -2182,19 +2138,6 @@ body[data-navigation-layout="tiles"]:has(#navigationHub.open) {
   color: #6ee7b7 !important;
   line-height: 1.2 !important;
   margin-top: 4px !important;
-}
-
-#navigationHub .nav-hub-dove-watermark {
-  margin-top: 6px !important;
-  padding-left: 2px !important;
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 12px rgba(52, 211, 153, 0.35)) !important;
-}
-
-#navigationHub .nav-hub-dove-img {
-  width: 68px !important;
-  height: auto !important;
-  display: block !important;
-  opacity: 0.95 !important;
 }
 
 #navigationHub .nav-hub-title-col {
@@ -2416,26 +2359,12 @@ body[data-theme="pigeon"][data-navigation-layout="tiles"] #navigationHub.navigat
 body[data-theme="pigeon"] #navigationHub.navigation-hub {
   background-color: #FAF5F0 !important;
   background-image: 
-    radial-gradient(circle at 50% 18%, #FFFFFF 0%, #FAF2EA 45%, #F0E5DB 100%),
-    radial-gradient(circle at 10% 12%, rgba(245, 178, 142, 0.25) 0%, transparent 40%),
-    radial-gradient(circle at 92% 90%, rgba(114, 185, 160, 0.22) 0%, transparent 45%) !important;
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.45) 0%, rgba(247, 240, 233, 0.75) 100%),
+    url('assets/nav-hub-bg-pigeon.jpg?v=20261116-v3') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
   color: #173B4B !important;
-}
-
-body[data-theme="pigeon"] #navigationHub .nav-hub-decor-tr {
-  mix-blend-mode: multiply !important;
-  opacity: 0.35 !important;
-  filter: sepia(0.6) hue-rotate(320deg) brightness(1.2) !important;
-}
-body[data-theme="pigeon"] #navigationHub .nav-hub-decor-bl {
-  mix-blend-mode: multiply !important;
-  opacity: 0.35 !important;
-  filter: sepia(0.6) hue-rotate(320deg) brightness(1.2) !important;
-}
-body[data-theme="pigeon"] #navigationHub .nav-hub-decor-br {
-  mix-blend-mode: multiply !important;
-  opacity: 0.38 !important;
-  filter: sepia(0.6) hue-rotate(320deg) brightness(1.2) !important;
 }
 
 body[data-theme="pigeon"] #navigationHub .nav-hub-brand-logo-svg circle {
@@ -2452,12 +2381,6 @@ body[data-theme="pigeon"] #navigationHub .nav-hub-brand-text strong {
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-brand-text small {
   color: #2D8A6E !important;
-}
-body[data-theme="pigeon"] #navigationHub .nav-hub-dove-watermark {
-  filter: drop-shadow(0 4px 12px rgba(23, 59, 75, 0.15)) !important;
-}
-body[data-theme="pigeon"] #navigationHub .nav-hub-dove-img {
-  filter: sepia(0.2) hue-rotate(180deg) brightness(0.9) !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-eyebrow {
   color: #2D8A6E !important;
@@ -2527,23 +2450,22 @@ body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-
   color: #2D8A6E !important;
   filter: drop-shadow(0 4px 12px rgba(45, 138, 110, 0.5)) !important;
 }
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:focus-visible {
+  outline: 2px solid #2D8A6E !important;
+  outline-offset: 2px !important;
+}
 
 /* Gold Theme Support for Menu em Blocos */
 body[data-theme="gold"][data-navigation-layout="tiles"] #navigationHub.navigation-hub,
 body[data-theme="gold"] #navigationHub.navigation-hub {
-  background-color: #0b0804 !important;
+  background-color: #080604 !important;
   background-image: 
-    radial-gradient(circle at 50% 18%, rgba(68, 48, 16, 0.95) 0%, rgba(26, 17, 6, 0.98) 55%, #080502 100%),
-    radial-gradient(ellipse at 88% 90%, rgba(239, 201, 105, 0.12) 0%, transparent 45%),
-    radial-gradient(ellipse at 12% 10%, rgba(239, 201, 105, 0.1) 0%, transparent 40%) !important;
+    radial-gradient(ellipse at 50% 50%, rgba(12, 8, 4, 0.45) 0%, rgba(8, 5, 2, 0.82) 100%),
+    url('assets/nav-hub-bg-gold.jpg?v=20261116-v3') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
   color: #fbf4e2 !important;
-}
-
-body[data-theme="gold"] #navigationHub .nav-hub-decor-tr,
-body[data-theme="gold"] #navigationHub .nav-hub-decor-bl,
-body[data-theme="gold"] #navigationHub .nav-hub-decor-br {
-  filter: sepia(1) hue-rotate(15deg) saturate(2.5) brightness(1.1) !important;
-  opacity: 0.88 !important;
 }
 
 body[data-theme="gold"] #navigationHub .nav-hub-brand-logo-svg circle {
@@ -2556,12 +2478,6 @@ body[data-theme="gold"] #navigationHub .nav-hub-brand-logo-svg polyline {
 }
 body[data-theme="gold"] #navigationHub .nav-hub-brand-text small {
   color: #dfbf7b !important;
-}
-body[data-theme="gold"] #navigationHub .nav-hub-dove-watermark {
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 12px rgba(239, 201, 105, 0.4)) !important;
-}
-body[data-theme="gold"] #navigationHub .nav-hub-dove-img {
-  filter: sepia(0.8) hue-rotate(15deg) brightness(1.2) !important;
 }
 body[data-theme="gold"] #navigationHub .nav-hub-eyebrow {
   color: #e9c369 !important;
@@ -2602,6 +2518,10 @@ body[data-theme="gold"] #navigationHub .nav-hub-tile-icon {
 body[data-theme="gold"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-icon {
   color: #ffd700 !important;
   filter: drop-shadow(0 0 16px rgba(245, 207, 104, 0.85)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)) !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card:focus-visible {
+  outline: 2px solid #efc969 !important;
+  outline-offset: 2px !important;
 }
 body[data-theme="gold"] #navigationHub .nav-hub-viewport-close {
   background: rgba(35, 23, 9, 0.82) !important;
@@ -2650,9 +2570,6 @@ body[data-theme="gold"] #navigationHub .nav-hub-viewport-close:hover {
   }
   #navigationHub .nav-hub-brand-col {
     align-items: center !important;
-  }
-  #navigationHub .nav-hub-dove-watermark {
-    display: none !important;
   }
   #navigationHub .nav-hub-quote-card {
     justify-self: center !important;
