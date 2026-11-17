@@ -2427,13 +2427,29 @@ body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card {
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:hover {
   background: #FFFFFF !important;
-  border-color: #79BBD6 !important;
-  box-shadow: 0 14px 32px rgba(48, 75, 91, 0.1), 0 0 16px rgba(121, 187, 214, 0.3) !important;
+  border-color: #58A6CA !important;
+  box-shadow: 0 14px 32px rgba(48, 75, 91, 0.12), 0 0 18px rgba(121, 187, 214, 0.35) !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-title {
+  color: #182B36 !important;
+  text-shadow: none !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-desc {
+  color: #213845 !important;
+  font-weight: 500 !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card.active {
   background: linear-gradient(180deg, #FFFFFF 0%, #EAF4F9 100%) !important;
   border: 2px solid #58A6CA !important;
   box-shadow: 0 0 24px rgba(88, 166, 202, 0.35), inset 0 0 12px rgba(121, 187, 214, 0.15) !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card.active .nav-hub-tile-title {
+  color: #182B36 !important;
+  text-shadow: none !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card.active .nav-hub-tile-desc {
+  color: #304B5B !important;
+  font-weight: 500 !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-title {
   color: #182B36 !important;
@@ -2506,10 +2522,24 @@ body[data-theme="gold"] #navigationHub .nav-hub-tile-card:hover {
   border-color: #efc969 !important;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 22px rgba(239, 201, 105, 0.4) !important;
 }
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(239, 201, 105, 0.4) !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-desc {
+  color: #dfbf7b !important;
+}
 body[data-theme="gold"] #navigationHub .nav-hub-tile-card.active {
   background: linear-gradient(180deg, rgba(58, 39, 15, 0.95) 0%, rgba(28, 18, 7, 0.98) 100%) !important;
   border: 2px solid #efc969 !important;
   box-shadow: 0 0 28px rgba(239, 201, 105, 0.45), inset 0 0 16px rgba(239, 201, 105, 0.18) !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card.active .nav-hub-tile-title {
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(239, 201, 105, 0.5) !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card.active .nav-hub-tile-desc {
+  color: #efc969 !important;
 }
 body[data-theme="gold"] #navigationHub .nav-hub-tile-icon {
   color: #efc969 !important;
