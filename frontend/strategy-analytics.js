@@ -714,6 +714,7 @@
   // Global listeners e auto-montagem
   if (typeof window !== 'undefined') {
     window.addEventListener('healthyTrend:strategyChanged', (e) => {
+      if (window.TruthPanel || document.getElementById('analytics')?.querySelector('.truth-shell')) return;
       const strat = e.detail && e.detail.strategy;
       if (!window._analyticsUserToggledScope) {
         if (strat === 'volatility_trading') activeScope = 'VOLATILITY_TRADING';
@@ -726,6 +727,11 @@
     const ensureMounted = () => {
       const page = document.getElementById('analytics');
       if (page) {
+        if (window.TruthPanel || page.querySelector('.truth-shell')) {
+          const stray = document.getElementById('analyticsStrategyContainer');
+          if (stray) stray.remove();
+          return;
+        }
         let stratBox = document.getElementById('analyticsStrategyContainer');
         if (!stratBox) {
           stratBox = document.createElement('div');
@@ -742,21 +748,21 @@
     };
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', ensureMounted);
+      document.addEventListener('DOMContentLoaded', () => { if (!window.TruthPanel) ensureMounted(); });
     } else {
-      setTimeout(ensureMounted, 100);
+      setTimeout(() => { if (!window.TruthPanel) ensureMounted(); }, 100);
     }
 
-    window.addEventListener('healthyTrend:tradesUpdated', ensureMounted);
-    window.addEventListener('healthyTrend:authenticated', () => setTimeout(ensureMounted, 200));
-    window.addEventListener('popstate', () => setTimeout(ensureMounted, 50));
+    window.addEventListener('healthyTrend:tradesUpdated', () => { if (!window.TruthPanel) ensureMounted(); });
+    window.addEventListener('healthyTrend:authenticated', () => { if (!window.TruthPanel) setTimeout(ensureMounted, 200); });
+    window.addEventListener('popstate', () => { if (!window.TruthPanel) setTimeout(ensureMounted, 50); });
 
     // Hook navigation for instant mounting
     const prevGo = window.go;
     if (typeof prevGo === 'function') {
       window.go = function (id, ...args) {
         const res = prevGo.apply(this, [id, ...args]);
-        if (id === 'analytics') {
+        if (id === 'analytics' && !window.TruthPanel) {
           setTimeout(ensureMounted, 30);
           setTimeout(ensureMounted, 150);
         }

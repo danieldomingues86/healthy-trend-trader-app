@@ -2,18 +2,30 @@
    RADAR DE OPORTUNIDADES — Consolidação de ativos prontos para entrada
    ========================================================================== */
 
-#opportunityradar.page.active {
-  display: block;
-  width: 100%;
-  max-width: none;
-  padding: 20px 28px 40px;
+body:has(#opportunityradar.active) .content {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 20px 28px 40px !important;
+  box-sizing: border-box !important;
+}
+
+#opportunityradar {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
   box-sizing: border-box;
 }
 
+#opportunityradar.page.active {
+  display: block;
+  padding: 0 !important;
+}
+
 .radar-shell {
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
   display: flex;
   flex-direction: column;
   gap: 18px;

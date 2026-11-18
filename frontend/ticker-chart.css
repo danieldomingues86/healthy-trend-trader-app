@@ -5,9 +5,9 @@
 /* Layout calibrado para telas widescreen e monitores wide */
 body:has(#charts.active) .content,
 body:has(#charts.page.active) .content {
-  max-width: 1880px !important;
+  max-width: none !important;
   width: 100% !important;
-  margin: 0 auto !important;
+  margin: 0 !important;
   padding: 18px clamp(16px, 1.8vw, 28px) 48px !important;
   box-sizing: border-box !important;
 }
@@ -15,15 +15,15 @@ body:has(#charts.page.active) .content {
 body:has(#charts.active) #marketFocusGuard,
 body:has(#charts.page.active) #marketFocusGuard {
   width: 100%;
-  max-width: 1880px;
-  margin: 0 auto 16px;
+  max-width: none;
+  margin: 0 0 16px;
 }
 
 #charts.page {
   padding: 0 0 32px 0;
-  max-width: 1880px !important;
+  max-width: none !important;
   width: 100% !important;
-  margin: 0 auto !important;
+  margin: 0 !important;
   box-sizing: border-box;
 }
 

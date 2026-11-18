@@ -362,6 +362,9 @@
       
       // Connect to unified NavigationSystemModel
       this.model = root.navigationSystem || (root.NavigationSystemModel ? new root.NavigationSystemModel() : null);
+
+      // Immediately hook global navigation delegates
+      this.hookUnifiedComponents();
     }
 
     init() {
@@ -483,6 +486,22 @@
         this.renderNavigationHub();
       }
       this.setupNavigationLayoutSettings();
+
+      if (!this._escapeKeyBound && typeof document !== 'undefined') {
+        this._escapeKeyBound = true;
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            const hub = document.getElementById('navigationHub');
+            if (hub && hub.classList.contains('open')) {
+              if (typeof root.closeNavigationHub === 'function') {
+                root.closeNavigationHub();
+              } else {
+                hub.classList.remove('open');
+              }
+            }
+          }
+        });
+      }
     }
 
     ensureFlyoutElement() {
@@ -1285,7 +1304,7 @@
 
     /**
      * MENU EM BLOCOS (TILES HUB)
-     * Renders Categorized Block Menu with Preset bar, Quick Access block & Category blocks
+     * Single viewport 3x6 unified grid (18 cards) with zero vertical scroll
      */
     renderNavigationHub() {
       if (document.body.dataset.navigationLayout !== 'tiles') return;
@@ -1297,103 +1316,191 @@
         document.body.appendChild(hub);
       }
 
-      const tree = this.getTree();
       const isEn = root.appLanguage === 'en-US';
       const isPro = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
       const proPages = root.professionalPages || new Set();
+      const activePage = (typeof document !== 'undefined' && document.querySelector('.page.active')?.id) || 'today';
 
-      let quickBlockHtml = '';
-      if (tree && tree.quickAccess && tree.quickAccess.length > 0) {
-        quickBlockHtml = `
-          <div class="navigation-hub-quick-section">
-            <div class="navigation-hub-section-title">
-              <span class="quick-star">★</span>
-              <span>${isEn ? 'QUICK ACCESS' : 'ACESSO RÁPIDO'}</span>
-            </div>
-            <div class="navigation-hub-quick-grid">
-              ${tree.quickAccess.map((item) => {
-                const isLocked = proPages.has(item.page) && !isPro;
-                return `
-                  <button class="nav-hub-card quick-card ${isLocked ? 'plan-locked' : ''}" type="button" onclick="go('${item.page}')">
-                    <span class="nav-card-ico">${item.icon}</span>
-                    <div class="nav-card-info">
-                      <b>${item.currentLabel}</b>
-                      <small>${item.currentDesc}</small>
-                    </div>
-                  </button>
-                `;
-              }).join('')}
-            </div>
-          </div>
+      const tiles = [
+        // Linha 1
+        {
+          id: 'today',
+          title: isEn ? 'My Desktop' : 'Meu Desktop',
+          desc: isEn ? 'Your starting point<br>and daily focus.' : 'Seu ponto de partida<br>e foco do dia.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
+        },
+        {
+          id: 'newtrade',
+          title: isEn ? 'New Trade' : 'Novo Trade',
+          desc: isEn ? 'Plan a new operation<br>with edge setup.' : 'Planeje uma nova<br>operação com setup.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><line x1="12" y1="7.5" x2="12" y2="16.5"/><line x1="7.5" y1="12" x2="16.5" y2="12"/></svg>`
+        },
+        {
+          id: 'journal',
+          title: isEn ? 'Trader Journal' : 'Diário de Trader',
+          desc: isEn ? 'Record and evaluate<br>your decisions.' : 'Registre e avalie seu<br>processo decisório.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17.5" rx="2.5"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/><line x1="15" y1="2" x2="15" y2="4.5"/><line x1="9" y1="2" x2="9" y2="4.5"/></svg>`
+        },
+        {
+          id: 'watchlist',
+          title: 'Watchlist',
+          desc: isEn ? 'Smart opportunity<br>pool.' : 'Pool inteligente de<br>oportunidades.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21.5l-7-5.5-7 5.5V4.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`
+        },
+        {
+          id: 'charts',
+          title: isEn ? 'Charts' : 'Gráficos',
+          desc: isEn ? 'Ticker analysis central<br>with guardrails.' : 'Central de análise do<br>ticker com guardrails.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="21" x2="21" y2="21"/></svg>`
+        },
+        {
+          id: 'dashboard',
+          title: isEn ? 'Wealth' : 'Patrimônio',
+          desc: isEn ? 'Equity overview,<br>allocations & cash.' : 'Visão patrimonial,<br>alocações e aportes.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v5.5c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 10.5V16c0 1.66 3.58 3 8 3s8-1.34 8-3v-5.5"/></svg>`
+        },
+
+        // Linha 2
+        {
+          id: 'marketcentral',
+          title: isEn ? 'Market Analysis' : 'Análise de Mercado',
+          desc: isEn ? 'Relative strength, cycle<br>& intelligence.' : 'Força relativa, ciclo de<br>mercado e inteligência.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><line x1="21" y1="21" x2="15.5" y2="15.5"/></svg>`
+        },
+        {
+          id: 'opportunityradar',
+          title: isEn ? 'Opportunity Radar' : 'Radar de Oportunidades',
+          desc: isEn ? 'Assets ready for entry<br>on daily timeframe.' : 'Ativos prontos para<br>entrada no gráfico Diário.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="1.5"/></svg>`
+        },
+        {
+          id: 'relativestrength',
+          title: isEn ? 'Relative Strength' : 'Força Relativa',
+          desc: isEn ? 'Identify market<br>leading assets.' : 'Identifique os ativos<br>líderes do mercado.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`
+        },
+        {
+          id: 'marketcycle',
+          title: isEn ? 'Market Cycle' : 'Ciclo de Mercado',
+          desc: isEn ? 'Check regime and<br>permission signal.' : 'Verifique o regime e o<br>sinal de permissão.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a9.5 9.5 0 1 1-.57-8.38l6.73-1.19"/></svg>`
+        },
+        {
+          id: 'marketcentral',
+          title: isEn ? 'Market Central' : 'Central de Mercado',
+          desc: isEn ? 'Environment overview<br>& macro context.' : 'Contexto e visão geral<br>do ambiente.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2.5 2 7.5 12 12.5 22 7.5 12 2.5"/><polyline points="2 12 12 17 22 12"/><polyline points="2 16.5 12 21.5 22 16.5"/></svg>`
+        },
+        {
+          id: 'fundamentals',
+          title: isEn ? 'Fundamentals' : 'Análise Fundamentalista',
+          desc: isEn ? 'Fundamentals and<br>quality of assets.' : 'Fundamentos e a<br>qualidade dos ativos.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="16"/><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="3" y1="21" x2="21" y2="21"/></svg>`
+        },
+
+        // Linha 3
+        {
+          id: 'markettreemap',
+          title: isEn ? 'Sectors' : 'Setores',
+          desc: isEn ? 'Sector performance<br>across B3 market.' : 'Desempenho setorial de<br>todo o mercado da B3.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></svg>`
+        },
+        {
+          id: 'positions',
+          title: isEn ? 'Daily Operation' : 'Operação Diária',
+          desc: isEn ? 'Routine, planning and<br>session execution.' : 'Rotina, planejamento e<br>execução do pregão.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`
+        },
+        {
+          id: 'dailyroutine',
+          title: isEn ? 'Daily Routine' : 'Rotina Diária',
+          desc: isEn ? 'Your ritual before<br>the opportunity.' : 'Seu ritual antes<br>da oportunidade.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2.5"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`
+        },
+        {
+          id: 'habits',
+          title: isEn ? 'Habit Tracker' : 'Monitor de Hábitos',
+          desc: isEn ? 'Build the routine of a<br>professional trader.' : 'Construa a rotina de<br>um trader profissional.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`
+        },
+        {
+          id: 'tradertraining',
+          title: isEn ? 'Training' : 'Treinamento',
+          desc: isEn ? 'Studies, rules and<br>playbook content.' : 'Estudos, regras e<br>conteúdos operacionais.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg>`
+        },
+        {
+          id: 'conquests',
+          title: isEn ? 'Conquests' : 'Conquistas',
+          desc: isEn ? 'Evolution, milestones<br>& rewards.' : 'Evolução, marcos e<br>recompensas do trader.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/><path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H8v4h8v-4h-1c-.55 0-1-.45-1-1v-2.34"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`
+        }
+      ];
+
+      const cardsHtml = tiles.map((item, index) => {
+        const isLocked = proPages.has(item.id) && !isPro;
+        const isActive = (item.id === activePage) || (activePage === 'today' && index === 0);
+        return `
+          <button class="nav-hub-tile-card ${isActive ? 'active' : ''} ${isLocked ? 'plan-locked' : ''}" type="button" onclick="go('${item.id}')" data-nav-id="${item.id}" aria-label="${item.title}">
+            <span class="nav-hub-tile-icon">${item.icon}</span>
+            <b class="nav-hub-tile-title">${item.title}</b>
+            <small class="nav-hub-tile-desc">${item.desc}</small>
+            ${isLocked ? '<span class="flyout-badge-pro">PRO</span>' : ''}
+          </button>
         `;
-      }
-
-      let categoriesBlocksHtml = '';
-      if (tree) {
-        categoriesBlocksHtml = tree.categories.filter(cat => cat.items && cat.items.length > 0).map((cat) => {
-          return `
-            <div class="nav-category-block" data-category="${cat.id}">
-              <header class="nav-category-header">
-                <span class="nav-cat-ico">${cat.icon}</span>
-                <div class="nav-cat-titles">
-                  <h3>${cat.currentLabel || cat.label}</h3>
-                  <p>${cat.desc}</p>
-                </div>
-              </header>
-              <div class="nav-category-cards-grid">
-                ${cat.items.map((item) => {
-                  const isLocked = proPages.has(item.page) && !isPro;
-                  return `
-                    <button class="nav-hub-card ${isLocked ? 'plan-locked' : ''}" type="button" onclick="go('${item.page}')">
-                      <span class="nav-card-ico">${item.icon}</span>
-                      <div class="nav-card-info">
-                        <div class="nav-card-title-row">
-                          <b>${item.currentLabel}</b>
-                          ${isLocked ? '<span class="flyout-badge-pro">PRO</span>' : ''}
-                        </div>
-                        <small>${item.currentDesc}</small>
-                      </div>
-                    </button>
-                  `;
-                }).join('')}
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
+      }).join('');
 
       hub.innerHTML = `
         <div class="navigation-hub-inner">
-          <header class="navigation-hub-header">
-            <div class="navigation-hub-brand">
-              <span class="tile-brand-mark">◢</span>
-              <div><strong>THE HEALTHY TREND</strong><small>TRADER WORKSPACE</small></div>
+          <header class="nav-hub-header">
+            <div class="nav-hub-brand-col">
+              <div class="nav-hub-brand-row">
+                <svg width="42" height="42" viewBox="0 0 34 34" fill="none" class="nav-hub-brand-logo-svg" aria-hidden="true">
+                  <circle cx="17" cy="17" r="15.5" stroke="#34d399" stroke-width="1.8" fill="rgba(6,38,25,0.9)"/>
+                  <path d="M9 21L14 16L18 20L25 12" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="20 12 25 12 25 17" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="nav-hub-brand-text">
+                  <strong>THE HEALTHY TREND</strong>
+                  <small>TRADER WORKSPACE</small>
+                </div>
+              </div>
+              <div class="nav-hub-dove-watermark" aria-hidden="true"></div>
             </div>
-            <div class="navigation-hub-title">
-              <div class="eyebrow">${isEn ? 'NAVIGATION' : 'NAVEGAÇÃO'}</div>
-              <h1>${isEn ? 'Where do you want to go <em>today?</em>' : 'Para onde você quer ir <em>hoje?</em>'}</h1>
-              <p>${isEn ? 'Discipline today. Freedom tomorrow.' : 'Disciplina hoje. Liberdade amanhã.'}</p>
+
+            <div class="nav-hub-title-col">
+              <div class="nav-hub-eyebrow">— ${isEn ? 'NAVIGATION' : 'NAVEGAÇÃO'} —</div>
+              <h1 class="nav-hub-heading">${isEn ? 'Where do you want to go <em class="nav-hub-highlight">today?</em>' : 'Para onde você quer ir <em class="nav-hub-highlight">hoje?</em>'}</h1>
+              <p class="nav-hub-subheading">${isEn ? 'Discipline today. Freedom tomorrow.' : 'Disciplina hoje. Liberdade amanhã.'}</p>
             </div>
-            <aside class="navigation-hub-quote">
-              “${isEn ? 'Consistency is the true advantage.' : 'Consistência é a verdadeira vantagem.'}”
-              <small>— TOM BASSO</small>
+
+            <aside class="nav-hub-quote-card">
+              <blockquote class="nav-hub-quote-text">“${isEn ? 'Consistency is the true advantage.' : 'Consistência é a verdadeira vantagem.'}”</blockquote>
+              <cite class="nav-hub-quote-author">— HEALTHY TREND TRADER</cite>
             </aside>
           </header>
 
-          <!-- ACESSO RÁPIDO BLOCK -->
-          ${quickBlockHtml}
+          <button type="button" class="nav-hub-viewport-close" onclick="closeNavigationHub()" aria-label="Fechar navegação" title="Fechar menu">✕</button>
 
-          <!-- CATEGORY BLOCKS -->
-          <div class="navigation-hub-categories-container">
-            ${categoriesBlocksHtml}
+          <div class="nav-hub-unified-grid">
+            ${cardsHtml}
           </div>
-
-          <footer class="navigation-hub-philosophy">
-            <span>FOCUS · PROCESS · DISCIPLINE · RESULTS</span>
-            <button type="button" class="nav-hub-settings-link" onclick="go('settings')">⚙ ${isEn ? 'Customize Navigation' : 'Personalizar Navegação'}</button>
-          </footer>
         </div>
       `;
+
+      // Click outside listener
+      if (!hub.__hasBackdropHandler) {
+        hub.__hasBackdropHandler = true;
+        hub.addEventListener('click', (e) => {
+          if (e.target === hub) {
+            if (typeof root.closeNavigationHub === 'function') {
+              root.closeNavigationHub();
+            } else {
+              hub.classList.remove('open');
+            }
+          }
+        });
+      }
 
       hub.classList.add('open');
     }

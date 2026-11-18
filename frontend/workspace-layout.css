@@ -1,5 +1,5 @@
 /* Área de trabalho comum para as páginas operacionais em telas largas. */
-:root{--workspace-max-width:1900px;--workspace-gutter:clamp(24px,3vw,64px)}
+:root{--workspace-max-width:none;--workspace-gutter:clamp(24px,2.2vw,36px)}
 
 /* A moldura do aplicativo permanece fixa, inclusive nas páginas com identidade visual própria. */
 @media (min-width:801px){
@@ -76,31 +76,37 @@ body:has(#watchlist.active) #marketFocusGuard {
   display: none !important;
 }
 @media (min-width:1201px){
-  .content{max-width:none;margin:0;padding:24px var(--workspace-gutter) 48px}
+  .content{max-width:none!important;width:100%!important;margin:0!important;padding:24px var(--workspace-gutter) 48px!important;box-sizing:border-box!important}
 
   /* A proteção de foco fica alinhada com a página exibida logo abaixo. */
   #marketFocusGuard{
-    width:min(100%,var(--workspace-max-width));
-    margin:0 auto 20px!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0 0 20px!important;
   }
   body:has(#materials.active) #marketFocusGuard,
   body:has(#watchlist.active) #marketFocusGuard,
   body:has(#emergingleaders.active) #marketFocusGuard{display:none}
   body:has(#habits.active) #marketFocusGuard,
   body:has(#settings.active) #marketFocusGuard{
-    width:min(100%,var(--workspace-max-width))!important;
-    margin-inline:auto!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0 0 15px!important;
   }
 
-  .page.active:not(#today):not(#journal):not(#zen):not(#manual):not(#wisdom):not(#tradelibrary):not(#emotionalintelligence):not(#emergingleaders):not(#watchlist):not(#marketcycle):not(#tradesimulator):not(#riskofruin){
-    width:min(100%,var(--workspace-max-width));
-    margin-inline:auto!important;
+  .page.active{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    box-sizing:border-box!important;
   }
 
-  /* Páginas que antes tinham uma largura própria passam a ocupar a mesma área útil. */
+  /* Todas as páginas ocupam a mesma dimensão útil em widescreen de forma uniforme. */
   #today.today-cockpit-page,
   #habits.habit-artistic-page,
   #traderprofile,
+  #traderrules,
+  #mindset,
   #platformaccess,
   #relativestrength.rs-v3-page,
   #marketcycle,
@@ -111,7 +117,22 @@ body:has(#watchlist.active) #marketFocusGuard {
   #marketscans,
   #materials,
   #tradesimulator,
-  #riskofruin{max-width:none!important;width:100%!important;margin-inline:auto!important}
+  #researchlab,
+  #riskofruin,
+  #tradertraining,
+  #mission,
+  #opportunityradar,
+  #charts,
+  #systemquality,
+  #tradeanatomy,
+  #eventplaybook,
+  #watchlist,
+  #deservingdiary,
+  #conquests,
+  #portfolioheat,
+  #assetblacklist,
+  #wisdom,
+  #settings{max-width:none!important;width:100%!important;margin:0!important}
 
   #today.today-cockpit-page .today-cockpit,
   #habits .habit-shell,
@@ -120,7 +141,13 @@ body:has(#watchlist.active) #marketFocusGuard {
   #forecastRoot,
   #fundamentalsRoot,
   #marketscans #marketScansRoot,
-  #materials .materials-v2{width:100%;max-width:none!important;margin-inline:auto}
+  #materials .materials-v2,
+  .sqn-page-shell,
+  .ta-page,
+  .mindset-hub,
+  .trader-rules-shell,
+  .wisdom-page,
+  .platform-access-page{width:100%!important;max-width:none!important;margin:0!important}
 
   body:has(#relativestrength.active) .content,
   body:has(#relativestrength.page.active) .content,
@@ -160,9 +187,9 @@ body:has(#watchlist.active) #marketFocusGuard {
   body:has(#settings.active) #settings>.settings-hero,
   body:has(#settings.active) #settings>.settings-grid,
   body:has(#settings.active) #settings>.settings-footer{
-    width:min(100%,var(--workspace-max-width))!important;
+    width:100%!important;
     max-width:none!important;
-    margin-inline:auto!important;
+    margin:0!important;
   }
 
   /* Scans começa junto à faixa de mercado, como as demais páginas. */

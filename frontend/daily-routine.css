@@ -38,8 +38,8 @@ body:has(#dailyroutine.active) .content {
 
 #dailyroutine {
   width: 100% !important;
-  max-width: 1440px !important;
-  margin: 0 auto !important;
+  max-width: none !important;
+  margin: 0 !important;
   box-sizing: border-box !important;
   font-family: inherit;
   color: #1e293b;
