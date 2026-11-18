@@ -2,6 +2,7 @@
  * ============================================================================
  * BIBLIOTECA MENTAL / AUDIO LIBRARY — THE HEALTHY TREND TRADER
  * Experiência cinematográfica, imersiva e de alta performance psicológica.
+ * Layout otimizado para monitores Widescreen / Desktop.
  * ============================================================================
  */
 
@@ -267,9 +268,8 @@
   function selectMentalAudio(id) {
     mentalAudioState.selected = id;
     renderMentalAudioLibrary();
-    // Leve scroll suave até o player se necessário
     const player = document.getElementById('mentalStudioPlayer');
-    if (player && window.innerWidth < 800) {
+    if (player && window.innerWidth < 1180) {
       player.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
@@ -374,6 +374,7 @@
 
     const selected = mentalAudioById(mentalAudioState.selected);
     const isPlaying = Boolean(mentalAudioState.isPlaying);
+    const isSelectedFav = mentalAudioState.favorites.includes(selected.id);
 
     // Filtros de Mood para os Guias Mentais
     const moods = [
@@ -453,7 +454,7 @@
         }).join('')
       : '<span class="mental-history-empty">Nenhum áudio executado recentemente nesta sessão.</span>';
 
-    // Montagem completa do DOM imersivo
+    // Montagem completa do DOM imersivo com TOP GRID (Hero + Studio Player lado a lado em telas wide)
     root.innerHTML = `
       <main class="mental-audio-page">
         <!-- 1. Barra de Navegação Superior -->
@@ -471,35 +472,28 @@
           </div>
         </header>
 
-        <!-- 2. Hero Section Editorial de Alta Performance -->
-        <section class="mental-hero-card">
-          <div class="mental-hero-content">
-            <div class="mental-hero-kicker">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-              ALTA PERFORMANCE PSICOLÓGICA · BIBLIOTECA MENTAL
-            </div>
-            <h1>O apoio certo para o <em>estado em que você está.</em></h1>
-            <p class="mental-hero-lead">
-              Escolha como você está se sentindo agora. Práticas guiadas de áudio para desacelerar, recuperar a clareza analítica e executar seu método com disciplina inabalável.
-            </p>
-            <div class="mental-hero-disclaimer">
-              <strong>Uso responsável:</strong> Conteúdo de apoio à rotina de foco e autoconhecimento. Não substitui atendimento médico ou psicológico quando necessário, nem representa recomendação de investimento.
-            </div>
-          </div>
-        </section>
-
-        <!-- 3. Player de Áudio Cinematográfico de Estúdio -->
-        <section class="mental-studio-player" id="mentalStudioPlayer">
-          <div class="mental-player-left">
-            <div class="mental-player-art-wrap ${isPlaying ? 'is-playing' : ''}">
-              <span>${selected.icon}</span>
-              <div class="mental-sound-wave" aria-hidden="true">
-                <span class="mental-sound-bar"></span>
-                <span class="mental-sound-bar"></span>
-                <span class="mental-sound-bar"></span>
+        <!-- 2. Grid Superior: Hero Section + Studio Player Lado a Lado (Melhor Aproveitamento Wide) -->
+        <div class="mental-top-grid">
+          <!-- Hero Section Editorial -->
+          <section class="mental-hero-card">
+            <div class="mental-hero-content">
+              <div class="mental-hero-kicker">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                ALTA PERFORMANCE PSICOLÓGICA · BIBLIOTECA MENTAL
               </div>
+              <h1>O apoio certo para o <em>estado em que você está.</em></h1>
+              <p class="mental-hero-lead">
+                Práticas guiadas de áudio para desacelerar, recuperar a clareza analítica e executar seu método com disciplina inabalável. Escolha seu momento e entre no estado mental ideal.
+              </p>
             </div>
-            <div class="mental-player-meta">
+            <div class="mental-hero-disclaimer">
+              <strong>Uso responsável:</strong> Conteúdo de apoio à rotina e autoconhecimento. Não substitui orientação médica ou psicológica quando necessária.
+            </div>
+          </section>
+
+          <!-- Studio Player Integrado (Deck de Controle) -->
+          <section class="mental-studio-player" id="mentalStudioPlayer">
+            <div class="mental-player-top">
               <div class="mental-player-status-tag">
                 <span class="mental-status-dot"></span>
                 <span>${isPlaying ? 'TOCANDO AGORA' : 'ÁUDIO SELECIONADO'}</span>
@@ -508,19 +502,43 @@
                 <span>·</span>
                 <span>${selected.duration}</span>
               </div>
-              <h2 class="mental-player-title">${selected.title}</h2>
-              <p class="mental-player-desc">${selected.description}</p>
+              <button class="mental-fav-btn ${isSelectedFav ? 'active' : ''}" type="button" onclick="toggleMentalAudioFavorite('${selected.id}')" title="${isSelectedFav ? 'Remover dos favoritos' : 'Favoritar'}">
+                ${isSelectedFav ? '★' : '☆'}
+              </button>
             </div>
-          </div>
-          <div class="mental-player-right">
-            <button class="mental-play-btn ${isPlaying ? 'is-active' : ''}" type="button" data-mental-play onclick="${isPlaying ? 'stopMentalAudio()' : `playMentalAudio('${selected.id}')`}">
-              <span class="mental-play-icon">${isPlaying ? '■' : '▶'}</span>
-              <span>${isPlaying ? 'Parar Áudio' : 'Ouvir Agora'}</span>
-            </button>
-          </div>
-        </section>
 
-        <!-- 4. Navegação por Abas Principais -->
+            <div class="mental-player-body">
+              <div class="mental-player-art-wrap ${isPlaying ? 'is-playing' : ''}">
+                <span>${selected.icon}</span>
+                <div class="mental-sound-wave" aria-hidden="true">
+                  <span class="mental-sound-bar"></span>
+                  <span class="mental-sound-bar"></span>
+                  <span class="mental-sound-bar"></span>
+                  <span class="mental-sound-bar"></span>
+                </div>
+              </div>
+              <div class="mental-player-meta">
+                <h2 class="mental-player-title">${selected.title}</h2>
+                <p class="mental-player-desc">${selected.description}</p>
+                <div class="mental-player-script-peek">"${selected.script}"</div>
+              </div>
+            </div>
+
+            <div class="mental-player-footer">
+              <button class="mental-play-btn ${isPlaying ? 'is-active' : ''}" type="button" data-mental-play onclick="${isPlaying ? 'stopMentalAudio()' : `playMentalAudio('${selected.id}')`}">
+                <span class="mental-play-icon">${isPlaying ? '■' : '▶'}</span>
+                <span>${isPlaying ? 'Parar Áudio' : 'Ouvir Agora'}</span>
+              </button>
+              ${isPlaying ? `
+                <button class="mental-fav-btn" type="button" onclick="playMentalAudio('${selected.id}')" title="Reiniciar narração" style="width: 44px; height: 44px; font-size: 18px; border-radius: 12px;">
+                  ↺
+                </button>
+              ` : ''}
+            </div>
+          </section>
+        </div>
+
+        <!-- 3. Navegação por Abas Principais e Filtros Emocionais -->
         <nav class="mental-nav-tabs-row">
           <div class="mental-tabs-pills">
             <button class="mental-tab-btn ${mentalAudioState.tab === 'scenario' ? 'active' : ''}" type="button" onclick="selectMentalAudioTab('scenario')">
@@ -538,11 +556,11 @@
           </div>
         </nav>
 
-        <!-- 5. Filtros Rápidos por Estado Emocional (somente na aba Guias por Estado) -->
+        <!-- 4. Filtros Rápidos por Estado Emocional (somente na aba Guias por Estado) -->
         ${mentalAudioState.tab === 'scenario' ? `
-          <div class="mental-tabs-pills" style="margin-bottom: 22px; gap: 8px;">
+          <div class="mental-tabs-pills" style="margin-bottom: 20px; gap: 8px;">
             ${moods.map(m => `
-              <button class="mental-tab-btn ${mentalAudioState.mood === m.id ? 'active' : ''}" type="button" onclick="selectMentalMood('${m.id}')" style="font-size: 11.5px; padding: 8px 14px;">
+              <button class="mental-tab-btn ${mentalAudioState.mood === m.id ? 'active' : ''}" type="button" onclick="selectMentalMood('${m.id}')" style="font-size: 11.5px; padding: 7px 14px;">
                 <span>${m.icon}</span>
                 <span>${m.label}</span>
               </button>
@@ -550,12 +568,12 @@
           </div>
         ` : ''}
 
-        <!-- 6. Grade de Cards de Alta Performance -->
+        <!-- 5. Grade de Cards de Alta Performance (4 colunas no widescreen) -->
         <section class="mental-cards-grid">
           ${cardsHtml}
         </section>
 
-        <!-- 7. Seção de Histórico Recente -->
+        <!-- 6. Seção de Histórico Recente -->
         <section class="mental-history-panel">
           <div class="mental-history-head">
             <div>
