@@ -26,10 +26,10 @@
     },
     {
       id: 'daily',
-      label: 'Operação Diária',
-      labelEn: 'Daily Operation',
-      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
-      desc: 'Rotina, planejamento e execução do pregão.'
+      label: 'Rotina & Mentalidade',
+      labelEn: 'Routine & Mindset',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
+      desc: 'Rotina, hábitos, disciplina e desenvolvimento psicológico.'
     },
     {
       id: 'training-recovery',
@@ -143,12 +143,12 @@
     {
       id: 'habits',
       page: 'habits',
-      label: 'Monitor de Hábitos',
-      labelEn: 'Habits Tracker',
+      label: 'Acompanhar Hábitos',
+      labelEn: 'Habit Tracking',
       category: 'daily',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-      desc: 'Construa a rotina de um trader profissional.',
-      descEn: 'Build a professional trader routine.',
+      desc: 'Acompanhamento e construção de hábitos.',
+      descEn: 'Build and track professional trading habits.',
       proOnly: false
     },
 
@@ -496,12 +496,12 @@
     {
       id: 'zen',
       page: 'zen',
-      label: 'Trader Zen',
-      labelEn: 'Trader Zen',
-      category: 'mindset',
+      label: 'Trader Zen — Mentalidade',
+      labelEn: 'Trader Zen — Mindset',
+      category: 'daily',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>`,
-      desc: 'Respiração e descompressão pré/pós pregão.',
-      descEn: 'Breathing and decompression pre/post session.',
+      desc: 'Respiração, foco e descompressão do trader.',
+      descEn: 'Breathing, focus and mental clarity.',
       proOnly: true
     },
     {

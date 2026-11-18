@@ -75,43 +75,35 @@
     },
     {
       id: 'daily',
-      groupLabel: 'Operação Diária',
+      groupLabel: 'Rotina & Mentalidade',
+      header: 'ROTINA & MENTALIDADE',
+      label: 'Rotina & Mentalidade',
+      isGroup: true,
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
       items: [
-        {
-          id: 'today',
-          label: 'Meu Desktop',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
-          page: 'today'
-        },
-        {
-          id: 'newtrade',
-          label: 'Novo Trade',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`,
-          page: 'newtrade'
-        },
-        {
-          id: 'journal',
-          label: 'Diário de Trader',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
-          page: 'journal'
-        },
         {
           id: 'dailyroutine',
           label: 'Rotina Diária',
+          title: 'Rotina Diária',
+          desc: 'Seu ritual antes da oportunidade.',
           icon: `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.5 2.5H12a1.5 1.5 0 0 1 1.5 1.5v9.5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V4a1.5 1.5 0 0 1 1.5-1.5h1.5"/><rect x="5.5" y="1" width="5" height="3" rx="1"/><path d="M5.5 7.5h5M5.5 11h3.5"/></svg>`,
           page: 'dailyroutine'
         },
         {
-          id: 'watchlist',
-          label: 'Watchlist',
-          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
-          page: 'watchlist'
-        },
-        {
           id: 'habits',
-          label: 'Hábitos',
+          label: 'Acompanhar Hábitos',
+          title: 'Acompanhar Hábitos',
+          desc: 'Acompanhamento e construção de hábitos.',
           icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
           page: 'habits'
+        },
+        {
+          id: 'zen',
+          label: 'Trader Zen — Mentalidade',
+          title: 'Trader Zen — Mentalidade',
+          desc: 'Respiração, foco e descompressão do trader.',
+          icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>`,
+          page: 'zen'
         }
       ]
     },
@@ -305,12 +297,6 @@
           page: 'eventplaybook'
         }
       ]
-    },
-    {
-      id: 'mindset',
-      label: 'Mentalidade',
-      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5A4.5 4.5 0 0 0 5 9v1a4 4 0 0 0 1 7.87V19a2 2 0 0 0 2 2h1.5M14.5 4.5A4.5 4.5 0 0 1 19 9v1a4 4 0 0 1-1 7.87V19a2 2 0 0 1-2 2h-1.5M9.5 4.5A3.5 3.5 0 0 1 12 6a3.5 3.5 0 0 1 2.5-1.5M12 6v15M8 10h1.5M14.5 10H16M8 14h1.5M14.5 14H16"/></svg>`,
-      page: 'mindset'
     }
   ];
 
@@ -610,24 +596,8 @@
         tree.categories.forEach((cat) => {
           if (cat.id === 'resources') return; // Rendered in footer
 
-          // Na sidebar deve existir apenas: 🧠 Mentalidade (ponto único de entrada)
-          if (cat.id === 'mindset') {
-            const isEn = root.appLanguage === 'en-US';
-            const mindsetBtn = {
-              id: 'mindset',
-              page: 'mindset',
-              label: 'Mentalidade',
-              labelEn: 'Mindset',
-              currentLabel: isEn ? 'Mindset' : 'Mentalidade',
-              icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5A4.5 4.5 0 0 0 5 9v1a4 4 0 0 0 1 7.87V19a2 2 0 0 0 2 2h1.5M14.5 4.5A4.5 4.5 0 0 1 19 9v1a4 4 0 0 1-1 7.87V19a2 2 0 0 1-2 2h-1.5M9.5 4.5A3.5 3.5 0 0 1 12 6a3.5 3.5 0 0 1 2.5-1.5M12 6v15M8 10h1.5M14.5 10H16M8 14h1.5M14.5 14H16"/></svg>`
-            };
-            html += `
-              <div class="sidebar-group sidebar-direct-group" data-group-id="mindset">
-                ${this.renderDirectButton(mindsetBtn)}
-              </div>
-            `;
-            return;
-          }
+          // Acesso independente de Mentalidade removido do menu principal (integrado dentro de Rotina & Mentalidade)
+          if (cat.id === 'mindset') return;
 
           if (!cat.items || cat.items.length === 0) return; // All items in Quick Access or empty
 
@@ -1034,7 +1004,7 @@
 
       const mindsetPages = new Set(['mindset', 'zen', 'audiolibrary', 'emotionalintelligence', 'traderrules', 'wisdom', 'traderprofile']);
       if (mindsetPages.has(pageId)) {
-        document.querySelectorAll('.sidebar-btn[data-page="mindset"]').forEach((btn) => {
+        document.querySelectorAll('.sidebar-btn[data-page="zen"], .sidebar-btn[data-page="mindset"]').forEach((btn) => {
           btn.classList.add('active');
         });
       }
@@ -1043,7 +1013,7 @@
       const tree = this.getTree();
       if (tree) {
         tree.categories.forEach((cat) => {
-          const isChildActive = cat.items.some(it => it.page === pageId);
+          const isChildActive = cat.items.some(it => it.page === pageId) || (cat.id === 'daily' && mindsetPages.has(pageId));
           document.querySelectorAll(`.sidebar-category-group[data-group-id="${cat.id}"]`).forEach(el => {
             el.classList.toggle('parent-active', isChildActive);
           });
@@ -1209,6 +1179,7 @@
 
         // 2. CATEGORY DROPDOWNS
         tree.categories.forEach((cat) => {
+          if (cat.id === 'resources' || cat.id === 'mindset') return;
           if (!cat.items || cat.items.length === 0) return;
           const isChildActive = cat.items.some(it => it.page === activePage);
           menuHtml += `

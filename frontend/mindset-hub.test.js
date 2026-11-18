@@ -32,20 +32,25 @@ test('index.html: assets e scripts do módulo Mentalidade integrados corretament
   assert.match(indexHtml, /professionalPages\.add\(['"]traderrules['"]\)/);
 });
 
-test('sidebar-navigation.js: único ponto de entrada para Mentalidade sem itens dispersos', () => {
-  // Direct button for mindset
-  assert.match(sidebarNavJs, /id:\s*'mindset'/);
-  assert.match(sidebarNavJs, /label:\s*'Mentalidade'/);
-  assert.match(sidebarNavJs, /page:\s*'mindset'/);
+test('sidebar-navigation.js: categoria Rotina & Mentalidade agrupa Rotina Diária, Hábitos e Trader Zen', () => {
+  // Rotina & Mentalidade está presente no menu principal
+  assert.match(sidebarNavJs, /Rotina & Mentalidade/);
+  assert.match(sidebarNavJs, /ROTINA & MENTALIDADE/);
 
-  // Old separated group removed
-  assert.doesNotMatch(sidebarNavJs, /id:\s*'mindset-zen'/);
+  // Três módulos agrupados na categoria daily
+  assert.match(sidebarNavJs, /id:\s*'dailyroutine'/);
+  assert.match(sidebarNavJs, /id:\s*'habits'/);
+  assert.match(sidebarNavJs, /id:\s*'zen'/);
+  assert.match(sidebarNavJs, /Trader Zen — Mentalidade/);
+
+  // Acesso independente de Mentalidade removido do menu principal
+  assert.match(sidebarNavJs, /if \(cat\.id === 'mindset'\) return;/);
 
   // Active sync handles all mindset subpages
   assert.match(sidebarNavJs, /const mindsetPages = new Set\(\['mindset', 'zen', 'audiolibrary', 'emotionalintelligence', 'traderrules', 'wisdom', 'traderprofile'\]\)/);
 
-  // Breadcrumb shows Mentalidade / Submódulo with link back
-  assert.match(sidebarNavJs, /onclick="go\('mindset'\)"/);
+  // Breadcrumb shows Rotina & Mentalidade / Submódulo
+  assert.match(sidebarNavJs, /Rotina & Mentalidade/);
 });
 
 test('mindset-hub.js: estrutura da Home com os 6 submódulos e os 3 widgets inferiores', () => {
