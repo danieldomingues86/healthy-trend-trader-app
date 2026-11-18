@@ -32,7 +32,7 @@ test('index.html: assets e scripts do módulo Mentalidade integrados corretament
   assert.match(indexHtml, /professionalPages\.add\(['"]traderrules['"]\)/);
 });
 
-test('sidebar-navigation.js: categoria Rotina & Mentalidade agrupa Rotina Diária, Hábitos e Trader Zen', () => {
+test('sidebar-navigation.js: categoria Rotina & Mentalidade agrupa Rotina Diária, Hábitos e Mentalidade', () => {
   // Rotina & Mentalidade está presente no menu principal
   assert.match(sidebarNavJs, /Rotina & Mentalidade/);
   assert.match(sidebarNavJs, /ROTINA & MENTALIDADE/);
@@ -40,8 +40,8 @@ test('sidebar-navigation.js: categoria Rotina & Mentalidade agrupa Rotina Diári
   // Três módulos agrupados na categoria daily
   assert.match(sidebarNavJs, /id:\s*'dailyroutine'/);
   assert.match(sidebarNavJs, /id:\s*'habits'/);
-  assert.match(sidebarNavJs, /id:\s*'zen'/);
-  assert.match(sidebarNavJs, /Trader Zen — Mentalidade/);
+  assert.match(sidebarNavJs, /id:\s*'mindset'/);
+  assert.match(sidebarNavJs, /page:\s*'mindset'/);
 
   // Acesso independente de Mentalidade removido do menu principal
   assert.match(sidebarNavJs, /if \(cat\.id === 'mindset'\) return;/);
