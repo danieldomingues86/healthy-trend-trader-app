@@ -1,11 +1,6 @@
-/* ==========================================================================
-   Healthy Trend Trader — Cache de Dados de Força Relativa (B3 e Nasdaq)
-   Gerado automaticamente a partir do último fechamento em market-cache.json
-   Garante disponibilidade instantânea dos dados reais mesmo em modo offline.
-   ========================================================================== */
-(function() {
+// Relative Strength Static Data Cache (COTAHIST & Twelve Data EOD Offline)
+(function (root) {
   'use strict';
-  const root = typeof window !== 'undefined' ? window : globalThis;
   const staticCache = {
   "updatedAt": "2026-11-12T23:54:01.391Z",
   "dataAsOf": "20261112",
@@ -37263,7 +37258,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 1
+          "rank": 1,
+          "rsRank": 1
         },
         {
           "symbol": "TEAM",
@@ -37288,7 +37284,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 2
+          "rank": 2,
+          "rsRank": 2
         },
         {
           "symbol": "MSTR",
@@ -37313,7 +37310,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 3
+          "rank": 3,
+          "rsRank": 3
         },
         {
           "symbol": "SMCI",
@@ -37338,7 +37336,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 4
+          "rank": 4,
+          "rsRank": 4
         },
         {
           "symbol": "ILMN",
@@ -37363,7 +37362,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 5
+          "rank": 5,
+          "rsRank": 5
         },
         {
           "symbol": "PLTR",
@@ -37388,7 +37388,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 6
+          "rank": 6,
+          "rsRank": 6
         },
         {
           "symbol": "CRWD",
@@ -37413,7 +37414,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 7
+          "rank": 7,
+          "rsRank": 7
         },
         {
           "symbol": "ZS",
@@ -37438,7 +37440,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 8
+          "rank": 8,
+          "rsRank": 8
         },
         {
           "symbol": "META",
@@ -37463,7 +37466,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 9
+          "rank": 9,
+          "rsRank": 9
         },
         {
           "symbol": "AMD",
@@ -37488,7 +37492,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 10
+          "rank": 10,
+          "rsRank": 10
         },
         {
           "symbol": "WDAY",
@@ -37513,7 +37518,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "NEUTRAL",
-          "rank": 11
+          "rank": 11,
+          "rsRank": 11
         },
         {
           "symbol": "MSFT",
@@ -37538,7 +37544,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 12
+          "rank": 12,
+          "rsRank": 12
         },
         {
           "symbol": "TER",
@@ -37563,7 +37570,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 13
+          "rank": 13,
+          "rsRank": 13
         },
         {
           "symbol": "SNPS",
@@ -37588,7 +37596,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 14
+          "rank": 14,
+          "rsRank": 14
         },
         {
           "symbol": "MU",
@@ -37613,7 +37622,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 15
+          "rank": 15,
+          "rsRank": 15
         },
         {
           "symbol": "WBD",
@@ -37638,7 +37648,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 16
+          "rank": 16,
+          "rsRank": 16
         },
         {
           "symbol": "NVDA",
@@ -37663,7 +37674,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 17
+          "rank": 17,
+          "rsRank": 17
         },
         {
           "symbol": "FTNT",
@@ -37688,7 +37700,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 18
+          "rank": 18,
+          "rsRank": 18
         },
         {
           "symbol": "PANW",
@@ -37713,7 +37726,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 19
+          "rank": 19,
+          "rsRank": 19
         },
         {
           "symbol": "DDOG",
@@ -37738,7 +37752,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 20
+          "rank": 20,
+          "rsRank": 20
         },
         {
           "symbol": "DXCM",
@@ -37763,557 +37778,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "NEUTRAL",
-          "rank": 21
-        },
-        {
-          "symbol": "ADI",
-          "name": "Analog Devices Inc.",
-          "sector": "Tecnologia",
-          "m1": 14.13,
-          "m3": 7.28,
-          "score": 78,
-          "resilience12m": {
-            "score": 31,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": 0.01,
-            "beatRate": 53.5,
-            "avgAssetDrop": -0.95,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 61,
-            "upCount": 39,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 22
-        },
-        {
-          "symbol": "MPWR",
-          "name": "Monolithic Power Systems Inc.",
-          "sector": "Tecnologia",
-          "m1": 11.01,
-          "m3": 5.65,
-          "score": 77,
-          "resilience12m": {
-            "score": 12,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.83,
-            "beatRate": 36,
-            "avgAssetDrop": -1.79,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 41,
-            "upCount": 35,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 23
-        },
-        {
-          "symbol": "GILD",
-          "name": "Gilead Sciences Inc.",
-          "sector": "Saúde",
-          "m1": -1.61,
-          "m3": 12.36,
-          "score": 76,
-          "resilience12m": {
-            "score": 72,
-            "label": "Forte",
-            "badgeColor": "yellow",
-            "outperformance": 0.96,
-            "beatRate": 65.8,
-            "avgAssetDrop": 0,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 75,
-            "upCount": 54,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 24
-        },
-        {
-          "symbol": "ROST",
-          "name": "Ross Stores Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": 2.12,
-          "m3": 9.68,
-          "score": 75,
-          "resilience12m": {
-            "score": 88,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 0.9,
-            "beatRate": 77.2,
-            "avgAssetDrop": -0.06,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 88,
-            "upCount": 57,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 25
-        },
-        {
-          "symbol": "QCOM",
-          "name": "QUALCOMM Incorporated",
-          "sector": "Tecnologia",
-          "m1": 9.29,
-          "m3": 3.31,
-          "score": 74,
-          "resilience12m": {
-            "score": 21,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.54,
-            "beatRate": 47.4,
-            "avgAssetDrop": -1.5,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 54,
-            "upCount": 33,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 26
-        },
-        {
-          "symbol": "AAPL",
-          "name": "Apple Inc.",
-          "sector": "Tecnologia",
-          "m1": 1.6,
-          "m3": 7.03,
-          "score": 73,
-          "resilience12m": {
-            "score": 74,
-            "label": "Forte",
-            "badgeColor": "yellow",
-            "outperformance": 0.83,
-            "beatRate": 69.3,
-            "avgAssetDrop": -0.13,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 79,
-            "upCount": 46,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 27
-        },
-        {
-          "symbol": "ASML",
-          "name": "ASML Holding N.V.",
-          "sector": "Tecnologia",
-          "m1": 8.61,
-          "m3": 2.21,
-          "score": 72,
-          "resilience12m": {
-            "score": 18,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.43,
-            "beatRate": 37.7,
-            "avgAssetDrop": -1.39,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 43,
-            "upCount": 33,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 28
-        },
-        {
-          "symbol": "LRCX",
-          "name": "Lam Research Corporation",
-          "sector": "Tecnologia",
-          "m1": 17.2,
-          "m3": -3.22,
-          "score": 69,
-          "resilience12m": {
-            "score": 2,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -1.23,
-            "beatRate": 32.5,
-            "avgAssetDrop": -2.19,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 37,
-            "upCount": 28,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 29
-        },
-        {
-          "symbol": "ARM",
-          "name": "Arm Holdings plc",
-          "sector": "Tecnologia",
-          "m1": 24.5,
-          "m3": -7.28,
-          "score": 68,
-          "resilience12m": {
-            "score": 5,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -1.35,
-            "beatRate": 34.2,
-            "avgAssetDrop": -2.31,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 39,
-            "upCount": 34,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 30
-        },
-        {
-          "symbol": "FAST",
-          "name": "Fastenal Company",
-          "sector": "Industriais",
-          "m1": 3.03,
-          "m3": 3.34,
-          "score": 65,
-          "resilience12m": {
-            "score": 71,
-            "label": "Forte",
-            "badgeColor": "yellow",
-            "outperformance": 0.91,
-            "beatRate": 66.7,
-            "avgAssetDrop": -0.05,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 76,
-            "upCount": 57,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
-          },
-          "trendState": "BULLISH",
-          "rank": 31
-        },
-        {
-          "symbol": "BIIB",
-          "name": "Biogen Inc.",
-          "sector": "Saúde",
-          "m1": 3.14,
-          "m3": 3.1,
-          "score": 64,
-          "resilience12m": {
-            "score": 81,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 1.11,
-            "beatRate": 64.9,
-            "avgAssetDrop": 0.15,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 74,
-            "upCount": 57,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "BULLISH",
-          "rank": 32
-        },
-        {
-          "symbol": "TXN",
-          "name": "Texas Instruments Incorporated",
-          "sector": "Tecnologia",
-          "m1": 11.04,
-          "m3": -4.02,
-          "score": 61,
-          "resilience12m": {
-            "score": 27,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": 0.1,
-            "beatRate": 50,
-            "avgAssetDrop": -0.86,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 57,
-            "upCount": 33,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 33
-        },
-        {
-          "symbol": "CDNS",
-          "name": "Cadence Design Systems Inc.",
-          "sector": "Tecnologia",
-          "m1": 12.04,
-          "m3": -6.01,
-          "score": 58,
-          "resilience12m": {
-            "score": 20,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.35,
-            "beatRate": 45.6,
-            "avgAssetDrop": -1.31,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 52,
-            "upCount": 28,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 34
-        },
-        {
-          "symbol": "ISRG",
-          "name": "Intuitive Surgical Inc.",
-          "sector": "Saúde",
-          "m1": 8.66,
-          "m3": -5.81,
-          "score": 57,
-          "resilience12m": {
-            "score": 57,
-            "label": "Moderada",
-            "badgeColor": "yellow",
-            "outperformance": 0.64,
-            "beatRate": 60.5,
-            "avgAssetDrop": -0.32,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 69,
-            "upCount": 46,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 35
-        },
-        {
-          "symbol": "AMAT",
-          "name": "Applied Materials Inc.",
-          "sector": "Tecnologia",
-          "m1": 19.79,
-          "m3": -12.23,
-          "score": 56,
-          "resilience12m": {
-            "score": 14,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.97,
-            "beatRate": 40.4,
-            "avgAssetDrop": -1.93,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 46,
-            "upCount": 36,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 36
-        },
-        {
-          "symbol": "MAR",
-          "name": "Marriott International Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": 6.05,
-          "m3": -4.87,
-          "score": 55,
-          "resilience12m": {
-            "score": 83,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 0.97,
-            "beatRate": 69.3,
-            "avgAssetDrop": 0.01,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 79,
-            "upCount": 52,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 37
-        },
-        {
-          "symbol": "MCHP",
-          "name": "Microchip Technology Inc.",
-          "sector": "Tecnologia",
-          "m1": 9.93,
-          "m3": -7.25,
-          "score": 54,
-          "resilience12m": {
-            "score": 16,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.58,
-            "beatRate": 37.7,
-            "avgAssetDrop": -1.54,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 43,
-            "upCount": 28,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 38
-        },
-        {
-          "symbol": "CSCO",
-          "name": "Cisco Systems Inc.",
-          "sector": "Tecnologia",
-          "m1": -0.89,
-          "m3": -3.49,
-          "score": 52,
-          "resilience12m": {
-            "score": 44,
-            "label": "Moderada",
-            "badgeColor": "yellow",
-            "outperformance": 0.38,
-            "beatRate": 59.6,
-            "avgAssetDrop": -0.58,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 68,
-            "upCount": 43,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 39
-        },
-        {
-          "symbol": "COST",
-          "name": "Costco Wholesale Corporation",
-          "sector": "Consumo Básico",
-          "m1": -2.66,
-          "m3": -3.86,
-          "score": 51,
-          "resilience12m": {
-            "score": 96,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 1.14,
-            "beatRate": 75.4,
-            "avgAssetDrop": 0.18,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 86,
-            "upCount": 62,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 40
-        },
-        {
-          "symbol": "KLAC",
-          "name": "KLA Corporation",
-          "sector": "Tecnologia",
-          "m1": 17.23,
-          "m3": -14.95,
-          "score": 47,
-          "resilience12m": {
-            "score": 8,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -1.06,
-            "beatRate": 37.7,
-            "avgAssetDrop": -2.02,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 43,
-            "upCount": 32,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 41
-        },
-        {
-          "symbol": "HON",
-          "name": "Honeywell International Inc.",
-          "sector": "Industriais",
-          "m1": 1.82,
-          "m3": -6.99,
-          "score": 46,
-          "resilience12m": {
-            "score": 53,
-            "label": "Moderada",
-            "badgeColor": "yellow",
-            "outperformance": 0.55,
-            "beatRate": 65.8,
-            "avgAssetDrop": -0.41,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 75,
-            "upCount": 39,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 42
-        },
-        {
-          "symbol": "ON",
-          "name": "ON Semiconductor Corporation",
-          "sector": "Tecnologia",
-          "m1": 10.23,
-          "m3": -12.21,
-          "score": 43,
-          "resilience12m": {
-            "score": 13,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.8,
-            "beatRate": 37.7,
-            "avgAssetDrop": -1.76,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 43,
-            "upCount": 32,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 43
+          "rank": 21,
+          "rsRank": 21
         },
         {
           "symbol": "PYPL",
@@ -38338,7 +37804,190 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 44
+          "rank": 22,
+          "rsRank": 22
+        },
+        {
+          "symbol": "ADI",
+          "name": "Analog Devices Inc.",
+          "sector": "Tecnologia",
+          "m1": 14.13,
+          "m3": 7.28,
+          "score": 78,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.01,
+            "beatRate": 53.5,
+            "avgAssetDrop": -0.95,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 61,
+            "upCount": 39,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 23,
+          "rsRank": 23
+        },
+        {
+          "symbol": "MPWR",
+          "name": "Monolithic Power Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": 11.01,
+          "m3": 5.65,
+          "score": 77,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.83,
+            "beatRate": 36,
+            "avgAssetDrop": -1.79,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 41,
+            "upCount": 35,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 24,
+          "rsRank": 24
+        },
+        {
+          "symbol": "GILD",
+          "name": "Gilead Sciences Inc.",
+          "sector": "Saúde",
+          "m1": -1.61,
+          "m3": 12.36,
+          "score": 76,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.96,
+            "beatRate": 65.8,
+            "avgAssetDrop": 0,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 25,
+          "rsRank": 25
+        },
+        {
+          "symbol": "ROST",
+          "name": "Ross Stores Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": 2.12,
+          "m3": 9.68,
+          "score": 75,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.9,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 88,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 26,
+          "rsRank": 26
+        },
+        {
+          "symbol": "QCOM",
+          "name": "QUALCOMM Incorporated",
+          "sector": "Tecnologia",
+          "m1": 9.29,
+          "m3": 3.31,
+          "score": 74,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.54,
+            "beatRate": 47.4,
+            "avgAssetDrop": -1.5,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 54,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 27,
+          "rsRank": 27
+        },
+        {
+          "symbol": "AAPL",
+          "name": "Apple Inc.",
+          "sector": "Tecnologia",
+          "m1": 1.6,
+          "m3": 7.03,
+          "score": 73,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.83,
+            "beatRate": 69.3,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 28,
+          "rsRank": 28
+        },
+        {
+          "symbol": "ASML",
+          "name": "ASML Holding N.V.",
+          "sector": "Tecnologia",
+          "m1": 8.61,
+          "m3": 2.21,
+          "score": 72,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.43,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.39,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 29,
+          "rsRank": 29
         },
         {
           "symbol": "CTAS",
@@ -38363,7 +38012,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 45
+          "rank": 30,
+          "rsRank": 30
         },
         {
           "symbol": "REGN",
@@ -38388,7 +38038,60 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 46
+          "rank": 31,
+          "rsRank": 31
+        },
+        {
+          "symbol": "LRCX",
+          "name": "Lam Research Corporation",
+          "sector": "Tecnologia",
+          "m1": 17.2,
+          "m3": -3.22,
+          "score": 69,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.23,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.19,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 32,
+          "rsRank": 32
+        },
+        {
+          "symbol": "ARM",
+          "name": "Arm Holdings plc",
+          "sector": "Tecnologia",
+          "m1": 24.5,
+          "m3": -7.28,
+          "score": 68,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.35,
+            "beatRate": 34.2,
+            "avgAssetDrop": -2.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 39,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 33,
+          "rsRank": 33
         },
         {
           "symbol": "ADP",
@@ -38413,7 +38116,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 47
+          "rank": 34,
+          "rsRank": 34
         },
         {
           "symbol": "AMGN",
@@ -38438,7 +38142,60 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 48
+          "rank": 35,
+          "rsRank": 35
+        },
+        {
+          "symbol": "FAST",
+          "name": "Fastenal Company",
+          "sector": "Industriais",
+          "m1": 3.03,
+          "m3": 3.34,
+          "score": 65,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.91,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 36,
+          "rsRank": 36
+        },
+        {
+          "symbol": "BIIB",
+          "name": "Biogen Inc.",
+          "sector": "Saúde",
+          "m1": 3.14,
+          "m3": 3.1,
+          "score": 64,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.11,
+            "beatRate": 64.9,
+            "avgAssetDrop": 0.15,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 37,
+          "rsRank": 37
         },
         {
           "symbol": "CEG",
@@ -38463,7 +38220,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 49
+          "rank": 38,
+          "rsRank": 38
         },
         {
           "symbol": "FANG",
@@ -38488,7 +38246,34 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 50
+          "rank": 39,
+          "rsRank": 39
+        },
+        {
+          "symbol": "TXN",
+          "name": "Texas Instruments Incorporated",
+          "sector": "Tecnologia",
+          "m1": 11.04,
+          "m3": -4.02,
+          "score": 61,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.1,
+            "beatRate": 50,
+            "avgAssetDrop": -0.86,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 57,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 40,
+          "rsRank": 40
         },
         {
           "symbol": "ABNB",
@@ -38513,7 +38298,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 51
+          "rank": 41,
+          "rsRank": 41
         },
         {
           "symbol": "AMZN",
@@ -38538,7 +38324,138 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 52
+          "rank": 42,
+          "rsRank": 42
+        },
+        {
+          "symbol": "CDNS",
+          "name": "Cadence Design Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": 12.04,
+          "m3": -6.01,
+          "score": 58,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 45.6,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 52,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 43,
+          "rsRank": 43
+        },
+        {
+          "symbol": "ISRG",
+          "name": "Intuitive Surgical Inc.",
+          "sector": "Saúde",
+          "m1": 8.66,
+          "m3": -5.81,
+          "score": 57,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.64,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 44,
+          "rsRank": 44
+        },
+        {
+          "symbol": "AMAT",
+          "name": "Applied Materials Inc.",
+          "sector": "Tecnologia",
+          "m1": 19.79,
+          "m3": -12.23,
+          "score": 56,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.97,
+            "beatRate": 40.4,
+            "avgAssetDrop": -1.93,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 46,
+            "upCount": 36,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 45,
+          "rsRank": 45
+        },
+        {
+          "symbol": "MAR",
+          "name": "Marriott International Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": 6.05,
+          "m3": -4.87,
+          "score": 55,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.97,
+            "beatRate": 69.3,
+            "avgAssetDrop": 0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 46,
+          "rsRank": 46
+        },
+        {
+          "symbol": "MCHP",
+          "name": "Microchip Technology Inc.",
+          "sector": "Tecnologia",
+          "m1": 9.93,
+          "m3": -7.25,
+          "score": 54,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.58,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.54,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 47,
+          "rsRank": 47
         },
         {
           "symbol": "CDW",
@@ -38563,7 +38480,60 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 53
+          "rank": 48,
+          "rsRank": 48
+        },
+        {
+          "symbol": "CSCO",
+          "name": "Cisco Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": -0.89,
+          "m3": -3.49,
+          "score": 52,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 43,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 49,
+          "rsRank": 49
+        },
+        {
+          "symbol": "COST",
+          "name": "Costco Wholesale Corporation",
+          "sector": "Consumo Básico",
+          "m1": -2.66,
+          "m3": -3.86,
+          "score": 51,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.14,
+            "beatRate": 75.4,
+            "avgAssetDrop": 0.18,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 86,
+            "upCount": 62,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 50,
+          "rsRank": 50
         },
         {
           "symbol": "GOOG",
@@ -38588,7 +38558,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 54
+          "rank": 51,
+          "rsRank": 51
         },
         {
           "symbol": "GOOGL",
@@ -38613,7 +38584,60 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 55
+          "rank": 52,
+          "rsRank": 52
+        },
+        {
+          "symbol": "KLAC",
+          "name": "KLA Corporation",
+          "sector": "Tecnologia",
+          "m1": 17.23,
+          "m3": -14.95,
+          "score": 47,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.06,
+            "beatRate": 37.7,
+            "avgAssetDrop": -2.02,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 53,
+          "rsRank": 53
+        },
+        {
+          "symbol": "HON",
+          "name": "Honeywell International Inc.",
+          "sector": "Industriais",
+          "m1": 1.82,
+          "m3": -6.99,
+          "score": 46,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.55,
+            "beatRate": 65.8,
+            "avgAssetDrop": -0.41,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 39,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 54,
+          "rsRank": 54
         },
         {
           "symbol": "ADSK",
@@ -38638,7 +38662,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 56
+          "rank": 55,
+          "rsRank": 55
         },
         {
           "symbol": "BMRN",
@@ -38663,7 +38688,34 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 57
+          "rank": 56,
+          "rsRank": 56
+        },
+        {
+          "symbol": "ON",
+          "name": "ON Semiconductor Corporation",
+          "sector": "Tecnologia",
+          "m1": 10.23,
+          "m3": -12.21,
+          "score": 43,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.8,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.76,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 57,
+          "rsRank": 57
         },
         {
           "symbol": "INTU",
@@ -38688,7 +38740,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 58
+          "rank": 58,
+          "rsRank": 58
         },
         {
           "symbol": "CSX",
@@ -38713,7 +38766,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 59
+          "rank": 59,
+          "rsRank": 59
         },
         {
           "symbol": "GEHC",
@@ -38738,107 +38792,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 60
-        },
-        {
-          "symbol": "VRTX",
-          "name": "Vertex Pharmaceuticals Inc.",
-          "sector": "Saúde",
-          "m1": -7.47,
-          "m3": -4.03,
-          "score": 37,
-          "resilience12m": {
-            "score": 76,
-            "label": "Forte",
-            "badgeColor": "yellow",
-            "outperformance": 0.91,
-            "beatRate": 67.5,
-            "avgAssetDrop": -0.05,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 77,
-            "upCount": 55,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 61
-        },
-        {
-          "symbol": "NXPI",
-          "name": "NXP Semiconductors N.V.",
-          "sector": "Tecnologia",
-          "m1": 7.55,
-          "m3": -12.5,
-          "score": 36,
-          "resilience12m": {
-            "score": 17,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.41,
-            "beatRate": 39.5,
-            "avgAssetDrop": -1.37,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 45,
-            "upCount": 28,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 62
-        },
-        {
-          "symbol": "KDP",
-          "name": "Keurig Dr Pepper Inc.",
-          "sector": "Consumo Básico",
-          "m1": -3.76,
-          "m3": -7.84,
-          "score": 32,
-          "resilience12m": {
-            "score": 90,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 1.13,
-            "beatRate": 72.8,
-            "avgAssetDrop": 0.17,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 83,
-            "upCount": 61,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 63
-        },
-        {
-          "symbol": "TSLA",
-          "name": "Tesla Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -0.56,
-          "m3": -10,
-          "score": 30,
-          "resilience12m": {
-            "score": 6,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.7,
-            "beatRate": 29.8,
-            "avgAssetDrop": -1.66,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 34,
-            "upCount": 23,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 64
+          "rank": 60,
+          "rsRank": 60
         },
         {
           "symbol": "ORLY",
@@ -38863,7 +38818,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 65
+          "rank": 61,
+          "rsRank": 61
         },
         {
           "symbol": "ROP",
@@ -38888,7 +38844,60 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 66
+          "rank": 62,
+          "rsRank": 62
+        },
+        {
+          "symbol": "VRTX",
+          "name": "Vertex Pharmaceuticals Inc.",
+          "sector": "Saúde",
+          "m1": -7.47,
+          "m3": -4.03,
+          "score": 37,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.91,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 55,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 63,
+          "rsRank": 63
+        },
+        {
+          "symbol": "NXPI",
+          "name": "NXP Semiconductors N.V.",
+          "sector": "Tecnologia",
+          "m1": 7.55,
+          "m3": -12.5,
+          "score": 36,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.41,
+            "beatRate": 39.5,
+            "avgAssetDrop": -1.37,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 45,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 64,
+          "rsRank": 64
         },
         {
           "symbol": "AVGO",
@@ -38913,7 +38922,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 67
+          "rank": 65,
+          "rsRank": 65
         },
         {
           "symbol": "MDLZ",
@@ -38938,7 +38948,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 68
+          "rank": 66,
+          "rsRank": 66
         },
         {
           "symbol": "CCEP",
@@ -38963,7 +38974,34 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 69
+          "rank": 67,
+          "rsRank": 67
+        },
+        {
+          "symbol": "KDP",
+          "name": "Keurig Dr Pepper Inc.",
+          "sector": "Consumo Básico",
+          "m1": -3.76,
+          "m3": -7.84,
+          "score": 32,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.13,
+            "beatRate": 72.8,
+            "avgAssetDrop": 0.17,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 83,
+            "upCount": 61,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 68,
+          "rsRank": 68
         },
         {
           "symbol": "IDXX",
@@ -38988,7 +39026,34 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 70
+          "rank": 69,
+          "rsRank": 69
+        },
+        {
+          "symbol": "TSLA",
+          "name": "Tesla Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -0.56,
+          "m3": -10,
+          "score": 30,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.7,
+            "beatRate": 29.8,
+            "avgAssetDrop": -1.66,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 34,
+            "upCount": 23,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 70,
+          "rsRank": 70
         },
         {
           "symbol": "MDB",
@@ -39013,7 +39078,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 71
+          "rank": 71,
+          "rsRank": 71
         },
         {
           "symbol": "PDD",
@@ -39038,7 +39104,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 72
+          "rank": 72,
+          "rsRank": 72
         },
         {
           "symbol": "MELI",
@@ -39063,7 +39130,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 73
+          "rank": 73,
+          "rsRank": 73
         },
         {
           "symbol": "PCAR",
@@ -39088,7 +39156,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 74
+          "rank": 74,
+          "rsRank": 74
         },
         {
           "symbol": "SBUX",
@@ -39113,7 +39182,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 75
+          "rank": 75,
+          "rsRank": 75
         },
         {
           "symbol": "DLTR",
@@ -39138,7 +39208,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 76
+          "rank": 76,
+          "rsRank": 76
         },
         {
           "symbol": "TMUS",
@@ -39163,7 +39234,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 77
+          "rank": 77,
+          "rsRank": 77
         },
         {
           "symbol": "DASH",
@@ -39188,7 +39260,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 78
+          "rank": 78,
+          "rsRank": 78
         },
         {
           "symbol": "PAYX",
@@ -39213,7 +39286,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 79
+          "rank": 79,
+          "rsRank": 79
         },
         {
           "symbol": "LIN",
@@ -39238,7 +39312,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 80
+          "rank": 80,
+          "rsRank": 80
         },
         {
           "symbol": "MNST",
@@ -39263,7 +39338,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 81
+          "rank": 81,
+          "rsRank": 81
         },
         {
           "symbol": "CPRT",
@@ -39288,7 +39364,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 82
+          "rank": 82,
+          "rsRank": 82
         },
         {
           "symbol": "VRSK",
@@ -39313,7 +39390,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 83
+          "rank": 83,
+          "rsRank": 83
         },
         {
           "symbol": "CMCSA",
@@ -39338,7 +39416,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 84
+          "rank": 84,
+          "rsRank": 84
         },
         {
           "symbol": "PEP",
@@ -39363,7 +39442,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 85
+          "rank": 85,
+          "rsRank": 85
         },
         {
           "symbol": "KHC",
@@ -39388,7 +39468,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 86
+          "rank": 86,
+          "rsRank": 86
         },
         {
           "symbol": "EXC",
@@ -39413,7 +39494,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 87
+          "rank": 87,
+          "rsRank": 87
         },
         {
           "symbol": "SIRI",
@@ -39438,7 +39520,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 88
+          "rank": 88,
+          "rsRank": 88
         },
         {
           "symbol": "VRT",
@@ -39463,7 +39546,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 89
+          "rank": 89,
+          "rsRank": 89
         },
         {
           "symbol": "ODFL",
@@ -39488,7 +39572,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 90
+          "rank": 90,
+          "rsRank": 90
         },
         {
           "symbol": "NFLX",
@@ -39513,7 +39598,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 91
+          "rank": 91,
+          "rsRank": 91
         },
         {
           "symbol": "BKNG",
@@ -39538,7 +39624,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 92
+          "rank": 92,
+          "rsRank": 92
         },
         {
           "symbol": "TTWO",
@@ -39563,7 +39650,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 93
+          "rank": 93,
+          "rsRank": 93
         },
         {
           "symbol": "GFS",
@@ -39588,7 +39676,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "NEUTRAL",
-          "rank": 94
+          "rank": 94,
+          "rsRank": 94
         },
         {
           "symbol": "ALGN",
@@ -39613,7 +39702,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 95
+          "rank": 95,
+          "rsRank": 95
         },
         {
           "symbol": "LULU",
@@ -39638,7 +39728,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 96
+          "rank": 96,
+          "rsRank": 96
         },
         {
           "symbol": "CHTR",
@@ -39663,7 +39754,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 97
+          "rank": 97,
+          "rsRank": 97
         },
         {
           "symbol": "AXON",
@@ -39688,7 +39780,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 98
+          "rank": 98,
+          "rsRank": 98
         },
         {
           "symbol": "TTD",
@@ -39713,7 +39806,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 99
+          "rank": 99,
+          "rsRank": 99
         },
         {
           "symbol": "APP",
@@ -39738,7 +39832,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 100
+          "rank": 100,
+          "rsRank": 100
         }
       ]
     },
@@ -39770,7 +39865,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 1
+          "rank": 1,
+          "rsRank": 1
         },
         {
           "symbol": "TEAM",
@@ -39795,7 +39891,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 2
+          "rank": 2,
+          "rsRank": 2
         },
         {
           "symbol": "MSTR",
@@ -39820,7 +39917,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 3
+          "rank": 3,
+          "rsRank": 3
         },
         {
           "symbol": "SMCI",
@@ -39845,7 +39943,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 4
+          "rank": 4,
+          "rsRank": 4
         },
         {
           "symbol": "ILMN",
@@ -39870,7 +39969,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 5
+          "rank": 5,
+          "rsRank": 5
         },
         {
           "symbol": "PLTR",
@@ -39895,7 +39995,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 6
+          "rank": 6,
+          "rsRank": 6
         },
         {
           "symbol": "CRWD",
@@ -39920,7 +40021,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 7
+          "rank": 7,
+          "rsRank": 7
         },
         {
           "symbol": "ZS",
@@ -39945,7 +40047,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 8
+          "rank": 8,
+          "rsRank": 8
         },
         {
           "symbol": "META",
@@ -39970,7 +40073,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 9
+          "rank": 9,
+          "rsRank": 9
         },
         {
           "symbol": "AMD",
@@ -39995,7 +40099,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 10
+          "rank": 10,
+          "rsRank": 10
         },
         {
           "symbol": "WDAY",
@@ -40020,7 +40125,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "NEUTRAL",
-          "rank": 11
+          "rank": 11,
+          "rsRank": 11
         },
         {
           "symbol": "MSFT",
@@ -40045,7 +40151,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 12
+          "rank": 12,
+          "rsRank": 12
         },
         {
           "symbol": "TER",
@@ -40070,7 +40177,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 13
+          "rank": 13,
+          "rsRank": 13
         },
         {
           "symbol": "SNPS",
@@ -40095,7 +40203,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 14
+          "rank": 14,
+          "rsRank": 14
         },
         {
           "symbol": "MU",
@@ -40120,7 +40229,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 15
+          "rank": 15,
+          "rsRank": 15
         },
         {
           "symbol": "WBD",
@@ -40145,7 +40255,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 16
+          "rank": 16,
+          "rsRank": 16
         },
         {
           "symbol": "NVDA",
@@ -40170,7 +40281,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 17
+          "rank": 17,
+          "rsRank": 17
         },
         {
           "symbol": "FTNT",
@@ -40195,7 +40307,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 18
+          "rank": 18,
+          "rsRank": 18
         },
         {
           "symbol": "PANW",
@@ -40220,7 +40333,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BULLISH",
-          "rank": 19
+          "rank": 19,
+          "rsRank": 19
         },
         {
           "symbol": "DDOG",
@@ -40245,7 +40359,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BULLISH",
-          "rank": 20
+          "rank": 20,
+          "rsRank": 20
         },
         {
           "symbol": "DXCM",
@@ -40270,557 +40385,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "NEUTRAL",
-          "rank": 21
-        },
-        {
-          "symbol": "ADI",
-          "name": "Analog Devices Inc.",
-          "sector": "Tecnologia",
-          "m1": 14.13,
-          "m3": 7.28,
-          "score": 78,
-          "resilience12m": {
-            "score": 31,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": 0.01,
-            "beatRate": 53.5,
-            "avgAssetDrop": -0.95,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 61,
-            "upCount": 39,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 22
-        },
-        {
-          "symbol": "MPWR",
-          "name": "Monolithic Power Systems Inc.",
-          "sector": "Tecnologia",
-          "m1": 11.01,
-          "m3": 5.65,
-          "score": 77,
-          "resilience12m": {
-            "score": 12,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.83,
-            "beatRate": 36,
-            "avgAssetDrop": -1.79,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 41,
-            "upCount": 35,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 23
-        },
-        {
-          "symbol": "GILD",
-          "name": "Gilead Sciences Inc.",
-          "sector": "Saúde",
-          "m1": -1.61,
-          "m3": 12.36,
-          "score": 76,
-          "resilience12m": {
-            "score": 72,
-            "label": "Forte",
-            "badgeColor": "yellow",
-            "outperformance": 0.96,
-            "beatRate": 65.8,
-            "avgAssetDrop": 0,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 75,
-            "upCount": 54,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 24
-        },
-        {
-          "symbol": "ROST",
-          "name": "Ross Stores Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": 2.12,
-          "m3": 9.68,
-          "score": 75,
-          "resilience12m": {
-            "score": 88,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 0.9,
-            "beatRate": 77.2,
-            "avgAssetDrop": -0.06,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 88,
-            "upCount": 57,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 25
-        },
-        {
-          "symbol": "QCOM",
-          "name": "QUALCOMM Incorporated",
-          "sector": "Tecnologia",
-          "m1": 9.29,
-          "m3": 3.31,
-          "score": 74,
-          "resilience12m": {
-            "score": 21,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.54,
-            "beatRate": 47.4,
-            "avgAssetDrop": -1.5,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 54,
-            "upCount": 33,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 26
-        },
-        {
-          "symbol": "AAPL",
-          "name": "Apple Inc.",
-          "sector": "Tecnologia",
-          "m1": 1.6,
-          "m3": 7.03,
-          "score": 73,
-          "resilience12m": {
-            "score": 74,
-            "label": "Forte",
-            "badgeColor": "yellow",
-            "outperformance": 0.83,
-            "beatRate": 69.3,
-            "avgAssetDrop": -0.13,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 79,
-            "upCount": 46,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 27
-        },
-        {
-          "symbol": "ASML",
-          "name": "ASML Holding N.V.",
-          "sector": "Tecnologia",
-          "m1": 8.61,
-          "m3": 2.21,
-          "score": 72,
-          "resilience12m": {
-            "score": 18,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.43,
-            "beatRate": 37.7,
-            "avgAssetDrop": -1.39,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 43,
-            "upCount": 33,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 28
-        },
-        {
-          "symbol": "LRCX",
-          "name": "Lam Research Corporation",
-          "sector": "Tecnologia",
-          "m1": 17.2,
-          "m3": -3.22,
-          "score": 69,
-          "resilience12m": {
-            "score": 2,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -1.23,
-            "beatRate": 32.5,
-            "avgAssetDrop": -2.19,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 37,
-            "upCount": 28,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 29
-        },
-        {
-          "symbol": "ARM",
-          "name": "Arm Holdings plc",
-          "sector": "Tecnologia",
-          "m1": 24.5,
-          "m3": -7.28,
-          "score": 68,
-          "resilience12m": {
-            "score": 5,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -1.35,
-            "beatRate": 34.2,
-            "avgAssetDrop": -2.31,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 39,
-            "upCount": 34,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 30
-        },
-        {
-          "symbol": "FAST",
-          "name": "Fastenal Company",
-          "sector": "Industriais",
-          "m1": 3.03,
-          "m3": 3.34,
-          "score": 65,
-          "resilience12m": {
-            "score": 71,
-            "label": "Forte",
-            "badgeColor": "yellow",
-            "outperformance": 0.91,
-            "beatRate": 66.7,
-            "avgAssetDrop": -0.05,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 76,
-            "upCount": 57,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
-          },
-          "trendState": "BULLISH",
-          "rank": 31
-        },
-        {
-          "symbol": "BIIB",
-          "name": "Biogen Inc.",
-          "sector": "Saúde",
-          "m1": 3.14,
-          "m3": 3.1,
-          "score": 64,
-          "resilience12m": {
-            "score": 81,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 1.11,
-            "beatRate": 64.9,
-            "avgAssetDrop": 0.15,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 74,
-            "upCount": 57,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "BULLISH",
-          "rank": 32
-        },
-        {
-          "symbol": "TXN",
-          "name": "Texas Instruments Incorporated",
-          "sector": "Tecnologia",
-          "m1": 11.04,
-          "m3": -4.02,
-          "score": 61,
-          "resilience12m": {
-            "score": 27,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": 0.1,
-            "beatRate": 50,
-            "avgAssetDrop": -0.86,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 57,
-            "upCount": 33,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "BULLISH",
-          "rank": 33
-        },
-        {
-          "symbol": "CDNS",
-          "name": "Cadence Design Systems Inc.",
-          "sector": "Tecnologia",
-          "m1": 12.04,
-          "m3": -6.01,
-          "score": 58,
-          "resilience12m": {
-            "score": 20,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.35,
-            "beatRate": 45.6,
-            "avgAssetDrop": -1.31,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 52,
-            "upCount": 28,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 34
-        },
-        {
-          "symbol": "ISRG",
-          "name": "Intuitive Surgical Inc.",
-          "sector": "Saúde",
-          "m1": 8.66,
-          "m3": -5.81,
-          "score": 57,
-          "resilience12m": {
-            "score": 57,
-            "label": "Moderada",
-            "badgeColor": "yellow",
-            "outperformance": 0.64,
-            "beatRate": 60.5,
-            "avgAssetDrop": -0.32,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 69,
-            "upCount": 46,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 35
-        },
-        {
-          "symbol": "AMAT",
-          "name": "Applied Materials Inc.",
-          "sector": "Tecnologia",
-          "m1": 19.79,
-          "m3": -12.23,
-          "score": 56,
-          "resilience12m": {
-            "score": 14,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.97,
-            "beatRate": 40.4,
-            "avgAssetDrop": -1.93,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 46,
-            "upCount": 36,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 36
-        },
-        {
-          "symbol": "MAR",
-          "name": "Marriott International Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": 6.05,
-          "m3": -4.87,
-          "score": 55,
-          "resilience12m": {
-            "score": 83,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 0.97,
-            "beatRate": 69.3,
-            "avgAssetDrop": 0.01,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 79,
-            "upCount": 52,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 37
-        },
-        {
-          "symbol": "MCHP",
-          "name": "Microchip Technology Inc.",
-          "sector": "Tecnologia",
-          "m1": 9.93,
-          "m3": -7.25,
-          "score": 54,
-          "resilience12m": {
-            "score": 16,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.58,
-            "beatRate": 37.7,
-            "avgAssetDrop": -1.54,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 43,
-            "upCount": 28,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 38
-        },
-        {
-          "symbol": "CSCO",
-          "name": "Cisco Systems Inc.",
-          "sector": "Tecnologia",
-          "m1": -0.89,
-          "m3": -3.49,
-          "score": 52,
-          "resilience12m": {
-            "score": 44,
-            "label": "Moderada",
-            "badgeColor": "yellow",
-            "outperformance": 0.38,
-            "beatRate": 59.6,
-            "avgAssetDrop": -0.58,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 68,
-            "upCount": 43,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 39
-        },
-        {
-          "symbol": "COST",
-          "name": "Costco Wholesale Corporation",
-          "sector": "Consumo Básico",
-          "m1": -2.66,
-          "m3": -3.86,
-          "score": 51,
-          "resilience12m": {
-            "score": 96,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 1.14,
-            "beatRate": 75.4,
-            "avgAssetDrop": 0.18,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 86,
-            "upCount": 62,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 40
-        },
-        {
-          "symbol": "KLAC",
-          "name": "KLA Corporation",
-          "sector": "Tecnologia",
-          "m1": 17.23,
-          "m3": -14.95,
-          "score": 47,
-          "resilience12m": {
-            "score": 8,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -1.06,
-            "beatRate": 37.7,
-            "avgAssetDrop": -2.02,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 43,
-            "upCount": 32,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 41
-        },
-        {
-          "symbol": "HON",
-          "name": "Honeywell International Inc.",
-          "sector": "Industriais",
-          "m1": 1.82,
-          "m3": -6.99,
-          "score": 46,
-          "resilience12m": {
-            "score": 53,
-            "label": "Moderada",
-            "badgeColor": "yellow",
-            "outperformance": 0.55,
-            "beatRate": 65.8,
-            "avgAssetDrop": -0.41,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 75,
-            "upCount": 39,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 42
-        },
-        {
-          "symbol": "ON",
-          "name": "ON Semiconductor Corporation",
-          "sector": "Tecnologia",
-          "m1": 10.23,
-          "m3": -12.21,
-          "score": 43,
-          "resilience12m": {
-            "score": 13,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.8,
-            "beatRate": 37.7,
-            "avgAssetDrop": -1.76,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 43,
-            "upCount": 32,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 43
+          "rank": 21,
+          "rsRank": 21
         },
         {
           "symbol": "PYPL",
@@ -40845,7 +40411,190 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 44
+          "rank": 22,
+          "rsRank": 22
+        },
+        {
+          "symbol": "ADI",
+          "name": "Analog Devices Inc.",
+          "sector": "Tecnologia",
+          "m1": 14.13,
+          "m3": 7.28,
+          "score": 78,
+          "resilience12m": {
+            "score": 31,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.01,
+            "beatRate": 53.5,
+            "avgAssetDrop": -0.95,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 61,
+            "upCount": 39,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 23,
+          "rsRank": 23
+        },
+        {
+          "symbol": "MPWR",
+          "name": "Monolithic Power Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": 11.01,
+          "m3": 5.65,
+          "score": 77,
+          "resilience12m": {
+            "score": 12,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.83,
+            "beatRate": 36,
+            "avgAssetDrop": -1.79,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 41,
+            "upCount": 35,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 24,
+          "rsRank": 24
+        },
+        {
+          "symbol": "GILD",
+          "name": "Gilead Sciences Inc.",
+          "sector": "Saúde",
+          "m1": -1.61,
+          "m3": 12.36,
+          "score": 76,
+          "resilience12m": {
+            "score": 72,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.96,
+            "beatRate": 65.8,
+            "avgAssetDrop": 0,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 54,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 25,
+          "rsRank": 25
+        },
+        {
+          "symbol": "ROST",
+          "name": "Ross Stores Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": 2.12,
+          "m3": 9.68,
+          "score": 75,
+          "resilience12m": {
+            "score": 88,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.9,
+            "beatRate": 77.2,
+            "avgAssetDrop": -0.06,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 88,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 26,
+          "rsRank": 26
+        },
+        {
+          "symbol": "QCOM",
+          "name": "QUALCOMM Incorporated",
+          "sector": "Tecnologia",
+          "m1": 9.29,
+          "m3": 3.31,
+          "score": 74,
+          "resilience12m": {
+            "score": 21,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.54,
+            "beatRate": 47.4,
+            "avgAssetDrop": -1.5,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 54,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 27,
+          "rsRank": 27
+        },
+        {
+          "symbol": "AAPL",
+          "name": "Apple Inc.",
+          "sector": "Tecnologia",
+          "m1": 1.6,
+          "m3": 7.03,
+          "score": 73,
+          "resilience12m": {
+            "score": 74,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.83,
+            "beatRate": 69.3,
+            "avgAssetDrop": -0.13,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 28,
+          "rsRank": 28
+        },
+        {
+          "symbol": "ASML",
+          "name": "ASML Holding N.V.",
+          "sector": "Tecnologia",
+          "m1": 8.61,
+          "m3": 2.21,
+          "score": 72,
+          "resilience12m": {
+            "score": 18,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.43,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.39,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 29,
+          "rsRank": 29
         },
         {
           "symbol": "CTAS",
@@ -40870,7 +40619,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 45
+          "rank": 30,
+          "rsRank": 30
         },
         {
           "symbol": "REGN",
@@ -40895,7 +40645,60 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 46
+          "rank": 31,
+          "rsRank": 31
+        },
+        {
+          "symbol": "LRCX",
+          "name": "Lam Research Corporation",
+          "sector": "Tecnologia",
+          "m1": 17.2,
+          "m3": -3.22,
+          "score": 69,
+          "resilience12m": {
+            "score": 2,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.23,
+            "beatRate": 32.5,
+            "avgAssetDrop": -2.19,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 37,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 32,
+          "rsRank": 32
+        },
+        {
+          "symbol": "ARM",
+          "name": "Arm Holdings plc",
+          "sector": "Tecnologia",
+          "m1": 24.5,
+          "m3": -7.28,
+          "score": 68,
+          "resilience12m": {
+            "score": 5,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.35,
+            "beatRate": 34.2,
+            "avgAssetDrop": -2.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 39,
+            "upCount": 34,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 33,
+          "rsRank": 33
         },
         {
           "symbol": "ADP",
@@ -40920,7 +40723,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 47
+          "rank": 34,
+          "rsRank": 34
         },
         {
           "symbol": "AMGN",
@@ -40945,7 +40749,60 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 48
+          "rank": 35,
+          "rsRank": 35
+        },
+        {
+          "symbol": "FAST",
+          "name": "Fastenal Company",
+          "sector": "Industriais",
+          "m1": 3.03,
+          "m3": 3.34,
+          "score": 65,
+          "resilience12m": {
+            "score": 71,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.91,
+            "beatRate": 66.7,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 76,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 36,
+          "rsRank": 36
+        },
+        {
+          "symbol": "BIIB",
+          "name": "Biogen Inc.",
+          "sector": "Saúde",
+          "m1": 3.14,
+          "m3": 3.1,
+          "score": 64,
+          "resilience12m": {
+            "score": 81,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.11,
+            "beatRate": 64.9,
+            "avgAssetDrop": 0.15,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 74,
+            "upCount": 57,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "BULLISH",
+          "rank": 37,
+          "rsRank": 37
         },
         {
           "symbol": "CEG",
@@ -40970,7 +40827,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 49
+          "rank": 38,
+          "rsRank": 38
         },
         {
           "symbol": "FANG",
@@ -40995,7 +40853,34 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 50
+          "rank": 39,
+          "rsRank": 39
+        },
+        {
+          "symbol": "TXN",
+          "name": "Texas Instruments Incorporated",
+          "sector": "Tecnologia",
+          "m1": 11.04,
+          "m3": -4.02,
+          "score": 61,
+          "resilience12m": {
+            "score": 27,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": 0.1,
+            "beatRate": 50,
+            "avgAssetDrop": -0.86,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 57,
+            "upCount": 33,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "BULLISH",
+          "rank": 40,
+          "rsRank": 40
         },
         {
           "symbol": "ABNB",
@@ -41020,7 +40905,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 51
+          "rank": 41,
+          "rsRank": 41
         },
         {
           "symbol": "AMZN",
@@ -41045,7 +40931,138 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 52
+          "rank": 42,
+          "rsRank": 42
+        },
+        {
+          "symbol": "CDNS",
+          "name": "Cadence Design Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": 12.04,
+          "m3": -6.01,
+          "score": 58,
+          "resilience12m": {
+            "score": 20,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.35,
+            "beatRate": 45.6,
+            "avgAssetDrop": -1.31,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 52,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 43,
+          "rsRank": 43
+        },
+        {
+          "symbol": "ISRG",
+          "name": "Intuitive Surgical Inc.",
+          "sector": "Saúde",
+          "m1": 8.66,
+          "m3": -5.81,
+          "score": 57,
+          "resilience12m": {
+            "score": 57,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.64,
+            "beatRate": 60.5,
+            "avgAssetDrop": -0.32,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 69,
+            "upCount": 46,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 44,
+          "rsRank": 44
+        },
+        {
+          "symbol": "AMAT",
+          "name": "Applied Materials Inc.",
+          "sector": "Tecnologia",
+          "m1": 19.79,
+          "m3": -12.23,
+          "score": 56,
+          "resilience12m": {
+            "score": 14,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.97,
+            "beatRate": 40.4,
+            "avgAssetDrop": -1.93,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 46,
+            "upCount": 36,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 45,
+          "rsRank": 45
+        },
+        {
+          "symbol": "MAR",
+          "name": "Marriott International Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": 6.05,
+          "m3": -4.87,
+          "score": 55,
+          "resilience12m": {
+            "score": 83,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 0.97,
+            "beatRate": 69.3,
+            "avgAssetDrop": 0.01,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 79,
+            "upCount": 52,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 46,
+          "rsRank": 46
+        },
+        {
+          "symbol": "MCHP",
+          "name": "Microchip Technology Inc.",
+          "sector": "Tecnologia",
+          "m1": 9.93,
+          "m3": -7.25,
+          "score": 54,
+          "resilience12m": {
+            "score": 16,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.58,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.54,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 47,
+          "rsRank": 47
         },
         {
           "symbol": "CDW",
@@ -41070,7 +41087,60 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 53
+          "rank": 48,
+          "rsRank": 48
+        },
+        {
+          "symbol": "CSCO",
+          "name": "Cisco Systems Inc.",
+          "sector": "Tecnologia",
+          "m1": -0.89,
+          "m3": -3.49,
+          "score": 52,
+          "resilience12m": {
+            "score": 44,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.38,
+            "beatRate": 59.6,
+            "avgAssetDrop": -0.58,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 68,
+            "upCount": 43,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 49,
+          "rsRank": 49
+        },
+        {
+          "symbol": "COST",
+          "name": "Costco Wholesale Corporation",
+          "sector": "Consumo Básico",
+          "m1": -2.66,
+          "m3": -3.86,
+          "score": 51,
+          "resilience12m": {
+            "score": 96,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.14,
+            "beatRate": 75.4,
+            "avgAssetDrop": 0.18,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 86,
+            "upCount": 62,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 50,
+          "rsRank": 50
         },
         {
           "symbol": "GOOG",
@@ -41095,7 +41165,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 54
+          "rank": 51,
+          "rsRank": 51
         },
         {
           "symbol": "GOOGL",
@@ -41120,7 +41191,60 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 55
+          "rank": 52,
+          "rsRank": 52
+        },
+        {
+          "symbol": "KLAC",
+          "name": "KLA Corporation",
+          "sector": "Tecnologia",
+          "m1": 17.23,
+          "m3": -14.95,
+          "score": 47,
+          "resilience12m": {
+            "score": 8,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -1.06,
+            "beatRate": 37.7,
+            "avgAssetDrop": -2.02,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 53,
+          "rsRank": 53
+        },
+        {
+          "symbol": "HON",
+          "name": "Honeywell International Inc.",
+          "sector": "Industriais",
+          "m1": 1.82,
+          "m3": -6.99,
+          "score": 46,
+          "resilience12m": {
+            "score": 53,
+            "label": "Moderada",
+            "badgeColor": "yellow",
+            "outperformance": 0.55,
+            "beatRate": 65.8,
+            "avgAssetDrop": -0.41,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 75,
+            "upCount": 39,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 54,
+          "rsRank": 54
         },
         {
           "symbol": "ADSK",
@@ -41145,7 +41269,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 56
+          "rank": 55,
+          "rsRank": 55
         },
         {
           "symbol": "BMRN",
@@ -41170,7 +41295,34 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 57
+          "rank": 56,
+          "rsRank": 56
+        },
+        {
+          "symbol": "ON",
+          "name": "ON Semiconductor Corporation",
+          "sector": "Tecnologia",
+          "m1": 10.23,
+          "m3": -12.21,
+          "score": 43,
+          "resilience12m": {
+            "score": 13,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.8,
+            "beatRate": 37.7,
+            "avgAssetDrop": -1.76,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 43,
+            "upCount": 32,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 57,
+          "rsRank": 57
         },
         {
           "symbol": "INTU",
@@ -41195,7 +41347,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 58
+          "rank": 58,
+          "rsRank": 58
         },
         {
           "symbol": "CSX",
@@ -41220,7 +41373,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 59
+          "rank": 59,
+          "rsRank": 59
         },
         {
           "symbol": "GEHC",
@@ -41245,107 +41399,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 60
-        },
-        {
-          "symbol": "VRTX",
-          "name": "Vertex Pharmaceuticals Inc.",
-          "sector": "Saúde",
-          "m1": -7.47,
-          "m3": -4.03,
-          "score": 37,
-          "resilience12m": {
-            "score": 76,
-            "label": "Forte",
-            "badgeColor": "yellow",
-            "outperformance": 0.91,
-            "beatRate": 67.5,
-            "avgAssetDrop": -0.05,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 77,
-            "upCount": 55,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 61
-        },
-        {
-          "symbol": "NXPI",
-          "name": "NXP Semiconductors N.V.",
-          "sector": "Tecnologia",
-          "m1": 7.55,
-          "m3": -12.5,
-          "score": 36,
-          "resilience12m": {
-            "score": 17,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.41,
-            "beatRate": 39.5,
-            "avgAssetDrop": -1.37,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 45,
-            "upCount": 28,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 62
-        },
-        {
-          "symbol": "KDP",
-          "name": "Keurig Dr Pepper Inc.",
-          "sector": "Consumo Básico",
-          "m1": -3.76,
-          "m3": -7.84,
-          "score": 32,
-          "resilience12m": {
-            "score": 90,
-            "label": "Excelente",
-            "badgeColor": "green",
-            "outperformance": 1.13,
-            "beatRate": 72.8,
-            "avgAssetDrop": 0.17,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 83,
-            "upCount": 61,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 63
-        },
-        {
-          "symbol": "TSLA",
-          "name": "Tesla Inc.",
-          "sector": "Consumo Discricionário",
-          "m1": -0.56,
-          "m3": -10,
-          "score": 30,
-          "resilience12m": {
-            "score": 6,
-            "label": "Fraca",
-            "badgeColor": "red",
-            "outperformance": -0.7,
-            "beatRate": 29.8,
-            "avgAssetDrop": -1.66,
-            "avgBenchDrop": -0.96,
-            "marketDownDays": 114,
-            "beatCount": 34,
-            "upCount": 23,
-            "matchedDays": 114,
-            "benchmark": "QQQ",
-            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
-          },
-          "trendState": "NEUTRAL",
-          "rank": 64
+          "rank": 60,
+          "rsRank": 60
         },
         {
           "symbol": "ORLY",
@@ -41370,7 +41425,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 65
+          "rank": 61,
+          "rsRank": 61
         },
         {
           "symbol": "ROP",
@@ -41395,7 +41451,60 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 66
+          "rank": 62,
+          "rsRank": 62
+        },
+        {
+          "symbol": "VRTX",
+          "name": "Vertex Pharmaceuticals Inc.",
+          "sector": "Saúde",
+          "m1": -7.47,
+          "m3": -4.03,
+          "score": 37,
+          "resilience12m": {
+            "score": 76,
+            "label": "Forte",
+            "badgeColor": "yellow",
+            "outperformance": 0.91,
+            "beatRate": 67.5,
+            "avgAssetDrop": -0.05,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 77,
+            "upCount": 55,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 63,
+          "rsRank": 63
+        },
+        {
+          "symbol": "NXPI",
+          "name": "NXP Semiconductors N.V.",
+          "sector": "Tecnologia",
+          "m1": 7.55,
+          "m3": -12.5,
+          "score": 36,
+          "resilience12m": {
+            "score": 17,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.41,
+            "beatRate": 39.5,
+            "avgAssetDrop": -1.37,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 45,
+            "upCount": 28,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 64,
+          "rsRank": 64
         },
         {
           "symbol": "AVGO",
@@ -41420,7 +41529,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 67
+          "rank": 65,
+          "rsRank": 65
         },
         {
           "symbol": "MDLZ",
@@ -41445,7 +41555,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 68
+          "rank": 66,
+          "rsRank": 66
         },
         {
           "symbol": "CCEP",
@@ -41470,7 +41581,34 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 69
+          "rank": 67,
+          "rsRank": 67
+        },
+        {
+          "symbol": "KDP",
+          "name": "Keurig Dr Pepper Inc.",
+          "sector": "Consumo Básico",
+          "m1": -3.76,
+          "m3": -7.84,
+          "score": 32,
+          "resilience12m": {
+            "score": 90,
+            "label": "Excelente",
+            "badgeColor": "green",
+            "outperformance": 1.13,
+            "beatRate": 72.8,
+            "avgAssetDrop": 0.17,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 83,
+            "upCount": 61,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 68,
+          "rsRank": 68
         },
         {
           "symbol": "IDXX",
@@ -41495,7 +41633,34 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 70
+          "rank": 69,
+          "rsRank": 69
+        },
+        {
+          "symbol": "TSLA",
+          "name": "Tesla Inc.",
+          "sector": "Consumo Discricionário",
+          "m1": -0.56,
+          "m3": -10,
+          "score": 30,
+          "resilience12m": {
+            "score": 6,
+            "label": "Fraca",
+            "badgeColor": "red",
+            "outperformance": -0.7,
+            "beatRate": 29.8,
+            "avgAssetDrop": -1.66,
+            "avgBenchDrop": -0.96,
+            "marketDownDays": 114,
+            "beatCount": 34,
+            "upCount": 23,
+            "matchedDays": 114,
+            "benchmark": "QQQ",
+            "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
+          },
+          "trendState": "NEUTRAL",
+          "rank": 70,
+          "rsRank": 70
         },
         {
           "symbol": "MDB",
@@ -41520,7 +41685,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 71
+          "rank": 71,
+          "rsRank": 71
         },
         {
           "symbol": "PDD",
@@ -41545,7 +41711,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 72
+          "rank": 72,
+          "rsRank": 72
         },
         {
           "symbol": "MELI",
@@ -41570,7 +41737,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 73
+          "rank": 73,
+          "rsRank": 73
         },
         {
           "symbol": "PCAR",
@@ -41595,7 +41763,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 74
+          "rank": 74,
+          "rsRank": 74
         },
         {
           "symbol": "SBUX",
@@ -41620,7 +41789,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 75
+          "rank": 75,
+          "rsRank": 75
         },
         {
           "symbol": "DLTR",
@@ -41645,7 +41815,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 76
+          "rank": 76,
+          "rsRank": 76
         },
         {
           "symbol": "TMUS",
@@ -41670,7 +41841,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 77
+          "rank": 77,
+          "rsRank": 77
         },
         {
           "symbol": "DASH",
@@ -41695,7 +41867,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 78
+          "rank": 78,
+          "rsRank": 78
         },
         {
           "symbol": "PAYX",
@@ -41720,7 +41893,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 79
+          "rank": 79,
+          "rsRank": 79
         },
         {
           "symbol": "LIN",
@@ -41745,7 +41919,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 80
+          "rank": 80,
+          "rsRank": 80
         },
         {
           "symbol": "MNST",
@@ -41770,7 +41945,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 81
+          "rank": 81,
+          "rsRank": 81
         },
         {
           "symbol": "CPRT",
@@ -41795,7 +41971,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 82
+          "rank": 82,
+          "rsRank": 82
         },
         {
           "symbol": "VRSK",
@@ -41820,7 +41997,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 83
+          "rank": 83,
+          "rsRank": 83
         },
         {
           "symbol": "CMCSA",
@@ -41845,7 +42023,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 84
+          "rank": 84,
+          "rsRank": 84
         },
         {
           "symbol": "PEP",
@@ -41870,7 +42049,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 85
+          "rank": 85,
+          "rsRank": 85
         },
         {
           "symbol": "KHC",
@@ -41895,7 +42075,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 86
+          "rank": 86,
+          "rsRank": 86
         },
         {
           "symbol": "EXC",
@@ -41920,7 +42101,8 @@
             "interpretation": "o ativo demonstrou excelente capacidade de preservar ou superar seu desempenho durante períodos de fraqueza do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 87
+          "rank": 87,
+          "rsRank": 87
         },
         {
           "symbol": "SIRI",
@@ -41945,7 +42127,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 88
+          "rank": 88,
+          "rsRank": 88
         },
         {
           "symbol": "VRT",
@@ -41970,7 +42153,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 89
+          "rank": 89,
+          "rsRank": 89
         },
         {
           "symbol": "ODFL",
@@ -41995,7 +42179,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 90
+          "rank": 90,
+          "rsRank": 90
         },
         {
           "symbol": "NFLX",
@@ -42020,7 +42205,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 91
+          "rank": 91,
+          "rsRank": 91
         },
         {
           "symbol": "BKNG",
@@ -42045,7 +42231,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 92
+          "rank": 92,
+          "rsRank": 92
         },
         {
           "symbol": "TTWO",
@@ -42070,7 +42257,8 @@
             "interpretation": "o ativo apresentou capacidade moderada de sustentação relativa durante correções do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 93
+          "rank": 93,
+          "rsRank": 93
         },
         {
           "symbol": "GFS",
@@ -42095,7 +42283,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "NEUTRAL",
-          "rank": 94
+          "rank": 94,
+          "rsRank": 94
         },
         {
           "symbol": "ALGN",
@@ -42120,7 +42309,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 95
+          "rank": 95,
+          "rsRank": 95
         },
         {
           "symbol": "LULU",
@@ -42145,7 +42335,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 96
+          "rank": 96,
+          "rsRank": 96
         },
         {
           "symbol": "CHTR",
@@ -42170,7 +42361,8 @@
             "interpretation": "o ativo apresentou boa capacidade de preservar seu desempenho relativo em dias de queda do mercado."
           },
           "trendState": "BEARISH",
-          "rank": 97
+          "rank": 97,
+          "rsRank": 97
         },
         {
           "symbol": "AXON",
@@ -42195,7 +42387,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 98
+          "rank": 98,
+          "rsRank": 98
         },
         {
           "symbol": "TTD",
@@ -42220,7 +42413,8 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 99
+          "rank": 99,
+          "rsRank": 99
         },
         {
           "symbol": "APP",
@@ -42245,46 +42439,20 @@
             "interpretation": "o ativo acompanhou ou ampliou as quedas do mercado durante os períodos de fraqueza."
           },
           "trendState": "BEARISH",
-          "rank": 100
+          "rank": 100,
+          "rsRank": 100
         }
       ]
     }
   }
 };
   root.__relativeStrengthStaticCache = staticCache;
-
-  // Hidratação imediata do estado global para inicialização instantânea
-  if (!root.relativeStrengthClassesState) {
-    root.relativeStrengthClassesState = {
-      selected: 'stock_ibov',
-      classes: staticCache.daily,
-      dailyClasses: staticCache.daily,
-      weeklyClasses: staticCache.weekly,
-      updatedAt: staticCache.updatedAt,
-      dataAsOf: staticCache.dataAsOf,
-      source: staticCache.source,
-      loading: false,
-      error: false
-    };
-  } else {
-    root.relativeStrengthClassesState.dailyClasses = root.relativeStrengthClassesState.dailyClasses || staticCache.daily;
-    root.relativeStrengthClassesState.weeklyClasses = root.relativeStrengthClassesState.weeklyClasses || staticCache.weekly;
-    if (!root.relativeStrengthClassesState.classes || !root.relativeStrengthClassesState.classes.stock_ibov) {
-      root.relativeStrengthClassesState.classes = staticCache.daily;
-    }
-    if (!root.relativeStrengthClassesState.selected || root.relativeStrengthClassesState.selected === 'stock') {
-      root.relativeStrengthClassesState.selected = 'stock_ibov';
-    }
-  }
-
-  // Hidratação do cache do Nasdaq
   root.__nasdaqRelativeStrengthCache_daily = staticCache.nasdaq.daily;
   root.__nasdaqRelativeStrengthCache_weekly = staticCache.nasdaq.weekly;
   if (!root.__nasdaqRelativeStrengthCache) {
     root.__nasdaqRelativeStrengthCache = staticCache.nasdaq.daily;
   }
-
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = staticCache;
   }
-})();
+})(typeof window !== 'undefined' ? window : globalThis);

@@ -20,15 +20,16 @@
   function getNasdaqBand(item) {
     const titles = {
       leader: 'LÍDERES DO NASDAQ-100 · RS 90–100',
-      qualified: 'FORÇA ACIMA DA MÉDIA · RS 70–89',
-      watch: 'ACOMPANHAR · RS 40–69',
-      observation: 'EM OBSERVAÇÃO · TENDÊNCIA OU MOMENTUM EM RISCO',
-      laggard: 'ABAIXO DO FILTRO · RS 0–29'
+      qualified: 'QUALIFICADO · RS 80–89',
+      watch: 'ACOMPANHAR · RS 70–79',
+      observation: 'EM OBSERVAÇÃO · RS 50–69',
+      laggard: 'ABAIXO DO FILTRO · RS < 50'
     };
 
     if (item && typeof item === 'object') {
-      const key = item.bandKey || (item.score >= 70 ? 'qualified' : item.score >= 40 ? 'watch' : 'laggard');
-      const label = item.classification || (key === 'leader' && item.trendState === 'BULLISH' ? 'Líder' : 'Qualificado');
+      const score = Number(item.score ?? item.rsScore ?? 0);
+      const key = item.bandKey || (score >= 90 ? 'leader' : score >= 80 ? 'qualified' : score >= 70 ? 'watch' : score >= 50 ? 'observation' : 'laggard');
+      const label = item.classification || (key === 'leader' ? 'Líder' : key === 'qualified' ? 'Qualificado' : key === 'watch' ? 'Acompanhar' : key === 'observation' ? 'Em observação' : 'Abaixo do filtro');
       return {
         key,
         title: titles[key] || label.toUpperCase(),
@@ -636,9 +637,18 @@
   // --- Global Market Switcher Function ---
   window.switchRelativeStrengthMarket = function (market) {
     window.currentRelativeStrengthMarket = market;
+    window.relativeStrengthSearchQuery = '';
+    window.relativeStrengthSelectedGroup = '';
     window.relativeStrengthCurrentPage = 1;
     if (typeof window.renderRelativeStrengthClassesPage === 'function') {
       window.renderRelativeStrengthClassesPage();
+    }
+    if (market === 'nasdaq' && typeof window.fetchNasdaqData === 'function') {
+      window.fetchNasdaqData(window.currentRelativeStrengthTimeframe || 'daily').then(() => {
+        if (typeof window.renderRelativeStrengthClassesPage === 'function') {
+          window.renderRelativeStrengthClassesPage();
+        }
+      }).catch(() => {});
     }
   };
 

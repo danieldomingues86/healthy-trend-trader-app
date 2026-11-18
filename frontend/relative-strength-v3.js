@@ -135,53 +135,93 @@
     return `${prefix}${val.toFixed(1).replace('.', ',')}%`;
   }
 
-  function getLeituraInfo(item, timeframe) {
-    const score = Number(item.score ?? item.rsScore ?? 0);
-    const trendState = item.weeklyTrend?.state || item.trendState;
-
-    if (timeframe === 'weekly') {
-      if (item.classification) {
-        const cls = String(item.classification).trim();
-        if (cls === 'Líder') return { label: text('Líder', 'Leader'), icon: '🏆', tierClass: 'leader' };
-        if (cls === 'Qualificado') return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
-        if (cls === 'Acompanhar') return { label: text('Acompanhar', 'Watch'), icon: '👁️', tierClass: 'watch' };
-        if (cls === 'Em observação') return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
-        if (cls === 'Abaixo do filtro') return { label: text('Abaixo do filtro', 'Below filter'), icon: '❗', tierClass: 'laggard' };
-      }
-      if (score >= 90) {
-        if (trendState === 'BEARISH') {
-          return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
-        }
-        if (trendState === 'NEUTRAL') {
-          return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
-        }
-        return { label: text('Líder', 'Leader'), icon: '🏆', tierClass: 'leader' };
-      }
-      if (score >= 80) {
-        if (trendState === 'BEARISH') {
-          return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
-        }
-        return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
-      }
-      if (score >= 70) return { label: text('Acompanhar', 'Watch'), icon: '👁️', tierClass: 'watch' };
-      if (score >= 50) return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
-      return { label: text('Abaixo do filtro', 'Below filter'), icon: '❗', tierClass: 'laggard' };
-    } else {
-      // Swing Trade (Diário) - estritamente as 5 categorias oficiais
-      if (score >= 90) return { label: text('Líder', 'Leader'), icon: '🏆', tierClass: 'leader' };
-      if (score >= 80) return { label: text('Qualificado', 'Qualified'), icon: '📊', tierClass: 'qualified' };
-      if (score >= 70) return { label: text('Acompanhar', 'Watch'), icon: '👁️', tierClass: 'watch' };
-      if (score >= 50) return { label: text('Em observação', 'Under observation'), icon: '⏱️', tierClass: 'observation' };
-      return { label: text('Abaixo do filtro', 'Below filter'), icon: '❗', tierClass: 'laggard' };
+  /**
+   * Função centralizada única para mapear scores nas 5 faixas e cores oficiais do Healthy Trend Trader:
+   * - Score elevado (>= 80): classificação visual VERDE (90+ Líder, 80-89 Qualificado)
+   * - Score intermediário (70-79): classificação visual AMARELA (Acompanhar)
+   * - Score neutro (50-69): classificação visual CINZA (Em observação)
+   * - Score baixo (< 50): classificação visual VERMELHA (Abaixo do filtro)
+   */
+  function getScoreClassification(rawScore) {
+    const score = Number.isFinite(Number(rawScore)) ? Number(rawScore) : 0;
+    if (score >= 90) {
+      return {
+        tier: 'leader',
+        tierClass: 'leader',
+        badgeClass: 'rs-score-leader',
+        label: text('Líder', 'Leader'),
+        icon: '🏆',
+        colorGroup: 'green'
+      };
     }
+    if (score >= 80) {
+      return {
+        tier: 'qualified',
+        tierClass: 'qualified',
+        badgeClass: 'rs-score-qualified',
+        label: text('Qualificado', 'Qualified'),
+        icon: '📊',
+        colorGroup: 'green'
+      };
+    }
+    if (score >= 70) {
+      return {
+        tier: 'watch',
+        tierClass: 'watch',
+        badgeClass: 'rs-score-watch',
+        label: text('Acompanhar', 'Watch'),
+        icon: '👁️',
+        colorGroup: 'yellow'
+      };
+    }
+    if (score >= 50) {
+      return {
+        tier: 'observation',
+        tierClass: 'observation',
+        badgeClass: 'rs-score-observation',
+        label: text('Em observação', 'Under observation'),
+        icon: '⏱️',
+        colorGroup: 'gray'
+      };
+    }
+    return {
+      tier: 'laggard',
+      tierClass: 'laggard',
+      badgeClass: 'rs-score-laggard',
+      label: text('Abaixo do filtro', 'Below filter'),
+      icon: '❗',
+      colorGroup: 'red'
+    };
   }
 
   function getScoreBadgeClass(score) {
-    if (score >= 90) return 'rs-score-leader';
-    if (score >= 80) return 'rs-score-qualified';
-    if (score >= 70) return 'rs-score-watch';
-    if (score >= 50) return 'rs-score-observation';
-    return 'rs-score-laggard';
+    return getScoreClassification(score).badgeClass;
+  }
+
+  function getLeituraInfo(item, timeframe) {
+    const score = Number(item.score ?? item.rsScore ?? 0);
+    const classification = getScoreClassification(score);
+
+    // No Semanal, adicionamos contexto de tendência estrutural se estiver em contra-tendência
+    if (timeframe === 'weekly') {
+      const trendState = item.weeklyTrend?.state || item.trendState;
+      if (score >= 90 && trendState === 'BEARISH') {
+        return {
+          ...classification,
+          label: text('Líder (Tendência frágil)', 'Leader (Weak trend)'),
+          tooltip: text('Score elevado, porém com tendência semanal baixista que requer reversão.', 'High score, but bearish weekly trend.')
+        };
+      }
+      if (score >= 80 && trendState === 'BEARISH') {
+        return {
+          ...classification,
+          label: text('Qualificado (Tendência frágil)', 'Qualified (Weak trend)'),
+          tooltip: text('Score qualificado, porém com tendência semanal baixista que requer reversão.', 'Qualified score, but bearish weekly trend.')
+        };
+      }
+    }
+
+    return classification;
   }
 
   // --- Handlers & Global Switchers ---
@@ -255,6 +295,35 @@
     window.relativeStrengthSelectedGroup = String(value || '');
     window.relativeStrengthCurrentPage = 1;
     updateTableAndPaginationOnly();
+  };
+
+  // --- Sorting State & Handlers ---
+  window.relativeStrengthSortColumn = window.relativeStrengthSortColumn || 'score';
+  window.relativeStrengthSortDirection = window.relativeStrengthSortDirection || 'desc';
+
+  function getSortIndicator(col) {
+    if ((window.relativeStrengthSortColumn || 'score') !== col) return '';
+    return (window.relativeStrengthSortDirection || 'desc') === 'asc' ? ' ▲' : ' ▼';
+  }
+
+  window.handleRelativeStrengthSort = function (column) {
+    if (!column) return;
+    if (window.relativeStrengthSortColumn === column) {
+      window.relativeStrengthSortDirection = window.relativeStrengthSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      window.relativeStrengthSortColumn = column;
+      if (['symbol', 'company', 'group'].includes(column)) {
+        window.relativeStrengthSortDirection = 'asc';
+      } else {
+        window.relativeStrengthSortDirection = 'desc';
+      }
+    }
+    window.relativeStrengthCurrentPage = 1;
+    if (typeof renderRelativeStrengthWorkspace === 'function') {
+      renderRelativeStrengthWorkspace();
+    } else if (typeof renderRelativeStrengthClassesPage === 'function') {
+      renderRelativeStrengthClassesPage();
+    }
   };
 
   // --- Resilience Lateral Drawer & Analysis ---
@@ -711,10 +780,22 @@
       const sourceLabel = timeframe === 'weekly' ? 'Twelve Data (Semanal)' : (nasdaqCache?.source || 'Twelve Data');
       const dateLabel = nasdaqCache?.displayDate || formatDisplayDate(nasdaqCache?.baseDate || '2026-10-07');
 
-      const nasdaqItems = ranking.map((item, idx) => ({
+      // Invariante mandatória: Ordenação estrita por score DESC com tie-breakers determinísticos
+      const sortedRanking = [...ranking].sort((a, b) => {
+        const scoreDiff = Number(b.score ?? b.rsScore ?? 0) - Number(a.score ?? a.rsScore ?? 0);
+        if (scoreDiff !== 0) return scoreDiff;
+        const m3Diff = Number(b.m3 ?? 0) - Number(a.m3 ?? 0);
+        if (m3Diff !== 0) return m3Diff;
+        const m1Diff = Number(b.m1 ?? 0) - Number(a.m1 ?? 0);
+        if (m1Diff !== 0) return m1Diff;
+        return String(a.symbol || '').localeCompare(String(b.symbol || ''));
+      });
+
+      const nasdaqItems = sortedRanking.map((item, idx) => ({
         ...item,
         name: item.companyName || item.name || item.symbol,
-        globalRank: Number.isFinite(item.rank) && item.rank > 0 ? item.rank : (idx + 1)
+        rank: idx + 1,
+        globalRank: idx + 1
       }));
       return {
         market: 'nasdaq',
@@ -802,36 +883,20 @@
       }
     }
 
-    const hasDuplicateRanks = (() => {
-      const seen = new Set();
-      for (const it of eligibleRaw) {
-        if (it.rank != null) {
-          if (seen.has(it.rank)) return true;
-          seen.add(it.rank);
-        }
-      }
-      return false;
-    })();
-
-    let items;
-    if (hasDuplicateRanks) {
-      items = [...eligibleRaw].sort((a, b) => {
-        const scoreDiff = (Number(b.score ?? b.rsScore ?? 0)) - (Number(a.score ?? a.rsScore ?? 0));
-        if (scoreDiff !== 0) return scoreDiff;
-        const m3Diff = (Number(b.m3 ?? 0)) - (Number(a.m3 ?? 0));
-        if (m3Diff !== 0) return m3Diff;
-        return String(a.symbol || '').localeCompare(String(b.symbol || ''));
-      }).map((item, idx) => ({
-        ...item,
-        rank: idx + 1,
-        globalRank: idx + 1
-      }));
-    } else {
-      items = eligibleRaw.map((item, idx) => ({
-        ...item,
-        globalRank: Number.isFinite(item.rank) && item.rank > 0 ? item.rank : (idx + 1)
-      }));
-    }
+    // Invariante mandatória de ordenação estrita: ORDER BY score DESC, rank contíguo 1..N
+    const items = [...eligibleRaw].sort((a, b) => {
+      const scoreDiff = (Number(b.score ?? b.rsScore ?? 0)) - (Number(a.score ?? a.rsScore ?? 0));
+      if (scoreDiff !== 0) return scoreDiff;
+      const m3Diff = (Number(b.m3 ?? 0)) - (Number(a.m3 ?? 0));
+      if (m3Diff !== 0) return m3Diff;
+      const m1Diff = (Number(b.m1 ?? 0)) - (Number(a.m1 ?? 0));
+      if (m1Diff !== 0) return m1Diff;
+      return String(a.symbol || '').localeCompare(String(b.symbol || ''));
+    }).map((item, idx) => ({
+      ...item,
+      rank: idx + 1,
+      globalRank: idx + 1
+    }));
 
     const excludedItems = excludedRaw.map(it => ({
       ...it,
@@ -925,6 +990,55 @@
         return sym.includes(query) || name.includes(query) || sec.includes(query) || locSec.includes(query);
       });
     }
+
+    // Ordenação estrita das linhas (padrão: Força Relativa decrescente)
+    const sortCol = window.relativeStrengthSortColumn || 'score';
+    const sortDir = window.relativeStrengthSortDirection || 'desc';
+    const isAsc = sortDir === 'asc';
+
+    filtered.sort((a, b) => {
+      if (sortCol === 'score') {
+        const diff = Number(b.score ?? b.rsScore ?? 0) - Number(a.score ?? a.rsScore ?? 0);
+        if (diff !== 0) return isAsc ? -diff : diff;
+        const m3Diff = Number(b.m3 ?? 0) - Number(a.m3 ?? 0);
+        if (m3Diff !== 0) return isAsc ? -m3Diff : m3Diff;
+        const m1Diff = Number(b.m1 ?? 0) - Number(a.m1 ?? 0);
+        if (m1Diff !== 0) return isAsc ? -m1Diff : m1Diff;
+        return String(a.symbol || '').localeCompare(String(b.symbol || ''));
+      }
+      if (sortCol === 'rank') {
+        const rA = Number(a.globalRank ?? a.rank ?? 9999);
+        const rB = Number(b.globalRank ?? b.rank ?? 9999);
+        return isAsc ? rA - rB : rB - rA;
+      }
+      if (sortCol === 'symbol') {
+        const cmp = String(a.symbol || '').localeCompare(String(b.symbol || ''));
+        return isAsc ? cmp : -cmp;
+      }
+      if (sortCol === 'company') {
+        const nameA = String(a.name || a.companyName || a.symbol || '');
+        const nameB = String(b.name || b.companyName || b.symbol || '');
+        const cmp = nameA.localeCompare(nameB);
+        return isAsc ? cmp : -cmp;
+      }
+      if (sortCol === 'group') {
+        const gA = String(a.sector || '');
+        const gB = String(b.sector || '');
+        const cmp = gA.localeCompare(gB);
+        return isAsc ? cmp : -cmp;
+      }
+      if (sortCol === 'm1') {
+        const m1A = Number(a.m1 ?? 0);
+        const m1B = Number(b.m1 ?? 0);
+        return isAsc ? m1A - m1B : m1B - m1A;
+      }
+      if (sortCol === 'm3') {
+        const m3A = Number(a.m3 ?? 0);
+        const m3B = Number(b.m3 ?? 0);
+        return isAsc ? m3A - m3B : m3B - m3A;
+      }
+      return 0;
+    });
 
     const pageSize = window.relativeStrengthPageSize;
     if (pageSize === 'all' || !Number.isFinite(Number(pageSize))) {
@@ -1344,9 +1458,11 @@
         tbody.innerHTML = renderTableRows(paged, window.currentRelativeStrengthTimeframe, dataset.universeKey === 'fii');
       }
     }
+    const paginationContainer = document.getElementById('rsPaginationContainer');
     if (paginationContainer) {
       paginationContainer.innerHTML = renderPaginationControls(currentPage, totalPages, totalCount);
     }
+    const resultsCountEl = document.getElementById('rsResultsCount');
     if (resultsCountEl) {
       resultsCountEl.textContent = isExcludedView
         ? text(`Ativos Excluídos: ${totalCount} ativos`, `Excluded Assets: ${totalCount} assets`)
@@ -1565,10 +1681,10 @@
                       </tr>
                     ` : `
                       <tr class="rs-super-header-row">
-                        <th rowspan="2" class="th-rank">#</th>
-                        <th rowspan="2" class="th-symbol">${text('Ativo', 'Asset')}</th>
-                        <th rowspan="2" class="th-company">${text('Empresa', 'Company')}</th>
-                        <th rowspan="2" class="th-group">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}</th>
+                        <th rowspan="2" class="th-rank rs-th-sortable" onclick="window.handleRelativeStrengthSort('rank')" style="cursor:pointer;user-select:none;" title="${text('Ordenar por posição (#)', 'Sort by global rank')}">#${getSortIndicator('rank')}</th>
+                        <th rowspan="2" class="th-symbol rs-th-sortable" onclick="window.handleRelativeStrengthSort('symbol')" style="cursor:pointer;user-select:none;" title="${text('Ordenar por ativo/ticker', 'Sort by ticker')}">${text('Ativo', 'Asset')}${getSortIndicator('symbol')}</th>
+                        <th rowspan="2" class="th-company rs-th-sortable" onclick="window.handleRelativeStrengthSort('company')" style="cursor:pointer;user-select:none;" title="${text('Ordenar por empresa', 'Sort by company')}">${text('Empresa', 'Company')}${getSortIndicator('company')}</th>
+                        <th rowspan="2" class="th-group rs-th-sortable" onclick="window.handleRelativeStrengthSort('group')" style="cursor:pointer;user-select:none;" title="${text('Ordenar por grupo/setor', 'Sort by group/sector')}">${isFii ? text('Segmento', 'Segment') : text('Grupo', 'Group')}${getSortIndicator('group')}</th>
                         <th colspan="4" class="th-super-header th-super-rs">
                           <span class="rs-super-header-title">${text('Força Relativa (RS)', 'Relative Strength (RS)')}</span>
                         </th>
@@ -1582,9 +1698,9 @@
                         <th rowspan="2" class="th-actions">${text('Ações', 'Actions')}</th>
                       </tr>
                       <tr class="rs-sub-header-row">
-                        <th class="th-m1">1M</th>
-                        <th class="th-m3">3M</th>
-                        <th class="th-rs">RS</th>
+                        <th class="th-m1 rs-th-sortable" onclick="window.handleRelativeStrengthSort('m1')" style="cursor:pointer;user-select:none;" title="${text('Ordenar por 1M', 'Sort by 1M')}">1M${getSortIndicator('m1')}</th>
+                        <th class="th-m3 rs-th-sortable" onclick="window.handleRelativeStrengthSort('m3')" style="cursor:pointer;user-select:none;" title="${text('Ordenar por 3M', 'Sort by 3M')}">3M${getSortIndicator('m3')}</th>
+                        <th class="th-rs rs-th-sortable" onclick="window.handleRelativeStrengthSort('score')" style="cursor:pointer;user-select:none;" title="${text('Ordenar por Força Relativa (RS)', 'Sort by Relative Strength (RS)')}">RS${getSortIndicator('score')}</th>
                         <th class="th-reading" title="${typeof MarketResilienceModel !== 'undefined' ? MarketResilienceModel.TOOLTIPS.rsReading : ''}">${text('Leitura RS', 'RS Reading')}</th>
                       </tr>
                     `}
@@ -1668,8 +1784,8 @@
       getFilteredAndPagedItems,
       renderLiquiditySearchAlert,
       renderExcludedTableRows,
-      getFilteredAndPagedItems,
       getLeituraInfo,
+      getScoreClassification,
       getScoreBadgeClass,
       localizedSector,
       renderTableRows,

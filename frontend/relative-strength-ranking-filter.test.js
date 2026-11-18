@@ -87,7 +87,7 @@ test('Ranking RS: filtro por busca preserva a posição global "#" imutável de 
 
 test('Ranking RS: LUPA3 e líder do universo possuem posições distintas e corretas (com Liquidity Gate)', () => {
   const dailyOther = staticCache.daily.stock_other.items;
-  const excludedOther = staticCache.daily.stock_other.excludedByLiquidity || [];
+  const excludedOther = (staticCache.daily.stock_other.excludedByLiquidity || []).concat(staticCache.weekly?.stock_other?.excludedByLiquidity || []);
   const leader = dailyOther[0];
   const lupa3Excluded = excludedOther.find(i => i.symbol === 'LUPA3');
   const laggard = dailyOther[dailyOther.length - 1];
