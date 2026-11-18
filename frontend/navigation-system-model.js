@@ -68,10 +68,10 @@
     },
     {
       id: 'mindset',
-      label: 'Mentalidade & Zen',
-      labelEn: 'Mindset & Zen',
+      label: 'Mentalidade',
+      labelEn: 'Mindset',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5A4.5 4.5 0 0 0 5 9v1a4 4 0 0 0 1 7.87V19a2 2 0 0 0 2 2h1.5M14.5 4.5A4.5 4.5 0 0 1 19 9v1a4 4 0 0 1-1 7.87V19a2 2 0 0 1-2 2h-1.5M9.5 4.5A3.5 3.5 0 0 1 12 6a3.5 3.5 0 0 1 2.5-1.5M12 6v15M8 10h1.5M14.5 10H16M8 14h1.5M14.5 14H16"/></svg>`,
-      desc: 'Clareza mental, inteligência emocional e rotina zen.'
+      desc: 'Clareza mental, psicologia, disciplina e práticas.'
     },
     {
       id: 'resources',

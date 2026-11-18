@@ -48,10 +48,17 @@ test('sidebar-navigation.js: único ponto de entrada para Mentalidade sem itens 
   assert.match(sidebarNavJs, /onclick="go\('mindset'\)"/);
 });
 
-test('mindset-hub.js: estrutura da Home com os 6 submódulos, overview e blocos integrados', () => {
-  // Hero com CTA de check-in mental
-  assert.match(mindsetHubJs, /Fazer check-in mental/);
-  assert.match(mindsetHubJs, /onclick="focusMentalCheckin\(\)"/);
+test('mindset-hub.js: estrutura da Home com os 6 submódulos e os 3 widgets inferiores', () => {
+  // Hero com kicker, títulos, benefícios e quote
+  assert.match(mindsetHubJs, /MENTALIDADE/);
+  assert.match(mindsetHubJs, /Mente de <em>Trader<\/em>/);
+  assert.match(mindsetHubJs, /Clareza para pensar\. Disciplina para executar\./);
+  assert.match(mindsetHubJs, /Desenvolva sua mentalidade, conheça seu comportamento/);
+  assert.match(mindsetHubJs, /Mais equilíbrio nas decisões/);
+  assert.match(mindsetHubJs, /Menos impulsos emocionais/);
+  assert.match(mindsetHubJs, /Mais consistência nos resultados/);
+  assert.match(mindsetHubJs, /Um trading mais saudável/);
+  assert.match(mindsetHubJs, /“Uma mente calma toma melhores decisões\.”/);
 
   // 6 submodules present
   assert.match(mindsetHubJs, /class="mindset-module zen"/);
@@ -69,26 +76,39 @@ test('mindset-hub.js: estrutura da Home com os 6 submódulos, overview e blocos 
   assert.match(mindsetHubJs, /<article class="mindset-module wisdom"[^>]*onclick="openMindsetSubmodule\('wisdom'\)"/);
   assert.match(mindsetHubJs, /<article class="mindset-module profile"[^>]*onclick="openMindsetSubmodule\('profile'\)"/);
 
-  // Pills are informative spans, not clickable buttons
-  assert.match(mindsetHubJs, /<div class="mindset-module-pills">\s*<span>Respiração<\/span>/);
-  assert.doesNotMatch(mindsetHubJs, /<div class="mindset-module-pills">\s*<button/);
+  // Pills are interactive buttons for quick section routing
+  assert.match(mindsetHubJs, /<button class="mindset-pill"[^>]*onclick="event\.stopPropagation\(\);\s*openMindsetSubmodule\('zen',\s*'breathing'\)"/);
+  assert.match(mindsetHubJs, /<button class="mindset-pill"[^>]*onclick="event\.stopPropagation\(\);\s*openMindsetSubmodule\('library',\s*'scenario'\)"/);
+  assert.match(mindsetHubJs, /<button class="mindset-pill"[^>]*onclick="event\.stopPropagation\(\);\s*openMindsetSubmodule\('psychology',\s*'emotions'\)"/);
+  assert.match(mindsetHubJs, /<button class="mindset-pill"[^>]*onclick="event\.stopPropagation\(\);\s*openMindsetSubmodule\('rules',\s*'checklist'\)"/);
+  assert.match(mindsetHubJs, /<button class="mindset-pill"[^>]*onclick="event\.stopPropagation\(\);\s*openMindsetSubmodule\('wisdom',\s*'quotes'\)"/);
+  assert.match(mindsetHubJs, /<button class="mindset-pill"[^>]*onclick="event\.stopPropagation\(\);\s*openMindsetSubmodule\('profile',\s*'profile'\)"/);
 
-  // Overview row: Seu Estado Mental, Sua Evolução Mental, Continue sua jornada
-  assert.match(mindsetHubJs, /Seu Estado Mental/);
-  assert.match(mindsetHubJs, /Sua Evolução Mental/);
-  assert.match(mindsetHubJs, /Continue sua jornada/);
-  assert.match(mindsetHubJs, /Sua Jornada Mental/);
+  // Bottom row: 3 Widgets (Meu Estado Mental, Minha Evolução Mental, Frase do dia)
+  assert.match(mindsetHubJs, /Meu Estado Mental/);
+  assert.match(mindsetHubJs, /Minha Evolução Mental/);
+  assert.match(mindsetHubJs, /Frase do dia/);
 
-  // Bloco inferior: Reflexão do dia, Atividade recente
-  assert.match(mindsetHubJs, /Reflexão do dia/);
-  assert.match(mindsetHubJs, /Atividade recente/);
-
-  // 5 mental states
+  // 5 mental states in Meu Estado Mental
   assert.match(mindsetHubJs, /data-state="calm"/);
   assert.match(mindsetHubJs, /data-state="good"/);
   assert.match(mindsetHubJs, /data-state="neutral"/);
   assert.match(mindsetHubJs, /data-state="anxious"/);
   assert.match(mindsetHubJs, /data-state="agitated"/);
+
+  // Minha Evolução Mental KPIs and period select
+  assert.match(mindsetHubJs, /id="mindsetPeriodSelect"/);
+  assert.match(mindsetHubJs, /Dias com estado mental estável/);
+  assert.match(mindsetHubJs, /Práticas realizadas/);
+  assert.match(mindsetHubJs, /Disciplina na execução/);
+  assert.match(mindsetHubJs, /Redução da ansiedade antes do trade/);
+
+  // Frase do dia navigation and quote display
+  assert.match(mindsetHubJs, /id="mindsetQuoteText"/);
+  assert.match(mindsetHubJs, /id="mindsetQuoteAuthor"/);
+  assert.match(mindsetHubJs, /id="mindsetQuotePage"/);
+  assert.match(mindsetHubJs, /nextMindsetQuote\(-1\)/);
+  assert.match(mindsetHubJs, /nextMindsetQuote\(1\)/);
 });
 
 test('trader-rules.js: checklist interativo de 7 pontos, regras de execução e regras de ouro', () => {

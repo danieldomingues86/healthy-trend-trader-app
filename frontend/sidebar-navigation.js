@@ -609,6 +609,26 @@
         // 2. CATEGORIES
         tree.categories.forEach((cat) => {
           if (cat.id === 'resources') return; // Rendered in footer
+
+          // Na sidebar deve existir apenas: 🧠 Mentalidade (ponto único de entrada)
+          if (cat.id === 'mindset') {
+            const isEn = root.appLanguage === 'en-US';
+            const mindsetBtn = {
+              id: 'mindset',
+              page: 'mindset',
+              label: 'Mentalidade',
+              labelEn: 'Mindset',
+              currentLabel: isEn ? 'Mindset' : 'Mentalidade',
+              icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5A4.5 4.5 0 0 0 5 9v1a4 4 0 0 0 1 7.87V19a2 2 0 0 0 2 2h1.5M14.5 4.5A4.5 4.5 0 0 1 19 9v1a4 4 0 0 1-1 7.87V19a2 2 0 0 1-2 2h-1.5M9.5 4.5A3.5 3.5 0 0 1 12 6a3.5 3.5 0 0 1 2.5-1.5M12 6v15M8 10h1.5M14.5 10H16M8 14h1.5M14.5 14H16"/></svg>`
+            };
+            html += `
+              <div class="sidebar-group sidebar-direct-group" data-group-id="mindset">
+                ${this.renderDirectButton(mindsetBtn)}
+              </div>
+            `;
+            return;
+          }
+
           if (!cat.items || cat.items.length === 0) return; // All items in Quick Access or empty
 
           // Category accordion (expanded: header with label + items; collapsed: header hidden via CSS, icons only)
@@ -1042,7 +1062,10 @@
       const crumb = document.querySelector('.crumb') || document.getElementById('crumb');
       if (crumb) {
         let found = false;
-        if (tree) {
+        if (pageId === 'mindset') {
+          crumb.innerHTML = `The Healthy Trend Trader / <b>Mentalidade</b>`;
+          found = true;
+        } else if (tree) {
           for (const cat of tree.categories) {
             const matchedItem = cat.items.find(it => it.page === pageId);
             if (matchedItem) {
