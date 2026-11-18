@@ -4,6 +4,7 @@
 #zen:before{background:linear-gradient(90deg,rgba(1,12,7,.72),rgba(2,21,13,.32) 42%,rgba(1,12,7,.36)),linear-gradient(0deg,rgba(0,10,6,.66),transparent 47%,rgba(0,8,5,.25));backdrop-filter:blur(.4px)}
 #zen:after{background:radial-gradient(circle at 50% 36%,rgba(83,224,147,.12),transparent 30%),linear-gradient(180deg,rgba(0,0,0,.13),transparent 30%)}
 body[data-theme="healthy"] #zen{background:#06140e url("../assets/trader-zen-healthy.png") center center/cover no-repeat}
+body[data-theme="pigeon"] #zen{background:#06140e url("../assets/trader-zen-healthy.png") center center/cover no-repeat}
 body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #zen{background:#0d0c09 url("../assets/trader-zen-gold.png") center center/cover no-repeat}
 body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #zen:before{background:linear-gradient(90deg,rgba(5,5,4,.72),rgba(19,13,5,.25) 48%,rgba(5,5,4,.42)),linear-gradient(0deg,rgba(5,5,4,.7),transparent 48%,rgba(5,5,4,.24))}
 body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #zen:after{background:radial-gradient(circle at 50% 36%,rgba(240,194,96,.15),transparent 31%),linear-gradient(180deg,rgba(0,0,0,.16),transparent 30%)}
@@ -100,7 +101,9 @@ body[data-navigation-layout="tiles"]:has(#zen.active) .tile-brand-bar:before{bac
 .zen-practice-card:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(140deg,rgba(13,110,57,.28),transparent 60%)}.zen-practice-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1ac974,#83ec9a);color:#fff;font-size:32px;box-shadow:0 8px 22px rgba(0,0,0,.2)}.card-meditation .zen-practice-icon{background:linear-gradient(135deg,#9d67c7,#dfa7ef)}.card-audio .zen-practice-icon{background:linear-gradient(135deg,#af7712,#e8bd62)}.card-reflection .zen-practice-icon{background:linear-gradient(135deg,#4f83ca,#91c7ff)}.zen-practice-arrow{position:absolute;right:25px;top:38px;font-size:38px;font-weight:250}.zen-practice-card strong{display:block;margin-top:24px;font-size:clamp(19px,1.5vw,26px);letter-spacing:-.035em}.zen-practice-card small{display:block;max-width:180px;margin-top:9px;font-size:14px;line-height:1.35;color:#fff}.zen-practice-card em{position:absolute;left:27px;bottom:20px;border:1px solid rgba(255,255,255,.54);border-radius:999px;padding:9px 12px;font-size:10px;font-style:normal;font-weight:800;letter-spacing:.04em}
 .zen-shortcut-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:14px;max-width:1120px;margin:26px auto 0}.zen-shortcut{min-height:116px;padding:14px 8px;border:1px solid rgba(211,255,224,.4);border-radius:17px;background:rgba(5,29,18,.38);backdrop-filter:blur(10px);color:#fff;cursor:pointer;transition:.2s;text-shadow:0 2px 10px rgba(0,0,0,.45)}.zen-shortcut:hover,.zen-shortcut.selected{transform:translateY(-3px);background:rgba(25,112,61,.53);border-color:#94f7b0}.zen-shortcut i{display:block;font-style:normal;color:#79ef9b;font-size:30px;margin-bottom:8px}.zen-shortcut:nth-child(2) i{color:#8dcaff}.zen-shortcut:nth-child(3) i{color:#ffbf56}.zen-shortcut:nth-child(5) i{color:#ffcc55}.zen-shortcut:nth-child(7) i{color:#ff7d72}.zen-shortcut span{display:block;font-size:12px;line-height:1.25}
 .zen-practice-detail{display:none;align-items:center;justify-content:space-between;gap:25px;max-width:760px;margin:20px auto 0;padding:15px 20px;border:1px solid rgba(151,245,178,.45);border-radius:18px;background:rgba(3,28,15,.5);backdrop-filter:blur(12px)}.zen-practice-detail.visible{display:flex}.zen-practice-detail small{display:block;color:#91f7ae;font-size:9px;letter-spacing:.15em}.zen-practice-detail strong{display:block;margin-top:4px;font-size:18px}.zen-practice-detail p{margin:5px 0 0;font-size:12px;color:rgba(255,255,255,.84)}.zen-practice-detail button{border:1px solid #95f8b0;border-radius:999px;padding:11px 15px;background:rgba(29,159,74,.76);color:#fff;font-weight:750;white-space:nowrap;cursor:pointer}.zen-moment-quote{text-align:center;margin:25px 0 0;font:italic 15px/1.4 Georgia,serif;color:rgba(255,255,255,.92)}.zen-moment-quote:after{content:"";display:block;width:50px;height:2px;margin:15px auto 0;background:#73ed98}
-body[data-theme="healthy"] #zen{--zen-card-image:url("../assets/trader-zen-healthy.png")}body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #zen{--zen-card-image:url("../assets/trader-zen-gold.png")}
+body[data-theme="healthy"] #zen{--zen-card-image:url("../assets/trader-zen-healthy.png")}
+body[data-theme="pigeon"] #zen{--zen-card-image:url("../assets/trader-zen-healthy.png")}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #zen{--zen-card-image:url("../assets/trader-zen-gold.png")}
 @media(max-width:1120px){.zen-moment-shell{padding-left:34px;padding-right:34px}.zen-practice-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:850px}.zen-practice-card{min-height:245px}.zen-shortcut-grid{grid-template-columns:repeat(4,minmax(0,1fr));max-width:680px}.zen-moment-side{display:none}}
 @media(max-width:650px){.zen-moment-shell{padding:24px 16px 36px}.zen-moment-heading{margin-top:22px}.zen-moment-heading h1{font-size:42px}.zen-moment-heading>p:last-child{font-size:16px}.zen-practice-grid{grid-template-columns:1fr;gap:14px}.zen-practice-card{min-height:220px}.zen-shortcut-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.zen-shortcut{min-height:96px}.zen-practice-detail.visible{align-items:flex-start;flex-direction:column;gap:12px}.zen-moment-quote{font-size:13px}}
 /* Biblioteca Mental is an internal Zen experience, with its existing player intact. */
@@ -112,4 +115,29 @@ body[data-theme="healthy"] #zen{--zen-card-image:url("../assets/trader-zen-healt
 #zen.zen-library-open{overflow:auto;background:#061b12}
 #zen.zen-library-open:before,#zen.zen-library-open:after{display:none}
 #zen #audiolibrary{position:relative;z-index:1;padding:24px clamp(18px,3vw,56px) 40px;box-sizing:border-box}
-#zen .zen-library-back{padding:12px 18px;border:1px solid #628e70;border-radius:9px;background:#102d1d;color:#e7f6ec;font:600 15px Arial,sans-serif;cursor:pointer}
+#zen .zen-library-back{padding:12px 18px;border:1px solid #628e70;border-radius:999px;background:#102d1d;color:#e7f6ec;font:600 15px Arial,sans-serif;cursor:pointer}
+
+#zen .mindset-sub-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  margin: 0;
+  border-radius: 999px;
+  background: rgba(3, 20, 12, 0.75) !important;
+  border: 1px solid rgba(130, 244, 156, 0.45) !important;
+  color: #82f49c !important;
+  font: 700 12.5px/1 Inter, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  cursor: pointer;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+#zen .mindset-sub-back:hover {
+  background: rgba(13, 75, 42, 0.88) !important;
+  border-color: #82f49c !important;
+  color: #ffffff !important;
+  transform: translateX(-2px);
+}
