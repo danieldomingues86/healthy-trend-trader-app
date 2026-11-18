@@ -270,10 +270,10 @@
             <h2>Clareza para pensar. Disciplina para executar.</h2>
             <p>Desenvolva sua mentalidade, conheça seu comportamento e fortaleça seu processo para se tornar um trader mais consistente.</p>
             <div class="mindset-benefits">
-              <div class="mindset-benefit"><i aria-hidden="true">🪷</i><span>Mais equilíbrio nas decisões</span></div>
-              <div class="mindset-benefit"><i aria-hidden="true">📊</i><span>Menos impulsos emocionais</span></div>
-              <div class="mindset-benefit"><i aria-hidden="true">🎯</i><span>Mais consistência nos resultados</span></div>
-              <div class="mindset-benefit"><i aria-hidden="true">💚</i><span>Um trading mais saudável</span></div>
+              <div class="mindset-benefit"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20c-4.5 0-8-2.2-9-5 2.6-.4 5.4.4 7.2 2.2M12 20c4.5 0 8-2.2 9-5-2.6-.4-5.4.4-7.2 2.2"/><path d="M12 20c-2.4-2-3.6-4.6-3.6-7.3 0-2.6 1.3-5 3.6-7.2 2.3 2.2 3.6 4.6 3.6 7.2 0 2.7-1.2 5.3-3.6 7.3Z"/><path d="M8.6 14.2C6.7 12.9 5.3 11 4.8 8.6c2 .1 3.6.8 4.8 1.9M15.4 14.2c1.9-1.3 3.3-3.2 3.8-5.6-2 .1-3.6.8-4.8 1.9"/></svg></i><span>Mais equilíbrio nas decisões</span></div>
+              <div class="mindset-benefit"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V14M9.3 20V10M14.6 20V6.5M20 20V3.5"/><path d="M2.5 20.5h19"/></svg></i><span>Menos impulsos emocionais</span></div>
+              <div class="mindset-benefit"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><path d="m12 12 7-7M16.5 3.5 19 5l1.5 2.5"/></svg></i><span>Mais consistência nos resultados</span></div>
+              <div class="mindset-benefit"><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-8-4.6-8-10.7A4.6 4.6 0 0 1 8.6 5.2c1.4 0 2.6.7 3.4 1.8.8-1.1 2-1.8 3.4-1.8A4.6 4.6 0 0 1 20 9.8c0 6.1-8 10.7-8 10.7Z"/></svg></i><span>Um trading mais saudável</span></div>
             </div>
           </div>
           <aside class="mindset-hero-quote" aria-label="Citação inspiradora">
@@ -290,13 +290,13 @@
             <article class="mindset-module zen" role="button" tabindex="0" onclick="openMindsetSubmodule('zen')" onkeydown="if(event.key==='Enter'||event.key===' ')openMindsetSubmodule('zen')" aria-label="Abrir Trader Zen">
               <div class="mindset-module-top">
                 <div class="mindset-module-title">
-                  <span class="mindset-module-icon zen-icon" aria-hidden="true">🪷</span>
+                  <span class="mindset-module-icon zen-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20c-4.5 0-8-2.2-9-5 2.6-.4 5.4.4 7.2 2.2M12 20c4.5 0 8-2.2 9-5-2.6-.4-5.4.4-7.2 2.2"/><path d="M12 20c-2.4-2-3.6-4.6-3.6-7.3 0-2.6 1.3-5 3.6-7.2 2.3 2.2 3.6 4.6 3.6 7.2 0 2.7-1.2 5.3-3.6 7.3Z"/><path d="M8.6 14.2C6.7 12.9 5.3 11 4.8 8.6c2 .1 3.6.8 4.8 1.9M15.4 14.2c1.9-1.3 3.3-3.2 3.8-5.6-2 .1-3.6.8-4.8 1.9"/></svg></span>
                   <div>
                     <h3>Trader Zen</h3>
                     <small>Respire. Observe. Conecte-se.</small>
                   </div>
                 </div>
-                <button class="mindset-module-open" type="button" aria-label="Acessar Trader Zen"><span>→</span></button>
+                <button class="mindset-module-open" type="button" aria-label="Acessar Trader Zen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
               </div>
               <p>Exercícios guiados de respiração, meditação e foco para acalmar a mente, reduzir a ansiedade e operar com mais clareza.</p>
               <div class="mindset-module-pills">
@@ -311,13 +311,13 @@
             <article class="mindset-module library" role="button" tabindex="0" onclick="openMindsetSubmodule('library')" onkeydown="if(event.key==='Enter'||event.key===' ')openMindsetSubmodule('library')" aria-label="Abrir Biblioteca Mental">
               <div class="mindset-module-top">
                 <div class="mindset-module-title">
-                  <span class="mindset-module-icon library-icon" aria-hidden="true">🎧</span>
+                  <span class="mindset-module-icon library-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5c2.8-1 6-1 9.5 1 3.5-2 6.7-2 9.5-1v13c-2.8-1-6-1-9.5 1-3.5-2-6.7-2-9.5-1z"/><path d="M12 6.5v13"/><path d="M5.5 9.2c1.6-.3 3.2-.1 4.5.5M5.5 12.2c1.6-.3 3.2-.1 4.5.5M14 9.7c1.3-.6 2.9-.8 4.5-.5M14 12.7c1.3-.6 2.9-.8 4.5-.5"/></svg></span>
                   <div>
                     <h3>Biblioteca Mental</h3>
                     <small>Áudios. Guias. Práticas.</small>
                   </div>
                 </div>
-                <button class="mindset-module-open" type="button" aria-label="Acessar Biblioteca Mental"><span>→</span></button>
+                <button class="mindset-module-open" type="button" aria-label="Acessar Biblioteca Mental"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
               </div>
               <p>Uma biblioteca completa para treinar sua mente com conteúdos práticos e aplicáveis ao seu dia a dia como trader.</p>
               <div class="mindset-module-pills">
@@ -332,13 +332,13 @@
             <article class="mindset-module psychology" role="button" tabindex="0" onclick="openMindsetSubmodule('psychology')" onkeydown="if(event.key==='Enter'||event.key===' ')openMindsetSubmodule('psychology')" aria-label="Abrir Psicologia do Trader">
               <div class="mindset-module-top">
                 <div class="mindset-module-title">
-                  <span class="mindset-module-icon psychology-icon" aria-hidden="true">🧠</span>
+                  <span class="mindset-module-icon psychology-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2.5 4.6A3.2 3.2 0 0 0 5 16.6a3 3 0 0 0 3 3.4c.8 0 1.5-.3 2-.8V4.6a3 3 0 0 0-.5-1.1Z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2.5 4.6 3.2 3.2 0 0 1-1 5.5 3 3 0 0 1-3 3.4c-.8 0-1.5-.3-2-.8V4.6c.1-.4.3-.8.5-1.1Z"/><path d="M7 9.5c1 0 1.8.6 2 1.5M17 9.5c-1 0-1.8.6-2 1.5M7.5 14.5c.9-.2 1.8.1 2.5.8M16.5 14.5c-.9-.2-1.8.1-2.5.8"/></svg></span>
                   <div>
                     <h3>Psicologia do Trader</h3>
                     <small>Conheça seu comportamento.</small>
                   </div>
                 </div>
-                <button class="mindset-module-open" type="button" aria-label="Acessar Psicologia do Trader"><span>→</span></button>
+                <button class="mindset-module-open" type="button" aria-label="Acessar Psicologia do Trader"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
               </div>
               <p>Entenda suas emoções, vieses e padrões de comportamento para tomar decisões mais racionais.</p>
               <div class="mindset-module-pills">
@@ -353,13 +353,13 @@
             <article class="mindset-module rules" role="button" tabindex="0" onclick="openMindsetSubmodule('rules')" onkeydown="if(event.key==='Enter'||event.key===' ')openMindsetSubmodule('rules')" aria-label="Abrir Regras do Trader">
               <div class="mindset-module-top">
                 <div class="mindset-module-title">
-                  <span class="mindset-module-icon rules-icon" aria-hidden="true">📋</span>
+                  <span class="mindset-module-icon rules-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17.5" rx="2.5"/><path d="M9 2.5h6v2.5H9z"/><path d="m7.5 10 1.3 1.3L11 9M7.5 15.5l1.3 1.3L11 14.5M13.5 10.2h3.5M13.5 15.7h3.5"/></svg></span>
                   <div>
                     <h3>Regras do Trader</h3>
                     <small>Disciplina na prática.</small>
                   </div>
                 </div>
-                <button class="mindset-module-open" type="button" aria-label="Acessar Regras do Trader"><span>→</span></button>
+                <button class="mindset-module-open" type="button" aria-label="Acessar Regras do Trader"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
               </div>
               <p>Checklist, boas práticas e regras de execução para manter o foco, evitar erros e operar de forma consistente.</p>
               <div class="mindset-module-pills">
@@ -374,13 +374,13 @@
             <article class="mindset-module wisdom" role="button" tabindex="0" onclick="openMindsetSubmodule('wisdom')" onkeydown="if(event.key==='Enter'||event.key===' ')openMindsetSubmodule('wisdom')" aria-label="Abrir Sabedoria do Trader">
               <div class="mindset-module-top">
                 <div class="mindset-module-title">
-                  <span class="mindset-module-icon wisdom-icon" aria-hidden="true">❝</span>
+                  <span class="mindset-module-icon wisdom-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18.5v-4.8C4 9.6 6 7 9.8 5.5l.8 1.6C8.4 8.2 7.4 9.7 7.3 12H10v6.5zM13.5 18.5v-4.8c0-4.1 2-6.7 5.8-8.2l.8 1.6c-2.2 1.1-3.2 2.6-3.3 4.9h2.7v6.5z" fill="currentColor" stroke="none"/></svg></span>
                   <div>
                     <h3>Sabedoria do Trader</h3>
                     <small>Aprenda com quem já trilhou o caminho.</small>
                   </div>
                 </div>
-                <button class="mindset-module-open" type="button" aria-label="Acessar Sabedoria do Trader"><span>→</span></button>
+                <button class="mindset-module-open" type="button" aria-label="Acessar Sabedoria do Trader"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
               </div>
               <p>Frases, princípios e lições de grandes traders para inspirar, fortalecer sua mentalidade e manter o foco no longo prazo.</p>
               <div class="mindset-module-pills">
@@ -395,13 +395,13 @@
             <article class="mindset-module profile" role="button" tabindex="0" onclick="openMindsetSubmodule('profile')" onkeydown="if(event.key==='Enter'||event.key===' ')openMindsetSubmodule('profile')" aria-label="Abrir Teste de Perfil">
               <div class="mindset-module-top">
                 <div class="mindset-module-title">
-                  <span class="mindset-module-icon profile-icon" aria-hidden="true">👤</span>
+                  <span class="mindset-module-icon profile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5"/></svg></span>
                   <div>
                     <h3>Teste de Perfil</h3>
                     <small>Conheça seu perfil como trader.</small>
                   </div>
                 </div>
-                <button class="mindset-module-open" type="button" aria-label="Acessar Teste de Perfil"><span>→</span></button>
+                <button class="mindset-module-open" type="button" aria-label="Acessar Teste de Perfil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
               </div>
               <p>Descubra suas características comportamentais, pontos fortes e áreas de melhoria para evoluir como trader.</p>
               <div class="mindset-module-pills">
@@ -419,7 +419,7 @@
           <!-- Widget 1: Meu Estado Mental -->
           <article class="mindset-widget mindset-widget-state" id="mindsetCheckinCard">
             <div class="mindset-widget-head">
-              <span class="mindset-widget-icon state-head-icon" aria-hidden="true">🧠</span>
+              <span class="mindset-widget-icon state-head-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2.5 4.6A3.2 3.2 0 0 0 5 16.6a3 3 0 0 0 3 3.4c.8 0 1.5-.3 2-.8V4.6a3 3 0 0 0-.5-1.1Z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2.5 4.6 3.2 3.2 0 0 1-1 5.5 3 3 0 0 1-3 3.4c-.8 0-1.5-.3-2-.8V4.6c.1-.4.3-.8.5-1.1Z"/><path d="M7 9.5c1 0 1.8.6 2 1.5M17 9.5c-1 0-1.8.6-2 1.5M7.5 14.5c.9-.2 1.8.1 2.5.8M16.5 14.5c-.9-.2-1.8.1-2.5.8"/></svg></span>
               <div>
                 <h3>Meu Estado Mental</h3>
                 <p>Como você está agora?</p>
@@ -453,7 +453,7 @@
           <article class="mindset-widget mindset-widget-evolution">
             <div class="mindset-widget-head">
               <div class="mindset-widget-title-group">
-                <span class="mindset-widget-icon evolution-head-icon" aria-hidden="true">📊</span>
+                <span class="mindset-widget-icon evolution-head-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V14M9.3 20V10M14.6 20V6.5M20 20V3.5"/><path d="M2.5 20.5h19"/></svg></span>
                 <h3>Minha Evolução Mental</h3>
               </div>
               <div class="mindset-period-picker">
@@ -471,7 +471,7 @@
           <article class="mindset-widget mindset-widget-quote">
             <div class="mindset-widget-head">
               <div class="mindset-widget-title-group">
-                <span class="mindset-widget-icon quote-head-icon" aria-hidden="true">❝</span>
+                <span class="mindset-widget-icon quote-head-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18.5v-4.8C4 9.6 6 7 9.8 5.5l.8 1.6C8.4 8.2 7.4 9.7 7.3 12H10v6.5zM13.5 18.5v-4.8c0-4.1 2-6.7 5.8-8.2l.8 1.6c-2.2 1.1-3.2 2.6-3.3 4.9h2.7v6.5z" fill="currentColor" stroke="none"/></svg></span>
                 <h3>Frase do dia</h3>
               </div>
               <div class="mindset-quote-nav">
