@@ -546,14 +546,23 @@ class NasdaqRelativeStrengthEngine {
       });
     }
 
-    // 1. Sort by RS performance to assign normalized percentile score (0 to 100)
-    ranking.sort((a, b) => b.relativeScore - a.relativeScore);
+    // 1. Sort strictly by RS performance descending (deterministic tie-breakers)
+    ranking.sort((a, b) => {
+      const relDiff = Number(b.relativeScore || 0) - Number(a.relativeScore || 0);
+      if (relDiff !== 0) return relDiff;
+      const m3Diff = Number(b.m3 || 0) - Number(a.m3 || 0);
+      if (m3Diff !== 0) return m3Diff;
+      const m1Diff = Number(b.m1 || 0) - Number(a.m1 || 0);
+      if (m1Diff !== 0) return m1Diff;
+      return String(a.symbol || '').localeCompare(String(b.symbol || ''));
+    });
 
     const total = ranking.length;
     ranking.forEach((item, idx) => {
-      item.score = Math.round(100 - (idx / Math.max(1, total - 1)) * 100);
+      item.score = total <= 1 ? 100 : Math.round(100 - (idx / Math.max(1, total - 1)) * 100);
       item.rsScore = item.score;
       item.rsRank = idx + 1;
+      item.rank = idx + 1;
 
       // Combine score + trend state into operational classification
       const classificationInfo = resolveClassification(item.score, item.trendState);
@@ -564,18 +573,21 @@ class NasdaqRelativeStrengthEngine {
       item.reason = classificationInfo.reason;
     });
 
-    // 2. Sort by operational tier priority, then by relativeScore
-    const tierWeights = { leader: 5, qualified: 4, watch: 3, observation: 2, laggard: 1 };
+    // 2. Strict Invariant: Ranking is strictly ORDER BY score DESC, rank 1..N
     ranking.sort((a, b) => {
-      const wA = tierWeights[a.bandKey] || 0;
-      const wB = tierWeights[b.bandKey] || 0;
-      if (wA !== wB) return wB - wA;
-      return b.relativeScore - a.relativeScore;
+      const scoreDiff = Number(b.score || 0) - Number(a.score || 0);
+      if (scoreDiff !== 0) return scoreDiff;
+      const relDiff = Number(b.relativeScore || 0) - Number(a.relativeScore || 0);
+      if (relDiff !== 0) return relDiff;
+      const m3Diff = Number(b.m3 || 0) - Number(a.m3 || 0);
+      if (m3Diff !== 0) return m3Diff;
+      return String(a.symbol || '').localeCompare(String(b.symbol || ''));
     });
 
     const rankedItems = ranking.map((item, idx) => ({
+      ...item,
       rank: idx + 1,
-      ...item
+      rsRank: idx + 1
     }));
 
     const now = new Date();
@@ -905,13 +917,22 @@ class NasdaqRelativeStrengthEngine {
       };
     });
 
-    ranking.sort((a, b) => b.relativeScore - a.relativeScore);
+    ranking.sort((a, b) => {
+      const relDiff = Number(b.relativeScore || 0) - Number(a.relativeScore || 0);
+      if (relDiff !== 0) return relDiff;
+      const m3Diff = Number(b.m3 || 0) - Number(a.m3 || 0);
+      if (m3Diff !== 0) return m3Diff;
+      const m1Diff = Number(b.m1 || 0) - Number(a.m1 || 0);
+      if (m1Diff !== 0) return m1Diff;
+      return String(a.symbol || '').localeCompare(String(b.symbol || ''));
+    });
     const total = ranking.length;
 
     ranking.forEach((item, idx) => {
-      item.score = Math.round(100 - (idx / Math.max(1, total - 1)) * 100);
+      item.score = total <= 1 ? 100 : Math.round(100 - (idx / Math.max(1, total - 1)) * 100);
       item.rsScore = item.score;
       item.rsRank = idx + 1;
+      item.rank = idx + 1;
 
       const classificationInfo = resolveClassification(item.score, item.trendState);
       item.classification = classificationInfo.classification;
@@ -921,17 +942,20 @@ class NasdaqRelativeStrengthEngine {
       item.reason = classificationInfo.reason;
     });
 
-    const tierWeights = { leader: 5, qualified: 4, watch: 3, observation: 2, laggard: 1 };
     ranking.sort((a, b) => {
-      const wA = tierWeights[a.bandKey] || 0;
-      const wB = tierWeights[b.bandKey] || 0;
-      if (wA !== wB) return wB - wA;
-      return b.relativeScore - a.relativeScore;
+      const scoreDiff = Number(b.score || 0) - Number(a.score || 0);
+      if (scoreDiff !== 0) return scoreDiff;
+      const relDiff = Number(b.relativeScore || 0) - Number(a.relativeScore || 0);
+      if (relDiff !== 0) return relDiff;
+      const m3Diff = Number(b.m3 || 0) - Number(a.m3 || 0);
+      if (m3Diff !== 0) return m3Diff;
+      return String(a.symbol || '').localeCompare(String(b.symbol || ''));
     });
 
     const rankedItems = ranking.map((item, idx) => ({
+      ...item,
       rank: idx + 1,
-      ...item
+      rsRank: idx + 1
     }));
 
     const top20 = rankedItems.slice(0, 20);

@@ -3575,7 +3575,7 @@ body[data-theme="pigeon"] #emotionalintelligence .behavior-card {
   box-shadow: 0 6px 18px rgba(48, 75, 91, 0.04) !important;
 }
 
-/* Loja Trader (#materials), Sabedoria (#wisdom), Zen (#zen), Planos (#plan) */
+/* Loja Trader (#materials), Sabedoria (#wisdom), Planos (#plan) */
 body[data-theme="pigeon"] #materials .materials-hero,
 body[data-theme="pigeon"] #materials .forca-verde-flagship,
 body[data-theme="pigeon"] #materials .store-card,
@@ -3583,8 +3583,6 @@ body[data-theme="pigeon"] #materials .card-body,
 body[data-theme="pigeon"] #wisdom .wv-hero,
 body[data-theme="pigeon"] #wisdom .wv-card,
 body[data-theme="pigeon"] #wv-dialog,
-body[data-theme="pigeon"] #zen .zen-hero,
-body[data-theme="pigeon"] #zen .zen-card,
 body[data-theme="pigeon"] #plan .plans-hero,
 body[data-theme="pigeon"] #plan .plan-card {
   background: #FFFFFF !important;
@@ -3653,7 +3651,6 @@ body[data-theme="pigeon"]:has(#marketcycle.active),
 body[data-theme="pigeon"]:has(#assetblacklist.active),
 body[data-theme="pigeon"]:has(#materials.active),
 body[data-theme="pigeon"]:has(#wisdom.active),
-body[data-theme="pigeon"]:has(#zen.active),
 body[data-theme="pigeon"]:has(#mission.active),
 body[data-theme="pigeon"]:has(#tradertraining.active),
 body[data-theme="pigeon"]:has(#deservingdiary.active),
@@ -3683,11 +3680,14 @@ body[data-theme="pigeon"]:has(#assetblacklist.active) .content,
 body[data-theme="pigeon"]:has(#materials.active) .main,
 body[data-theme="pigeon"]:has(#materials.active) .content,
 body[data-theme="pigeon"]:has(#wisdom.active) .main,
-body[data-theme="pigeon"]:has(#wisdom.active) .content,
-body[data-theme="pigeon"]:has(#zen.active) .main,
-body[data-theme="pigeon"]:has(#zen.active) .content {
+body[data-theme="pigeon"]:has(#wisdom.active) .content {
   background: #F5FAFD !important;
   color: #304B5B !important;
+}
+
+body[data-theme="pigeon"]:has(#zen.active) .main,
+body[data-theme="pigeon"]:has(#zen.active) .content {
+  background: transparent !important;
 }
 
 /* --- 19.2 Sidebar Flyout Menu, Top Navigation & Block Navigation Hub --- */
@@ -4965,33 +4965,45 @@ body[data-theme="pigeon"] #wisdom .wv-back {
   color: #304B5B !important;
 }
 
+/* #zen: Trader Zen preserva integralmente seu background de pintura panoramica e atmosfera contemplativa no Pigeon Light */
 html[data-theme="pigeon"] #zen,
 body[data-theme="pigeon"] #zen {
-  background: #F5FAFD !important;
-  color: #304B5B !important;
+  background: transparent !important;
+  color: #f4fbf5 !important;
 }
 
 html[data-theme="pigeon"] #zen:before,
 body[data-theme="pigeon"] #zen:before {
-  background: radial-gradient(circle at 50% 24%, rgba(121, 187, 214, 0.18), transparent 60%) !important;
+  background: linear-gradient(90deg, rgba(1, 15, 8, 0.30), rgba(2, 22, 13, 0.07) 48%, rgba(1, 13, 8, 0.16)), linear-gradient(0deg, rgba(0, 12, 7, 0.20), transparent 52%, rgba(0, 8, 5, 0.06)) !important;
+  backdrop-filter: none !important;
+}
+
+html[data-theme="pigeon"] #zen:after,
+body[data-theme="pigeon"] #zen:after {
+  background: radial-gradient(circle at 48% 38%, rgba(93, 239, 151, 0.08), transparent 31%), linear-gradient(180deg, rgba(0, 0, 0, 0.05), transparent 28%) !important;
 }
 
 html[data-theme="pigeon"] #zen .zen-side,
-body[data-theme="pigeon"] #zen .zen-side,
-html[data-theme="pigeon"] #zen .zen-card,
-body[data-theme="pigeon"] #zen .zen-card {
-  background: #FFFFFF !important;
-  border: 1px solid #DCE8EF !important;
-  color: #304B5B !important;
+body[data-theme="pigeon"] #zen .zen-side {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: rgba(255, 255, 255, 0.88) !important;
 }
 
 html[data-theme="pigeon"] #zen .zen-stage h1,
-body[data-theme="pigeon"] #zen .zen-stage h1,
+body[data-theme="pigeon"] #zen .zen-stage h1 {
+  color: #ffffff !important;
+}
+
+html[data-theme="pigeon"] #zen .zen-stage h1 em,
+body[data-theme="pigeon"] #zen .zen-stage h1 em {
+  color: #82f49c !important;
+}
+
 html[data-theme="pigeon"] #zen .zen-stage h2,
-body[data-theme="pigeon"] #zen .zen-stage h2,
-html[data-theme="pigeon"] #zen .zen-value,
-body[data-theme="pigeon"] #zen .zen-value {
-  color: #304B5B !important;
+body[data-theme="pigeon"] #zen .zen-stage h2 {
+  color: rgba(255, 255, 255, 0.96) !important;
 }
 
 html[data-theme="pigeon"] #zen .zen-copy,
@@ -5000,14 +5012,33 @@ html[data-theme="pigeon"] #zen .zen-kicker,
 body[data-theme="pigeon"] #zen .zen-kicker,
 html[data-theme="pigeon"] #zen .zen-quote,
 body[data-theme="pigeon"] #zen .zen-quote {
-  color: #627D8E !important;
+  color: rgba(243, 248, 244, 0.88) !important;
+}
+
+html[data-theme="pigeon"] #zen .zen-values,
+body[data-theme="pigeon"] #zen .zen-values {
+  color: rgba(255, 255, 255, 0.94) !important;
 }
 
 html[data-theme="pigeon"] #zen .zen-action,
 body[data-theme="pigeon"] #zen .zen-action {
-  background: #79BBD6 !important;
-  border-color: #5FAECB !important;
-  color: #304B5B !important;
+  background: linear-gradient(100deg, rgba(13, 117, 67, 0.86), rgba(30, 174, 93, 0.82)) !important;
+  border: 1px solid rgba(148, 249, 177, 0.92) !important;
+  color: #ffffff !important;
+}
+
+#zen .mindset-sub-back {
+  background: rgba(3, 20, 12, 0.75) !important;
+  border: 1px solid rgba(130, 244, 156, 0.45) !important;
+  color: #82f49c !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+}
+
+#zen .mindset-sub-back:hover {
+  background: rgba(13, 75, 42, 0.88) !important;
+  border-color: #82f49c !important;
+  color: #ffffff !important;
 }
 
 /* --- 19.11 Remaining Heroes, Headers & Primary Action Buttons Across All 42 Screens --- */

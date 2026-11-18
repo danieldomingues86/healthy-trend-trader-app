@@ -1728,6 +1728,56 @@ body[data-theme="healthy"] .topbar .market-focus-guard.closed {
   color: #8fe0aa;
 }
 
+/* Destaque para categorias expandidas ou com página ativa (ex: ROTINA & MENTALIDADE) */
+.sidebar-category-group.parent-active .sidebar-category-header {
+  background: rgba(143, 224, 170, 0.08);
+  border-color: rgba(143, 224, 170, 0.22);
+}
+
+.sidebar-category-group.parent-active .sidebar-category-header .sidebar-cat-label,
+.sidebar-category-group.parent-active .sidebar-category-header .sidebar-cat-arrow {
+  color: #8fe0aa !important;
+  font-weight: 800;
+}
+
+.sidebar-category-group.is-expanded .sidebar-category-header .sidebar-cat-label {
+  color: #7ba890;
+}
+
+/* Tema Gold */
+body[data-theme="gold"] .sidebar-category-group.parent-active .sidebar-category-header,
+body.gold-theme .sidebar-category-group.parent-active .sidebar-category-header {
+  background: rgba(214, 170, 80, 0.12);
+  border-color: rgba(214, 170, 80, 0.28);
+}
+
+body[data-theme="gold"] .sidebar-category-group.parent-active .sidebar-category-header .sidebar-cat-label,
+body[data-theme="gold"] .sidebar-category-group.parent-active .sidebar-category-header .sidebar-cat-arrow,
+body.gold-theme .sidebar-category-group.parent-active .sidebar-category-header .sidebar-cat-label,
+body.gold-theme .sidebar-category-group.parent-active .sidebar-category-header .sidebar-cat-arrow {
+  color: #f0ce7a !important;
+}
+
+body[data-theme="gold"] .sidebar-category-group.is-expanded .sidebar-category-header .sidebar-cat-label,
+body.gold-theme .sidebar-category-group.is-expanded .sidebar-category-header .sidebar-cat-label {
+  color: #e5c158;
+}
+
+/* Tema Pigeon Light */
+body[data-theme="pigeon"] .sidebar-category-group.parent-active .sidebar-category-header {
+  background: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.22);
+}
+
+body[data-theme="pigeon"] .sidebar-category-group.parent-active .sidebar-category-header .sidebar-cat-label,
+body[data-theme="pigeon"] .sidebar-category-group.parent-active .sidebar-category-header .sidebar-cat-arrow {
+  color: #0284c7 !important;
+}
+
+body[data-theme="pigeon"] .sidebar-category-group.is-expanded .sidebar-category-header .sidebar-cat-label {
+  color: #0284c7;
+}
+
 .sidebar-category-items {
   display: flex;
   flex-direction: column;

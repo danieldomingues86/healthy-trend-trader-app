@@ -26,10 +26,10 @@
     },
     {
       id: 'daily',
-      label: 'Operação Diária',
-      labelEn: 'Daily Operation',
-      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
-      desc: 'Rotina, planejamento e execução do pregão.'
+      label: 'Rotina & Mentalidade',
+      labelEn: 'Routine & Mindset',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
+      desc: 'Rotina, hábitos, disciplina e desenvolvimento psicológico.'
     },
     {
       id: 'training-recovery',
@@ -68,10 +68,10 @@
     },
     {
       id: 'mindset',
-      label: 'Mentalidade & Zen',
-      labelEn: 'Mindset & Zen',
+      label: 'Mentalidade',
+      labelEn: 'Mindset',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5A4.5 4.5 0 0 0 5 9v1a4 4 0 0 0 1 7.87V19a2 2 0 0 0 2 2h1.5M14.5 4.5A4.5 4.5 0 0 1 19 9v1a4 4 0 0 1-1 7.87V19a2 2 0 0 1-2 2h-1.5M9.5 4.5A3.5 3.5 0 0 1 12 6a3.5 3.5 0 0 1 2.5-1.5M12 6v15M8 10h1.5M14.5 10H16M8 14h1.5M14.5 14H16"/></svg>`,
-      desc: 'Clareza mental, inteligência emocional e rotina zen.'
+      desc: 'Clareza mental, psicologia, disciplina e práticas.'
     },
     {
       id: 'resources',
@@ -143,12 +143,12 @@
     {
       id: 'habits',
       page: 'habits',
-      label: 'Monitor de Hábitos',
-      labelEn: 'Habits Tracker',
+      label: 'Acompanhar Hábitos',
+      labelEn: 'Habit Tracking',
       category: 'daily',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-      desc: 'Construa a rotina de um trader profissional.',
-      descEn: 'Build a professional trader routine.',
+      desc: 'Acompanhamento e construção de hábitos.',
+      descEn: 'Build and track professional trading habits.',
       proOnly: false
     },
 
@@ -486,8 +486,8 @@
       id: 'mindset',
       page: 'mindset',
       label: 'Mentalidade',
-      labelEn: 'Mindset Hub',
-      category: 'mindset',
+      labelEn: 'Mindset',
+      category: 'daily',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4.5A4.5 4.5 0 0 0 5 9v1a4 4 0 0 0 1 7.87V19a2 2 0 0 0 2 2h1.5M14.5 4.5A4.5 4.5 0 0 1 19 9v1a4 4 0 0 1-1 7.87V19a2 2 0 0 1-2 2h-1.5M9.5 4.5A3.5 3.5 0 0 1 12 6a3.5 3.5 0 0 1 2.5-1.5M12 6v15M8 10h1.5M14.5 10H16M8 14h1.5M14.5 14H16"/></svg>`,
       desc: 'Hub central de clareza mental e disciplina.',
       descEn: 'Central hub for mental clarity and discipline.',
