@@ -10024,21 +10024,25 @@
       : (isCmp ? 'Comparação entre Sistemas' : 'Trend Following');
 
     return `
-      <div class="sim-modal-overlay sim-adv-config-overlay open" id="simAdvConfigOverlay" role="dialog" aria-modal="true" aria-label="Configurações Avançadas do Simulador">
+      <div class="sim-modal-overlay sim-adv-config-overlay open" id="simAdvConfigOverlay" role="dialog" aria-modal="true" aria-label="Configurações da Estratégia">
         <div class="sim-adv-config-drawer" data-drawer-env="${mode}">
           <div class="sim-adv-config-head">
-            <div>
-              <span class="sim-adv-config-eyebrow">Parâmetros Operacionais • ${envLabel}</span>
+            <div class="sim-adv-config-head-left">
+              <div class="sim-adv-config-tags">
+                <span class="sim-adv-config-badge">${envLabel}</span>
+                <span class="sim-adv-config-eyebrow">Parâmetros Operacionais</span>
+              </div>
               <h3 class="sim-adv-config-title">Configurações da Estratégia</h3>
+              <p class="sim-adv-config-subtitle">Ajuste gatilhos, modelos de dimensionamento, filtros de liquidez e parâmetros de execução.</p>
             </div>
-            <button type="button" class="sim-modal-close" id="simAdvConfigClose" title="Fechar Configurações">✕</button>
+            <button type="button" class="sim-modal-close sim-adv-config-close" id="simAdvConfigClose" title="Fechar Configurações" aria-label="Fechar">✕</button>
           </div>
 
           <div class="sim-adv-config-body">
             <!-- Categoria 1: Indicadores e Gatilhos -->
             <section class="sim-adv-config-section">
               <div class="sim-adv-section-title">
-                <span>🎯</span>
+                <span class="sim-adv-section-icon">🎯</span>
                 <span>Indicadores e Gatilhos</span>
               </div>
               <div class="sim-adv-grid">
@@ -10080,7 +10084,7 @@
             <!-- Categoria 2: Filtros -->
             <section class="sim-adv-config-section">
               <div class="sim-adv-section-title">
-                <span>🔍</span>
+                <span class="sim-adv-section-icon">🔍</span>
                 <span>Filtros</span>
               </div>
               <div class="sim-adv-grid">
@@ -10106,7 +10110,7 @@
             <!-- Categoria 3: Dimensionamento -->
             <section class="sim-adv-config-section">
               <div class="sim-adv-section-title">
-                <span>📐</span>
+                <span class="sim-adv-section-icon">📐</span>
                 <span>Dimensionamento</span>
               </div>
               <div class="sim-adv-grid">
@@ -10150,7 +10154,7 @@
             <!-- Categoria 4: Execução e Saídas -->
             <section class="sim-adv-config-section">
               <div class="sim-adv-section-title">
-                <span>⏱️</span>
+                <span class="sim-adv-section-icon">⏱️</span>
                 <span>Execução e Saídas</span>
               </div>
               <div class="sim-adv-grid">
@@ -10184,9 +10188,9 @@
             </section>
 
             <!-- Categoria 5: Proteções -->
-            <section class="sim-adv-config-section">
+            <section class="sim-adv-config-section sim-adv-section-full">
               <div class="sim-adv-section-title">
-                <span>🛡️</span>
+                <span class="sim-adv-section-icon">🛡️</span>
                 <span>Proteções</span>
               </div>
               <div class="sim-adv-grid">
