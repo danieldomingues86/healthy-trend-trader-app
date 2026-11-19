@@ -2415,9 +2415,8 @@ body[data-navigation-layout="tiles"]:has(#navigationHub.open) {
   color: #34d399 !important;
   margin-bottom: clamp(6px, 1vh, 10px) !important;
   flex-shrink: 0 !important;
-  filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.55)) drop-shadow(0 0 2px rgba(52, 211, 153, 0.8)) !important;
+  filter: none !important;
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.22s cubic-bezier(0.16, 1, 0.3, 1),
               color 0.22s ease !important;
 }
 
@@ -2429,7 +2428,12 @@ body[data-navigation-layout="tiles"]:has(#navigationHub.open) {
 #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-icon {
   transform: scale(1.12) translateY(-2px) !important;
   color: #52e08e !important;
-  filter: drop-shadow(0 0 16px rgba(52, 211, 153, 0.85)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)) !important;
+  filter: none !important;
+}
+
+#navigationHub .nav-hub-tile-card.active .nav-hub-tile-icon {
+  color: #34d399 !important;
+  filter: none !important;
 }
 
 #navigationHub .nav-hub-tile-title {
@@ -2575,11 +2579,15 @@ body[data-theme="pigeon"] #navigationHub .nav-hub-tile-desc {
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-icon {
   color: #4F97B8 !important;
-  filter: drop-shadow(0 2px 8px rgba(79, 151, 184, 0.25)) !important;
+  filter: none !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-icon {
   color: #2A6885 !important;
-  filter: drop-shadow(0 4px 12px rgba(42, 104, 133, 0.45)) !important;
+  filter: none !important;
+}
+body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card.active .nav-hub-tile-icon {
+  color: #2A6885 !important;
+  filter: none !important;
 }
 body[data-theme="pigeon"] #navigationHub .nav-hub-tile-card:focus-visible {
   outline: 2px solid #58A6CA !important;
@@ -2658,11 +2666,15 @@ body[data-theme="gold"] #navigationHub .nav-hub-tile-card.active .nav-hub-tile-d
 }
 body[data-theme="gold"] #navigationHub .nav-hub-tile-icon {
   color: #efc969 !important;
-  filter: drop-shadow(0 0 10px rgba(245, 207, 104, 0.6)) drop-shadow(0 0 2px rgba(255, 235, 160, 0.8)) !important;
+  filter: none !important;
 }
 body[data-theme="gold"] #navigationHub .nav-hub-tile-card:hover .nav-hub-tile-icon {
   color: #ffd700 !important;
-  filter: drop-shadow(0 0 16px rgba(245, 207, 104, 0.85)) drop-shadow(0 0 4px rgba(255, 255, 255, 0.9)) !important;
+  filter: none !important;
+}
+body[data-theme="gold"] #navigationHub .nav-hub-tile-card.active .nav-hub-tile-icon {
+  color: #efc969 !important;
+  filter: none !important;
 }
 body[data-theme="gold"] #navigationHub .nav-hub-tile-card:focus-visible {
   outline: 2px solid #efc969 !important;
