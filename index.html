@@ -4514,99 +4514,204 @@ renderEffectiveRiskPolicy();
   background-color:rgba(100,116,139,.22);border-color:rgba(148,163,184,.35);color:#cbd5e1;
 }
 
-/* Novo Trade — Rubric do Trade: Ciclo de Mercado Binário (EMA 10 e EMA 72) */
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission{
-  display:flex!important;flex-direction:column!important;align-items:stretch!important;
-  grid-column:1 / -1!important;padding:16px 18px!important;min-height:auto!important;
-  background:rgba(10,34,24,.6)!important;border:1px solid rgba(84,226,154,.25)!important;
-  border-radius:14px!important;gap:12px!important;box-sizing:border-box!important;
+/* Novo Trade — Rubric do Trade: Linha Compacta Unificada */
+#newtrade .rubric-experience-host .rubric-criterion,
+#newtrade #rubricCriteria .rubric-criterion{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(140px,164px) 72px!important;
+  grid-template-rows:minmax(36px,auto)!important;
+  column-gap:10px!important;
+  align-items:center!important;
+  min-height:38px!important;
+  margin:0!important;
+  padding:5px 8px!important;
+  border:none!important;
+  border-bottom:1px solid rgba(255,255,255,0.05)!important;
+  border-radius:6px!important;
+  background:transparent!important;
+  box-sizing:border-box!important;
+  transition:background 0.15s ease!important;
 }
-#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission.is-defensive{
-  background:rgba(42,16,20,.6)!important;border-color:rgba(239,68,68,.3)!important;
+#newtrade .rubric-experience-host .rubric-criterion:hover,
+#newtrade #rubricCriteria .rubric-criterion:hover{
+  background:rgba(255,255,255,0.025)!important;
 }
-.rubric-market-header-row{
-  display:flex!important;align-items:center;justify-content:space-between;gap:14px;width:100%;
+#newtrade .rubric-experience-host .rubric-criterion.rubric-market-permission,
+#newtrade #rubricCriteria .rubric-criterion.rubric-market-permission{
+  display:grid!important;
+  grid-column:auto!important;
+  background:transparent!important;
+  border:none!important;
+  border-bottom:1px solid rgba(255,255,255,0.05)!important;
+  padding:5px 8px!important;
+  gap:0!important;
 }
-.rubric-market-title-col{
-  display:flex;align-items:center;gap:12px;flex:1;min-width:0;
+.rubric-criterion-label{
+  grid-column:1!important;
+  grid-row:1!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:0!important;
+  overflow:hidden!important;
 }
-.rubric-market-circle-icon{
-  width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
-  font-size:16px;font-weight:900;flex-shrink:0;color:#fff;
+.rubric-label-content{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-width:0!important;
+  line-height:1.2!important;
 }
-.rubric-market-circle-icon.ok{background:#10b981;box-shadow:0 0 12px rgba(16,185,129,.4)}
-.rubric-market-circle-icon.fail{background:#ef4444;box-shadow:0 0 12px rgba(239,68,68,.4)}
-.rubric-market-title-text strong{
-  display:block;font-size:15px;font-weight:800;color:#fff;line-height:1.2;
+.rubric-name-row{
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  min-width:0!important;
 }
-.rubric-market-title-text small{
-  display:block;font-size:12px;color:#a4ceb5;margin-top:2px;
+.rubric-status-dot{
+  display:inline-flex!important;
+  width:7px!important;
+  height:7px!important;
+  border-radius:50%!important;
+  flex-shrink:0!important;
+  font-size:0!important;
+  line-height:1!important;
 }
-.rubric-market-title-text small.defensive{color:#fca5a5}
-.rubric-market-badge-box{
-  display:flex;align-items:center;gap:10px;position:relative;flex-shrink:0;
+.rubric-status-dot.ok{
+  background:#10b981!important;
+  box-shadow:0 0 6px rgba(16,185,129,0.6)!important;
+}
+.rubric-status-dot.warn{
+  background:#eab308!important;
+  box-shadow:0 0 6px rgba(234,179,8,0.5)!important;
+}
+.rubric-status-dot.fail{
+  background:#ef4444!important;
+  box-shadow:0 0 6px rgba(239,68,68,0.6)!important;
+}
+.rubric-status-dot.pending{
+  background:rgba(148,163,184,0.3)!important;
+  border:1px solid rgba(148,163,184,0.45)!important;
+  box-sizing:border-box!important;
+}
+.rubric-criterion-name{
+  font-size:12.5px!important;
+  font-weight:700!important;
+  color:#f1f5f9!important;
+  white-space:nowrap!important;
+  letter-spacing:-0.01em!important;
+  flex-shrink:0!important;
+}
+.rubric-compact-summary{
+  font-size:11px!important;
+  color:#94a3b8!important;
+  font-weight:500!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  opacity:0.9!important;
+}
+.rubric-compact-summary.defensive{
+  color:#fca5a5!important;
+}
+.rubric-compact-summary.is-override{
+  color:#eed886!important;
+}
+.rubric-compact-summary.is-pending{
+  color:rgba(255,255,255,0.4)!important;
+  font-style:italic!important;
+}
+.rubric-info-tip{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:15px!important;
+  height:15px!important;
+  border-radius:50%!important;
+  border:1px solid rgba(148,163,184,0.25)!important;
+  background:transparent!important;
+  color:#94a3b8!important;
+  font-size:9.5px!important;
+  font-weight:700!important;
+  cursor:help!important;
+  padding:0!important;
+  flex-shrink:0!important;
+  transition:all 0.15s ease!important;
+  opacity:0.6!important;
+}
+.rubric-info-tip:hover{
+  opacity:1!important;
+  color:#54e29a!important;
+  border-color:#54e29a!important;
+  background:rgba(84,226,154,0.1)!important;
+}
+.rubric-market-control-compact{
+  grid-column:2!important;
+  grid-row:1!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  width:100%!important;
+  min-width:0!important;
 }
 .rubric-market-pill-btn{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:6px 18px;border-radius:10px;font-weight:800;text-align:center;
-  line-height:1.2;cursor:pointer;position:relative;min-width:130px;
-  user-select:none;transition:transform .12s ease,box-shadow .12s ease;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  flex:1!important;
+  min-width:0!important;
+  height:28px!important;
+  padding:0 10px!important;
+  border-radius:6px!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  text-transform:uppercase!important;
+  letter-spacing:0.03em!important;
+  cursor:pointer!important;
+  position:relative!important;
+  user-select:none!important;
+  box-sizing:border-box!important;
+  transition:all 0.15s ease!important;
 }
-.rubric-market-pill-btn:hover{transform:translateY(-1px)}
 .rubric-market-pill-btn.ok{
-  background:#10b981;color:#fff;box-shadow:0 3px 12px rgba(16,185,129,.35);
+  background:rgba(16,185,129,0.18)!important;
+  border:1px solid rgba(16,185,129,0.45)!important;
+  color:#a7f3d0!important;
 }
 .rubric-market-pill-btn.fail{
-  background:#ef4444;color:#fff;box-shadow:0 3px 12px rgba(239,68,68,.35);
+  background:rgba(239,68,68,0.18)!important;
+  border:1px solid rgba(239,68,68,0.45)!important;
+  color:#fca5a5!important;
+}
+.rubric-market-pill-btn:hover{
+  filter:brightness(1.15)!important;
+}
+.rubric-market-pill-btn .pill-dot{
+  font-size:8px!important;
+  line-height:1!important;
 }
 .rubric-market-pill-btn .pill-main{
-  font-size:12px;letter-spacing:0.04em;text-transform:uppercase;font-weight:900;
-}
-.rubric-market-pill-btn .pill-sub{
-  font-size:10px;opacity:0.92;font-weight:600;
+  font-size:11px!important;
+  font-weight:800!important;
 }
 .rubric-market-select-hidden{
-  position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  opacity:0!important;
+  cursor:pointer!important;
+  z-index:2!important;
 }
 .rubric-market-points{
-  font-size:13px!important;font-weight:800!important;min-width:75px;text-align:right;
+  font-size:12px!important;
+  font-weight:800!important;
+  min-width:70px!important;
+  text-align:right!important;
 }
 .rubric-market-points.ok{color:#10b981!important}
 .rubric-market-points.fail{color:#ef4444!important}
-.rubric-market-subcriteria{
-  display:flex;flex-direction:column;gap:7px;padding:9px 0;
-  border-top:1px solid rgba(255,255,255,.09);
-  border-bottom:1px solid rgba(255,255,255,.09);
-}
-.rubric-market-sub-row{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  font-size:12px;padding:3px 0;
-}
-.rubric-market-sub-row .sub-name{
-  color:#cbd5e1;font-weight:500;flex:1;
-}
-.rubric-market-sub-row .sub-val{
-  color:#f8fafc;font-weight:700;font-variant-numeric:tabular-nums;
-}
-.rubric-market-sub-row .sub-ico{
-  width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:900;color:#fff;flex-shrink:0;margin-left:8px;
-}
-.rubric-market-sub-row .sub-ico.ok{background:#10b981;box-shadow:0 0 6px rgba(16,185,129,.4)}
-.rubric-market-sub-row .sub-ico.fail{background:#ef4444;box-shadow:0 0 6px rgba(239,68,68,.4)}
-.rubric-market-rule-box{
-  background:rgba(15,23,42,.75);border:1px solid rgba(56,189,248,.3);
-  border-radius:10px;padding:11px 14px;font-size:11.5px;line-height:1.5;color:#94a3b8;
-}
-.rubric-market-rule-box strong{
-  display:flex;align-items:center;gap:6px;color:#38bdf8;font-weight:700;margin-bottom:4px;font-size:12px;
-}
-.rubric-market-rule-box p{
-  margin:0;color:#cbd5e1;
-}
-.rubric-market-rule-box p b{
-  color:#f8fafc;font-weight:700;
-}
 .newtrade-cycle-pill{
   display:none!important;
 }
@@ -4890,11 +4995,16 @@ renderEffectiveRiskPolicy();
           badge.title=classification.reason;
         }
         if(reason){
-          reason.className='rubric-volatility-reason';
-          reason.textContent=classification.reason;
+          reason.className='rubric-compact-summary';
+          reason.textContent=`${classification.percentFormatted}% · ${classification.label}`;
         }
         if(row){
           row.classList.remove('is-pending');
+          const dot = row.querySelector('.rubric-status-dot');
+          if (dot) {
+            dot.className = 'rubric-status-dot ' + (classification.rating === 'good' ? 'ok' : (classification.rating === 'medium' ? 'warn' : 'fail'));
+            dot.title = classification.label;
+          }
         }
         return classification;
       }
@@ -4906,11 +5016,16 @@ renderEffectiveRiskPolicy();
       badge.title='Preencha Entrada e ATR (21)';
     }
     if(reason){
-      reason.className='rubric-volatility-reason is-pending';
-      reason.textContent='Preencha Entrada e ATR (21)';
+      reason.className='rubric-compact-summary is-pending';
+      reason.textContent='Aguardando ATR';
     }
     if(row){
       row.classList.add('is-pending');
+      const dot = row.querySelector('.rubric-status-dot');
+      if (dot) {
+        dot.className = 'rubric-status-dot pending';
+        dot.title = 'Pendente';
+      }
     }
     return null;
   };
@@ -4947,13 +5062,20 @@ renderEffectiveRiskPolicy();
         const structureOk = typeof ind.structure === 'boolean' ? ind.structure : (isHealthy || (e10Val && e72Val && e10Val > e72Val));
         const structureVal = structureOk ? 'EMA 10 > EMA 72' : 'EMA 10 ≤ EMA 72';
 
-        const permissionVal = isHealthy ? 'Sim' : 'Não';
-        const subtitleText = isHealthy ? 'Preço acima da EMA 10 e da EMA 72' : 'Preço abaixo ou entre as médias EMA 10 e EMA 72';
+        const permissionVal = isHealthy ? 'Sim (Expansão)' : 'Não (Defesa)';
+        const shortSummary = isHealthy ? 'Preço acima das EMAs 10 e 72' : (above10 !== above72 ? 'Preço entre as EMAs 10 e 72' : 'Preço abaixo das EMAs 10 e 72');
 
         const restoreBtn = isOverridden
           ? `<button type="button" class="rubric-sync-restore-btn" onclick="restoreAutomaticMarketCycle()" title="Restaurar ciclo automático (${cycleInfo.benchmarkSymbol}: ${cycleInfo.suggestedLabel})">↻</button>`
           : '';
-        const subClass = isOverridden ? 'rubric-sync-sub is-override' : 'rubric-sync-sub';
+        const subClass = isOverridden ? 'rubric-compact-summary is-override' : 'rubric-compact-summary';
+
+        const detailedTooltip = `Ciclo de Mercado:
+• Regra: Operar apenas quando o preço estiver acima da EMA 10 e da EMA 72.
+• Tendência: ${trendVal} (${trendOk ? 'OK' : 'Defesa'})
+• Estrutura: ${structureVal} (${structureOk ? 'OK' : 'Defesa'})
+• Permissão Operacional: ${permissionVal}
+${cycleInfo.description ? '• Status: ' + cycleInfo.description : ''}`;
 
         // Atualiza pill no cabeçalho se existir
         const headerPill = document.getElementById('newTradeCyclePill');
@@ -4963,52 +5085,28 @@ renderEffectiveRiskPolicy();
         }
 
         return `<div class="rubric-criterion rubric-market-permission ${isHealthy ? 'is-healthy' : 'is-defensive'}" data-rubric-key="marketCycle">
-          <div class="rubric-market-header-row">
-            <div class="rubric-market-title-col">
-              <span class="rubric-market-circle-icon ${isHealthy ? 'ok' : 'fail'}">${isHealthy ? '✔' : '✖'}</span>
-              <div class="rubric-market-title-text">
-                <strong>Ciclo de Mercado</strong>
-                <small class="${isHealthy ? '' : 'defensive'}">${subtitleText}</small>
-                <small class="${subClass}">${cycleInfo.description}</small>
+          <div class="rubric-criterion-label">
+            <span class="rubric-status-dot ${isHealthy ? 'ok' : 'fail'}" title="${isHealthy ? 'Aprovado · Favorável' : 'Bloqueio · Modo Defesa'}">●</span>
+            <div class="rubric-label-content">
+              <div class="rubric-name-row">
+                <span class="rubric-criterion-name">Ciclo de Mercado</span>
+                <button type="button" class="rubric-info-tip" title="${detailedTooltip}" aria-label="Detalhes do Ciclo de Mercado">ⓘ</button>
               </div>
-            </div>
-            <div class="rubric-market-badge-box">
-              <div class="rubric-market-pill-btn ${isHealthy ? 'ok' : 'fail'}" title="Clique para alternar o regime ou selecionar manualmente">
-                <span class="pill-main">${isHealthy ? 'SAUDÁVEL' : 'MODO DEFESA'}</span>
-                <span class="pill-sub">${isHealthy ? 'Pode operar' : 'Evitar operar'}</span>
-                <select class="rubric-market-select-hidden" onchange="setManualMarketCycleOverride(this.value)" title="${cycleInfo.description}">
-                  <option value="healthy" ${isHealthy ? 'selected' : ''}>🟢 SAUDÁVEL · Pode operar</option>
-                  <option value="defensive" ${!isHealthy ? 'selected' : ''}>🔴 MODO DEFESA · Evitar operar</option>
-                </select>
-              </div>
-              ${restoreBtn}
-              <b data-rubric-points="marketCycle" class="rubric-market-points ${isHealthy ? 'ok' : 'fail'}">—</b>
+              <small class="${subClass} ${isHealthy ? '' : 'defensive'}">${shortSummary}</small>
             </div>
           </div>
-          <div class="rubric-market-subcriteria">
-            <div class="rubric-market-sub-row">
-              <span class="sub-name">Tendência (Preço x Médias)</span>
-              <span class="sub-val">${trendVal}</span>
-              <span class="sub-ico ${trendOk ? 'ok' : 'fail'}">${trendOk ? '✔' : '✖'}</span>
+          <div class="rubric-market-control-compact">
+            <div class="rubric-market-pill-btn ${isHealthy ? 'ok' : 'fail'}" title="Clique para alternar o regime manualmente">
+              <span class="pill-dot">●</span>
+              <span class="pill-main">${isHealthy ? 'Favorável' : 'Defesa'}</span>
+              <select class="rubric-market-select-hidden" onchange="setManualMarketCycleOverride(this.value)" title="${cycleInfo.description}">
+                <option value="healthy" ${isHealthy ? 'selected' : ''}>🟢 Favorável (Pode operar)</option>
+                <option value="defensive" ${!isHealthy ? 'selected' : ''}>🔴 Defesa (Evitar operar)</option>
+              </select>
             </div>
-            <div class="rubric-market-sub-row">
-              <span class="sub-name">Estrutura de Médias</span>
-              <span class="sub-val">${structureVal}</span>
-              <span class="sub-ico ${structureOk ? 'ok' : 'fail'}">${structureOk ? '✔' : '✖'}</span>
-            </div>
-            <div class="rubric-market-sub-row">
-              <span class="sub-name">Permissão Operacional</span>
-              <span class="sub-val">${permissionVal}</span>
-              <span class="sub-ico ${isHealthy ? 'ok' : 'fail'}">${isHealthy ? '✔' : '✖'}</span>
-            </div>
+            ${restoreBtn}
           </div>
-          <div class="rubric-market-rule-box">
-            <strong>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-              Regra do Ciclo de Mercado
-            </strong>
-            <p>Operar apenas quando o preço estiver acima da EMA 10 e da EMA 72. Se o preço estiver abaixo, entre as médias ou exatamente sobre uma delas, o mercado entra em modo Defesa e <b>novos trades devem ser evitados</b>.</p>
-          </div>
+          <b data-rubric-points="marketCycle" class="rubric-market-points ${isHealthy ? 'ok' : 'fail'}">—</b>
         </div>`;
       }
       if(criterion.key==='volatility'){
@@ -5021,17 +5119,43 @@ renderEffectiveRiskPolicy();
         const reasonContent=isPending
           ?'Preencha Entrada e ATR (21)'
           :classification.reason;
-        return '<div class="rubric-criterion rubric-volatility-auto '+(isPending?'is-pending':'')+'" data-rubric-key="volatility">'
-          +'<span>Volatilidade (ATR)<small class="rubric-volatility-reason '+(isPending?'is-pending':'')+'" id="rubricAtrReason">'+reasonContent+'</small></span>'
-          +'<div class="rubric-volatility-control" id="rubricAtrBadgeWrap">'
-            +'<span class="rubric-volatility-badge '+badgeClass+'" id="rubricAtrBadge" title="'+reasonContent+'">'+badgeContent+'</span>'
-          +'</div>'
-          +'<b data-rubric-points="volatility">—</b>'
-          +'</div>';
+        const statusClass = isPending ? 'pending' : (classification.rating === 'good' ? 'ok' : (classification.rating === 'medium' ? 'warn' : 'fail'));
+        const shortVolSummary = isPending ? 'Aguardando ATR' : `${classification.percentFormatted}% · ${classification.label}`;
+        return `<div class="rubric-criterion rubric-volatility-auto ${isPending ? 'is-pending' : ''}" data-rubric-key="volatility">
+          <div class="rubric-criterion-label">
+            <span class="rubric-status-dot ${statusClass}" title="${isPending ? 'Pendente' : classification.label}">●</span>
+            <div class="rubric-label-content">
+              <div class="rubric-name-row">
+                <span class="rubric-criterion-name">Volatilidade (ATR)</span>
+                <button type="button" class="rubric-info-tip" title="${reasonContent}" aria-label="Detalhes da Volatilidade">ⓘ</button>
+              </div>
+              <small class="rubric-compact-summary ${isPending ? 'is-pending' : ''}" id="rubricAtrReason">${shortVolSummary}</small>
+            </div>
+          </div>
+          <div class="rubric-volatility-control" id="rubricAtrBadgeWrap">
+            <span class="rubric-volatility-badge ${badgeClass}" id="rubricAtrBadge" title="${reasonContent}">${badgeContent}</span>
+          </div>
+          <b data-rubric-points="volatility">—</b>
+        </div>`;
       }
+      const currentRating = manualRubricRatings[criterion.key];
+      const statusClass = currentRating === 'good' ? 'ok' : (currentRating === 'medium' ? 'warn' : (currentRating === 'bad' ? 'fail' : 'pending'));
       const buttons=['bad','medium','good'].map(rating=>'<button type="button" data-rating="'+rating+'" onclick="setPolicyRubricRating(\''+criterion.key+'\',\''+rating+'\')">'+({bad:'Ruim',medium:'Médio',good:'Bom'})[rating]+'</button>').join('');
       const displayLabel = criterion.label || (criterion.key === 'volatility' ? 'Volatilidade (ATR)' : criterion.key);
-      return '<div class="rubric-criterion" data-rubric-key="'+criterion.key+'"><span>'+displayLabel+'</span><div class="manual-rubric-controls">'+buttons+'</div><b data-rubric-points="'+criterion.key+'">—</b></div>';
+      const tooltip = criterion.description || (displayLabel + ' — Avalie a qualidade da oportunidade');
+      return `<div class="rubric-criterion" data-rubric-key="${criterion.key}">
+        <div class="rubric-criterion-label">
+          <span class="rubric-status-dot ${statusClass}" title="${currentRating ? ({good:'Aprovado',medium:'Atenção',bad:'Reprovado'})[currentRating] : 'Pendente de avaliação'}">●</span>
+          <div class="rubric-label-content">
+            <div class="rubric-name-row">
+              <span class="rubric-criterion-name">${displayLabel}</span>
+              <button type="button" class="rubric-info-tip" title="${tooltip}" aria-label="Detalhes de ${displayLabel}">ⓘ</button>
+            </div>
+          </div>
+        </div>
+        <div class="manual-rubric-controls">${buttons}</div>
+        <b data-rubric-points="${criterion.key}">—</b>
+      </div>`;
     }).join('');
   };
   currentRubricInput=function(){
@@ -5240,6 +5364,22 @@ renderEffectiveRiskPolicy();
       if(criterionEl){
         criterionEl.classList.toggle('is-pending',!isSelected);
         criterionEl.querySelectorAll('[data-rating]').forEach(btn=>btn.classList.toggle('active',manualRubricRatings[item.key]===btn.dataset.rating));
+        const dot = criterionEl.querySelector('.rubric-status-dot');
+        if (dot) {
+          if (item.key === 'marketCycle') {
+            const isH = manualRubricRatings.marketCycle === 'healthy';
+            dot.className = 'rubric-status-dot ' + (isH ? 'ok' : 'fail');
+            dot.title = isH ? 'Aprovado · Favorável' : 'Bloqueio · Modo Defesa';
+          } else if (item.key === 'volatility') {
+            const volRating = manualRubricRatings.volatility;
+            dot.className = 'rubric-status-dot ' + (volRating === 'good' ? 'ok' : (volRating === 'medium' ? 'warn' : (volRating === 'bad' ? 'fail' : 'pending')));
+            dot.title = volRating ? ({good:'Aprovado',medium:'Atenção',bad:'Reprovado'})[volRating] : 'Pendente de avaliação';
+          } else {
+            const rating = manualRubricRatings[item.key];
+            dot.className = 'rubric-status-dot ' + (rating === 'good' ? 'ok' : (rating === 'medium' ? 'warn' : (rating === 'bad' ? 'fail' : 'pending')));
+            dot.title = rating ? ({good:'Aprovado',medium:'Atenção',bad:'Reprovado'})[rating] : 'Pendente de avaliação';
+          }
+        }
       }
     });
 

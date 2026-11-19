@@ -1324,56 +1324,67 @@ body[data-theme="pigeon"] #today .dashboard-widget[data-widget-id="market-cycle"
 }
 
 /* ── 16. Ciclo de Mercado e Subcritérios no Novo Trade (#newtrade) ──── */
-body[data-theme="pigeon"] #newtrade .rubric-criterion.rubric-market-permission,
-body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission {
-  background: #FFFFFF !important;
-  border: 1px solid #DCE8EF !important;
-  box-shadow: 0 4px 14px rgba(48, 75, 91, 0.04) !important;
+body[data-theme="pigeon"] #newtrade .rubric-criterion,
+body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion {
+  border-bottom: 1px solid #E2E8F0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-body[data-theme="pigeon"] #newtrade .rubric-criterion.rubric-market-permission.is-defensive,
-body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission.is-defensive {
-  background: #FFFBFB !important;
-  border-color: #FCA5A5 !important;
+body[data-theme="pigeon"] #newtrade .rubric-criterion:hover,
+body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion:hover {
+  background: rgba(48, 75, 91, 0.03) !important;
 }
 
-body[data-theme="pigeon"] #newtrade .rubric-criterion.rubric-market-permission.is-healthy,
-body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion.rubric-market-permission.is-healthy {
-  background: #F0FDF4 !important;
-  border-color: #86EFAC !important;
-}
-
-body[data-theme="pigeon"] #newtrade .rubric-market-title-text strong {
+body[data-theme="pigeon"] #newtrade .rubric-criterion-name {
   color: #182B36 !important;
 }
 
-body[data-theme="pigeon"] #newtrade .rubric-market-title-text small {
-  color: #718A99 !important;
-}
-
-body[data-theme="pigeon"] #newtrade .rubric-market-sub-row .sub-name {
+body[data-theme="pigeon"] #newtrade .rubric-compact-summary {
   color: #536B78 !important;
 }
 
-body[data-theme="pigeon"] #newtrade .rubric-market-sub-row .sub-val {
-  color: #182B36 !important;
+body[data-theme="pigeon"] #newtrade .rubric-compact-summary.defensive {
+  color: #DC2626 !important;
 }
 
-body[data-theme="pigeon"] #newtrade .rubric-market-rule-box {
-  background: #F0F7FB !important;
-  border: 1px solid #DCE8EF !important;
-  color: #536B78 !important;
+body[data-theme="pigeon"] #newtrade .rubric-compact-summary.is-override {
+  color: #B45309 !important;
 }
 
-body[data-theme="pigeon"] #newtrade .rubric-market-rule-box strong {
-  color: #2B7A9E !important;
+body[data-theme="pigeon"] #newtrade .rubric-compact-summary.is-pending {
+  color: #94A3B8 !important;
 }
 
-body[data-theme="pigeon"] #newtrade .rubric-market-rule-box p {
-  color: #536B78 !important;
+body[data-theme="pigeon"] #newtrade .rubric-info-tip {
+  border-color: #CBD5E1 !important;
+  color: #64748B !important;
 }
 
-body[data-theme="pigeon"] #newtrade .rubric-market-rule-box p b {
+body[data-theme="pigeon"] #newtrade .rubric-info-tip:hover {
+  border-color: #2E7D52 !important;
+  color: #2E7D52 !important;
+  background: rgba(46, 125, 82, 0.08) !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-status-dot.pending {
+  background: #CBD5E1 !important;
+  border-color: #94A3B8 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-pill-btn.ok {
+  background: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: #065F46 !important;
+}
+
+body[data-theme="pigeon"] #newtrade .rubric-market-pill-btn.fail {
+  background: #FEF2F2 !important;
+  border-color: #FECACA !important;
+  color: #991B1B !important;
+}
+
+body[data-theme="pigeon"] #newtrade #rubricCriteria .rubric-criterion b {
   color: #182B36 !important;
 }
 
