@@ -3826,6 +3826,7 @@ function renderTraderWisdomArchive(){const root=document.querySelector('#traderW
 <script>
 function relativeStockFallback(){return{key:'stock',label:'Ações',benchmark:'IBOV',requested:marketCycleRanked().length,available:marketCycleRanked().length,items:marketCycleRanked().map(item=>({...item,assetClass:'stock'}))}}
 const relativeStrengthClassesState={selected:'stock',classes:{stock:relativeStockFallback()},loading:false,error:false};
+if(typeof window!=='undefined'){window.relativeStrengthClassesState=relativeStrengthClassesState;}
 function rsClassText(pt,en){return window.appLanguage==='en-US'?en:pt}
 function relativeClassLabel(key){return({stock:rsClassText('Ações','Stocks'),fii:'FIIs',bdr:'BDRs'})[key]||key}
 function relativeClassDescription(key){return({stock:rsClassText('Ações e units competem contra o IBOV e entre si dentro do universo B3.','Stocks and units compete against IBOV and their B3 peer universe.'),fii:rsClassText('FIIs competem contra o IFIX e contra outros FIIs. O filtro organiza o pelotão por segmento.','REITs compete against IFIX and other REITs. The filter organizes the pack by segment.'),bdr:rsClassText('O ranking local compara somente BDRs. A leitura do ativo original permanece separada para não misturar o efeito do dólar.','The local ranking compares BDRs only. The original asset reading stays separate to avoid mixing in the FX effect.')})[key]}
@@ -3892,7 +3893,7 @@ const STOCK_NAME_MAP = {
 };
 function relativeCompanyName(item){if(!item)return'—';const sym=String(item.symbol||'').trim().toUpperCase();if(STOCK_NAME_MAP[sym])return STOCK_NAME_MAP[sym];if(BDR_NAME_MAP[sym])return BDR_NAME_MAP[sym];if(FII_NAME_MAP[sym])return FII_NAME_MAP[sym];const name=String(item.name||'').trim();if(name&&name.toUpperCase()!==sym)return name;return'—'}
 function relativeClassFilteredItems(){const search=(document.getElementById('rsSearch')?.value||'').trim().toLowerCase(),sector=document.getElementById('rsSector')?.value||'';return relativeClassItems().filter(item=>{const cName=relativeCompanyName(item);return !search||`${item.symbol} ${item.name||''} ${cName} ${item.sector||''} ${item.originalSymbol||''}`.toLowerCase().includes(search)}).filter(item=>!sector||item.sector===sector)}
-function selectRelativeStrengthClass(key){relativeStrengthClassesState.selected=key;renderRelativeStrengthClassesPage()}
+function selectRelativeStrengthClass(key){if(typeof window!=='undefined'&&typeof window.selectRelativeStrengthClass==='function'&&window.selectRelativeStrengthClass!==selectRelativeStrengthClass){return window.selectRelativeStrengthClass(key);}relativeStrengthClassesState.selected=key;if(typeof window!=='undefined'&&window.relativeStrengthClassesState){window.relativeStrengthClassesState.selected=key;}renderRelativeStrengthClassesPage()}
 let relativeClassSearchTimer;
 function relativeStrengthEmptyMessage(){
  const active=relativeStrengthClassesState.classes[relativeStrengthClassesState.selected]||{};

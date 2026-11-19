@@ -14,6 +14,49 @@
   window.relativeStrengthPageSize = 20;
   window.relativeStrengthCurrentPage = 1;
 
+  function ensureRelativeStrengthState() {
+    const staticCache = window.__relativeStrengthStaticCache;
+    if (!window.relativeStrengthClassesState) {
+      if (typeof relativeStrengthClassesState !== 'undefined') {
+        window.relativeStrengthClassesState = relativeStrengthClassesState;
+      } else {
+        window.relativeStrengthClassesState = {
+          selected: 'stock_ibov',
+          classes: staticCache?.daily || {},
+          dailyClasses: staticCache?.daily || {},
+          weeklyClasses: staticCache?.weekly || {},
+          updatedAt: staticCache?.updatedAt || null,
+          dataAsOf: staticCache?.dataAsOf || null,
+          source: staticCache?.source || null,
+          loading: false,
+          error: false
+        };
+      }
+    }
+    const state = window.relativeStrengthClassesState;
+    if (state) {
+      if (typeof relativeStrengthClassesState !== 'undefined') {
+        try {
+          if (relativeStrengthClassesState.selected && relativeStrengthClassesState.selected !== 'stock' && !state.selected) {
+            state.selected = relativeStrengthClassesState.selected;
+          }
+        } catch (_) {}
+      }
+      if (!state.selected || state.selected === 'stock') {
+        state.selected = 'stock_ibov';
+      }
+      if (staticCache) {
+        state.dailyClasses = state.dailyClasses || staticCache.daily;
+        state.weeklyClasses = state.weeklyClasses || staticCache.weekly;
+        if (!state.classes || Object.keys(state.classes).length <= 1) {
+          state.classes = (window.currentRelativeStrengthTimeframe === 'weekly' ? staticCache.weekly : staticCache.daily) || state.classes;
+        }
+      }
+    }
+    return state;
+  }
+  ensureRelativeStrengthState();
+
   function renderRelativeStrengthClassesPage() {
     return renderRelativeStrengthWorkspace();
   }
@@ -232,9 +275,10 @@
     window.relativeStrengthSelectedGroup = '';
     window.relativeStrengthCurrentPage = 1;
     if (market === 'b3') {
-      if (window.relativeStrengthClassesState) {
-        if (!['stock_ibov', 'stock_other', 'fii', 'bdr'].includes(window.relativeStrengthClassesState.selected)) {
-          window.relativeStrengthClassesState.selected = 'stock_ibov';
+      const state = ensureRelativeStrengthState();
+      if (state) {
+        if (!['stock_ibov', 'stock_other', 'fii', 'bdr'].includes(state.selected)) {
+          state.selected = 'stock_ibov';
         }
       }
       renderRelativeStrengthClassesPage();
@@ -254,7 +298,7 @@
     window.currentRelativeStrengthTimeframe = timeframe;
     window.relativeStrengthCurrentPage = 1;
 
-    const state = window.relativeStrengthClassesState;
+    const state = ensureRelativeStrengthState();
     if (state) {
       if (timeframe === 'weekly') {
         state.classes = state.weeklyClasses || (window.__relativeStrengthStaticCache && window.__relativeStrengthStaticCache.weekly) || state.classes;
@@ -277,12 +321,22 @@
   };
 
   window.selectRelativeStrengthClass = function (classKey) {
-    if (window.relativeStrengthClassesState) {
-      window.relativeStrengthClassesState.selected = classKey;
+    if (!classKey) return;
+    window.currentRelativeStrengthMarket = 'b3';
+    const state = ensureRelativeStrengthState();
+    if (state) {
+      state.selected = classKey;
+    }
+    if (typeof relativeStrengthClassesState !== 'undefined') {
+      try { relativeStrengthClassesState.selected = classKey; } catch (_) {}
     }
     window.relativeStrengthSelectedGroup = '';
     window.relativeStrengthCurrentPage = 1;
-    renderRelativeStrengthClassesPage();
+    if (typeof renderRelativeStrengthWorkspace === 'function') {
+      renderRelativeStrengthWorkspace();
+    } else if (typeof window.renderRelativeStrengthClassesPage === 'function') {
+      window.renderRelativeStrengthClassesPage();
+    }
   };
 
   window.handleRelativeStrengthSearch = function (value) {
@@ -667,7 +721,7 @@
   let inFlightClassesPromises = {};
 
   window.loadRelativeStrengthClassesForTimeframe = async function (timeframe = 'daily', force = false) {
-    const state = window.relativeStrengthClassesState;
+    const state = ensureRelativeStrengthState();
     if (!state) return;
     const isWeekly = timeframe === 'weekly';
     const cacheKey = isWeekly ? 'weekly' : 'daily';
@@ -812,8 +866,8 @@
     }
 
     // B3
-    const state = window.relativeStrengthClassesState || { classes: {}, selected: 'stock_ibov' };
-    let key = state.selected || 'stock_ibov';
+    const state = ensureRelativeStrengthState();
+    let key = state?.selected || 'stock_ibov';
     if (key === 'stock') key = 'stock_ibov';
 
     const timeframeClasses = (timeframe === 'weekly' ? state.weeklyClasses : state.dailyClasses) || state.classes || {};
@@ -1485,6 +1539,7 @@
   // --- Main Full Layout Renderer ---
 
   async function renderRelativeStrengthWorkspace() {
+    if (typeof document === 'undefined') return;
     const root = document.getElementById('relativestrength');
     if (!root) return;
 

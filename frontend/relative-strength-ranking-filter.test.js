@@ -157,3 +157,29 @@ test('Ranking RS: paginação preserva a posição global nas páginas seguintes
   assert.ok(html.includes('<td class="td-rank">11</td>'), 'Deve renderizar rank 11');
   assert.ok(html.includes('<td class="td-rank">20</td>'), 'Deve renderizar rank 20');
 });
+
+test('Seletor de Universo: window.selectRelativeStrengthClass alterna entre Ações Ibov, Demais Ações, FIIs e BDRs corretamente', () => {
+  const universes = ['stock_ibov', 'stock_other', 'fii', 'bdr'];
+  
+  for (const timeframe of ['daily', 'weekly']) {
+    window.currentRelativeStrengthMarket = 'b3';
+    window.currentRelativeStrengthTimeframe = timeframe;
+
+    for (const u of universes) {
+      window.selectRelativeStrengthClass(u);
+      assert.equal(window.relativeStrengthClassesState.selected, u, `Estado deve registrar ${u}`);
+      
+      const ds = rsModel.getActiveDataset();
+      assert.equal(ds.universeKey, u, `Dataset deve ter universeKey=${u} em ${timeframe}`);
+      assert.ok(ds.items.length > 0, `Dataset deve conter ativos para ${u} em ${timeframe}`);
+      
+      // Valida ordenação estrita
+      for (let i = 1; i < ds.items.length; i++) {
+        assert.ok(
+          (ds.items[i - 1].score ?? 0) >= (ds.items[i].score ?? 0),
+          `Ordenação descrescente violada em ${u} (${timeframe}) no índice ${i}`
+        );
+      }
+    }
+  }
+});
