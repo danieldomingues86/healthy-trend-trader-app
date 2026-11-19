@@ -67,13 +67,26 @@
     switch (icon) {
       case 'bull':
         return `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7C5.5 4.5 8 4 9.5 5.5C9.5 7.5 8.5 9.5 6.5 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 7C22.5 4.5 20 4 18.5 5.5C18.5 7.5 19.5 9.5 21.5 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 7.5C9.5 6.5 18.5 6.5 20.5 7.5C21.8 12.5 18.5 21 15.5 22.5C14.5 23 13.5 23 12.5 22.5C9.5 21 6.2 12.5 7.5 7.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 17.5C12 18 16 18 17 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="11.5" cy="13.5" r="1.2" fill="currentColor"/><circle cx="16.5" cy="13.5" r="1.2" fill="currentColor"/></svg>`;
-      case 'crown':
-        return `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 19L5.5 8.5L10 13L14 6L18 13L22.5 8.5L24 19H4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="currentColor" fill-opacity="0.18"/><path d="M4 22H24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="5.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="14" cy="6" r="1.2" fill="currentColor"/><circle cx="22.5" cy="8.5" r="1.2" fill="currentColor"/></svg>`;
+      case 'symbols':
       case 'bars':
-        return `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="4" y="16" width="3.5" height="8" rx="1" stroke="currentColor" stroke-width="1.8" fill="currentColor" fill-opacity="0.25"/><rect x="10" y="12" width="3.5" height="12" rx="1" stroke="currentColor" stroke-width="1.8" fill="currentColor" fill-opacity="0.25"/><rect x="16" y="8" width="3.5" height="16" rx="1" stroke="currentColor" stroke-width="1.8" fill="currentColor" fill-opacity="0.25"/><rect x="22" y="4" width="3.5" height="20" rx="1" stroke="currentColor" stroke-width="1.8" fill="currentColor" fill-opacity="0.25"/></svg>`;
+        return `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="7" y1="4" x2="7" y2="24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="4.5" y="9.5" width="5" height="9.5" rx="1" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6"/><line x1="14" y1="2.5" x2="14" y2="25.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="11.5" y="5.5" width="5" height="13.5" rx="1" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="1.6"/><line x1="21" y1="5" x2="21" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="18.5" y="8.5" width="5" height="8.5" rx="1" fill="currentColor" fill-opacity="0.25" stroke="currentColor" stroke-width="1.6"/></svg>`;
+      case 'identity':
       case 'trader':
       default:
-        return `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="14" cy="9.5" r="4.5" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.2"/><path d="M5 23C5 18.5 9 16 14 16C19 16 23 18.5 23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+        return `<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="14" cy="9.5" r="4.5" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.2"/><path d="M5.5 23C5.5 18.5 9.2 16 14 16C18.8 16 22.5 18.5 22.5 23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+    }
+  }
+
+  function renderPreviewCategoryIcon(category) {
+    switch (category) {
+      case 'symbols':
+        return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><line x1="6" y1="3" x2="6" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="4" y="8" width="4" height="8" rx="0.8" fill="currentColor"/><line x1="12" y1="2" x2="12" y2="22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="10" y="5" width="4" height="11" rx="0.8" fill="currentColor"/><line x1="18" y1="4" x2="18" y2="20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="16" y="8" width="4" height="7" rx="0.8" fill="currentColor"/></svg>`;
+      case 'identity':
+      case 'traders':
+        return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="7.5" r="4" stroke="currentColor" stroke-width="2" fill="currentColor" fill-opacity="0.2"/><path d="M4.5 19.5C4.5 15.8 8 14 12 14C16 14 19.5 15.8 19.5 19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+      case 'animals':
+      default:
+        return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6C5 4 7 3.8 8 5C8 6.5 7.2 8 5.8 8.8"/><path d="M20 6C19 4 17 3.8 16 5C16 6.5 16.8 8 18.2 8.8"/><path d="M6.5 6.5C8 5.6 16 5.6 17.5 6.5C18.5 10.5 15.8 17.5 13.2 18.8C12.4 19.2 11.6 19.2 10.8 18.8C8.2 17.5 5.5 10.5 6.5 6.5Z"/><circle cx="10" cy="11.5" r="0.8" fill="currentColor"/><circle cx="14" cy="11.5" r="0.8" fill="currentColor"/></svg>`;
     }
   }
 
@@ -174,7 +187,9 @@
               </div>
               <div class="avatar-preview-meta">
                 <div class="avatar-preview-character-name">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-1.5-14.5 0-.2-.6-1.5-2-3-2-2 0-3 3-3 5 0 2 1.5 4 3 4 1.2 0 2.2-.8 2.7-1.8 1.4 3.5 5 6.8 9.8 6.8s8.4-3.3 9.8-6.8c.5 1 1.5 1.8 2.7 1.8 1.5 0 3-2 3-4 0-2-1-5-3-5z"/></svg>
+                  <span class="avatar-preview-cat-icon" id="avatarPreviewCatIcon">
+                    ${renderPreviewCategoryIcon(currentState.category)}
+                  </span>
                   <span id="avatarPreviewName">${t(currentState.name, currentState.nameEn)}</span>
                 </div>
                 <p class="avatar-preview-character-subtitle" id="avatarPreviewSubtitle">${t(currentState.subtitle, currentState.subtitleEn)}</p>
@@ -345,10 +360,14 @@
     const previewImg = document.getElementById('avatarPreviewImg');
     const previewName = document.getElementById('avatarPreviewName');
     const previewSubtitle = document.getElementById('avatarPreviewSubtitle');
+    const previewCatIcon = document.getElementById('avatarPreviewCatIcon');
 
     if (previewImg) {
       previewImg.src = currentState.previewUrl || currentState.avatarUrl;
       previewImg.alt = t(currentState.name, currentState.nameEn);
+    }
+    if (previewCatIcon) {
+      previewCatIcon.innerHTML = renderPreviewCategoryIcon(currentState.category);
     }
     if (previewName) {
       previewName.textContent = t(currentState.name, currentState.nameEn);

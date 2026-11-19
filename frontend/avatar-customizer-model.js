@@ -22,34 +22,24 @@
       descriptionEn: 'Animals that represent key financial market behaviors.'
     },
     {
-      id: 'legends',
-      name: 'Lendas do Trading',
-      nameEn: 'Trading Legends',
-      subtitle: 'Estratégia e liderança',
-      subtitleEn: 'Strategy and leadership',
-      icon: 'crown',
-      description: 'Grandes referências e lendas do trading que marcaram a história dos mercados.',
-      descriptionEn: 'Great trading references and legends that marked market history.'
-    },
-    {
       id: 'symbols',
       name: 'Símbolos do Mercado',
       nameEn: 'Market Symbols',
-      subtitle: 'Ícones do mercado',
-      subtitleEn: 'Market icons',
-      icon: 'bars',
-      description: 'Símbolos essenciais da ação do preço, da geometria e da estrutura técnica.',
-      descriptionEn: 'Classic financial market symbols and technical chart representations.'
+      subtitle: 'Ícones e conceitos da análise técnica',
+      subtitleEn: 'Icons and concepts of technical analysis',
+      icon: 'symbols',
+      description: 'Representações visuais dos principais conceitos da análise técnica e do mercado.',
+      descriptionEn: 'Visual representations of key technical analysis and market concepts.'
     },
     {
-      id: 'traders',
+      id: 'identity',
       name: 'Identidade do Trader',
       nameEn: 'Trader Identity',
-      subtitle: 'Personagens do trader',
-      subtitleEn: 'Trader characters',
-      icon: 'trader',
-      description: 'Perfis e personas que representam a mentalidade operacional.',
-      descriptionEn: 'Profiles and personas representing trading psychology and mindset.'
+      subtitle: 'Perfis e estilos de trader',
+      subtitleEn: 'Trader profiles and styles',
+      icon: 'identity',
+      description: 'Perfis de traders que refletem diferentes estilos, rotinas e personalidades do mercado.',
+      descriptionEn: 'Trader profiles reflecting different styles, routines and market personalities.'
     }
   ];
 
@@ -136,212 +126,177 @@
     }
   ];
 
-  const TRADING_LEGENDS = [
-    {
-      id: 'livermore',
-      name: 'Jesse Livermore',
-      subtitle: 'O mestre do timing e do preço.',
-      avatarUrl: 'assets/avatars/bull.png',
-      previewUrl: 'assets/avatars/preview-bull.png',
-      category: 'legends'
-    },
-    {
-      id: 'darvas',
-      name: 'Nicolas Darvas',
-      subtitle: 'A arte das caixas e novos topos.',
-      avatarUrl: 'assets/avatars/eagle.png',
-      previewUrl: 'assets/avatars/eagle.png',
-      category: 'legends'
-    },
-    {
-      id: 'wyckoff',
-      name: 'Richard Wyckoff',
-      subtitle: 'Acumulação e leitura de fluxo.',
-      avatarUrl: 'assets/avatars/wolf.png',
-      previewUrl: 'assets/avatars/wolf.png',
-      category: 'legends'
-    },
-    {
-      id: 'oneil',
-      name: 'William O\'Neil',
-      subtitle: 'CAN SLIM e liderança setorial.',
-      avatarUrl: 'assets/avatars/lion.png',
-      previewUrl: 'assets/avatars/lion.png',
-      category: 'legends'
-    },
-    {
-      id: 'seykota',
-      name: 'Ed Seykota',
-      subtitle: 'Seguidor sistemático de tendência.',
-      avatarUrl: 'assets/avatars/panther.png',
-      previewUrl: 'assets/avatars/panther.png',
-      category: 'legends'
-    },
-    {
-      id: 'ptj',
-      name: 'Paul Tudor Jones',
-      subtitle: 'Defesa implacável de capital.',
-      avatarUrl: 'assets/avatars/bear.png',
-      previewUrl: 'assets/avatars/bear.png',
-      category: 'legends'
-    },
-    {
-      id: 'druckenmiller',
-      name: 'Stanley Druckenmiller',
-      subtitle: 'Convicção máxima e assimetria.',
-      avatarUrl: 'assets/avatars/falcon.png',
-      previewUrl: 'assets/avatars/falcon.png',
-      category: 'legends'
-    },
-    {
-      id: 'minervini',
-      name: 'Mark Minervini',
-      subtitle: 'VCP e volatilidade controlada.',
-      avatarUrl: 'assets/avatars/deer.png',
-      previewUrl: 'assets/avatars/deer.png',
-      category: 'legends'
-    }
-  ];
-
   const MARKET_SYMBOLS = [
     {
       id: 'candlestick',
-      name: 'Candle de Força',
-      subtitle: 'Expansão direcional e volume.',
-      avatarUrl: 'assets/avatars/bull.png',
-      previewUrl: 'assets/avatars/preview-bull.png',
+      name: 'Candlestick',
+      nameEn: 'Candlestick',
+      subtitle: 'A essência do preço e do movimento.',
+      subtitleEn: 'The essence of price and movement.',
+      avatarUrl: 'assets/avatars/symbol-candlestick.png',
+      previewUrl: 'assets/avatars/preview-candlestick.png',
+      category: 'symbols'
+    },
+    {
+      id: 'uptrend',
+      name: 'Tendência de Alta',
+      nameEn: 'Uptrend',
+      subtitle: 'Direção, força e continuidade.',
+      subtitleEn: 'Direction, strength and continuity.',
+      avatarUrl: 'assets/avatars/symbol-uptrend.png',
+      previewUrl: 'assets/avatars/symbol-uptrend.png',
       category: 'symbols'
     },
     {
       id: 'breakout',
       name: 'Rompimento',
-      subtitle: 'Gatilho de nova tendência.',
-      avatarUrl: 'assets/avatars/eagle.png',
-      previewUrl: 'assets/avatars/eagle.png',
-      category: 'symbols'
-    },
-    {
-      id: 'moving_averages',
-      name: 'Alinhamento Médias',
-      subtitle: 'EMAs 10, 20 e 72 sincronizadas.',
-      avatarUrl: 'assets/avatars/panther.png',
-      previewUrl: 'assets/avatars/panther.png',
-      category: 'symbols'
-    },
-    {
-      id: 'risk_shield',
-      name: 'Escudo de Risco',
-      subtitle: 'Stop técnico inegociável.',
-      avatarUrl: 'assets/avatars/bear.png',
-      previewUrl: 'assets/avatars/bear.png',
-      category: 'symbols'
-    },
-    {
-      id: 'golden_cross',
-      name: 'Cruzamento Dourado',
-      subtitle: 'Início do ciclo de alta.',
-      avatarUrl: 'assets/avatars/lion.png',
-      previewUrl: 'assets/avatars/lion.png',
+      nameEn: 'Breakout',
+      subtitle: 'Quebra de barreira e nova oportunidade.',
+      subtitleEn: 'Barrier breakout and new opportunity.',
+      avatarUrl: 'assets/avatars/symbol-breakout.png',
+      previewUrl: 'assets/avatars/symbol-breakout.png',
       category: 'symbols'
     },
     {
       id: 'fibonacci',
-      name: 'Espiral Áurea',
-      subtitle: 'Proporção harmônica natural.',
-      avatarUrl: 'assets/avatars/deer.png',
-      previewUrl: 'assets/avatars/deer.png',
+      name: 'Fibonacci',
+      nameEn: 'Fibonacci',
+      subtitle: 'Retração, confluência e pontos estratégicos.',
+      subtitleEn: 'Retracement, confluence and strategic points.',
+      avatarUrl: 'assets/avatars/symbol-fibonacci.png',
+      previewUrl: 'assets/avatars/symbol-fibonacci.png',
       category: 'symbols'
     },
     {
-      id: 'relative_strength',
-      name: 'Força Relativa 90+',
-      subtitle: 'Superando o índice de referência.',
-      avatarUrl: 'assets/avatars/falcon.png',
-      previewUrl: 'assets/avatars/falcon.png',
+      id: 'volume',
+      name: 'Volume',
+      nameEn: 'Volume',
+      subtitle: 'Força real por trás do movimento.',
+      subtitleEn: 'Real force behind the movement.',
+      avatarUrl: 'assets/avatars/symbol-volume.png',
+      previewUrl: 'assets/avatars/symbol-volume.png',
       category: 'symbols'
     },
     {
-      id: 'alpha_star',
-      name: 'Estrela Alfa',
-      subtitle: 'Assimetria positiva e payoff.',
-      avatarUrl: 'assets/avatars/wolf.png',
-      previewUrl: 'assets/avatars/wolf.png',
+      id: 'support-resistance',
+      name: 'Suporte e Resistência',
+      nameEn: 'Support & Resistance',
+      subtitle: 'Zonas-chave de decisão do mercado.',
+      subtitleEn: 'Key market decision zones.',
+      avatarUrl: 'assets/avatars/symbol-support-resistance.png',
+      previewUrl: 'assets/avatars/symbol-support-resistance.png',
+      category: 'symbols'
+    },
+    {
+      id: 'volatility',
+      name: 'Volatilidade',
+      nameEn: 'Volatility',
+      subtitle: 'Variação, expansão e intensidade do preço.',
+      subtitleEn: 'Variation, expansion and price intensity.',
+      avatarUrl: 'assets/avatars/symbol-volatility.png',
+      previewUrl: 'assets/avatars/symbol-volatility.png',
+      category: 'symbols'
+    },
+    {
+      id: 'market-flow',
+      name: 'Fluxo de Mercado',
+      nameEn: 'Market Flow',
+      subtitle: 'Equilíbrio entre compradores e vendedores.',
+      subtitleEn: 'Balance between buyers and sellers.',
+      avatarUrl: 'assets/avatars/symbol-market-flow.png',
+      previewUrl: 'assets/avatars/symbol-market-flow.png',
       category: 'symbols'
     }
   ];
 
   const TRADER_IDENTITY = [
     {
-      id: 'strategist',
-      name: 'O Estrategista',
-      subtitle: 'Mapeamento macro e paciência.',
-      avatarUrl: 'assets/avatars/eagle.png',
-      previewUrl: 'assets/avatars/eagle.png',
-      category: 'traders'
+      id: 'trader-strategist',
+      name: 'O Trader Estrategista',
+      nameEn: 'The Strategic Trader',
+      subtitle: 'Planejamento, análise e execução com método.',
+      subtitleEn: 'Planning, analysis and methodical execution.',
+      avatarUrl: 'assets/avatars/trader-strategist.png',
+      previewUrl: 'assets/avatars/preview-trader-strategist.png',
+      category: 'identity'
     },
     {
-      id: 'zen_executor',
-      name: 'O Executor Zen',
-      subtitle: 'Execução sem hesitação ou apego.',
-      avatarUrl: 'assets/avatars/panther.png',
-      previewUrl: 'assets/avatars/panther.png',
-      category: 'traders'
+      id: 'trader-analyst',
+      name: 'A Trader Analista',
+      nameEn: 'The Analyst Trader',
+      subtitle: 'Leitura de contexto, indicadores e tomada de decisão técnica.',
+      subtitleEn: 'Context reading, indicators and technical decision making.',
+      avatarUrl: 'assets/avatars/trader-analyst.png',
+      previewUrl: 'assets/avatars/trader-analyst.png',
+      category: 'identity'
     },
     {
-      id: 'sentinel',
-      name: 'A Sentinela',
-      subtitle: 'Vigília e seleção de oportunidades.',
-      avatarUrl: 'assets/avatars/wolf.png',
-      previewUrl: 'assets/avatars/wolf.png',
-      category: 'traders'
+      id: 'trader-institutional',
+      name: 'O Trader Institucional',
+      nameEn: 'The Institutional Trader',
+      subtitle: 'Visão macro, gestão de risco e estratégias de longo prazo.',
+      subtitleEn: 'Macro vision, risk management and long-term strategies.',
+      avatarUrl: 'assets/avatars/trader-institutional.png',
+      previewUrl: 'assets/avatars/trader-institutional.png',
+      category: 'identity'
     },
     {
-      id: 'trend_rider',
-      name: 'O Seguidor de Tendência',
-      subtitle: 'Comprar caro para vender mais caro.',
-      avatarUrl: 'assets/avatars/bull.png',
-      previewUrl: 'assets/avatars/preview-bull.png',
-      category: 'traders'
+      id: 'trader-executor',
+      name: 'A Trader Executora',
+      nameEn: 'The Executing Trader',
+      subtitle: 'Disciplina, agilidade e foco na operação.',
+      subtitleEn: 'Discipline, agility and focus on operation.',
+      avatarUrl: 'assets/avatars/trader-executor.png',
+      previewUrl: 'assets/avatars/trader-executor.png',
+      category: 'identity'
     },
     {
-      id: 'risk_officer',
-      name: 'O Gestor de Risco',
-      subtitle: 'Sobrevivência e preservação.',
-      avatarUrl: 'assets/avatars/bear.png',
-      previewUrl: 'assets/avatars/bear.png',
-      category: 'traders'
+      id: 'trader-technical-analyst',
+      name: 'O Analista Técnico',
+      nameEn: 'The Technical Analyst',
+      subtitle: 'Estudo de padrões, tendências e zonas de preço.',
+      subtitleEn: 'Study of patterns, trends and price zones.',
+      avatarUrl: 'assets/avatars/trader-technical-analyst.png',
+      previewUrl: 'assets/avatars/trader-technical-analyst.png',
+      category: 'identity'
     },
     {
-      id: 'journal_master',
-      name: 'O Mestre do Diário',
-      subtitle: 'Reflexão e melhoria contínua.',
-      avatarUrl: 'assets/avatars/deer.png',
-      previewUrl: 'assets/avatars/deer.png',
-      category: 'traders'
+      id: 'trader-performance',
+      name: 'A Trader de Performance',
+      nameEn: 'The Performance Trader',
+      subtitle: 'Alta consistência, métricas e evolução constante.',
+      subtitleEn: 'High consistency, metrics and constant evolution.',
+      avatarUrl: 'assets/avatars/trader-performance.png',
+      previewUrl: 'assets/avatars/trader-performance.png',
+      category: 'identity'
     },
     {
-      id: 'sniper',
-      name: 'O Sniper de Volatilidade',
-      subtitle: 'Aguardar a contração perfeita.',
-      avatarUrl: 'assets/avatars/falcon.png',
-      previewUrl: 'assets/avatars/falcon.png',
-      category: 'traders'
+      id: 'trader-experienced',
+      name: 'O Trader Experiente',
+      nameEn: 'The Experienced Trader',
+      subtitle: 'Vivência de mercado, controle emocional e gestão de capital.',
+      subtitleEn: 'Market seasoning, emotional control and capital management.',
+      avatarUrl: 'assets/avatars/trader-experienced.png',
+      previewUrl: 'assets/avatars/trader-experienced.png',
+      category: 'identity'
     },
     {
-      id: 'disciplined_lion',
-      name: 'O Trader Disciplinado',
-      subtitle: 'Respeito irrestrito ao plano.',
-      avatarUrl: 'assets/avatars/lion.png',
-      previewUrl: 'assets/avatars/lion.png',
-      category: 'traders'
+      id: 'trader-digital',
+      name: 'O Trader Digital',
+      nameEn: 'The Digital Trader',
+      subtitle: 'Tecnologia, dados e automação aplicados ao trading.',
+      subtitleEn: 'Technology, data and automation applied to trading.',
+      avatarUrl: 'assets/avatars/trader-digital.png',
+      previewUrl: 'assets/avatars/trader-digital.png',
+      category: 'identity'
     }
   ];
 
   const CATALOG = {
     animals: MARKET_ANIMALS,
-    legends: TRADING_LEGENDS,
     symbols: MARKET_SYMBOLS,
-    traders: TRADER_IDENTITY
+    identity: TRADER_IDENTITY,
+    traders: TRADER_IDENTITY // alias for backwards compatibility
   };
 
   const HIGHLIGHT_COLORS = [
@@ -389,7 +344,9 @@
       category: 'animals',
       characterId: 'bull',
       name: 'Touro',
+      nameEn: 'Bull',
       subtitle: 'Força, tendência e alta.',
+      subtitleEn: 'Strength, trend and rally.',
       avatarUrl: 'assets/avatars/bull.png',
       previewUrl: 'assets/avatars/preview-bull.png',
       highlightColor: 'green',
@@ -397,6 +354,10 @@
       colour: '#10b981',
       initials: 'TR'
     };
+  }
+
+  function getAllCharacters() {
+    return [...MARKET_ANIMALS, ...MARKET_SYMBOLS, ...TRADER_IDENTITY];
   }
 
   function getCharacterById(characterId, categoryId) {
@@ -420,7 +381,8 @@
   }
 
   function getCategoryById(categoryId) {
-    return CATEGORIES.find(c => c.id === categoryId) || CATEGORIES[0];
+    const alias = categoryId === 'traders' ? 'identity' : categoryId;
+    return CATEGORIES.find(c => c.id === alias) || CATEGORIES[0];
   }
 
   function selectCategory(state, categoryId) {
@@ -436,7 +398,9 @@
       category: category.id,
       characterId: currentCharacter.id,
       name: currentCharacter.name,
+      nameEn: currentCharacter.nameEn,
       subtitle: currentCharacter.subtitle,
+      subtitleEn: currentCharacter.subtitleEn,
       avatarUrl: currentCharacter.avatarUrl,
       previewUrl: currentCharacter.previewUrl || currentCharacter.avatarUrl
     };
@@ -448,7 +412,9 @@
       ...state,
       characterId: character.id,
       name: character.name,
+      nameEn: character.nameEn,
       subtitle: character.subtitle,
+      subtitleEn: character.subtitleEn,
       avatarUrl: character.avatarUrl,
       previewUrl: character.previewUrl || character.avatarUrl
     };
@@ -505,7 +471,9 @@
       category,
       characterId: character.id,
       name: raw.name || character.name,
+      nameEn: raw.nameEn || character.nameEn,
       subtitle: raw.subtitle || character.subtitle,
+      subtitleEn: raw.subtitleEn || character.subtitleEn,
       avatarUrl: raw.avatarUrl || character.avatarUrl,
       previewUrl: raw.previewUrl || character.previewUrl || character.avatarUrl,
       highlightColor: color.id,
@@ -547,11 +515,12 @@
     CATEGORIES,
     CATALOG,
     MARKET_ANIMALS,
-    TRADING_LEGENDS,
     MARKET_SYMBOLS,
     TRADER_IDENTITY,
+    TRADING_LEGENDS: [],
     HIGHLIGHT_COLORS,
     FRAMES,
+    getAllCharacters,
     getDefaultAvatarState,
     getCharacterById,
     getHighlightColorById,

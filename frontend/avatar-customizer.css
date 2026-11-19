@@ -8,6 +8,19 @@
   --avatar-highlight-glow: rgba(16, 185, 129, 0.45);
 }
 
+#avatar.page {
+  background: #f4f1e8;
+  min-height: calc(100vh - 78px);
+}
+
+body[data-theme="gold"] #avatar.page {
+  background: #090909;
+}
+
+body[data-theme="pigeon-light"] #avatar.page {
+  background: #f3f6f8;
+}
+
 .avatar-customizer-shell {
   width: 100%;
   max-width: 1560px;
@@ -125,8 +138,8 @@
    -------------------------------------------------------------------------- */
 .avatar-categories-nav {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
   margin-bottom: 24px;
 }
 
@@ -662,11 +675,14 @@
     grid-template-columns: 1fr 360px;
     gap: 18px;
   }
-  .avatar-categories-nav {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .avatar-cards-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1050px) {
+  .avatar-categories-nav {
+    grid-template-columns: 1fr;
   }
 }
 
