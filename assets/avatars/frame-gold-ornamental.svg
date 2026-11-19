@@ -1,0 +1,21 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ornamentalGold" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="40%" stop-color="#eab308"/>
+      <stop offset="75%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+  </defs>
+  <circle cx="20" cy="20" r="17" stroke="url(#ornamentalGold)" stroke-width="2.5"/>
+  <!-- Laurel wreath leaf accents -->
+  <path d="M7 20c0-6 4-11 9-13M33 20c0-6-4-11-9-13" stroke="url(#ornamentalGold)" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M8 25c1 4 4 7 8 8M32 25c-1 4-4 7-8 8" stroke="url(#ornamentalGold)" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Leaf pairs -->
+  <ellipse cx="6.5" cy="15" rx="2.5" ry="1.2" transform="rotate(-35 6.5 15)" fill="url(#ornamentalGold)"/>
+  <ellipse cx="9" cy="11" rx="2.5" ry="1.2" transform="rotate(-50 9 11)" fill="url(#ornamentalGold)"/>
+  <ellipse cx="13" cy="8" rx="2.5" ry="1.2" transform="rotate(-65 13 8)" fill="url(#ornamentalGold)"/>
+  <ellipse cx="33.5" cy="15" rx="2.5" ry="1.2" transform="rotate(35 33.5 15)" fill="url(#ornamentalGold)"/>
+  <ellipse cx="31" cy="11" rx="2.5" ry="1.2" transform="rotate(50 31 11)" fill="url(#ornamentalGold)"/>
+  <ellipse cx="27" cy="8" rx="2.5" ry="1.2" transform="rotate(65 27 8)" fill="url(#ornamentalGold)"/>
+</svg>

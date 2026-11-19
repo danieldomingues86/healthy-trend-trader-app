@@ -42452,6 +42452,28 @@
   if (!root.__nasdaqRelativeStrengthCache) {
     root.__nasdaqRelativeStrengthCache = staticCache.nasdaq.daily;
   }
+  if (!root.relativeStrengthClassesState) {
+    root.relativeStrengthClassesState = {
+      selected: 'stock_ibov',
+      classes: staticCache.daily,
+      dailyClasses: staticCache.daily,
+      weeklyClasses: staticCache.weekly,
+      updatedAt: staticCache.updatedAt,
+      dataAsOf: staticCache.dataAsOf,
+      source: staticCache.source,
+      loading: false,
+      error: false
+    };
+  } else {
+    root.relativeStrengthClassesState.dailyClasses = root.relativeStrengthClassesState.dailyClasses || staticCache.daily;
+    root.relativeStrengthClassesState.weeklyClasses = root.relativeStrengthClassesState.weeklyClasses || staticCache.weekly;
+    if (!root.relativeStrengthClassesState.classes || !root.relativeStrengthClassesState.classes.stock_ibov) {
+      root.relativeStrengthClassesState.classes = staticCache.daily;
+    }
+    if (!root.relativeStrengthClassesState.selected || root.relativeStrengthClassesState.selected === 'stock') {
+      root.relativeStrengthClassesState.selected = 'stock_ibov';
+    }
+  }
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = staticCache;
   }

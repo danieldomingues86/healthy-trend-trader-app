@@ -1,0 +1,768 @@
+/* ==========================================================================
+   Healthy Trend Trader — Avatar Customizer (Seu Avatar)
+   Pixel-perfect implementation of the reference design (media_1795090830324_1363d7a3.jpg)
+   ========================================================================== */
+
+:root {
+  --avatar-highlight-color: #10b981;
+  --avatar-highlight-glow: rgba(16, 185, 129, 0.45);
+}
+
+#avatar.page {
+  background: #f4f1e8;
+  min-height: calc(100vh - 78px);
+}
+
+body[data-theme="gold"] #avatar.page {
+  background: #090909;
+}
+
+body[data-theme="pigeon-light"] #avatar.page {
+  background: #f3f6f8;
+}
+
+.avatar-customizer-shell {
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   1. HERO BANNER
+   -------------------------------------------------------------------------- */
+.avatar-hero-banner {
+  width: 100%;
+  min-height: 148px;
+  background: radial-gradient(circle at 75% 50%, #0d4a30 0%, #06281a 45%, #03180f 100%);
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  border-radius: 22px;
+  box-shadow: 0 16px 36px rgba(4, 26, 17, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 34px;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+}
+
+.avatar-hero-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 650px;
+}
+
+.avatar-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #34d399;
+  margin-bottom: 8px;
+}
+
+.avatar-hero-eyebrow::before,
+.avatar-hero-eyebrow::after {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.avatar-hero-title {
+  font-size: 34px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  margin: 0 0 8px 0;
+  line-height: 1.15;
+}
+
+.avatar-hero-title-highlight {
+  background: linear-gradient(135deg, #fef08a 0%, #facc15 45%, #ca8a04 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+}
+
+.avatar-hero-subtitle {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #9cb8ab;
+  margin: 0;
+}
+
+.avatar-hero-graphic {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 480px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.avatar-hero-graphic img {
+  height: 100%;
+  width: auto;
+  max-height: 180px;
+  object-fit: cover;
+  object-position: right center;
+  opacity: 1;
+  filter: contrast(1.1) brightness(1.05) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45));
+}
+
+/* --------------------------------------------------------------------------
+   2. WORKSPACE GRID: 2 COLUMNS (Gallery left + Sidebar preview right)
+   -------------------------------------------------------------------------- */
+.avatar-workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* --------------------------------------------------------------------------
+   3. CATEGORIES NAVIGATION CARDS
+   -------------------------------------------------------------------------- */
+.avatar-categories-nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Default / Inactive Category: White background, subtle border, dark text */
+.avatar-category-btn {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.avatar-category-btn:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.avatar-category-icon-box {
+  width: 36px;
+  height: 36px;
+  background: transparent !important;
+  color: #d4af37;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.avatar-category-text {
+  min-width: 0;
+}
+
+.avatar-category-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a !important;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avatar-category-sub {
+  font-size: 11.5px;
+  color: #64748b !important;
+  display: block;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Active Category: Deep forest green with emerald/gold accents */
+.avatar-category-btn.active {
+  background: linear-gradient(145deg, #072619, #093724) !important;
+  border: 1.5px solid #10b981 !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.avatar-category-btn.active .avatar-category-icon-box {
+  background: transparent !important;
+  color: #facc15;
+}
+
+.avatar-category-btn.active .avatar-category-name {
+  color: #ffffff !important;
+}
+
+.avatar-category-btn.active .avatar-category-sub {
+  color: #a7f3d0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. MAIN GALLERY SECTION
+   -------------------------------------------------------------------------- */
+.avatar-gallery-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.avatar-gallery-head {
+  margin-bottom: 18px;
+}
+
+.avatar-gallery-head h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a !important;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.avatar-gallery-head p {
+  font-size: 13.5px;
+  color: #64748b !important;
+  margin: 0;
+}
+
+.avatar-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Gallery Cards: Clean white background, subtle border, rounded corners */
+.avatar-item-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 20px;
+  padding: 22px 14px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.avatar-item-card:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Selected Card: Emerald border, subtle elevation, checkmark badge */
+.avatar-item-card.active {
+  border: 2px solid #10b981 !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.16);
+}
+
+.avatar-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #ffffff;
+  display: none;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+}
+
+.avatar-item-card.active .avatar-card-badge {
+  display: grid;
+}
+
+/* Circular Portrait in Gallery Card (large 184px, taking ~72% of card width, no artificial borders) */
+.avatar-portrait-wrap {
+  width: 184px;
+  height: 184px;
+  border-radius: 50%;
+  position: relative;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+  border: none !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
+}
+
+.avatar-item-card:hover .avatar-portrait-wrap {
+  transform: scale(1.025);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+}
+
+.avatar-portrait-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-card-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a !important;
+  margin: 4px 0 2px 0;
+}
+
+.avatar-card-desc {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: #64748b !important;
+  margin: 0;
+  min-height: 32px;
+}
+
+/* --------------------------------------------------------------------------
+   5. PAGINATION
+   -------------------------------------------------------------------------- */
+.avatar-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 8px 0;
+}
+
+.avatar-page-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.avatar-page-arrow:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.avatar-page-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.avatar-page-dots-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-page-dot-item {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.avatar-page-dot-item.active {
+  width: 22px;
+  border-radius: 999px;
+  background: #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   6. RIGHT SIDEBAR — PRÉVIA DO SEU AVATAR
+   -------------------------------------------------------------------------- */
+.avatar-preview-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 22px;
+  padding: 26px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.avatar-preview-heading {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a !important;
+  margin: 0 0 22px 0;
+  letter-spacing: -0.01em;
+}
+
+.avatar-preview-showcase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+/* Large Prominent Preview Circle (268px, no artificial borders, pure illustration with soft shadow and glow) */
+.avatar-preview-circle-stage {
+  width: 268px;
+  height: 268px;
+  border-radius: 50%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  overflow: hidden;
+  border: none !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14), 0 0 32px var(--avatar-highlight-glow);
+}
+
+.avatar-preview-main-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-preview-meta {
+  margin-top: 4px;
+}
+
+.avatar-preview-character-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a !important;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.avatar-preview-character-name svg {
+  color: #ca8a04;
+  flex-shrink: 0;
+}
+
+.avatar-preview-character-subtitle {
+  font-size: 13px;
+  color: #64748b !important;
+  margin: 0;
+}
+
+.avatar-preview-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 20px 0;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   7. PERSONALIZAÇÃO ADICIONAL (Cores & Molduras)
+   -------------------------------------------------------------------------- */
+.avatar-customize-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.avatar-customize-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a !important;
+  margin: 0 0 14px 0;
+}
+
+.avatar-control-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b !important;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.avatar-swatches-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Enlarge color swatches to 36px with enhanced checkmark and active ring */
+.avatar-color-swatch-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.avatar-color-swatch-btn:hover {
+  transform: scale(1.15);
+}
+
+.avatar-color-swatch-btn.active {
+  box-shadow: 0 0 0 2.5px #0f172a, 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: scale(1.12);
+}
+
+.avatar-color-swatch-btn .swatch-check {
+  display: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.avatar-color-swatch-btn.active .swatch-check {
+  display: block;
+}
+
+.avatar-frames-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* Enlarge moldura options to 48px with metallic look and active indicator */
+.avatar-frame-choice-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.avatar-frame-choice-btn:hover {
+  transform: scale(1.08);
+  border-color: #cbd5e1;
+}
+
+.avatar-frame-choice-btn img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: contain;
+  display: block;
+}
+
+.avatar-frame-choice-btn.active {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px #10b981, 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.avatar-frame-choice-btn.active::after {
+  content: "✓";
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}
+
+/* --------------------------------------------------------------------------
+   8. CONFIRMATION BUTTON
+   -------------------------------------------------------------------------- */
+.avatar-save-submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #072619 0%, #0a3825 55%, #0d462f 100%);
+  color: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  border-radius: 12px;
+  padding: 15px 20px;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(7, 38, 25, 0.35);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.avatar-save-submit-btn:hover {
+  filter: brightness(1.12);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35);
+}
+
+.avatar-save-submit-btn:active {
+  transform: translateY(0);
+  box-shadow: inset 0 1px 0 rgba(254, 240, 138, 0.2), 0 4px 12px rgba(7, 38, 25, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   9. TOPBAR AVATAR INTEGRATION
+   -------------------------------------------------------------------------- */
+.topbar .avatar.account-trigger {
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  background: #082417;
+}
+
+.topbar-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   10. RESPONSIVE DESIGN (Desktop first, down to notebook & mobile)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .avatar-workspace-grid {
+    grid-template-columns: 1fr 360px;
+    gap: 18px;
+  }
+  .avatar-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1050px) {
+  .avatar-categories-nav {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .avatar-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .avatar-preview-card {
+    order: -1;
+    margin-bottom: 24px;
+  }
+  .avatar-hero-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+  }
+  .avatar-hero-graphic {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .avatar-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .avatar-categories-nav {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   11. THEME SUPPORT: GOLD THEME ONLY (Healthy theme stays LIGHT matching Image 2)
+   -------------------------------------------------------------------------- */
+body[data-theme="gold"] .avatar-category-btn {
+  background: #141414 !important;
+  border-color: #2b2923 !important;
+}
+body[data-theme="gold"] .avatar-category-btn:hover {
+  border-color: #4a3920 !important;
+}
+body[data-theme="gold"] .avatar-category-btn.active {
+  background: linear-gradient(145deg, #1f180d, #2d2313) !important;
+  border-color: #d5aa50 !important;
+  box-shadow: 0 6px 20px rgba(213, 170, 80, 0.2);
+}
+body[data-theme="gold"] .avatar-category-name {
+  color: #fffaf0 !important;
+}
+body[data-theme="gold"] #avatar .avatar-gallery-head h2,
+body[data-theme="gold"] .avatar-card-title,
+body[data-theme="gold"] .avatar-preview-heading,
+body[data-theme="gold"] .avatar-preview-character-name,
+body[data-theme="gold"] .avatar-customize-title {
+  color: #fffaf0 !important;
+}
+body[data-theme="gold"] #avatar .avatar-gallery-head p,
+body[data-theme="gold"] .avatar-card-desc,
+body[data-theme="gold"] .avatar-preview-character-subtitle {
+  color: #a99a79 !important;
+}
+body[data-theme="gold"] .avatar-item-card,
+body[data-theme="gold"] .avatar-preview-card {
+  background: #141414 !important;
+  border-color: #2b2923 !important;
+}
+body[data-theme="gold"] .avatar-item-card.active {
+  border-color: #d5aa50 !important;
+  background: linear-gradient(180deg, #1c170d 0%, #141414 100%) !important;
+  box-shadow: 0 8px 24px rgba(213, 170, 80, 0.16), 0 0 0 1px #d5aa50;
+}
+body[data-theme="gold"] .avatar-card-badge {
+  background: #d5aa50;
+  color: #090909;
+}
+body[data-theme="gold"] .avatar-page-arrow {
+  background: #141414;
+  border-color: #2b2923;
+  color: #a99a79;
+}
+body[data-theme="gold"] .avatar-page-dot-item.active {
+  background: #d5aa50;
+}

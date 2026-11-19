@@ -60,7 +60,7 @@ test('Força Relativa: loadRelativeStrengthClassesForTimeframe atualiza atomicam
           { symbol: 'PETR3', score: 100, rank: 1, name: 'PETROLEO BRASILEIRO S.A. PETROBRAS', sector: 'Energy Minerals', m1: 11.4, m3: 22.4 },
           { symbol: 'PRIO3', score: 99, rank: 2, name: 'PRIO S.A.', sector: 'Energy Minerals', m1: 17.4, m3: 17.5 },
           { symbol: 'PETR4', score: 97, rank: 3, name: 'PETROLEO BRASILEIRO S.A. PETROBRAS', sector: 'Energy Minerals', m1: 7.3, m3: 21.4 },
-          { symbol: 'MGLU3', score: 73, rank: 21, name: 'MAGAZINE LUIZA S.A.', sector: 'Retail Trade', m1: -28.3, m3: 6.4 }
+          { symbol: 'MGLU3', score: 73, rank: 4, name: 'MAGAZINE LUIZA S.A.', sector: 'Retail Trade', m1: -28.3, m3: 6.4 }
         ]
       }
     }
@@ -89,7 +89,7 @@ test('Força Relativa: loadRelativeStrengthClassesForTimeframe atualiza atomicam
   assert.equal(dataset.items[0].symbol, 'PETR3', 'getActiveDataset deve retornar PETR3 como #1');
   assert.equal(dataset.items[0].globalRank, 1);
   assert.equal(dataset.items[3].symbol, 'MGLU3', 'getActiveDataset deve conter MGLU3 na posição correta');
-  assert.equal(dataset.items[3].globalRank, 21);
+  assert.equal(dataset.items[3].globalRank, 4);
   assert.equal(dataset.items[3].score, 73);
   assert.equal(dataset.dateLabel, '30/10/2026', 'dateLabel deve exibir 30/10/2026 e não a data antiga');
 });
@@ -102,7 +102,7 @@ test('Força Relativa: busca por ticker atua estritamente em memória sobre os d
 
   assert.equal(totalCount, 1, 'Deve encontrar exatamente 1 ativo para MGLU');
   assert.equal(paged[0].symbol, 'MGLU3');
-  assert.equal(paged[0].globalRank, 21, 'MGLU3 deve manter sua posição global de ranking (#21)');
+  assert.equal(paged[0].globalRank, 4, 'MGLU3 deve manter sua posição global de ranking (#4)');
   assert.equal(paged[0].score, 73, 'MGLU3 deve manter seu RS real (73)');
 
   // Base principal do dataset permanece intocada
@@ -124,7 +124,7 @@ test('Força Relativa: remoção da busca restaura 100% do ranking original sem 
   assert.equal(paged[2].symbol, 'PETR4', 'PETR4 deve ser o terceiro colocado');
   assert.equal(paged[2].globalRank, 3);
   assert.equal(paged[3].symbol, 'MGLU3', 'MGLU3 deve estar na posição correta');
-  assert.equal(paged[3].globalRank, 21);
+  assert.equal(paged[3].globalRank, 4);
 });
 
 test('Força Relativa: em caso de falha da API, modo offline é ativado com identificação transparente da data do fallback', async () => {
