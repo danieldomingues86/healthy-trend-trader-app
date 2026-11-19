@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-18T18:54:19.249Z",
+  "updatedAt": "2026-11-19T15:29:07.252Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -757,7 +757,7 @@
     },
     "theme-pigeon-light.css": {
       "filename": "theme-pigeon-light.css",
-      "rulesCount": 1040,
+      "rulesCount": 1052,
       "mediaBreakpointsCount": 3,
       "mediaBreakpoints": [
         "@media (min-width: 1600px)",
@@ -766,8 +766,8 @@
       ],
       "healthyRulesCount": 0,
       "goldRulesCount": 0,
-      "pigeonRulesCount": 2742,
-      "footprintHash": "bed865e67fcb79a9"
+      "pigeonRulesCount": 2754,
+      "footprintHash": "6c25b74273b3605a"
     }
   }
 }

@@ -3644,6 +3644,51 @@ body[data-theme="pigeon"] .account-dropdown {
   box-shadow: 0 20px 50px rgba(48, 75, 91, 0.16) !important;
 }
 
+body[data-theme="pigeon"] .account-summary {
+  border-bottom: 1px solid #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .account-summary b {
+  color: #1D323E !important;
+}
+
+body[data-theme="pigeon"] .account-summary span {
+  color: #627D8E !important;
+}
+
+body[data-theme="pigeon"] .account-dropdown button {
+  color: #2C4656 !important;
+  background: transparent !important;
+  font-weight: 600 !important;
+}
+
+body[data-theme="pigeon"] .account-dropdown button:hover,
+body[data-theme="pigeon"] .account-dropdown button:focus-visible {
+  background: #EEF6FA !important;
+  color: #122530 !important;
+}
+
+body[data-theme="pigeon"] .account-dropdown button .account-icon {
+  color: #3B728D !important;
+}
+
+body[data-theme="pigeon"] .account-dropdown .account-separator {
+  background: #DCE8EF !important;
+}
+
+body[data-theme="pigeon"] .account-dropdown button.account-signout {
+  color: #C0392B !important;
+}
+
+body[data-theme="pigeon"] .account-dropdown button.account-signout .account-icon {
+  color: #C0392B !important;
+}
+
+body[data-theme="pigeon"] .account-dropdown button.account-signout:hover {
+  background: #FDF2F2 !important;
+  color: #962D22 !important;
+}
+
 /* ==========================================================================
    19. GLOBAL AUDIT PHASE 2 — COMPLETE 42-SCREEN & NAVIGATION SYSTEM COVERAGE
    Palette: Background #F5FAFD | Cards #FFFFFF | Soft #DCEEF7 | Primary #79BBD6 | Text #304B5B
