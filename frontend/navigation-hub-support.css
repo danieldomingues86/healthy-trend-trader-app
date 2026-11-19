@@ -253,16 +253,16 @@ body[data-navigation-layout="tiles"] .navigation-hub-quote small::after {
 
 /* Menu superior: faixa de ícones para todos os atalhos caberem em uma linha. */
 body[data-navigation-layout="top"] .top-navigation-menu{gap:2px!important;overflow:visible!important}
-body[data-navigation-layout="top"] .top-navigation-menu button{position:relative;display:grid!important;place-items:center;flex:0 0 31px;min-width:31px!important;width:31px;height:31px;padding:0!important;border-radius:8px!important;font-size:13px!important}
-body[data-navigation-layout="top"] .top-navigation-menu button .ico{margin:0!important;font-size:15px!important;line-height:1}
-body[data-navigation-layout="top"] .top-navigation-menu button.plan-locked::after{position:absolute;top:1px;right:1px;margin:0!important;padding:1px 3px!important;font-size:6px!important;line-height:1}
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item){position:relative;display:grid!important;place-items:center;flex:0 0 31px;min-width:31px!important;width:31px;height:31px;padding:0!important;border-radius:8px!important;font-size:13px!important}
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item) .ico{margin:0!important;font-size:15px!important;line-height:1}
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item).plan-locked::after{position:absolute;top:1px;right:1px;margin:0!important;padding:1px 3px!important;font-size:6px!important;line-height:1}
 
 /* Duas linhas preservam ícone e nome: reconhecimento antes de densidade. */
 body[data-navigation-layout="top"] .sidebar{min-height:96px!important;padding-top:8px!important;padding-bottom:8px!important}
 body[data-navigation-layout="top"] .top-navigation-menu{display:grid!important;grid-template-rows:repeat(2,34px);grid-auto-columns:max-content;grid-auto-flow:column;align-items:center;gap:2px 4px;overflow-x:auto!important;overflow-y:visible!important}
-body[data-navigation-layout="top"] .top-navigation-menu button{display:flex!important;align-items:center;justify-content:flex-start;gap:5px;flex:0 0 auto;min-width:max-content!important;width:auto;height:32px;padding:7px 8px!important;border-radius:8px!important;font-size:9px!important;white-space:nowrap}
-body[data-navigation-layout="top"] .top-navigation-menu button .ico{font-size:11px!important}
-body[data-navigation-layout="top"] .top-navigation-menu button.plan-locked::after{position:static;margin-left:2px!important;padding:2px 4px!important;font-size:6px!important}
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item){display:flex!important;align-items:center;justify-content:flex-start;gap:5px;flex:0 0 auto;min-width:max-content!important;width:auto;height:32px;padding:7px 8px!important;border-radius:8px!important;font-size:9px!important;white-space:nowrap}
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item) .ico{font-size:11px!important}
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item).plan-locked::after{position:static;margin-left:2px!important;padding:2px 4px!important;font-size:6px!important}
 
 /* Menu superior: duas linhas mais amplas, centralizadas e legíveis. */
 body[data-navigation-layout="top"] .sidebar{min-height:112px!important;padding:10px 24px!important;gap:20px!important}
@@ -275,12 +275,12 @@ body[data-navigation-layout="top"] .top-navigation-menu{
   align-content:center;
   gap:4px 10px!important;
 }
-body[data-navigation-layout="top"] .top-navigation-menu button{
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item){
   gap:7px!important;
   height:38px!important;
   padding:8px 11px!important;
   font-size:11px!important;
   font-weight:650;
 }
-body[data-navigation-layout="top"] .top-navigation-menu button .ico{font-size:13px!important}
-body[data-navigation-layout="top"] .top-navigation-menu button.plan-locked::after{margin-left:3px!important;padding:2px 5px!important;font-size:7px!important}
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item) .ico{font-size:13px!important}
+body[data-navigation-layout="top"] .top-navigation-menu button:not(.top-nav-dropdown-item).plan-locked::after{margin-left:3px!important;padding:2px 5px!important;font-size:7px!important}

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-19T15:29:07.252Z",
+  "updatedAt": "2026-11-19T20:23:06.286Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -737,7 +737,7 @@
     },
     "sidebar-navigation.css": {
       "filename": "sidebar-navigation.css",
-      "rulesCount": 407,
+      "rulesCount": 409,
       "mediaBreakpointsCount": 9,
       "mediaBreakpoints": [
         "@media (max-width: 1024px)",
@@ -753,11 +753,11 @@
       "healthyRulesCount": 119,
       "goldRulesCount": 170,
       "pigeonRulesCount": 104,
-      "footprintHash": "f1280dc2c7d653ed"
+      "footprintHash": "ed706e61ab6069fc"
     },
     "theme-pigeon-light.css": {
       "filename": "theme-pigeon-light.css",
-      "rulesCount": 1052,
+      "rulesCount": 1054,
       "mediaBreakpointsCount": 3,
       "mediaBreakpoints": [
         "@media (min-width: 1600px)",
@@ -766,8 +766,8 @@
       ],
       "healthyRulesCount": 0,
       "goldRulesCount": 0,
-      "pigeonRulesCount": 2754,
-      "footprintHash": "6c25b74273b3605a"
+      "pigeonRulesCount": 2758,
+      "footprintHash": "6a4fd7314de1a3f6"
     }
   }
 }

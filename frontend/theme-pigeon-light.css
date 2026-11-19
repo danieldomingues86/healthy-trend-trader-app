@@ -7070,6 +7070,25 @@ body[data-theme="pigeon"] .top-nav-dropdown-menu {
   border: 1px solid #DCE8EF !important;
   box-shadow: 0 16px 40px rgba(48, 75, 91, 0.14) !important;
   border-radius: 14px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+html[data-theme="pigeon"] .top-nav-dropdown-list,
+body[data-theme="pigeon"] .top-nav-dropdown-list {
+  max-height: none !important;
+  overflow: visible !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+  white-space: normal !important;
+}
+
+html[data-theme="pigeon"] .top-nav-dropdown-list::-webkit-scrollbar,
+body[data-theme="pigeon"] .top-nav-dropdown-list::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 html[data-theme="pigeon"] .top-nav-dropdown-header,
