@@ -1,0 +1,16 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="35%" stop-color="#eab308"/>
+      <stop offset="70%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#854d0e"/>
+    </linearGradient>
+    <filter id="goldShadow" x="-2" y="-2" width="44" height="44" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#ca8a04" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <circle cx="20" cy="20" r="17" stroke="url(#goldGrad)" stroke-width="3" filter="url(#goldShadow)"/>
+  <circle cx="20" cy="20" r="14.5" stroke="#fef08a" stroke-width="0.8" stroke-opacity="0.8"/>
+  <circle cx="20" cy="20" r="13" fill="none"/>
+</svg>
