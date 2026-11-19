@@ -20,11 +20,11 @@
    -------------------------------------------------------------------------- */
 .avatar-hero-banner {
   width: 100%;
-  min-height: 142px;
-  background: linear-gradient(90deg, #051b12 0%, #062619 40%, #093926 70%, #072a1c 100%);
-  border: 1px solid rgba(52, 211, 153, 0.22);
+  min-height: 148px;
+  background: radial-gradient(circle at 75% 50%, #0d4a30 0%, #06281a 45%, #03180f 100%);
+  border: 1px solid rgba(52, 211, 153, 0.28);
   border-radius: 22px;
-  box-shadow: 0 16px 36px rgba(4, 26, 17, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 36px rgba(4, 26, 17, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -106,8 +106,8 @@
   max-height: 180px;
   object-fit: cover;
   object-position: right center;
-  opacity: 0.95;
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4));
+  opacity: 1;
+  filter: contrast(1.1) brightness(1.05) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45));
 }
 
 /* --------------------------------------------------------------------------
@@ -152,11 +152,10 @@
 }
 
 .avatar-category-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: rgba(212, 175, 55, 0.1);
-  color: #ca8a04;
+  width: 36px;
+  height: 36px;
+  background: transparent !important;
+  color: #d4af37;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -190,13 +189,13 @@
 /* Active Category: Deep forest green with emerald/gold accents */
 .avatar-category-btn.active {
   background: linear-gradient(145deg, #072619, #093724) !important;
-  border: 1px solid #10b981 !important;
+  border: 1.5px solid #10b981 !important;
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .avatar-category-btn.active .avatar-category-icon-box {
-  background: rgba(52, 211, 153, 0.18);
-  color: #34d399;
+  background: transparent !important;
+  color: #facc15;
 }
 
 .avatar-category-btn.active .avatar-category-name {
@@ -289,23 +288,25 @@
   display: grid;
 }
 
-/* Large Circular Portrait in Gallery Card (increased by ~18% to 164px) */
+/* Circular Portrait in Gallery Card (large 184px, taking ~72% of card width, no artificial borders) */
 .avatar-portrait-wrap {
-  width: 164px;
-  height: 164px;
+  width: 184px;
+  height: 184px;
   border-radius: 50%;
   position: relative;
-  margin-bottom: 14px;
+  margin: 0 auto 12px;
   display: grid;
   place-items: center;
   overflow: hidden;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none !important;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
 }
 
 .avatar-item-card:hover .avatar-portrait-wrap {
-  transform: scale(1.02);
+  transform: scale(1.025);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
 }
 
 .avatar-portrait-img {
@@ -317,18 +318,18 @@
 }
 
 .avatar-card-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   color: #0f172a !important;
-  margin: 4px 0 3px 0;
+  margin: 4px 0 2px 0;
 }
 
 .avatar-card-desc {
   font-size: 12.5px;
-  line-height: 1.45;
+  line-height: 1.4;
   color: #64748b !important;
   margin: 0;
-  min-height: 34px;
+  min-height: 32px;
 }
 
 /* --------------------------------------------------------------------------
@@ -421,66 +422,19 @@
   margin-bottom: 18px;
 }
 
-/* Large Prominent Preview Circle */
-/* Large Prominent Preview Circle (increased to 258px with depth and glow) */
+/* Large Prominent Preview Circle (268px, no artificial borders, pure illustration with soft shadow and glow) */
 .avatar-preview-circle-stage {
-  width: 258px;
-  height: 258px;
+  width: 268px;
+  height: 268px;
   border-radius: 50%;
   position: relative;
   display: grid;
   place-items: center;
   margin: 0 auto 16px;
   overflow: hidden;
+  border: none !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16), 0 0 36px var(--avatar-highlight-glow);
-}
-
-/* Moldura bezel overlay effects on preview stage */
-.avatar-preview-circle-stage::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 2;
-  transition: all 0.3s ease;
-}
-
-.avatar-preview-circle-stage.frame-gold_classic::before {
-  border: 4px solid transparent;
-  background: linear-gradient(135deg, rgba(254, 240, 138, 0.6) 0%, rgba(202, 138, 4, 0.75) 50%, rgba(120, 53, 15, 0.85) 100%) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  box-shadow: inset 0 0 8px rgba(234, 179, 8, 0.35);
-}
-
-.avatar-preview-circle-stage.frame-silver_minimal::before {
-  border: 4px solid transparent;
-  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 35%, #94a3b8 70%, #475569 100%) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  box-shadow: inset 0 0 8px rgba(148, 163, 184, 0.4);
-}
-
-.avatar-preview-circle-stage.frame-gold_ornamental::before {
-  border: 5px solid transparent;
-  background: linear-gradient(135deg, #fef08a 0%, #eab308 30%, #ca8a04 70%, #78350f 100%) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.45), 0 0 10px rgba(212, 175, 55, 0.3);
-}
-
-.avatar-preview-circle-stage.frame-green_premium::before {
-  border: 4px solid transparent;
-  background: linear-gradient(135deg, #34d399 0%, #10b981 40%, #047857 75%, #064e3b 100%) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  box-shadow: inset 0 0 8px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.14), 0 0 32px var(--avatar-highlight-glow);
 }
 
 .avatar-preview-main-img {
@@ -651,13 +605,13 @@
 }
 
 /* --------------------------------------------------------------------------
-   8. CONFIRMATION BUTTON (Forest green with metallic gold border & highlight)
+   8. CONFIRMATION BUTTON
    -------------------------------------------------------------------------- */
 .avatar-save-submit-btn {
   width: 100%;
   background: linear-gradient(135deg, #072619 0%, #0a3825 55%, #0d462f 100%);
   color: #ffffff;
-  border: 1.5px solid #d4af37;
+  border: 1px solid rgba(16, 185, 129, 0.45);
   border-radius: 12px;
   padding: 15px 20px;
   font-size: 15px;
@@ -667,15 +621,14 @@
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(254, 240, 138, 0.35), 0 8px 24px rgba(7, 38, 25, 0.35);
+  box-shadow: 0 6px 18px rgba(7, 38, 25, 0.35);
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .avatar-save-submit-btn:hover {
-  filter: brightness(1.1);
-  border-color: #fef08a;
+  filter: brightness(1.12);
   transform: translateY(-2px);
-  box-shadow: inset 0 1px 0 rgba(254, 240, 138, 0.55), 0 12px 28px rgba(7, 38, 25, 0.45), 0 0 14px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.35);
 }
 
 .avatar-save-submit-btn:active {

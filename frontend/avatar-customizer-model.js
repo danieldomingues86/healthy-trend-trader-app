@@ -13,31 +13,43 @@
   const CATEGORIES = [
     {
       id: 'animals',
-      name: 'Market Animals',
+      name: 'Animais do Mercado',
+      nameEn: 'Market Animals',
       subtitle: 'Força e comportamento de mercado',
+      subtitleEn: 'Strength and market behavior',
       icon: 'bull',
-      description: 'Animais que representam os principais comportamentos do mercado financeiro.'
+      description: 'Animais que representam os principais comportamentos do mercado financeiro.',
+      descriptionEn: 'Animals that represent key financial market behaviors.'
     },
     {
       id: 'legends',
-      name: 'Trading Legends',
+      name: 'Lendas do Trading',
+      nameEn: 'Trading Legends',
       subtitle: 'Estratégia e liderança',
+      subtitleEn: 'Strategy and leadership',
       icon: 'crown',
-      description: 'Lendas do mercado financeiro e suas filosofias atemporais de disciplina.'
+      description: 'Grandes referências e lendas do trading que marcaram a história dos mercados.',
+      descriptionEn: 'Great trading references and legends that marked market history.'
     },
     {
       id: 'symbols',
-      name: 'Market Symbols',
+      name: 'Símbolos do Mercado',
+      nameEn: 'Market Symbols',
       subtitle: 'Ícones do mercado',
+      subtitleEn: 'Market icons',
       icon: 'bars',
-      description: 'Símbolos essenciais da ação do preço, da geometria e da estrutura técnica.'
+      description: 'Símbolos essenciais da ação do preço, da geometria e da estrutura técnica.',
+      descriptionEn: 'Classic financial market symbols and technical chart representations.'
     },
     {
       id: 'traders',
-      name: 'Trader Identity',
+      name: 'Identidade do Trader',
+      nameEn: 'Trader Identity',
       subtitle: 'Personagens do trader',
+      subtitleEn: 'Trader characters',
       icon: 'trader',
-      description: 'Arquétipos e perfis psicológicos do operador de alta performance.'
+      description: 'Perfis e personas que representam a mentalidade operacional.',
+      descriptionEn: 'Profiles and personas representing trading psychology and mindset.'
     }
   ];
 
@@ -45,7 +57,9 @@
     {
       id: 'bull',
       name: 'Touro',
+      nameEn: 'Bull',
       subtitle: 'Força, tendência e alta.',
+      subtitleEn: 'Strength, trend and rally.',
       avatarUrl: 'assets/avatars/bull.png',
       previewUrl: 'assets/avatars/preview-bull.png',
       category: 'animals'
@@ -53,7 +67,9 @@
     {
       id: 'bear',
       name: 'Urso',
+      nameEn: 'Bear',
       subtitle: 'Defesa, proteção e baixa.',
+      subtitleEn: 'Defense, protection and downtrend.',
       avatarUrl: 'assets/avatars/bear.png',
       previewUrl: 'assets/avatars/bear.png',
       category: 'animals'
@@ -61,7 +77,9 @@
     {
       id: 'eagle',
       name: 'Águia',
+      nameEn: 'Eagle',
       subtitle: 'Visão estratégica e antecipação.',
+      subtitleEn: 'Strategic vision and anticipation.',
       avatarUrl: 'assets/avatars/eagle.png',
       previewUrl: 'assets/avatars/eagle.png',
       category: 'animals'
@@ -69,7 +87,9 @@
     {
       id: 'panther',
       name: 'Pantera',
+      nameEn: 'Panther',
       subtitle: 'Precisão, paciência e execução.',
+      subtitleEn: 'Precision, patience and execution.',
       avatarUrl: 'assets/avatars/panther.png',
       previewUrl: 'assets/avatars/panther.png',
       category: 'animals'
@@ -77,7 +97,9 @@
     {
       id: 'wolf',
       name: 'Lobo',
+      nameEn: 'Wolf',
       subtitle: 'Disciplina e inteligência.',
+      subtitleEn: 'Discipline and intelligence.',
       avatarUrl: 'assets/avatars/wolf.png',
       previewUrl: 'assets/avatars/wolf.png',
       category: 'animals'
@@ -85,7 +107,9 @@
     {
       id: 'lion',
       name: 'Leão',
+      nameEn: 'Lion',
       subtitle: 'Liderança e domínio.',
+      subtitleEn: 'Leadership and dominance.',
       avatarUrl: 'assets/avatars/lion.png',
       previewUrl: 'assets/avatars/lion.png',
       category: 'animals'
@@ -93,7 +117,9 @@
     {
       id: 'falcon',
       name: 'Falcão',
+      nameEn: 'Falcon',
       subtitle: 'Velocidade e timing.',
+      subtitleEn: 'Speed and timing.',
       avatarUrl: 'assets/avatars/falcon.png',
       previewUrl: 'assets/avatars/falcon.png',
       category: 'animals'
@@ -101,7 +127,9 @@
     {
       id: 'deer',
       name: 'Cervo',
+      nameEn: 'Deer',
       subtitle: 'Foco, calma e consistência.',
+      subtitleEn: 'Focus, calm and consistency.',
       avatarUrl: 'assets/avatars/deer.png',
       previewUrl: 'assets/avatars/deer.png',
       category: 'animals'
@@ -317,36 +345,40 @@
   };
 
   const HIGHLIGHT_COLORS = [
-    { id: 'green', name: 'Verde', hex: '#10b981', glow: 'rgba(16, 185, 129, 0.45)', border: '#059669' },
-    { id: 'gold', name: 'Dourado', hex: '#eab308', glow: 'rgba(234, 179, 8, 0.45)', border: '#ca8a04' },
-    { id: 'blue', name: 'Azul', hex: '#3b82f6', glow: 'rgba(59, 130, 246, 0.45)', border: '#2563eb' },
-    { id: 'purple', name: 'Roxo', hex: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.45)', border: '#7c3aed' },
-    { id: 'red', name: 'Vermelho', hex: '#ef4444', glow: 'rgba(239, 68, 68, 0.45)', border: '#dc2626' },
-    { id: 'silver', name: 'Prata', hex: '#94a3b8', glow: 'rgba(148, 163, 184, 0.45)', border: '#64748b' }
+    { id: 'green', name: 'Verde', nameEn: 'Green', hex: '#10b981', glow: 'rgba(16, 185, 129, 0.45)', border: '#059669' },
+    { id: 'gold', name: 'Dourado', nameEn: 'Gold', hex: '#eab308', glow: 'rgba(234, 179, 8, 0.45)', border: '#ca8a04' },
+    { id: 'blue', name: 'Azul', nameEn: 'Blue', hex: '#3b82f6', glow: 'rgba(59, 130, 246, 0.45)', border: '#2563eb' },
+    { id: 'purple', name: 'Roxo', nameEn: 'Purple', hex: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.45)', border: '#7c3aed' },
+    { id: 'red', name: 'Vermelho', nameEn: 'Red', hex: '#ef4444', glow: 'rgba(239, 68, 68, 0.45)', border: '#dc2626' },
+    { id: 'silver', name: 'Prata', nameEn: 'Silver', hex: '#94a3b8', glow: 'rgba(148, 163, 184, 0.45)', border: '#64748b' }
   ];
 
   const FRAMES = [
     {
       id: 'gold_classic',
       name: 'Dourada clássica',
+      nameEn: 'Classic Gold',
       iconUrl: 'assets/avatars/frame-gold-classic.svg',
       borderStyle: 'gold-classic'
     },
     {
       id: 'silver_minimal',
       name: 'Prata minimalista',
+      nameEn: 'Minimalist Silver',
       iconUrl: 'assets/avatars/frame-silver-minimal.svg',
       borderStyle: 'silver-minimal'
     },
     {
       id: 'gold_ornamental',
       name: 'Dourada ornamental',
+      nameEn: 'Ornamental Gold',
       iconUrl: 'assets/avatars/frame-gold-ornamental.svg',
       borderStyle: 'gold-ornamental'
     },
     {
       id: 'green_premium',
       name: 'Verde premium',
+      nameEn: 'Premium Green',
       iconUrl: 'assets/avatars/frame-green-premium.svg',
       borderStyle: 'green-premium'
     }
