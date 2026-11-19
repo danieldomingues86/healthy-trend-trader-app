@@ -1,0 +1,861 @@
+/* ==========================================================================
+   Healthy Trend Trader — Regras do Trader (Protocolo de Disciplina & Governança)
+   Design Premium: Dark Emerald (Healthy), Luxury Black (Gold), Paper Clean (Pigeon)
+   ========================================================================== */
+
+/* Container base e isolamento da página */
+body:has(#traderrules.active) .content {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #071710;
+}
+
+body[data-theme="gold"]:has(#traderrules.active) .content,
+body.gold-theme:has(#traderrules.active) .content,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]):has(#traderrules.active) .content {
+  background: #0d0f12 !important;
+}
+
+html[data-theme="pigeon"] body:has(#traderrules.active) .content,
+body[data-theme="pigeon"]:has(#traderrules.active) .content {
+  background: #f8faf9 !important;
+}
+
+#traderrules {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  margin: 0;
+  padding: clamp(16px, 1.8vw, 28px) clamp(20px, 2.4vw, 42px) clamp(32px, 3.5vw, 64px);
+  color: #e5f3eb;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(16, 185, 129, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 10%, rgba(34, 197, 94, 0.08), transparent 35%),
+    linear-gradient(180deg, #071710 0%, #0a2016 45%, #05120c 100%);
+  box-sizing: border-box;
+}
+
+/* --- TOKENS DE CORES POR TEMA --- */
+#traderrules {
+  --tr-bg-card: rgba(13, 36, 26, 0.72);
+  --tr-bg-card-hover: rgba(17, 46, 33, 0.85);
+  --tr-border: rgba(34, 197, 94, 0.18);
+  --tr-border-highlight: rgba(52, 211, 153, 0.45);
+  --tr-text-primary: #f0fdf4;
+  --tr-text-secondary: #94b8a3;
+  --tr-text-muted: #648a75;
+  --tr-accent: #10b981;
+  --tr-accent-glow: rgba(16, 185, 129, 0.28);
+  --tr-gold: #d4af37;
+  --tr-gold-glow: rgba(212, 175, 55, 0.22);
+  --tr-danger-bg: rgba(239, 68, 68, 0.09);
+  --tr-danger-border: rgba(239, 68, 68, 0.24);
+  --tr-danger-text: #fca5a5;
+  --tr-danger-kicker: #f87171;
+  --tr-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  --tr-shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+
+/* Tema Gold */
+body[data-theme="gold"] #traderrules,
+body.gold-theme #traderrules,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderrules {
+  color: #f3f4f6;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(212, 175, 55, 0.12), transparent 40%),
+    radial-gradient(circle at 85% 10%, rgba(184, 147, 43, 0.08), transparent 35%),
+    linear-gradient(180deg, #111417 0%, #0d0f12 50%, #08090a 100%);
+  --tr-bg-card: rgba(23, 27, 33, 0.76);
+  --tr-bg-card-hover: rgba(30, 35, 43, 0.9);
+  --tr-border: rgba(212, 175, 55, 0.22);
+  --tr-border-highlight: rgba(243, 208, 97, 0.5);
+  --tr-text-primary: #fdf8eb;
+  --tr-text-secondary: #c5bba6;
+  --tr-text-muted: #8d8471;
+  --tr-accent: #d4af37;
+  --tr-accent-glow: rgba(212, 175, 55, 0.3);
+  --tr-danger-bg: rgba(239, 68, 68, 0.1);
+  --tr-danger-border: rgba(239, 68, 68, 0.3);
+  --tr-danger-text: #fca5a5;
+  --tr-danger-kicker: #ef4444;
+  --tr-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --tr-shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* Tema Pigeon Light */
+html[data-theme="pigeon"] #traderrules,
+body[data-theme="pigeon"] #traderrules {
+  color: #1e293b;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(16, 185, 129, 0.06), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(100, 116, 139, 0.06), transparent 30%),
+    linear-gradient(180deg, #f8faf9 0%, #f1f5f3 50%, #eaf0ec 100%);
+  --tr-bg-card: #ffffff;
+  --tr-bg-card-hover: #fcfdfc;
+  --tr-border: #dbe4de;
+  --tr-border-highlight: #059669;
+  --tr-text-primary: #0f172a;
+  --tr-text-secondary: #475569;
+  --tr-text-muted: #64748b;
+  --tr-accent: #059669;
+  --tr-accent-glow: rgba(5, 150, 105, 0.2);
+  --tr-gold: #b45309;
+  --tr-gold-glow: rgba(180, 83, 9, 0.15);
+  --tr-danger-bg: #fef2f2;
+  --tr-danger-border: #fecaca;
+  --tr-danger-text: #991b1b;
+  --tr-danger-kicker: #dc2626;
+  --tr-shadow: 0 14px 34px rgba(30, 41, 59, 0.06);
+  --tr-shadow-sm: 0 3px 12px rgba(30, 41, 59, 0.04);
+}
+
+/* Shell & Centralização */
+.trader-rules-shell {
+  width: 100% !important;
+  max-width: 1560px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 2vw, 32px);
+}
+
+/* Botão Superior Voltar */
+.trader-rules-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 8px 18px;
+  border: 1px solid var(--tr-border);
+  border-radius: 999px;
+  background: var(--tr-bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--tr-text-primary);
+  font: 600 13px/1 Inter, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  cursor: pointer;
+  box-shadow: var(--tr-shadow-sm);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trader-rules-back-btn:hover {
+  border-color: var(--tr-border-highlight);
+  background: var(--tr-bg-card-hover);
+  transform: translateX(-3px);
+  color: var(--tr-accent);
+}
+
+/* ==========================================================================
+   1. HERO SECTION (EDITORIAL & CINEMATOGRÁFICO)
+   ========================================================================== */
+.trader-rules-hero {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: clamp(24px, 2.5vw, 38px) clamp(24px, 3vw, 44px);
+  border-radius: 22px;
+  border: 1px solid var(--tr-border);
+  background: var(--tr-bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--tr-shadow);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.trader-rules-hero::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: var(--tr-accent-glow);
+  filter: blur(55px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.trader-rules-hero-main {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rules-kicker {
+  font: 800 11px/1 Inter, Arial, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tr-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rules-kicker::before {
+  content: '❖';
+  font-size: 12px;
+}
+
+.trader-rules-hero h1 {
+  margin: 0;
+  font: 800 clamp(28px, 2.6vw, 40px) / 1.1 Inter, Arial, sans-serif;
+  letter-spacing: -0.035em;
+  color: var(--tr-text-primary);
+}
+
+.trader-rules-hero p {
+  margin: 4px 0 0;
+  font: 500 clamp(13px, 1.05vw, 15px) / 1.55 Inter, Arial, sans-serif;
+  color: var(--tr-text-secondary);
+}
+
+/* Card de Prontidão no Hero */
+.trader-rules-status-panel {
+  position: relative;
+  z-index: 1;
+  min-width: 280px;
+  max-width: 380px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--tr-border);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="pigeon"] .trader-rules-status-panel,
+body[data-theme="pigeon"] .trader-rules-status-panel {
+  background: #f1f5f3;
+}
+
+.trader-rules-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.trader-rules-status-title {
+  font: 700 11px/1 Inter, Arial, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tr-text-muted);
+}
+
+.trader-rules-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: 700 11.5px/1 Inter, Arial, sans-serif;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+}
+
+.trader-rules-status-badge.pending {
+  background: rgba(234, 179, 8, 0.14);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  color: #facc15;
+}
+
+html[data-theme="pigeon"] .trader-rules-status-badge.pending,
+body[data-theme="pigeon"] .trader-rules-status-badge.pending {
+  color: #a16207;
+}
+
+.trader-rules-status-badge.complete {
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  color: #4ade80;
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.25);
+}
+
+html[data-theme="pigeon"] .trader-rules-status-badge.complete,
+body[data-theme="pigeon"] .trader-rules-status-badge.complete {
+  color: #15803d;
+}
+
+/* Barra de progresso visual */
+.trader-rules-progress-wrap {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+html[data-theme="pigeon"] .trader-rules-progress-wrap,
+body[data-theme="pigeon"] .trader-rules-progress-wrap {
+  background: #e2e8f0;
+}
+
+.trader-rules-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trader-rules-hero-quote {
+  margin: 0;
+  font: italic 500 12.5px/1.45 Georgia, Cambria, serif;
+  color: var(--tr-text-secondary);
+  border-left: 2px solid var(--tr-accent);
+  padding-left: 10px;
+}
+
+/* ==========================================================================
+   2. MAIN GRID (CHECKLIST & EXECUÇÃO EM COLUNAS PARALELAS)
+   ========================================================================== */
+.trader-rules-main-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: clamp(20px, 2vw, 28px);
+  align-items: start;
+}
+
+@media (max-width: 1060px) {
+  .trader-rules-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.trader-rules-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(20px, 2vw, 30px);
+  border-radius: 22px;
+  border: 1px solid var(--tr-border);
+  background: var(--tr-bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--tr-shadow);
+  box-sizing: border-box;
+}
+
+.trader-rules-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--tr-border);
+}
+
+.trader-rules-card-head h2 {
+  margin: 0;
+  font: 700 clamp(18px, 1.4vw, 22px) / 1.2 Inter, Arial, sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--tr-text-primary);
+}
+
+.trader-rules-card-head p {
+  margin: 4px 0 0;
+  font: 500 13px/1.45 Inter, Arial, sans-serif;
+  color: var(--tr-text-secondary);
+}
+
+/* Botões do Checklist */
+.trader-rules-checklist-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trader-rules-checklist-actions button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font: 600 12px/1 Inter, Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: 1px solid var(--tr-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--tr-text-secondary);
+}
+
+.trader-rules-checklist-actions button:hover {
+  background: var(--tr-bg-card-hover);
+  border-color: var(--tr-border-highlight);
+  color: var(--tr-text-primary);
+  transform: translateY(-1px);
+}
+
+.trader-rules-checklist-actions button.btn-mark-all {
+  border-color: var(--tr-accent);
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--tr-accent);
+}
+
+.trader-rules-checklist-actions button.btn-mark-all:hover {
+  background: var(--tr-accent);
+  color: #ffffff;
+}
+
+/* Lista de Itens do Checklist */
+.trader-rules-checklist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trader-rules-check-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--tr-border);
+  background: rgba(0, 0, 0, 0.14);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+html[data-theme="pigeon"] .trader-rules-check-item,
+body[data-theme="pigeon"] .trader-rules-check-item {
+  background: #f8faf9;
+}
+
+.trader-rules-check-item:hover {
+  border-color: var(--tr-border-highlight);
+  background: var(--tr-bg-card-hover);
+  transform: translateX(2px);
+}
+
+.trader-rules-check-item.checked {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(16, 185, 129, 0.07);
+}
+
+html[data-theme="pigeon"] .trader-rules-check-item.checked,
+body[data-theme="pigeon"] .trader-rules-check-item.checked {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+}
+
+/* Custom Checkbox Pill */
+.trader-rules-check-box {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 7px;
+  border: 2px solid var(--tr-border);
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  transition: all 0.2s ease;
+}
+
+.trader-rules-check-item:hover .trader-rules-check-box {
+  border-color: var(--tr-border-highlight);
+}
+
+.trader-rules-check-item.checked .trader-rules-check-box {
+  background: var(--tr-accent);
+  border-color: var(--tr-accent);
+  box-shadow: 0 0 10px var(--tr-accent-glow);
+}
+
+.trader-rules-check-box svg {
+  width: 13px;
+  height: 13px;
+  stroke: #ffffff;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trader-rules-check-item.checked .trader-rules-check-box svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.trader-rules-check-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.trader-rules-check-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trader-rules-check-icon {
+  font-size: 14px;
+}
+
+.trader-rules-check-item b {
+  font: 700 14px/1.3 Inter, Arial, sans-serif;
+  color: var(--tr-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.trader-rules-check-item p {
+  margin: 0;
+  font: 400 12.5px/1.45 Inter, Arial, sans-serif;
+  color: var(--tr-text-secondary);
+}
+
+.trader-rules-badge-valid {
+  margin-left: auto;
+  font: 700 10.5px/1 Inter, Arial, sans-serif;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+html[data-theme="pigeon"] .trader-rules-badge-valid,
+body[data-theme="pigeon"] .trader-rules-badge-valid {
+  color: #16a34a;
+}
+
+.trader-rules-check-item.checked .trader-rules-badge-valid {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   3. PIPELINE DE EXECUÇÃO EM 3 ESTÁGIOS
+   ========================================================================== */
+.trader-rules-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+.trader-rules-stages::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 36px;
+  bottom: 36px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--tr-accent), rgba(34, 197, 94, 0.2));
+  z-index: 0;
+}
+
+.trader-rules-stage-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--tr-border);
+  background: rgba(0, 0, 0, 0.14);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+html[data-theme="pigeon"] .trader-rules-stage-card,
+body[data-theme="pigeon"] .trader-rules-stage-card {
+  background: #f8faf9;
+}
+
+.trader-rules-stage-card:hover {
+  border-color: var(--tr-border-highlight);
+  background: var(--tr-bg-card-hover);
+  transform: translateX(2px);
+}
+
+.trader-rules-stage-icon-wrap {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--tr-border);
+  background: var(--tr-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--tr-shadow-sm);
+}
+
+.trader-rules-stage-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trader-rules-stage-kicker {
+  font: 800 10.5px/1 Inter, Arial, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tr-accent);
+}
+
+.trader-rules-stage-body b {
+  font: 700 14.5px/1.25 Inter, Arial, sans-serif;
+  color: var(--tr-text-primary);
+}
+
+.trader-rules-stage-body p {
+  margin: 4px 0 0;
+  font: 400 12.5px/1.5 Inter, Arial, sans-serif;
+  color: var(--tr-text-secondary);
+}
+
+.trader-rules-stage-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.trader-rules-stage-tag {
+  font: 600 10.5px/1 Inter, Arial, sans-serif;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--tr-text-muted);
+  border: 1px solid var(--tr-border);
+}
+
+/* ==========================================================================
+   4. AS 7 REGRAS DE OURO (GRID EDITORIAL NOBRE)
+   ========================================================================== */
+.trader-rules-gold-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(24px, 2.5vw, 36px);
+  border-radius: 22px;
+  border: 1px solid var(--tr-border);
+  background: var(--tr-bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--tr-shadow);
+  box-sizing: border-box;
+  gap: 20px;
+}
+
+.trader-rules-gold-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rules-kicker-gold {
+  color: var(--tr-gold) !important;
+}
+
+.rules-kicker-gold::before {
+  content: '★';
+  color: var(--tr-gold);
+}
+
+.trader-rules-gold-head h2 {
+  margin: 0;
+  font: 800 clamp(20px, 1.8vw, 26px) / 1.15 Inter, Arial, sans-serif;
+  letter-spacing: -0.025em;
+  color: var(--tr-text-primary);
+}
+
+.trader-rules-gold-head p {
+  margin: 0;
+  font: 500 13.5px/1.45 Inter, Arial, sans-serif;
+  color: var(--tr-text-secondary);
+}
+
+.trader-rules-gold-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.trader-rules-gold-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--tr-border);
+  background: rgba(0, 0, 0, 0.16);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+html[data-theme="pigeon"] .trader-rules-gold-card,
+body[data-theme="pigeon"] .trader-rules-gold-card {
+  background: #f8faf9;
+}
+
+.trader-rules-gold-card:hover {
+  border-color: var(--tr-gold);
+  background: var(--tr-bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--tr-gold-glow);
+}
+
+.trader-rules-gold-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trader-rules-gold-num {
+  font: 800 16px/1 Inter, Arial, sans-serif;
+  color: var(--tr-gold);
+  letter-spacing: -0.03em;
+  opacity: 0.85;
+}
+
+.trader-rules-gold-badge {
+  font: 700 10px/1 Inter, Arial, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--tr-gold);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.trader-rules-gold-card p {
+  margin: 0;
+  font: 600 13.5px/1.45 Inter, Arial, sans-serif;
+  color: var(--tr-text-primary);
+}
+
+/* ==========================================================================
+   5. A LINHA VERMELHA (O QUE NÃO FAZER)
+   ========================================================================== */
+.trader-rules-dont-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(24px, 2.5vw, 36px);
+  border-radius: 22px;
+  border: 1px solid var(--tr-danger-border);
+  background: var(--tr-danger-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--tr-shadow);
+  box-sizing: border-box;
+  gap: 20px;
+}
+
+.trader-rules-dont-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rules-kicker-dont {
+  color: var(--tr-danger-kicker) !important;
+}
+
+.rules-kicker-dont::before {
+  content: '🛑';
+  font-size: 12px;
+}
+
+.trader-rules-dont-head h2 {
+  margin: 0;
+  font: 800 clamp(20px, 1.8vw, 26px) / 1.15 Inter, Arial, sans-serif;
+  letter-spacing: -0.025em;
+  color: var(--tr-text-primary);
+}
+
+.trader-rules-dont-head p {
+  margin: 0;
+  font: 500 13.5px/1.45 Inter, Arial, sans-serif;
+  color: var(--tr-danger-text);
+  opacity: 0.9;
+}
+
+.trader-rules-dont-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.trader-rules-dont-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--tr-danger-border);
+  background: rgba(0, 0, 0, 0.22);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+html[data-theme="pigeon"] .trader-rules-dont-card,
+body[data-theme="pigeon"] .trader-rules-dont-card {
+  background: #ffffff;
+}
+
+.trader-rules-dont-card:hover {
+  border-color: var(--tr-danger-kicker);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.15);
+}
+
+.trader-rules-dont-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.trader-rules-dont-card-title {
+  font: 800 14px/1.2 Inter, Arial, sans-serif;
+  color: var(--tr-danger-kicker);
+  letter-spacing: -0.01em;
+}
+
+.trader-rules-dont-card-badge {
+  font: 700 9.5px/1 Inter, Arial, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.18);
+  color: var(--tr-danger-kicker);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.trader-rules-dont-card p {
+  margin: 2px 0 0;
+  font: 400 12.5px/1.5 Inter, Arial, sans-serif;
+  color: var(--tr-text-primary);
+}
+
+.trader-rules-dont-card p strong {
+  color: var(--tr-danger-text);
+}

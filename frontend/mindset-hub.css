@@ -1,16 +1,14 @@
 /* Mentalidade — Central de Treinamento Mental do Trader */
 
 /* Reset do container content para permitir aproveitamento total do espaço horizontal */
-body:has(#mindset.active) .content,
-body:has(#traderrules.active) .content {
+body:has(#mindset.active) .content {
   max-width: none !important;
   margin: 0 !important;
   padding: 0 !important;
   background: #f8faf9;
 }
 
-#mindset,
-#traderrules {
+#mindset {
   width: 100%;
   min-height: calc(100vh - 64px);
   margin: 0;
@@ -712,8 +710,7 @@ body:has(#traderrules.active) .content {
    - Gold Theme (luxury black & gold)
    ================================================== */
 
-body.gold-theme #mindset,
-body.gold-theme #traderrules {
+body.gold-theme #mindset {
   background: radial-gradient(circle at 10% 0%, rgba(212, 175, 55, 0.08), transparent 30%), linear-gradient(180deg, #111417 0%, #0d0f12 100%);
   color: #f3f4f6;
 }
