@@ -1,11 +1,11 @@
 /* ==========================================================================
    Healthy Trend Trader — Avatar Customizer (Seu Avatar)
-   Pixel-perfect implementation of the reference design (media_1795088507383_80993229)
+   Pixel-perfect implementation of the reference design (media_1795090830324_1363d7a3.jpg)
    ========================================================================== */
 
 :root {
   --avatar-highlight-color: #10b981;
-  --avatar-highlight-glow: rgba(16, 185, 129, 0.4);
+  --avatar-highlight-glow: rgba(16, 185, 129, 0.45);
 }
 
 .avatar-customizer-shell {
@@ -20,11 +20,11 @@
    -------------------------------------------------------------------------- */
 .avatar-hero-banner {
   width: 100%;
-  min-height: 146px;
-  background: linear-gradient(90deg, #041a11 0%, #062619 40%, #093926 70%, #072a1c 100%);
+  min-height: 142px;
+  background: linear-gradient(90deg, #051b12 0%, #062619 40%, #093926 70%, #072a1c 100%);
   border: 1px solid rgba(52, 211, 153, 0.22);
   border-radius: 22px;
-  box-shadow: 0 16px 36px rgba(4, 26, 17, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 36px rgba(4, 26, 17, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -115,7 +115,7 @@
    -------------------------------------------------------------------------- */
 .avatar-workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 370px;
+  grid-template-columns: minmax(0, 1fr) 390px;
   gap: 24px;
   align-items: start;
 }
@@ -130,9 +130,10 @@
   margin-bottom: 24px;
 }
 
+/* Default / Inactive Category: White background, subtle border, dark text */
 .avatar-category-btn {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 16px;
   padding: 14px 16px;
   display: flex;
@@ -146,31 +147,20 @@
 
 .avatar-category-btn:hover {
   transform: translateY(-2px);
-  border-color: #cbd5e1;
+  border-color: #cbd5e1 !important;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-}
-
-.avatar-category-btn.active {
-  background: linear-gradient(145deg, #082417, #0b3824);
-  border-color: #10b981;
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .avatar-category-icon-box {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: rgba(212, 175, 55, 0.1);
+  color: #ca8a04;
   display: grid;
   place-items: center;
   flex-shrink: 0;
   transition: all 0.2s;
-}
-
-.avatar-category-btn.active .avatar-category-icon-box {
-  background: rgba(52, 211, 153, 0.18);
-  color: #34d399;
 }
 
 .avatar-category-text {
@@ -179,21 +169,17 @@
 
 .avatar-category-name {
   font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 800;
+  color: #0f172a !important;
   display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.avatar-category-btn.active .avatar-category-name {
-  color: #ffffff;
-}
-
 .avatar-category-sub {
-  font-size: 11px;
-  color: #64748b;
+  font-size: 11.5px;
+  color: #64748b !important;
   display: block;
   margin-top: 2px;
   white-space: nowrap;
@@ -201,8 +187,24 @@
   text-overflow: ellipsis;
 }
 
+/* Active Category: Deep forest green with emerald/gold accents */
+.avatar-category-btn.active {
+  background: linear-gradient(145deg, #072619, #093724) !important;
+  border: 1px solid #10b981 !important;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.avatar-category-btn.active .avatar-category-icon-box {
+  background: rgba(52, 211, 153, 0.18);
+  color: #34d399;
+}
+
+.avatar-category-btn.active .avatar-category-name {
+  color: #ffffff !important;
+}
+
 .avatar-category-btn.active .avatar-category-sub {
-  color: #a7f3d0;
+  color: #a7f3d0 !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -217,15 +219,15 @@
   margin-bottom: 18px;
 }
 
-#avatar .avatar-gallery-head h2 {
-  font-size: 22px;
+.avatar-gallery-head h2 {
+  font-size: 20px;
   font-weight: 800;
   color: #0f172a !important;
   margin: 0 0 4px 0;
   letter-spacing: -0.02em;
 }
 
-#avatar .avatar-gallery-head p {
+.avatar-gallery-head p {
   font-size: 13.5px;
   color: #64748b !important;
   margin: 0;
@@ -238,11 +240,12 @@
   margin-bottom: 24px;
 }
 
+/* Gallery Cards: Clean white background, subtle border, rounded corners */
 .avatar-item-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 22px 14px 18px;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 20px;
+  padding: 22px 14px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -250,34 +253,35 @@
   cursor: pointer;
   position: relative;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .avatar-item-card:hover {
   transform: translateY(-3px);
-  border-color: #cbd5e1;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
 }
 
+/* Selected Card: Emerald border, subtle elevation, checkmark badge */
 .avatar-item-card.active {
-  border: 2px solid #10b981;
-  background: linear-gradient(180deg, #f2fbf5 0%, #ffffff 100%);
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.16), 0 0 0 1px #10b981;
+  border: 2px solid #10b981 !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.16);
 }
 
 .avatar-card-badge {
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: #10b981;
   color: #ffffff;
   display: none;
   place-items: center;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 900;
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
 }
 
@@ -285,16 +289,18 @@
   display: grid;
 }
 
+/* Large Circular Portrait in Gallery Card */
 .avatar-portrait-wrap {
-  width: 98px;
-  height: 98px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   position: relative;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   display: grid;
   place-items: center;
   overflow: hidden;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  flex-shrink: 0;
 }
 
 .avatar-portrait-img {
@@ -306,16 +312,16 @@
 }
 
 .avatar-card-title {
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: 800;
-  color: #0f172a;
-  margin: 4px 0 4px 0;
+  color: #0f172a !important;
+  margin: 6px 0 4px 0;
 }
 
 .avatar-card-desc {
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.45;
-  color: #64748b;
+  color: #64748b !important;
   margin: 0;
   min-height: 34px;
 }
@@ -385,11 +391,11 @@
    6. RIGHT SIDEBAR — PRÉVIA DO SEU AVATAR
    -------------------------------------------------------------------------- */
 .avatar-preview-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 22px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  padding: 26px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
 }
@@ -397,7 +403,7 @@
 .avatar-preview-heading {
   font-size: 16px;
   font-weight: 800;
-  color: #0f172a;
+  color: #0f172a !important;
   margin: 0 0 22px 0;
   letter-spacing: -0.01em;
 }
@@ -407,12 +413,13 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
+/* Large Prominent Preview Circle */
 .avatar-preview-circle-stage {
-  width: 186px;
-  height: 186px;
+  width: 242px;
+  height: 242px;
   border-radius: 50%;
   position: relative;
   display: grid;
@@ -421,22 +428,6 @@
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 0 38px var(--avatar-highlight-glow);
-}
-
-.avatar-preview-circle-stage.frame-gold_classic {
-  box-shadow: 0 0 0 6px #d4af37, 0 0 0 8px #996515, 0 0 38px var(--avatar-highlight-glow);
-}
-
-.avatar-preview-circle-stage.frame-silver_minimal {
-  box-shadow: 0 0 0 5px #e2e8f0, 0 0 0 7px #64748b, 0 0 38px var(--avatar-highlight-glow);
-}
-
-.avatar-preview-circle-stage.frame-gold_ornamental {
-  box-shadow: 0 0 0 7px #eab308, 0 0 0 10px #78350f, 0 0 42px var(--avatar-highlight-glow);
-}
-
-.avatar-preview-circle-stage.frame-green_premium {
-  box-shadow: 0 0 0 6px #10b981, 0 0 0 9px #064e3b, 0 0 40px var(--avatar-highlight-glow);
 }
 
 .avatar-preview-main-img {
@@ -454,7 +445,7 @@
 .avatar-preview-character-name {
   font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: #0f172a !important;
   margin: 0 0 4px 0;
   display: flex;
   align-items: center;
@@ -463,13 +454,13 @@
 }
 
 .avatar-preview-character-name svg {
-  color: #d4af37;
+  color: #ca8a04;
   flex-shrink: 0;
 }
 
 .avatar-preview-character-subtitle {
-  font-size: 12.5px;
-  color: #64748b;
+  font-size: 13px;
+  color: #64748b !important;
   margin: 0;
 }
 
@@ -491,7 +482,7 @@
 .avatar-customize-title {
   font-size: 14px;
   font-weight: 800;
-  color: #0f172a;
+  color: #0f172a !important;
   margin: 0 0 14px 0;
 }
 
@@ -500,7 +491,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #64748b;
+  color: #64748b !important;
   margin-bottom: 10px;
   display: block;
 }
@@ -513,8 +504,8 @@
 }
 
 .avatar-color-swatch-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 2px solid #ffffff;
   padding: 0;
@@ -555,8 +546,8 @@
 }
 
 .avatar-frame-choice-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -569,8 +560,8 @@
 }
 
 .avatar-frame-choice-btn img {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: contain;
   display: block;
@@ -583,18 +574,18 @@
 .avatar-frame-choice-btn.active::after {
   content: "✓";
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
+  top: -3px;
+  right: -3px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
   background: #10b981;
   color: #ffffff;
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 900;
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
 }
 
 /* --------------------------------------------------------------------------
@@ -602,11 +593,11 @@
    -------------------------------------------------------------------------- */
 .avatar-save-submit-btn {
   width: 100%;
-  background: linear-gradient(135deg, #092c1c 0%, #10482d 60%, #145938 100%);
+  background: linear-gradient(135deg, #072619 0%, #0a3825 60%, #0d462f 100%);
   color: #ffffff;
   border: 1px solid rgba(16, 185, 129, 0.45);
   border-radius: 12px;
-  padding: 14px 20px;
+  padding: 15px 20px;
   font-size: 15px;
   font-weight: 800;
   display: flex;
@@ -614,7 +605,7 @@
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(9, 44, 28, 0.35);
+  box-shadow: 0 6px 18px rgba(7, 38, 25, 0.35);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -651,14 +642,14 @@
    -------------------------------------------------------------------------- */
 @media (max-width: 1200px) {
   .avatar-workspace-grid {
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: 1fr 360px;
     gap: 18px;
   }
   .avatar-categories-nav {
     grid-template-columns: repeat(2, 1fr);
   }
   .avatar-cards-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -682,8 +673,8 @@
 
 @media (max-width: 640px) {
   .avatar-cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
   .avatar-categories-nav {
     grid-template-columns: 1fr;
@@ -691,22 +682,22 @@
 }
 
 /* --------------------------------------------------------------------------
-   11. THEME SUPPORT: GOLD THEME & HEALTHY DARK
+   11. THEME SUPPORT: GOLD THEME ONLY (Healthy theme stays LIGHT matching Image 2)
    -------------------------------------------------------------------------- */
 body[data-theme="gold"] .avatar-category-btn {
-  background: #141414;
-  border-color: #2b2923;
+  background: #141414 !important;
+  border-color: #2b2923 !important;
 }
 body[data-theme="gold"] .avatar-category-btn:hover {
-  border-color: #4a3920;
+  border-color: #4a3920 !important;
 }
 body[data-theme="gold"] .avatar-category-btn.active {
-  background: linear-gradient(145deg, #1f180d, #2d2313);
-  border-color: #d5aa50;
+  background: linear-gradient(145deg, #1f180d, #2d2313) !important;
+  border-color: #d5aa50 !important;
   box-shadow: 0 6px 20px rgba(213, 170, 80, 0.2);
 }
 body[data-theme="gold"] .avatar-category-name {
-  color: #fffaf0;
+  color: #fffaf0 !important;
 }
 body[data-theme="gold"] #avatar .avatar-gallery-head h2,
 body[data-theme="gold"] .avatar-card-title,
@@ -715,17 +706,19 @@ body[data-theme="gold"] .avatar-preview-character-name,
 body[data-theme="gold"] .avatar-customize-title {
   color: #fffaf0 !important;
 }
-body[data-theme="gold"] #avatar .avatar-gallery-head p {
+body[data-theme="gold"] #avatar .avatar-gallery-head p,
+body[data-theme="gold"] .avatar-card-desc,
+body[data-theme="gold"] .avatar-preview-character-subtitle {
   color: #a99a79 !important;
 }
 body[data-theme="gold"] .avatar-item-card,
 body[data-theme="gold"] .avatar-preview-card {
-  background: #141414;
-  border-color: #2b2923;
+  background: #141414 !important;
+  border-color: #2b2923 !important;
 }
 body[data-theme="gold"] .avatar-item-card.active {
-  border-color: #d5aa50;
-  background: linear-gradient(180deg, #1c170d 0%, #141414 100%);
+  border-color: #d5aa50 !important;
+  background: linear-gradient(180deg, #1c170d 0%, #141414 100%) !important;
   box-shadow: 0 8px 24px rgba(213, 170, 80, 0.16), 0 0 0 1px #d5aa50;
 }
 body[data-theme="gold"] .avatar-card-badge {
@@ -739,36 +732,4 @@ body[data-theme="gold"] .avatar-page-arrow {
 }
 body[data-theme="gold"] .avatar-page-dot-item.active {
   background: #d5aa50;
-}
-
-body[data-theme="healthy"] .avatar-category-btn {
-  background: #0f261c;
-  border-color: #1e4533;
-}
-body[data-theme="healthy"] .avatar-category-name {
-  color: #eef8f1;
-}
-body[data-theme="healthy"] #avatar .avatar-gallery-head h2,
-body[data-theme="healthy"] .avatar-card-title,
-body[data-theme="healthy"] .avatar-preview-heading,
-body[data-theme="healthy"] .avatar-preview-character-name,
-body[data-theme="healthy"] .avatar-customize-title {
-  color: #eef8f1 !important;
-}
-body[data-theme="healthy"] #avatar .avatar-gallery-head p {
-  color: #a7bcae !important;
-}
-body[data-theme="healthy"] .avatar-item-card,
-body[data-theme="healthy"] .avatar-preview-card {
-  background: #0f261c;
-  border-color: #1e4533;
-}
-body[data-theme="healthy"] .avatar-item-card.active {
-  border-color: #10b981;
-  background: linear-gradient(180deg, #143627 0%, #0f261c 100%);
-}
-body[data-theme="healthy"] .avatar-page-arrow {
-  background: #0f261c;
-  border-color: #1e4533;
-  color: #a7d9b9;
 }
