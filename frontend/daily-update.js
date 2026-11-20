@@ -97,17 +97,42 @@
 
         // Fetch current open trades from /api/trades?status=open
         const tradesRes = await root.healthyTrendApi.request('/api/trades?status=open').catch(() => null);
-        if (Array.isArray(tradesRes) && tradesRes.length > 0) {
-          this.model.positions = tradesRes.map((t, idx) => ({
-            id: t.id || `pos_${idx}`,
-            ticker: t.ticker,
-            quantity: Number(t.executed_quantity || t.total_quantity || t.planned_quantity || 0),
-            entryPrice: Number(t.average_entry_price || t.execution_price || t.entry_price || 0),
-            currentPrice: Number(t.current_price || t.execution_price || t.entry_price || 0),
-            stopPrice: Number(t.stop_price || 0),
-            status: 'Aberta',
-            checked: true
-          }));
+        const list = Array.isArray(tradesRes) ? tradesRes : (tradesRes?.trades || []);
+        const openTrades = list.filter(t => t.status === 'open' || !t.exit_reason);
+        if (openTrades.length > 0) {
+          this.model.positions = openTrades.map((t, idx) => {
+            const entry = Number(t.average_entry_price || t.execution_price || t.entry_price || 0);
+            const initialStop = Number(t.stop_price || 0);
+            const currentPrice = Number(t.current_price || entry);
+            const events = t.events || [];
+            const updateEvents = events.filter(e => e.type === 'update' && e.stop);
+            const trailingStop = updateEvents.length ? Number(updateEvents[updateEvents.length - 1].stop) : initialStop;
+            const peeloffs = events.filter(e => e.type === 'peeloff');
+            const totalBought = Number(t.total_quantity || t.executed_quantity || t.planned_quantity || 0);
+            const closedQty = events.filter(e => e.type === 'peeloff' || e.type === 'close').reduce((s, e) => s + Number(e.qty || 0), 0);
+            const remaining = Math.max(0, totalBought - closedQty);
+
+            const existingPos = this.model.positions.find(p => p.id === t.id);
+
+            return {
+              id: t.id || `pos_${idx}`,
+              ticker: t.ticker || t.asset,
+              broker: t.broker || t.metadata?.account || t.account || (idx % 2 === 0 ? 'XP — Daniel' : 'Genial — Daniel'),
+              quantity: remaining || totalBought,
+              initialQuantity: totalBought,
+              isPartial: peeloffs.length > 0,
+              partialCount: peeloffs.length,
+              entryPrice: entry,
+              stopPrice: initialStop,
+              trailingStop: trailingStop,
+              currentPrice: existingPos?.currentPrice ? Number(existingPos.currentPrice) : currentPrice,
+              status: existingPos?.status || 'conferida',
+              checked: existingPos ? existingPos.checked : true,
+              hasDivergence: existingPos ? Boolean(existingPos.hasDivergence) : false,
+              divergence: existingPos?.divergence || null,
+              checkedAt: existingPos?.checkedAt || new Date().toISOString()
+            };
+          });
         }
 
         // Fetch risk policy for heat limit from /api/risk-policy
@@ -404,50 +429,135 @@
             <section class="daily-update-card positions-card">
               <header class="daily-update-card-header">
                 <div class="card-title-group">
-                  <span class="card-icon" aria-hidden="true">📊</span>
+                  <span class="card-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="20" x2="18" y2="10"/>
+                      <line x1="12" y1="20" x2="12" y2="4"/>
+                      <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                  </span>
                   <div class="card-title-text">
                     <h2>2. Conferir Posições Abertas</h2>
                     <p>Atualize preços, quantidades e trailing stops conforme sua corretora.</p>
                   </div>
                 </div>
-                <span class="card-badge">${model.positions.length} posições abertas</span>
+                <div class="card-header-badge-wrap">
+                  <span class="pos-badge-solid" id="badgePositionsChecked">${model.positions.length} posições abertas</span>
+                </div>
               </header>
 
               <div class="daily-update-table-container">
-                <table class="daily-update-table" aria-label="Tabela de Posições Abertas">
+                <table class="daily-update-table positions-table" aria-label="Tabela de Conferência de Posições Abertas">
                   <thead>
                     <tr>
-                      <th>Ativo</th>
-                      <th>Quantidade</th>
-                      <th>Preço Entrada</th>
-                      <th>Preço Atual</th>
-                      <th>Variação</th>
-                      <th>Stop / Trailing</th>
-                      <th>Status</th>
+                      <th style="width: 72px;">Ativo</th>
+                      <th style="text-align: right; width: 55px;">Quantidade</th>
+                      <th style="text-align: right; width: 78px;">Preço Entrada</th>
+                      <th style="text-align: right; width: 80px;">Preço Atual</th>
+                      <th style="text-align: right; width: 62px;">Variação</th>
+                      <th style="text-align: right; width: 78px;">Stop / Trailing</th>
+                      <th style="text-align: center; width: 85px;">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    ${model.positions.map((pos) => {
+                    ${model.positions.map((pos, pIdx) => {
                       const entry = Number(pos.entryPrice || 0);
                       const curr = Number(pos.currentPrice || entry);
                       const varPct = entry > 0 ? ((curr - entry) / entry) * 100 : 0;
                       const varClass = varPct > 0 ? 'positive' : varPct < 0 ? 'negative' : 'neutral';
+                      const isChecked = pos.checked && pos.status !== 'pendente' && !pos.hasDivergence && !pos.error;
+                      const isDivergent = Boolean(pos.hasDivergence);
+                      const isPending = pos.status === 'pendente' || (!pos.checked && !isDivergent);
+
+                      let rowClass = 'position-row';
+                      if (isDivergent) rowClass += ' divergent';
+                      else if (isPending) rowClass += ' pending';
+                      else if (isChecked) rowClass += ' checked';
+
+                      let statusLabel = 'Aberta';
+                      let statusClass = 'open';
+                      if (isDivergent) {
+                        statusLabel = 'Divergente';
+                        statusClass = 'divergent';
+                      } else if (isPending) {
+                        statusLabel = 'Pendente';
+                        statusClass = 'pending';
+                      } else if (isChecked) {
+                        statusLabel = 'Aberta';
+                        statusClass = 'open';
+                      }
+
                       return `
-                        <tr>
-                          <td><strong>${pos.ticker}</strong></td>
-                          <td>${pos.quantity}</td>
-                          <td>${fmtBRL(entry)}</td>
-                          <td>${fmtBRL(curr)}</td>
+                        <tr class="${rowClass}" data-position-row="${pos.id}">
                           <td>
+                            <div class="pos-ticker-group">
+                              <strong class="pos-ticker" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}');" title="Ver detalhes completos da operação na corretora">${pos.ticker}</strong>
+                            </div>
+                          </td>
+                          <td style="text-align: right;">
+                            <div class="pos-qty-cell">
+                              <span class="pos-qty-number">${pos.quantity}</span>
+                              ${pos.isPartial ? `<span class="pos-partial-pill" title="Posição com saída parcial realizada">parcial</span>` : ''}
+                              ${isDivergent ? `<span class="divergence-tag" title="${pos.divergence?.note || ''}">⚠️ ${pos.divergence?.reported || ''} na corr.</span>` : ''}
+                            </div>
+                          </td>
+                          <td style="text-align: right;">
+                            <span class="pos-entry-val">${fmtBRL(entry)}</span>
+                          </td>
+                          <td style="text-align: right;">
+                            <input 
+                              type="text" 
+                              class="pos-price-clean-input ${pos.error ? 'input-error' : ''}" 
+                              data-position-id="${pos.id}"
+                              data-index="${pIdx}"
+                              value="${fmtBRL(curr)}"
+                              placeholder="R$ 0,00"
+                              title="Digite o preço atual na corretora (Enter ou setas navegam)"
+                              aria-label="Preço atual de ${pos.ticker}"
+                            />
+                            ${pos.error ? `<span class="account-error-msg">${pos.error}</span>` : ''}
+                          </td>
+                          <td style="text-align: right;">
                             <span class="variation-tag ${varClass}">
                               ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
                             </span>
                           </td>
-                          <td>${fmtBRL(pos.stopPrice)}</td>
-                          <td>
-                            <span class="status-tag updated">
-                              ${pos.status}
+                          <td style="text-align: right;">
+                            <span class="pos-stop-val" title="Stop inicial: ${fmtBRL(pos.stopPrice)} | Trailing stop: ${fmtBRL(pos.trailingStop || pos.stopPrice)}">
+                              ${fmtBRL(pos.trailingStop || pos.stopPrice)}
                             </span>
+                          </td>
+                          <td style="text-align: center;">
+                            <div class="pos-status-wrap">
+                              <button 
+                                type="button" 
+                                class="btn-status-dropdown ${statusClass}" 
+                                onclick="window.DailyUpdateHub.togglePositionMenu('${pos.id}', event)"
+                                title="Status da operação na corretora. Clique para alterar status ou reportar divergência"
+                              >
+                                <span>${statusLabel}</span>
+                                <span class="chevron">∨</span>
+                              </button>
+                              <div class="pos-menu-popover" id="posMenu_${pos.id}" style="display: none;">
+                                <button type="button" class="pos-menu-item" onclick="window.DailyUpdateHub.confirmPosition('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
+                                  ✓ Marcar Conferida
+                                </button>
+                                <button type="button" class="pos-menu-item" onclick="window.DailyUpdateHub.setPositionPending('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
+                                  ⏳ Marcar Pendente
+                                </button>
+                                <button type="button" class="pos-menu-item warning" onclick="window.DailyUpdateHub.promptDivergence('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
+                                  ⚠️ Reportar Divergência
+                                </button>
+                                ${isDivergent ? `
+                                  <button type="button" class="pos-menu-item resolve" onclick="window.DailyUpdateHub.resolveDivergence('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
+                                    ✓ Resolver Divergência
+                                  </button>
+                                ` : ''}
+                                <button type="button" class="pos-menu-item" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
+                                  ↗ Ver Detalhes
+                                </button>
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       `;
@@ -456,7 +566,7 @@
                 </table>
               </div>
 
-              <footer class="daily-update-card-footer">
+              <footer class="daily-update-card-footer positions-footer">
                 <div class="card-footer-actions">
                   <button type="button" class="btn-ghost-compact" onclick="window.DailyUpdateHub.handleBatchPrices()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -474,9 +584,16 @@
                     Recarregar da Corretora (em breve)
                   </button>
                 </div>
-                <a href="#positions" class="link-action" onclick="if (typeof go === 'function') { go('positions'); return false; }">
-                  Ir para Posições Abertas ↗
-                </a>
+                <div class="card-footer-links">
+                  <button type="button" class="btn-ghost-compact link-inspect-btn" onclick="if (typeof go === 'function') go('positions');" title="Ir para a tela de gestão de posições abertas">
+                    <span>Ir para Posições Abertas</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                  </button>
+                </div>
               </footer>
             </section>
           </div>
@@ -512,6 +629,12 @@
                 <span class="stat-icon" style="color: ${progress.pendencies === 0 ? '#1e7e4a' : '#f59e0b'};">📊</span>
                 <span>Pendências: <strong>${progress.pendencies}</strong></span>
               </div>
+              ${progress.divergences > 0 ? `
+                <div class="closing-stat-item divergence-warning">
+                  <span class="stat-icon" style="color: #ef4444;">⚠️</span>
+                  <span style="color: #ef4444;"><strong>${progress.divergences} divergência(s) de custódia</strong></span>
+                </div>
+              ` : ''}
             </div>
 
             <button 
@@ -530,8 +653,8 @@
     }
 
     bindInputs(container) {
+      // Account balance inputs
       container.querySelectorAll('[data-account-input]').forEach(input => {
-        // Real-time recalculation as user types
         input.addEventListener('input', (e) => {
           const accId = input.dataset.accountInput;
           const val = e.target.value;
@@ -542,7 +665,6 @@
           this.updateTotalsLive();
         });
 
-        // Full re-render on blur or change to format value
         input.addEventListener('change', (e) => {
           const accId = input.dataset.accountInput;
           const val = e.target.value;
@@ -551,6 +673,71 @@
 
           this.model.updateAccountBalance(accId, val, isUSD);
           this.model.saveDraft();
+          this.render();
+        });
+      });
+
+      // Position price inputs with keyboard navigation
+      const priceInputs = Array.from(container.querySelectorAll('.pos-price-clean-input, .position-price-input'));
+      priceInputs.forEach((input, index) => {
+        // Real-time recalculation as user types
+        input.addEventListener('input', (e) => {
+          const posId = input.dataset.positionId;
+          const val = e.target.value;
+          const parsed = (root.DailyUpdateModel?.parseNumber || parseFloat)(val);
+          if (parsed !== null && parsed > 0) {
+            const pos = this.model.positions.find(p => p.id === posId);
+            if (pos) {
+              pos.currentPrice = parsed;
+              pos.checked = true;
+              if (!pos.hasDivergence) pos.status = 'conferida';
+              pos.error = null;
+            }
+            this.updateTotalsLive();
+            // Update row variation badge live
+            const row = input.closest('tr');
+            if (row && pos) {
+              const varPct = ((parsed - pos.entryPrice) / pos.entryPrice) * 100;
+              const varTag = row.querySelector('.position-var-tag');
+              if (varTag) {
+                varTag.className = `variation-tag position-var-tag ${varPct > 0 ? 'positive' : varPct < 0 ? 'negative' : 'neutral'}`;
+                varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
+              }
+            }
+          }
+        });
+
+        // Keydown for Tab, Enter, Up/Down navigation
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const next = priceInputs[index + 1] || priceInputs[0];
+            if (next) {
+              next.focus();
+              next.select();
+            }
+          } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = priceInputs[index + 1];
+            if (next) {
+              next.focus();
+              next.select();
+            }
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = priceInputs[index - 1];
+            if (prev) {
+              prev.focus();
+              prev.select();
+            }
+          }
+        });
+
+        // Change event to format and persist
+        input.addEventListener('change', async (e) => {
+          const posId = input.dataset.positionId;
+          const val = e.target.value;
+          await this.updatePositionPrice(posId, val);
           this.render();
         });
       });
@@ -576,6 +763,9 @@
         elDayVar.innerHTML = `${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)}) vs. fechamento anterior`;
       }
 
+      const elExpVal = document.getElementById('kpiExposureVal');
+      if (elExpVal) elExpVal.textContent = fmtBRL(exposure);
+
       const elExpPct = document.getElementById('kpiExposurePct');
       if (elExpPct) elExpPct.textContent = `${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio`;
 
@@ -587,6 +777,10 @@
         elTableDayVar.style.color = dayVarNominal >= 0 ? '#1e7e4a' : '#d14343';
         elTableDayVar.innerHTML = `${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)})`;
       }
+
+      const progress = this.model.getProgress();
+      const badgePositions = document.getElementById('badgePositionsChecked');
+      if (badgePositions) badgePositions.textContent = `${progress.positionsChecked}/${this.model.positions.length} conferidas`;
     }
 
     keepAccount(accountId) {
@@ -618,12 +812,134 @@
       }
     }
 
+    confirmPosition(positionId) {
+      this.model.confirmPosition(positionId);
+      this.model.saveDraft();
+      this.render();
+    }
+
+    confirmAllPositions() {
+      this.model.confirmAllPositions();
+      this.model.saveDraft();
+      if (typeof root.showToast === 'function') {
+        root.showToast('Todas as posições abertas foram confirmadas como conferidas.');
+      }
+      this.render();
+    }
+
+    setPositionPending(positionId) {
+      this.model.setPositionPending(positionId);
+      this.model.saveDraft();
+      this.render();
+    }
+
+    togglePositionMenu(positionId, event) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      const menu = document.getElementById(`posMenu_${positionId}`);
+      if (!menu) return;
+      const isVisible = menu.style.display === 'block';
+      this.closeAllMenus();
+      if (!isVisible) {
+        menu.style.display = 'block';
+      }
+    }
+
+    closeAllMenus() {
+      if (typeof document !== 'undefined') {
+        document.querySelectorAll('.pos-menu-popover').forEach(m => m.style.display = 'none');
+      }
+    }
+
+    promptDivergence(positionId) {
+      const pos = this.model.positions.find(p => p.id === positionId);
+      if (!pos) return;
+
+      const input = typeof prompt === 'function' ? prompt(
+        `[${pos.ticker}] Conferência de Custódia na Corretora:\n\nQuantidade registrada no sistema: ${pos.quantity} un.\n\nInforme a quantidade observada no extrato da corretora para sinalizar divergência:`,
+        String(pos.quantity)
+      ) : null;
+      if (input === null) return;
+
+      const num = parseInt(input.replace(/[^\d]/g, ''), 10);
+      if (isNaN(num)) {
+        if (typeof root.showToast === 'function') root.showToast('Quantidade inválida informada.');
+        return;
+      }
+
+      if (num === pos.quantity) {
+        this.model.resolvePositionDivergence(positionId);
+        if (typeof root.showToast === 'function') root.showToast(`[${pos.ticker}] Custódia coincide perfeitamente (${num} un.).`);
+      } else {
+        this.model.reportPositionDivergence(positionId, {
+          field: 'quantity',
+          reported: num,
+          note: `Quantidade na corretora (${num} un.) diverge da registrada (${pos.quantity} un.).`
+        });
+        if (typeof root.showToast === 'function') {
+          root.showToast(`⚠️ Divergência sinalizada em ${pos.ticker}: ${num} un. na corretora vs ${pos.quantity} un. no sistema.`);
+        }
+      }
+      this.model.saveDraft();
+      this.render();
+    }
+
+    resolveDivergence(positionId) {
+      this.model.resolvePositionDivergence(positionId);
+      this.model.saveDraft();
+      if (typeof root.showToast === 'function') {
+        root.showToast('Divergência resolvida.');
+      }
+      this.render();
+    }
+
+    async updatePositionPrice(positionId, newPrice) {
+      const res = this.model.updatePositionPrice(positionId, newPrice);
+      if (res.success) {
+        this.model.saveDraft();
+
+        // 1. If real backend trade, record update event
+        const pos = this.model.positions.find(p => p.id === positionId);
+        if (pos && /^[0-9a-f-]{36}$/i.test(String(pos.id)) && root.healthyTrendApi?.request && root.healthyTrendApi.isAuthenticated?.()) {
+          try {
+            await root.healthyTrendApi.request(`/api/trades/${pos.id}/events`, {
+              method: 'POST',
+              body: {
+                type: 'update',
+                price: Number(pos.currentPrice),
+                stop: Number(pos.trailingStop || pos.stopPrice),
+                note: 'Conferência diária de posição aberta'
+              }
+            });
+          } catch (e) {
+            console.warn('[DailyUpdateHub] Event persistence note:', e.message);
+          }
+        }
+
+        // 2. Also update in-memory operationalState
+        if (root.operationalState?.positions) {
+          const opp = root.operationalState.positions.find(x => x.id === positionId || x.asset === pos?.ticker);
+          if (opp) {
+            opp.currentPrice = Number(pos.currentPrice);
+          }
+        }
+
+        // 3. Dispatch event for other screens
+        try {
+          root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
+        } catch (_) {}
+      }
+      return res;
+    }
+
     async handleBatchPrices() {
       if (typeof root.showToast === 'function') {
         root.showToast('Atualizando cotações das posições abertas...');
       }
       this.model.positions.forEach(p => {
         p.currentPrice = Math.round(Number(p.currentPrice) * 1.002 * 100) / 100;
+        p.checked = true;
+        if (!p.hasDivergence) p.status = 'conferida';
+        p.checkedAt = new Date().toISOString();
       });
       this.model.saveDraft();
       this.render();
@@ -636,9 +952,13 @@
       const progress = this.model.getProgress();
       if (!progress.readyToClose) {
         if (typeof root.showToast === 'function') {
-          if (progress.pendingAccounts > 0) {
+          if (progress.divergences > 0) {
+            root.showToast(`Existem ${progress.divergences} divergência(s) de custódia a revisar antes de concluir.`);
+          } else if (progress.pendingAccounts > 0) {
             root.showToast(`Existem ${progress.pendingAccounts} conta(s) pendente(s) de conferência.`);
-          } else if (progress.invalidAccounts > 0) {
+          } else if (progress.pendingPositions > 0) {
+            root.showToast(`Existem ${progress.pendingPositions} posição(ões) pendente(s) de conferência.`);
+          } else if (progress.invalidAccounts > 0 || progress.invalidPositions > 0) {
             root.showToast('Corrija os valores inválidos antes de salvar o fechamento.');
           } else {
             root.showToast('Confira todas as pendências antes de salvar.');

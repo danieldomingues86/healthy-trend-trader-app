@@ -102,18 +102,18 @@
 
   // Default sample open positions for instant preview
   const DEFAULT_POSITIONS = [
-    { id: 'pos_1', ticker: 'JNJB34', quantity: 300, entryPrice: 98.40, currentPrice: 105.51, stopPrice: 97.02, status: 'Aberta', checked: true },
-    { id: 'pos_2', ticker: 'AMZN34', quantity: 200, entryPrice: 73.25, currentPrice: 78.69, stopPrice: 73.48, status: 'Aberta', checked: true },
-    { id: 'pos_3', ticker: 'AAPL34', quantity: 300, entryPrice: 82.10, currentPrice: 86.77, stopPrice: 81.30, status: 'Aberta', checked: true },
-    { id: 'pos_4', ticker: 'MSFT34', quantity: 200, entryPrice: 57.40, currentPrice: 60.18, stopPrice: 56.20, status: 'Aberta', checked: true },
-    { id: 'pos_5', ticker: 'NVDC34', quantity: 100, entryPrice: 409.20, currentPrice: 421.75, stopPrice: 407.00, status: 'Aberta', checked: true },
-    { id: 'pos_6', ticker: 'PETR4',  quantity: 400, entryPrice: 38.20, currentPrice: 39.50, stopPrice: 37.40, status: 'Aberta', checked: true },
-    { id: 'pos_7', ticker: 'VALE3',  quantity: 300, entryPrice: 59.80, currentPrice: 61.20, stopPrice: 58.50, status: 'Aberta', checked: true },
-    { id: 'pos_8', ticker: 'ITUB4',  quantity: 500, entryPrice: 34.10, currentPrice: 35.40, stopPrice: 33.60, status: 'Aberta', checked: true },
-    { id: 'pos_9', ticker: 'WEGE3',  quantity: 200, entryPrice: 49.30, currentPrice: 51.10, stopPrice: 48.00, status: 'Aberta', checked: true },
-    { id: 'pos_10', ticker: 'PRIO3', quantity: 200, entryPrice: 44.50, currentPrice: 45.80, stopPrice: 43.20, status: 'Aberta', checked: true },
-    { id: 'pos_11', ticker: 'BPAC11', quantity: 300, entryPrice: 36.40, currentPrice: 37.80, stopPrice: 35.50, status: 'Aberta', checked: true },
-    { id: 'pos_12', ticker: 'RENT3',  quantity: 200, entryPrice: 52.10, currentPrice: 53.70, stopPrice: 50.80, status: 'Aberta', checked: true }
+    { id: 'pos_1', ticker: 'JNJB34', broker: 'Nomad — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 98.40, currentPrice: 105.51, stopPrice: 97.02, trailingStop: 101.50, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_2', ticker: 'AMZN34', broker: 'Nomad — Daniel', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 73.25, currentPrice: 78.69, stopPrice: 73.48, trailingStop: 75.20, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_3', ticker: 'AAPL34', broker: 'Nomad — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 82.10, currentPrice: 86.77, stopPrice: 81.30, trailingStop: 84.10, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_4', ticker: 'MSFT34', broker: 'Nomad — Daniel', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 57.40, currentPrice: 60.18, stopPrice: 56.20, trailingStop: 58.00, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_5', ticker: 'NVDC34', broker: 'Nomad — Daniel', quantity: 100, initialQuantity: 100, isPartial: false, partialCount: 0, entryPrice: 409.20, currentPrice: 421.75, stopPrice: 407.00, trailingStop: 412.00, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_6', ticker: 'PETR4',  broker: 'XP — Daniel', quantity: 400, initialQuantity: 400, isPartial: false, partialCount: 0, entryPrice: 38.20, currentPrice: 39.50, stopPrice: 37.40, trailingStop: 38.50, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_7', ticker: 'VALE3',  broker: 'XP — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 59.80, currentPrice: 61.20, stopPrice: 58.50, trailingStop: 59.80, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_8', ticker: 'ITUB4',  broker: 'Genial — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 34.10, currentPrice: 35.40, stopPrice: 33.60, trailingStop: 34.50, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_9', ticker: 'WEGE3',  broker: 'Genial — Daniel', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 49.30, currentPrice: 51.10, stopPrice: 48.00, trailingStop: 49.50, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_10', ticker: 'PRIO3', broker: 'Clear — Daniel', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 44.50, currentPrice: 45.80, stopPrice: 43.20, trailingStop: 44.20, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_11', ticker: 'BPAC11', broker: 'XP — Natália', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 36.40, currentPrice: 37.80, stopPrice: 35.50, trailingStop: 36.80, status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_12', ticker: 'RENT3',  broker: 'Genial — Natália', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 52.10, currentPrice: 53.70, stopPrice: 50.80, trailingStop: 52.00, status: 'conferida', checked: true, hasDivergence: false }
   ];
 
   /**
@@ -411,13 +411,16 @@
       const accountsChecked = this.accounts.filter(a => (a.status === 'keep' || a.status === 'updated') && !a.error).length;
 
       const totalPositions = this.positions.length;
-      const positionsChecked = this.positions.filter(p => p.checked !== false).length;
-
+      const positionsChecked = this.positions.filter(p => p.checked && p.status !== 'pendente' && !p.hasDivergence && !p.error).length;
+      const pendingPositions = this.positions.filter(p => !p.checked || p.status === 'pendente').length;
       const divergences = this.positions.filter(p => p.hasDivergence).length;
+      const invalidPositions = this.positions.filter(p => Boolean(p.error)).length;
       const unverifiedPositions = totalPositions - positionsChecked;
-      const pendencies = divergences + pendingAccounts + invalidAccounts + unverifiedPositions;
+
+      const pendencies = divergences + pendingAccounts + invalidAccounts + pendingPositions + invalidPositions;
 
       const accountsComplete = accountsChecked === totalAccounts && pendingAccounts === 0 && invalidAccounts === 0;
+      const positionsComplete = positionsChecked === totalPositions && pendingPositions === 0 && divergences === 0 && invalidPositions === 0;
 
       return {
         totalAccounts,
@@ -427,10 +430,12 @@
         accountsComplete,
         totalPositions,
         positionsChecked,
-        positionsComplete: positionsChecked === totalPositions,
+        pendingPositions,
+        invalidPositions,
+        positionsComplete,
         divergences,
         pendencies,
-        readyToClose: accountsComplete && positionsChecked === totalPositions && divergences === 0
+        readyToClose: accountsComplete && positionsComplete && divergences === 0
       };
     }
 
@@ -470,12 +475,142 @@
     }
 
     /**
+     * Updates an open position's current price.
+     * Validates input. Crucial: does NOT overwrite entryPrice, stopPrice, trailingStop, or quantity.
+     */
+    updatePositionPrice(positionId, newPrice) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return { success: false, error: 'Posição não encontrada.' };
+
+      const validation = validateBalanceInput(newPrice, false);
+      if (!validation.valid) {
+        pos.error = validation.error;
+        this.updateClosingReadiness();
+        return Object.assign({ success: false, error: validation.error, position: pos }, pos);
+      }
+
+      pos.error = null;
+      pos.currentPrice = validation.amount;
+      pos.checked = true;
+      if (!pos.hasDivergence) {
+        pos.status = 'conferida';
+      }
+      pos.checkedAt = new Date().toISOString();
+      this.updateClosingReadiness();
+      return Object.assign({ success: true, position: pos }, pos);
+    }
+
+    /**
+     * Marks a position as confirmed/verified without altering price.
+     */
+    confirmPosition(positionId) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return null;
+      pos.checked = true;
+      pos.error = null;
+      if (!pos.hasDivergence) {
+        pos.status = 'conferida';
+      }
+      pos.checkedAt = new Date().toISOString();
+      this.updateClosingReadiness();
+      return pos;
+    }
+
+    /**
+     * Confirms all open positions with 1 action.
+     */
+    confirmAllPositions() {
+      this.positions.forEach(pos => {
+        pos.checked = true;
+        pos.error = null;
+        if (!pos.hasDivergence) {
+          pos.status = 'conferida';
+        }
+        pos.checkedAt = new Date().toISOString();
+      });
+      this.updateClosingReadiness();
+      return this.positions;
+    }
+
+    /**
+     * Marks an open position as pending conference.
+     */
+    setPositionPending(positionId) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return null;
+      pos.checked = false;
+      pos.status = 'pendente';
+      this.updateClosingReadiness();
+      return pos;
+    }
+
+    /**
+     * Signals a quantity or trade divergence observed at the broker.
+     * Preserves registered quantity and marks for explicit review.
+     */
+    reportPositionDivergence(positionId, divergenceData = {}) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return null;
+      pos.hasDivergence = true;
+      pos.divergence = {
+        field: divergenceData.field || 'quantity',
+        expected: pos.quantity,
+        reported: divergenceData.reported ?? divergenceData.reportedQuantity,
+        note: divergenceData.note || 'Quantidade observada na corretora diverge da registrada.',
+        reportedAt: new Date().toISOString()
+      };
+      pos.status = 'divergente';
+      this.updateClosingReadiness();
+      return pos;
+    }
+
+    /**
+     * Resolves and clears a divergence after user verification.
+     */
+    resolvePositionDivergence(positionId) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return null;
+      pos.hasDivergence = false;
+      pos.divergence = null;
+      pos.status = 'conferida';
+      pos.checked = true;
+      this.updateClosingReadiness();
+      return pos;
+    }
+
+    /**
+     * Calculates position variation %.
+     */
+    getPositionVariationPct(pos) {
+      const entry = Number(pos.entryPrice || 0);
+      const curr = Number(pos.currentPrice || entry);
+      if (!entry || entry <= 0) return 0;
+      return ((curr - entry) / entry) * 100;
+    }
+
+    /**
+     * Calculates unrealized financial result for an open position.
+     */
+    getPositionUnrealizedResult(pos) {
+      const entry = Number(pos.entryPrice || 0);
+      const curr = Number(pos.currentPrice || entry);
+      const qty = Number(pos.quantity || 0);
+      const sign = pos.direction === 'short' ? -1 : 1;
+      return (curr - entry) * sign * qty;
+    }
+
+    /**
      * Toggles checked state of an open position.
      */
     togglePositionChecked(positionId, checked = true) {
       const pos = this.positions.find(p => p.id === positionId);
       if (pos) {
         pos.checked = Boolean(checked);
+        if (pos.checked && !pos.hasDivergence) {
+          pos.status = 'conferida';
+        } else if (!pos.checked) {
+          pos.status = 'pendente';
+        }
         this.updateClosingReadiness();
       }
       return pos;
@@ -487,10 +622,14 @@
     batchUpdatePrices(priceMap = {}) {
       this.positions.forEach(pos => {
         const quote = priceMap[pos.ticker];
-        if (quote && Number.isFinite(Number(quote))) {
+        if (quote && Number.isFinite(Number(quote)) && Number(quote) > 0) {
           pos.currentPrice = Number(quote);
+          pos.checked = true;
+          if (!pos.hasDivergence) pos.status = 'conferida';
+          pos.checkedAt = new Date().toISOString();
         }
       });
+      this.updateClosingReadiness();
       return this.positions;
     }
 

@@ -195,3 +195,112 @@ test('DailyUpdateHub Card [02]: DailyUpdateHubController métodos de ação e in
   assert.ok(dispatchedEvents.includes('healthyTrend:equityUpdated'));
   assert.ok(dispatchedEvents.includes('healthyTrend:tradesUpdated'));
 });
+
+test('DailyUpdateHub Card [03]: DailyUpdateHubController conferência de posições, divergências e eventos', async () => {
+  const storageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v)),
+    removeItem: (k) => storageMap.delete(k)
+  };
+
+  let tradeEventPayload = null;
+  let dispatchedEvents = [];
+
+  const mockRoot = {
+    DailyUpdateModel: DailyUpdateModel,
+    operationalState: {
+      positions: [
+        { id: 'pos_1', asset: 'JNJB34', currentPrice: 105.51 }
+      ]
+    },
+    healthyTrendApi: {
+      isAuthenticated: () => true,
+      request: async (url, opts) => {
+        if (url.includes('/events')) {
+          tradeEventPayload = opts.body;
+          return { success: true };
+        }
+        return {};
+      }
+    },
+    healthyTrendWorkspace: {
+      raw: () => null,
+      save: (k, v) => mockStorage.setItem(k, JSON.stringify(v))
+    },
+    setOperationalEquity: () => {},
+    dispatchEvent: (evt) => {
+      dispatchedEvents.push(evt.type);
+    },
+    showToast: () => {}
+  };
+
+  mockRoot.self = mockRoot;
+
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+
+  const mockDoc = {
+    getElementById: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {}
+  };
+
+  class MockCustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  }
+
+  runFn.call(mockRoot, mockRoot, mockDoc, mockStorage, MockCustomEvent, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  assert.ok(controller);
+
+  // 1. Atualização de preço via controller
+  await controller.updatePositionPrice('pos_1', '109,50');
+  const pos1 = controller.model.positions.find(p => p.id === 'pos_1');
+  assert.equal(pos1.currentPrice, 109.50);
+  assert.equal(pos1.status, 'conferida');
+  assert.equal(pos1.checked, true);
+  assert.equal(mockRoot.operationalState.positions[0].currentPrice, 109.50);
+  assert.ok(dispatchedEvents.includes('healthyTrend:tradesUpdated'));
+
+  // 2. Marcação de posição como pendente bloqueia fechamento diário
+  controller.setPositionPending('pos_3');
+  assert.equal(controller.model.getProgress().readyToClose, false);
+  let saveRes = await controller.saveDailyClosing();
+  assert.equal(saveRes, false, 'Não deve salvar fechamento com posição pendente');
+
+  // 3. Confirmação individual de posição
+  controller.confirmPosition('pos_3');
+  assert.equal(controller.model.positions.find(p => p.id === 'pos_3').checked, true);
+
+  // 4. Sinalização de divergência bloqueia fechamento diário
+  controller.model.reportPositionDivergence('pos_1', {
+    field: 'quantity',
+    reported: 150,
+    note: 'Custódia diverge'
+  });
+  assert.equal(controller.model.getProgress().divergences, 1);
+  assert.equal(controller.model.getProgress().readyToClose, false);
+  saveRes = await controller.saveDailyClosing();
+  assert.equal(saveRes, false, 'Não deve salvar fechamento com divergência de custódia ativa');
+
+  // 5. Resolução da divergência restaura aptidão para fechamento
+  controller.resolveDivergence('pos_1');
+  assert.equal(controller.model.getProgress().divergences, 0);
+  assert.equal(controller.model.getProgress().readyToClose, true);
+
+  // 6. Confirmação em lote de todas as posições
+  controller.confirmAllPositions();
+  assert.equal(controller.model.getProgress().positionsComplete, true);
+
+  // 7. Atualização em lote de cotações
+  await controller.handleBatchPrices();
+  controller.model.positions.forEach(p => {
+    assert.equal(p.checked, true);
+    assert.equal(p.status, 'conferida');
+  });
+});

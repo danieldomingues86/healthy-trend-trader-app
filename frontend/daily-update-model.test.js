@@ -218,3 +218,119 @@ test('DailyUpdateModel Card [02]: geração de audit reason estruturado para /ap
   assert.ok(reason.includes('XP — Natália'));
   assert.ok(reason.includes('Genial — Natália'));
 });
+
+test('DailyUpdateModel Card [03]: atualização de preço de posição sem sobrescrever stops ou entradas', () => {
+  const model = new DailyUpdateModel();
+  const pos = model.positions.find(p => p.id === 'pos_1'); // JNJB34
+
+  const initialEntry = pos.entryPrice;
+  const initialStop = pos.stopPrice;
+  const initialTrailing = pos.trailingStop;
+  const initialQty = pos.quantity;
+
+  // Atualiza preço atual de JNJB34 para R$ 108,00
+  const res = model.updatePositionPrice('pos_1', '108,00');
+  assert.equal(res.success, true);
+  assert.equal(pos.currentPrice, 108.00);
+  assert.equal(pos.checked, true);
+  assert.equal(pos.status, 'conferida');
+
+  // INVARIANTE CARD [03]: Nunca sobrescrever preço de entrada, stop inicial, trailing stop ou quantidade
+  assert.equal(pos.entryPrice, initialEntry, 'Preço de entrada deve permanecer inalterado');
+  assert.equal(pos.stopPrice, initialStop, 'Stop inicial deve permanecer inalterado');
+  assert.equal(pos.trailingStop, initialTrailing, 'Trailing stop deve permanecer inalterado');
+  assert.equal(pos.quantity, initialQty, 'Quantidade não deve ser alterada automaticamente');
+
+  // Rejeição de preço inválido ou negativo
+  const invalidRes = model.updatePositionPrice('pos_1', '-10,00');
+  assert.equal(invalidRes.success, false);
+  assert.ok(pos.error !== null);
+  assert.equal(model.getProgress().invalidPositions, 1);
+  assert.equal(model.getProgress().readyToClose, false);
+});
+
+test('DailyUpdateModel Card [03]: ações rápidas de conferência e posições pendentes', () => {
+  const model = new DailyUpdateModel();
+
+  // Marca uma posição como pendente
+  const pos2 = model.setPositionPending('pos_2');
+  assert.equal(pos2.status, 'pendente');
+  assert.equal(pos2.checked, false);
+
+  let progress = model.getProgress();
+  assert.equal(progress.pendingPositions, 1);
+  assert.equal(progress.positionsComplete, false);
+  assert.equal(progress.readyToClose, false);
+
+  // Confere individualmente
+  model.confirmPosition('pos_2');
+  assert.equal(pos2.status, 'conferida');
+  assert.equal(pos2.checked, true);
+
+  // Confere todas as posições em 1 clique
+  model.confirmAllPositions();
+  progress = model.getProgress();
+  assert.equal(progress.pendingPositions, 0);
+  assert.equal(progress.positionsChecked, progress.totalPositions);
+  assert.equal(progress.positionsComplete, true);
+  assert.equal(progress.readyToClose, true);
+});
+
+test('DailyUpdateModel Card [03]: sinalização de divergência de custódia na corretora sem mutar dados originais', () => {
+  const model = new DailyUpdateModel();
+  const pos = model.positions.find(p => p.id === 'pos_6'); // PETR4, 400 un.
+
+  // Usuário relata que na corretora aparecem 300 unidades
+  model.reportPositionDivergence('pos_6', {
+    field: 'quantity',
+    reported: 300,
+    note: 'Extrato da XP exibe 300 un. em custódia.'
+  });
+
+  assert.equal(pos.hasDivergence, true);
+  assert.equal(pos.status, 'divergente');
+  assert.equal(pos.divergence.reported, 300);
+
+  // INVARIANTE: A quantidade registrada no sistema NÃO pode ser alterada automaticamente
+  assert.equal(pos.quantity, 400, 'Quantidade registrada no sistema deve ser rigorosamente preservada');
+
+  // Divergência bloqueia o fechamento diário
+  let progress = model.getProgress();
+  assert.equal(progress.divergences, 1);
+  assert.equal(progress.readyToClose, false);
+
+  // Resolução da divergência após revisão
+  model.resolvePositionDivergence('pos_6');
+  assert.equal(pos.hasDivergence, false);
+  assert.equal(pos.divergence, null);
+  assert.equal(pos.status, 'conferida');
+
+  progress = model.getProgress();
+  assert.equal(progress.divergences, 0);
+  assert.equal(progress.readyToClose, true);
+});
+
+test('DailyUpdateModel Card [03]: operações com realização parcial (Peel Off)', () => {
+  const model = new DailyUpdateModel();
+
+  // Simula posição com realização parcial (ex: 200 restantes de 300 originais, 1 parcial)
+  const pos = model.positions.find(p => p.id === 'pos_1');
+  pos.initialQuantity = 300;
+  pos.quantity = 200;
+  pos.isPartial = true;
+  pos.partialCount = 1;
+
+  // Atualiza preço
+  model.updatePositionPrice('pos_1', 110.00);
+
+  // Quantidade e contagem de parciais são mantidas
+  assert.equal(pos.quantity, 200);
+  assert.equal(pos.initialQuantity, 300);
+  assert.equal(pos.isPartial, true);
+  assert.equal(pos.partialCount, 1);
+
+  // O resultado em aberto é calculado estritamente sobre a quantidade restante (200 un.)
+  const unrealized = model.getPositionUnrealizedResult(pos);
+  // (110 - 98.40) * 200 = 11.60 * 200 = 2320.00
+  assert.equal(Math.round(unrealized * 100) / 100, 2320.00);
+});
