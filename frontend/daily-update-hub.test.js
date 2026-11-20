@@ -90,7 +90,7 @@ test('DailyUpdateHub: modelo e controller operam sem duplicar fontes de dados', 
 
   // Garante que não há duplicação e os cálculos coincidem com os cards de resumo
   const wealth = model.getConsolidatedRealWealth();
-  assert.ok(wealth > 1000000, 'Patrimônio Real deve ser superior a R$ 1.000.000,00');
+  assert.ok(wealth >= 995000, 'Patrimônio Real deve ser consistente com o fechamento V11');
 });
 
 test('DailyUpdateHub Card [02]: DailyUpdateHubController métodos de ação e integração financeira', async () => {
@@ -160,7 +160,7 @@ test('DailyUpdateHub Card [02]: DailyUpdateHubController métodos de ação e in
   assert.equal(controller.model.accounts.find(a => a.id === 'clear_daniel').newBalance, 9999);
   controller.keepAccount('clear_daniel');
   assert.equal(controller.model.accounts.find(a => a.id === 'clear_daniel').status, 'keep');
-  assert.equal(controller.model.accounts.find(a => a.id === 'clear_daniel').newBalance, 3069);
+  assert.equal(controller.model.accounts.find(a => a.id === 'clear_daniel').newBalance, 3068.91);
 
   // 2. Testa toggleNomadCurrency
   const nomad = controller.model.accounts.find(a => a.id === 'nomad_daniel');
@@ -185,11 +185,11 @@ test('DailyUpdateHub Card [02]: DailyUpdateHubController métodos de ação e in
 
   // Valida que chamou /api/wealth/adjustments com os dados consolidados
   assert.ok(adjustmentPayload !== null, 'Deve ter chamado /api/wealth/adjustments');
-  assert.equal(Math.round(adjustmentPayload.newAmount * 100) / 100, 1104419.93);
+  assert.equal(Math.round(adjustmentPayload.newAmount * 100) / 100, 995002.70);
   assert.ok(adjustmentPayload.reason.includes('Fechamento Diário'));
 
   // Valida sincronização global do equity operacional
-  assert.equal(Math.round(operationalEquitySet * 100) / 100, 1104419.93);
+  assert.equal(Math.round(operationalEquitySet * 100) / 100, 995002.70);
 
   // Valida disparo dos eventos oficiais
   assert.ok(dispatchedEvents.includes('healthyTrend:equityUpdated'));
@@ -211,7 +211,7 @@ test('DailyUpdateHub Card [03]: DailyUpdateHubController conferência de posiç�
     DailyUpdateModel: DailyUpdateModel,
     operationalState: {
       positions: [
-        { id: 'pos_1', asset: 'JNJB34', currentPrice: 105.51 }
+        { id: 'pos_aapl34', asset: 'AAPL34', currentPrice: 103.21 }
       ]
     },
     healthyTrendApi: {
@@ -259,8 +259,12 @@ test('DailyUpdateHub Card [03]: DailyUpdateHubController conferência de posiç�
   assert.ok(controller);
 
   // 1. Atualização de preço via controller
-  await controller.updatePositionPrice('pos_1', '109,50');
-  const pos1 = controller.model.positions.find(p => p.id === 'pos_1');
+  const targetPos = controller.model.positions[0];
+  const pendingPos = controller.model.positions[1];
+  assert.ok(targetPos && pendingPos, 'Deve haver posições abertas no modelo');
+
+  await controller.updatePositionPrice(targetPos.id, '109,50');
+  const pos1 = controller.model.positions.find(p => p.id === targetPos.id);
   assert.equal(pos1.currentPrice, 109.50);
   assert.equal(pos1.status, 'conferida');
   assert.equal(pos1.checked, true);
@@ -268,17 +272,17 @@ test('DailyUpdateHub Card [03]: DailyUpdateHubController conferência de posiç�
   assert.ok(dispatchedEvents.includes('healthyTrend:tradesUpdated'));
 
   // 2. Marcação de posição como pendente bloqueia fechamento diário
-  controller.setPositionPending('pos_3');
+  controller.setPositionPending(pendingPos.id);
   assert.equal(controller.model.getProgress().readyToClose, false);
   let saveRes = await controller.saveDailyClosing();
   assert.equal(saveRes, false, 'Não deve salvar fechamento com posição pendente');
 
   // 3. Confirmação individual de posição
-  controller.confirmPosition('pos_3');
-  assert.equal(controller.model.positions.find(p => p.id === 'pos_3').checked, true);
+  controller.confirmPosition(pendingPos.id);
+  assert.equal(controller.model.positions.find(p => p.id === pendingPos.id).checked, true);
 
   // 4. Sinalização de divergência bloqueia fechamento diário
-  controller.model.reportPositionDivergence('pos_1', {
+  controller.model.reportPositionDivergence(targetPos.id, {
     field: 'quantity',
     reported: 150,
     note: 'Custódia diverge'
@@ -289,7 +293,7 @@ test('DailyUpdateHub Card [03]: DailyUpdateHubController conferência de posiç�
   assert.equal(saveRes, false, 'Não deve salvar fechamento com divergência de custódia ativa');
 
   // 5. Resolução da divergência restaura aptidão para fechamento
-  controller.resolveDivergence('pos_1');
+  controller.resolveDivergence(targetPos.id);
   assert.equal(controller.model.getProgress().divergences, 0);
   assert.equal(controller.model.getProgress().readyToClose, true);
 
@@ -384,7 +388,7 @@ test('DailyUpdateHub Card [04]: fechamento, snapshots históricos, ressalvas e a
   assert.ok(todaySnap !== null);
   assert.equal(todaySnap.version, 1);
   assert.equal(todaySnap.status, 'closed');
-  assert.equal(todaySnap.realWealth, 1104419.93);
+  assert.equal(todaySnap.realWealth, 995002.70);
 
   // Verifica sincronização com API de adjustments e workspace
   assert.ok(apiRequests.some(r => r.url === '/api/wealth/adjustments'));

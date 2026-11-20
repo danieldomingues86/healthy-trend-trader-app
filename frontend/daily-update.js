@@ -101,12 +101,12 @@
         // Fetch current open trades from /api/trades?status=open
         const tradesRes = await root.healthyTrendApi.request('/api/trades?status=open').catch(() => null);
         const list = Array.isArray(tradesRes) ? tradesRes : (tradesRes?.trades || []);
-        const openTrades = list.filter(t => t.status === 'open' || !t.exit_reason);
+        const openTrades = list.filter(t => t.status === 'open');
         if (openTrades.length > 0) {
           this.model.positions = openTrades.map((t, idx) => {
             const entry = Number(t.average_entry_price || t.execution_price || t.entry_price || 0);
             const initialStop = Number(t.stop_price || 0);
-            const currentPrice = Number(t.current_price || entry);
+            const currentPrice = Number(t.current_price || t.metadata?.currentPrice || entry);
             const events = t.events || [];
             const updateEvents = events.filter(e => e.type === 'update' && e.stop);
             const trailingStop = updateEvents.length ? Number(updateEvents[updateEvents.length - 1].stop) : initialStop;
@@ -114,15 +114,18 @@
             const totalBought = Number(t.total_quantity || t.executed_quantity || t.planned_quantity || 0);
             const closedQty = events.filter(e => e.type === 'peeloff' || e.type === 'close').reduce((s, e) => s + Number(e.qty || 0), 0);
             const remaining = Math.max(0, totalBought - closedQty);
+            const contractMult = Number(t.contractMult || t.metadata?.contractMult || 1);
 
             const existingPos = this.model.positions.find(p => p.id === t.id);
 
             return {
               id: t.id || `pos_${idx}`,
               ticker: t.ticker || t.asset,
-              broker: t.broker || t.metadata?.account || t.account || (idx % 2 === 0 ? 'XP — Daniel' : 'Genial — Daniel'),
+              broker: t.broker || t.metadata?.account || t.account || (t.metadata?.broker || 'Pendente de conferência'),
               quantity: remaining || totalBought,
               initialQuantity: totalBought,
+              contractMult: contractMult,
+              mult: contractMult,
               isPartial: peeloffs.length > 0,
               partialCount: peeloffs.length,
               entryPrice: entry,

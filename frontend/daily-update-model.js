@@ -44,16 +44,16 @@
       broker: 'nomad',
       person: 'Daniel',
       currency: 'USD',
-      previousBalanceUSD: 18389.70,
-      newBalanceUSD: 18411.87,
-      fxRate: 5.73,
-      fxSource: 'PTAX / Referência',
-      fxTimestamp: '2026-11-20T10:00:00.000Z',
-      previousBalance: 105374.00,
-      newBalance: 105500.00,
-      status: 'updated',
+      previousBalanceUSD: 17762.62,
+      newBalanceUSD: 17762.62,
+      fxRate: 5.9335,
+      fxSource: 'PTAX / Referência Planilha V11',
+      fxTimestamp: '2026-11-19T18:00:00.000Z',
+      previousBalance: 105374.51,
+      newBalance: 105374.51,
+      status: 'keep',
       inputCurrency: 'BRL', // 'BRL' | 'USD'
-      updatedAt: '2026-11-20T08:15:00.000Z'
+      updatedAt: '2026-11-19T18:00:00.000Z'
     },
     {
       id: 'genial_daniel',
@@ -61,8 +61,8 @@
       broker: 'genial',
       person: 'Daniel',
       currency: 'BRL',
-      previousBalance: 257418.00,
-      newBalance: 257418.00,
+      previousBalance: 257418.15,
+      newBalance: 257418.15,
       status: 'keep',
       updatedAt: '2026-11-19T18:00:00.000Z'
     },
@@ -72,8 +72,8 @@
       broker: 'clear',
       person: 'Daniel',
       currency: 'BRL',
-      previousBalance: 3069.00,
-      newBalance: 3069.00,
+      previousBalance: 3068.91,
+      newBalance: 3068.91,
       status: 'keep',
       updatedAt: '2026-11-19T18:00:00.000Z'
     },
@@ -83,8 +83,8 @@
       broker: 'xp',
       person: 'Natália',
       currency: 'BRL',
-      previousBalance: 220328.00,
-      newBalance: 220328.00,
+      previousBalance: 200911.07,
+      newBalance: 200911.07,
       status: 'keep',
       updatedAt: '2026-11-19T18:00:00.000Z'
     },
@@ -94,27 +94,22 @@
       broker: 'genial',
       person: 'Natália',
       currency: 'BRL',
-      previousBalance: 310709.93,
-      newBalance: 310583.93,
-      status: 'updated',
-      updatedAt: '2026-11-20T08:15:00.000Z'
+      previousBalance: 220709.06,
+      newBalance: 220709.06,
+      status: 'keep',
+      updatedAt: '2026-11-19T18:00:00.000Z'
     }
   ];
 
   // Default sample open positions for instant preview
   const DEFAULT_POSITIONS = [
-    { id: 'pos_1', ticker: 'JNJB34', broker: 'Nomad — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 98.40, currentPrice: 105.51, stopPrice: 97.02, trailingStop: 101.50, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_2', ticker: 'AMZN34', broker: 'Nomad — Daniel', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 73.25, currentPrice: 78.69, stopPrice: 73.48, trailingStop: 75.20, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_3', ticker: 'AAPL34', broker: 'Nomad — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 82.10, currentPrice: 86.77, stopPrice: 81.30, trailingStop: 84.10, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_4', ticker: 'MSFT34', broker: 'Nomad — Daniel', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 57.40, currentPrice: 60.18, stopPrice: 56.20, trailingStop: 58.00, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_5', ticker: 'NVDC34', broker: 'Nomad — Daniel', quantity: 100, initialQuantity: 100, isPartial: false, partialCount: 0, entryPrice: 409.20, currentPrice: 421.75, stopPrice: 407.00, trailingStop: 412.00, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_6', ticker: 'PETR4',  broker: 'XP — Daniel', quantity: 400, initialQuantity: 400, isPartial: false, partialCount: 0, entryPrice: 38.20, currentPrice: 39.50, stopPrice: 37.40, trailingStop: 38.50, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_7', ticker: 'VALE3',  broker: 'XP — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 59.80, currentPrice: 61.20, stopPrice: 58.50, trailingStop: 59.80, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_8', ticker: 'ITUB4',  broker: 'Genial — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 34.10, currentPrice: 35.40, stopPrice: 33.60, trailingStop: 34.50, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_9', ticker: 'WEGE3',  broker: 'Genial — Daniel', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 49.30, currentPrice: 51.10, stopPrice: 48.00, trailingStop: 49.50, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_10', ticker: 'PRIO3', broker: 'Clear — Daniel', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 44.50, currentPrice: 45.80, stopPrice: 43.20, trailingStop: 44.20, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_11', ticker: 'BPAC11', broker: 'XP — Natália', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 36.40, currentPrice: 37.80, stopPrice: 35.50, trailingStop: 36.80, status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_12', ticker: 'RENT3',  broker: 'Genial — Natália', quantity: 200, initialQuantity: 200, isPartial: false, partialCount: 0, entryPrice: 52.10, currentPrice: 53.70, stopPrice: 50.80, trailingStop: 52.00, status: 'conferida', checked: true, hasDivergence: false }
+    { id: 'pos_aapl34', ticker: 'AAPL34', broker: 'Pendente de conferência', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 100.86, currentPrice: 103.21, stopPrice: 96.49, trailingStop: 96.49, atr: 2.77, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_amzn34', ticker: 'AMZN34', broker: 'Pendente de conferência', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 78.69, currentPrice: 77.03, stopPrice: 73.48, trailingStop: 73.48, atr: 3.33, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_winz26', ticker: 'WINZ26', broker: 'Pendente de conferência', quantity: 2, initialQuantity: 2, isPartial: false, partialCount: 0, entryPrice: 167685, currentPrice: 167595, stopPrice: 174435, trailingStop: 174435, atr: 5202.14, mult: 0.2, contractMult: 0.2, side: 'Venda', direction: 'short', strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_brav3', ticker: 'BRAV3', broker: 'Pendente de conferência', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 14.06, currentPrice: 12.87, stopPrice: 12.00, trailingStop: 12.00, atr: 0.83, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-11', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_bbas3', ticker: 'BBAS3', broker: 'Pendente de conferência', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 15.48, currentPrice: 14.30, stopPrice: 12.00, trailingStop: 12.00, atr: 1.09, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_bgix26', ticker: 'BGIX26', broker: 'Pendente de conferência', quantity: 1, initialQuantity: 1, isPartial: false, partialCount: 0, entryPrice: 402.25, currentPrice: 399.00, stopPrice: 395.00, trailingStop: 395.00, atr: 3.93, mult: 330, contractMult: 330, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_m2st34', ticker: 'M2ST34', broker: 'Pendente de conferência', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 8.99, currentPrice: 7.38, stopPrice: 7.00, trailingStop: 7.00, atr: 0.74, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false }
   ];
 
   // Default sample historical snapshots for consultation and comparison
@@ -128,29 +123,33 @@
       hasException: false,
       exceptions: [],
       user: { name: 'Daniel' },
-      realWealth: 1101435.43,
-      previousRealWealth: 1098650.00,
-      dayVariationAmount: 2785.43,
-      dayVariationPct: 0.25,
-      strategyEquity: 1108250.00,
-      totalExposure: 101250.00,
-      exposurePct: 9.19,
+      realWealth: 995002.70,
+      previousRealWealth: 1001317.92,
+      dayVariationAmount: -6315.22,
+      dayVariationPct: -0.63,
+      strategyEquity: 1112175.49,
+      totalExposure: 314302.00,
+      exposurePct: 31.59,
       portfolioHeat: 0.00,
       accounts: [
-        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 206800.00, newBalance: 207521.00, variationPct: 0.35, wealthSharePct: 18.84, status: 'updated' },
-        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18350.00, newBalanceUSD: 18389.70, fxRate: 5.73, previousBalance: 104962.00, newBalance: 105374.00, variationPct: 0.39, wealthSharePct: 9.57, status: 'updated' },
-        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.37, status: 'keep' },
-        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
-        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 220000.00, newBalance: 220328.00, variationPct: 0.15, wealthSharePct: 20.00, status: 'updated' },
-        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 306401.00, newBalance: 307725.43, variationPct: 0.43, wealthSharePct: 27.94, status: 'updated' }
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 206028.00, newBalance: 207521.00, variationPct: 0.72, wealthSharePct: 20.86, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17759.25, newBalanceUSD: 17762.62, fxRate: 5.9335, previousBalance: 97143.36, newBalance: 105374.51, variationPct: 8.47, wealthSharePct: 10.59, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 265776.90, newBalance: 257418.15, variationPct: -3.14, wealthSharePct: 25.87, status: 'updated' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3068.91, newBalance: 3068.91, variationPct: 0.00, wealthSharePct: 0.31, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 205019.25, newBalance: 200911.07, variationPct: -2.00, wealthSharePct: 20.19, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 219281.50, newBalance: 220709.06, variationPct: 0.65, wealthSharePct: 22.18, status: 'updated' }
       ],
       positions: [
-        { id: 'pos_1', ticker: 'JNJB34', quantity: 300, entryPrice: 98.40, currentPrice: 104.20, status: 'conferida', checked: true, hasDivergence: false },
-        { id: 'pos_2', ticker: 'AMZN34', quantity: 200, entryPrice: 73.25, currentPrice: 77.50, status: 'conferida', checked: true, hasDivergence: false },
-        { id: 'pos_3', ticker: 'AAPL34', quantity: 300, entryPrice: 82.10, currentPrice: 85.90, status: 'conferida', checked: true, hasDivergence: false }
+        { id: 'pos_aapl34', ticker: 'AAPL34', quantity: 600, entryPrice: 100.86, currentPrice: 103.21, status: 'conferida', checked: true, hasDivergence: false },
+        { id: 'pos_amzn34', ticker: 'AMZN34', quantity: 500, entryPrice: 78.69, currentPrice: 77.03, status: 'conferida', checked: true, hasDivergence: false },
+        { id: 'pos_winz26', ticker: 'WINZ26', quantity: 2, entryPrice: 167685, currentPrice: 167595, status: 'conferida', checked: true, hasDivergence: false },
+        { id: 'pos_brav3', ticker: 'BRAV3', quantity: 500, entryPrice: 14.06, currentPrice: 12.87, status: 'conferida', checked: true, hasDivergence: false },
+        { id: 'pos_bbas3', ticker: 'BBAS3', quantity: 300, entryPrice: 15.48, currentPrice: 14.30, status: 'conferida', checked: true, hasDivergence: false },
+        { id: 'pos_bgix26', ticker: 'BGIX26', quantity: 1, entryPrice: 402.25, currentPrice: 399.00, status: 'conferida', checked: true, hasDivergence: false },
+        { id: 'pos_m2st34', ticker: 'M2ST34', quantity: 600, entryPrice: 8.99, currentPrice: 7.38, status: 'conferida', checked: true, hasDivergence: false }
       ],
-      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
-      auditReason: 'Fechamento Diário (19/11/2026) — Total R$ 1.101.435,43 consolidado com sucesso.',
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 7, positionsChecked: 7, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (19/11/2026) — Total R$ 995.002,70 consolidado com sucesso.',
       corrections: []
     },
     {
@@ -653,11 +652,11 @@
     constructor(options = {}) {
       this.accounts = options.accounts ? JSON.parse(JSON.stringify(options.accounts)) : JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
       this.positions = options.positions ? JSON.parse(JSON.stringify(options.positions)) : JSON.parse(JSON.stringify(DEFAULT_POSITIONS));
-      this.strategyEquity = options.strategyEquity !== undefined ? Number(options.strategyEquity) : 1112309.50;
+      this.strategyEquity = options.strategyEquity !== undefined ? Number(options.strategyEquity) : 1112175.49;
       this.portfolioHeat = options.portfolioHeat !== undefined ? Number(options.portfolioHeat) : 0.00;
       this.heatLimit = options.heatLimit !== undefined ? Number(options.heatLimit) : 12.50;
       this.closingDate = options.closingDate || new Date().toISOString().slice(0, 10);
-      this.previousClosingWealth = options.previousClosingWealth !== undefined ? Number(options.previousClosingWealth) : 1101435.43;
+      this.previousClosingWealth = options.previousClosingWealth !== undefined ? Number(options.previousClosingWealth) : 995002.70;
       this.closingStatus = options.closingStatus || 'READY_TO_CLOSE'; // 'NOT_STARTED' | 'IN_PROGRESS' | 'READY_TO_CLOSE' | 'CLOSED'
     }
 
@@ -856,7 +855,8 @@
       return this.positions.reduce((sum, pos) => {
         const qty = Number(pos.quantity || 0);
         const price = Number(pos.currentPrice || pos.entryPrice || 0);
-        return sum + (qty * price);
+        const mult = Number(pos.contractMult || pos.mult || 1);
+        return sum + (qty * price * mult);
       }, 0);
     }
 

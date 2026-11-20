@@ -6,8 +6,8 @@ test('DailyUpdateModel: inicializa com contas e posições padrão homologadas',
   const model = new DailyUpdateModel();
 
   assert.equal(model.accounts.length, 6);
-  assert.equal(model.positions.length, 12);
-  assert.equal(model.strategyEquity, 1112309.50);
+  assert.equal(model.positions.length, 7);
+  assert.equal(model.strategyEquity, 1112175.49);
 
   // Verifica as contas obrigatórias
   const accountLabels = model.accounts.map(a => a.label);
@@ -27,14 +27,12 @@ test('DailyUpdateModel: cálculo correto do Patrimônio Real Consolidado e Varia
   const nominalVar = model.getDayNominalVariation();
   const pctVar = model.getDayPercentVariation();
 
-  // 207521 + 105500 + 257418 + 3069 + 220328 + 310583.93 = 1104419.93
-  assert.equal(Math.round(realWealth * 100) / 100, 1104419.93);
-  // 207521 + 105374 + 257418 + 3069 + 220328 + 310709.93 = 1101435.43
-  assert.equal(Math.round(prevWealth * 100) / 100, 1101435.43);
-  // Variação nominal = +R$ 2.984,50
-  assert.equal(Math.round(nominalVar * 100) / 100, 2984.50);
-  // Variação % = +0,27%
-  assert.equal(Math.round(pctVar * 100) / 100, 0.27);
+  // 207521 + 105374.51 + 257418.15 + 3068.91 + 200911.07 + 220709.06 = 995002.70
+  assert.equal(Math.round(realWealth * 100) / 100, 995002.70);
+  assert.equal(Math.round(prevWealth * 100) / 100, 995002.70);
+  // Variação nominal = 0.00 (saldos mantidos conforme fechamento V11)
+  assert.equal(Math.round(nominalVar * 100) / 100, 0.00);
+  assert.equal(Math.round(pctVar * 100) / 100, 0.00);
 });
 
 test('DailyUpdateModel: atualização de saldo de conta com suporte a moeda estrangeira (USD/BRL)', () => {
@@ -63,7 +61,7 @@ test('DailyUpdateModel: cálculo de Exposição Atual e Heat do Portfólio', () 
 
   const progress = model.getProgress();
   assert.equal(progress.totalAccounts, 6);
-  assert.equal(progress.totalPositions, 12);
+  assert.equal(progress.totalPositions, 7);
   assert.equal(progress.divergences, 0);
   assert.equal(progress.readyToClose, true);
 });
@@ -135,7 +133,7 @@ test('DailyUpdateModel Card [02]: ações rápidas Manter Saldo, Manter Todos e 
   // Ação "Manter Saldo Anterior" na Clear
   const kept = model.keepAccountBalance('clear_daniel');
   assert.equal(kept.status, 'keep');
-  assert.equal(kept.newBalance, 3069.00);
+  assert.equal(kept.newBalance, 3068.91);
 
   // Ação "Pendente" na Genial Daniel
   const pendingAcc = model.setAccountPending('genial_daniel');
@@ -164,19 +162,18 @@ test('DailyUpdateModel Card [02]: ações rápidas Manter Saldo, Manter Todos e 
 test('DailyUpdateModel Card [02]: rastreamento detalhado de Nomad (USD) e independência cambial', () => {
   const model = new DailyUpdateModel();
 
-  // Nomad padrão com USD 18.411,87 e cotação 5,73
+  // Nomad padrão com USD 17.762,62 e cotação 5,9335
   const fxDetails = model.getForeignCurrencyDetails('nomad_daniel');
   assert.ok(fxDetails !== null);
   assert.equal(fxDetails.currency, 'USD');
-  assert.equal(fxDetails.balanceUSD, 18411.87);
-  assert.equal(fxDetails.previousBalanceUSD, 18389.70);
-  assert.equal(fxDetails.fxRate, 5.73);
-  assert.equal(fxDetails.convertedBRL, 105500.00);
+  assert.equal(fxDetails.balanceUSD, 17762.62);
+  assert.equal(fxDetails.previousBalanceUSD, 17762.62);
+  assert.equal(fxDetails.fxRate, 5.9335);
+  assert.equal(fxDetails.convertedBRL, 105374.51);
 
   // Variação em USD é estritamente calculada sobre a moeda original
   const usdVar = model.getAccountUsdVariationPct(model.accounts.find(a => a.id === 'nomad_daniel'));
-  // (18411.87 - 18389.70) / 18389.70 = +0.12%
-  assert.equal(Math.round(usdVar * 100) / 100, 0.12);
+  assert.equal(Math.round(usdVar * 100) / 100, 0.00);
 
   // Atualização em USD converte para BRL usando a taxa
   model.updateAccountBalance('nomad_daniel', 20000, true, 6.00);
@@ -221,15 +218,15 @@ test('DailyUpdateModel Card [02]: geração de audit reason estruturado para /ap
 
 test('DailyUpdateModel Card [03]: atualização de preço de posição sem sobrescrever stops ou entradas', () => {
   const model = new DailyUpdateModel();
-  const pos = model.positions.find(p => p.id === 'pos_1'); // JNJB34
+  const pos = model.positions.find(p => p.id === 'pos_aapl34'); // AAPL34
 
   const initialEntry = pos.entryPrice;
   const initialStop = pos.stopPrice;
   const initialTrailing = pos.trailingStop;
   const initialQty = pos.quantity;
 
-  // Atualiza preço atual de JNJB34 para R$ 108,00
-  const res = model.updatePositionPrice('pos_1', '108,00');
+  // Atualiza preço atual de AAPL34 para R$ 108,00
+  const res = model.updatePositionPrice('pos_aapl34', '108,00');
   assert.equal(res.success, true);
   assert.equal(pos.currentPrice, 108.00);
   assert.equal(pos.checked, true);
@@ -242,7 +239,7 @@ test('DailyUpdateModel Card [03]: atualização de preço de posição sem sobre
   assert.equal(pos.quantity, initialQty, 'Quantidade não deve ser alterada automaticamente');
 
   // Rejeição de preço inválido ou negativo
-  const invalidRes = model.updatePositionPrice('pos_1', '-10,00');
+  const invalidRes = model.updatePositionPrice('pos_aapl34', '-10,00');
   assert.equal(invalidRes.success, false);
   assert.ok(pos.error !== null);
   assert.equal(model.getProgress().invalidPositions, 1);
@@ -253,7 +250,7 @@ test('DailyUpdateModel Card [03]: ações rápidas de conferência e posições 
   const model = new DailyUpdateModel();
 
   // Marca uma posição como pendente
-  const pos2 = model.setPositionPending('pos_2');
+  const pos2 = model.setPositionPending('pos_amzn34');
   assert.equal(pos2.status, 'pendente');
   assert.equal(pos2.checked, false);
 
@@ -263,7 +260,7 @@ test('DailyUpdateModel Card [03]: ações rápidas de conferência e posições 
   assert.equal(progress.readyToClose, false);
 
   // Confere individualmente
-  model.confirmPosition('pos_2');
+  model.confirmPosition('pos_amzn34');
   assert.equal(pos2.status, 'conferida');
   assert.equal(pos2.checked, true);
 
@@ -278,21 +275,21 @@ test('DailyUpdateModel Card [03]: ações rápidas de conferência e posições 
 
 test('DailyUpdateModel Card [03]: sinalização de divergência de custódia na corretora sem mutar dados originais', () => {
   const model = new DailyUpdateModel();
-  const pos = model.positions.find(p => p.id === 'pos_6'); // PETR4, 400 un.
+  const pos = model.positions.find(p => p.id === 'pos_bgix26'); // BGIX26, 1 un.
 
-  // Usuário relata que na corretora aparecem 300 unidades
-  model.reportPositionDivergence('pos_6', {
+  // Usuário relata que na corretora aparecem 2 contratos
+  model.reportPositionDivergence('pos_bgix26', {
     field: 'quantity',
-    reported: 300,
-    note: 'Extrato da XP exibe 300 un. em custódia.'
+    reported: 2,
+    note: 'Extrato da corretora exibe 2 contratos em custódia.'
   });
 
   assert.equal(pos.hasDivergence, true);
   assert.equal(pos.status, 'divergente');
-  assert.equal(pos.divergence.reported, 300);
+  assert.equal(pos.divergence.reported, 2);
 
   // INVARIANTE: A quantidade registrada no sistema NÃO pode ser alterada automaticamente
-  assert.equal(pos.quantity, 400, 'Quantidade registrada no sistema deve ser rigorosamente preservada');
+  assert.equal(pos.quantity, 1, 'Quantidade registrada no sistema deve ser rigorosamente preservada');
 
   // Divergência bloqueia o fechamento diário
   let progress = model.getProgress();
@@ -300,7 +297,7 @@ test('DailyUpdateModel Card [03]: sinalização de divergência de custódia na 
   assert.equal(progress.readyToClose, false);
 
   // Resolução da divergência após revisão
-  model.resolvePositionDivergence('pos_6');
+  model.resolvePositionDivergence('pos_bgix26');
   assert.equal(pos.hasDivergence, false);
   assert.equal(pos.divergence, null);
   assert.equal(pos.status, 'conferida');
@@ -313,26 +310,26 @@ test('DailyUpdateModel Card [03]: sinalização de divergência de custódia na 
 test('DailyUpdateModel Card [03]: operações com realização parcial (Peel Off)', () => {
   const model = new DailyUpdateModel();
 
-  // Simula posição com realização parcial (ex: 200 restantes de 300 originais, 1 parcial)
-  const pos = model.positions.find(p => p.id === 'pos_1');
-  pos.initialQuantity = 300;
-  pos.quantity = 200;
+  // Simula posição com realização parcial (ex: 400 restantes de 600 originais, 1 parcial)
+  const pos = model.positions.find(p => p.id === 'pos_aapl34');
+  pos.initialQuantity = 600;
+  pos.quantity = 400;
   pos.isPartial = true;
   pos.partialCount = 1;
 
   // Atualiza preço
-  model.updatePositionPrice('pos_1', 110.00);
+  model.updatePositionPrice('pos_aapl34', 110.00);
 
   // Quantidade e contagem de parciais são mantidas
-  assert.equal(pos.quantity, 200);
-  assert.equal(pos.initialQuantity, 300);
+  assert.equal(pos.quantity, 400);
+  assert.equal(pos.initialQuantity, 600);
   assert.equal(pos.isPartial, true);
   assert.equal(pos.partialCount, 1);
 
-  // O resultado em aberto é calculado estritamente sobre a quantidade restante (200 un.)
+  // O resultado em aberto é calculado estritamente sobre a quantidade restante (400 un.)
   const unrealized = model.getPositionUnrealizedResult(pos);
-  // (110 - 98.40) * 200 = 11.60 * 200 = 2320.00
-  assert.equal(Math.round(unrealized * 100) / 100, 2320.00);
+  // (110 - 100.86) * 400 = 9.14 * 400 = 3656.00
+  assert.equal(Math.round(unrealized * 100) / 100, 3656.00);
 });
 
 test('DailyUpdateModel Card [04]: criação e persistência de Snapshot completo do fechamento', () => {
@@ -343,12 +340,12 @@ test('DailyUpdateModel Card [04]: criação e persistência de Snapshot completo
   assert.equal(snapshot.version, 1);
   assert.equal(snapshot.status, 'closed');
   assert.equal(snapshot.hasException, false);
-  assert.equal(snapshot.realWealth, 1104419.93);
-  assert.equal(snapshot.dayVariationAmount, 2984.50);
-  assert.equal(snapshot.dayVariationPct, 0.27);
-  assert.equal(snapshot.strategyEquity, 1112309.50);
+  assert.equal(snapshot.realWealth, 995002.70);
+  assert.equal(snapshot.dayVariationAmount, 0.00);
+  assert.equal(snapshot.dayVariationPct, 0.00);
+  assert.equal(snapshot.strategyEquity, 1112175.49);
   assert.equal(snapshot.accounts.length, 6);
-  assert.equal(snapshot.positions.length, 12);
+  assert.equal(snapshot.positions.length, 7);
   assert.ok(snapshot.auditReason.includes('Fechamento Diário'));
 
   // Teste de salvamento no storage
@@ -365,7 +362,7 @@ test('DailyUpdateModel Card [04]: criação e persistência de Snapshot completo
 
   const retrieved = model.getSnapshotByDate('2026-11-20', mockStorage);
   assert.equal(retrieved.id, snapshot.id);
-  assert.equal(retrieved.realWealth, 1104419.93);
+  assert.equal(retrieved.realWealth, 995002.70);
 });
 
 test('DailyUpdateModel Card [04]: conclusão com ressalvas / exceções permitidas', () => {
@@ -373,10 +370,10 @@ test('DailyUpdateModel Card [04]: conclusão com ressalvas / exceções permitid
 
   // Marca uma conta como pendente e uma posição com divergência
   model.setAccountPending('xp_daniel');
-  model.reportPositionDivergence('pos_1', {
+  model.reportPositionDivergence('pos_aapl34', {
     field: 'quantity',
-    reported: 250,
-    note: 'Corretora exibe 250 un. vs 300 un. registradas'
+    reported: 500,
+    note: 'Corretora exibe 500 un. vs 600 un. registradas'
   });
 
   const progress = model.getProgress();
@@ -394,7 +391,7 @@ test('DailyUpdateModel Card [04]: conclusão com ressalvas / exceções permitid
   assert.equal(closedWithEx.hasException, true);
   assert.equal(closedWithEx.exceptions.length, 2);
   assert.ok(closedWithEx.exceptions.some(e => e.type === 'pending_account' && e.id === 'xp_daniel'));
-  assert.ok(closedWithEx.exceptions.some(e => e.type === 'divergence' && e.id === 'pos_1'));
+  assert.ok(closedWithEx.exceptions.some(e => e.type === 'divergence' && e.id === 'pos_aapl34'));
   assert.equal(model.closingStatus, 'CLOSED_WITH_EXCEPTION');
 });
 
@@ -426,8 +423,8 @@ test('DailyUpdateModel Card [04]: correção versionada de fechamento (v1 -> v2)
   assert.equal(snapV2.correctionReason, 'Ajuste de saldo após liquidação de dividendo na XP');
   assert.ok(snapV2.corrections.length === 1);
   assert.equal(snapV2.corrections[0].version, 1);
-  assert.equal(snapV2.corrections[0].realWealth, 1104419.93);
-  assert.equal(snapV2.realWealth, 1106898.93);
+  assert.equal(snapV2.corrections[0].realWealth, 995002.70);
+  assert.equal(Math.round(snapV2.realWealth * 100) / 100, 997481.70);
   assert.ok(snapV2.auditReason.includes('[CORREÇÃO v2]'));
 });
 
@@ -441,9 +438,8 @@ test('DailyUpdateModel Card [04]: comparação entre dois snapshots históricos'
   assert.equal(diff.date1, '2026-11-19');
   assert.equal(diff.date2, '2026-11-18');
 
-  // Real wealth: 1101435.43 - 1098650.00 = +2785.43
-  assert.equal(Math.round(diff.diffAmount * 100) / 100, 2785.43);
-  assert.ok(diff.diffPct > 0);
+  // Real wealth: 995002.70 - 1098650.00 = -103647.30
+  assert.equal(Math.round(diff.diffAmount * 100) / 100, -103647.30);
   assert.equal(diff.accountsDiff.length, 6);
 });
 
