@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-19T21:50:17.996Z",
+  "updatedAt": "2026-11-19T23:23:27.916Z",
   "totalScreens": 46,
   "totalStylesheets": 11,
   "screens": {
@@ -625,11 +625,12 @@
     },
     "trade-simulator.css": {
       "filename": "trade-simulator.css",
-      "rulesCount": 1444,
-      "mediaBreakpointsCount": 18,
+      "rulesCount": 1480,
+      "mediaBreakpointsCount": 20,
       "mediaBreakpoints": [
         "@media (max-width: 1024px)",
         "@media (max-width: 1050px)",
+        "@media (max-width: 1080px)",
         "@media (max-width: 1100px)",
         "@media (max-width: 1150px)",
         "@media (max-width: 1180px)",
@@ -643,14 +644,15 @@
         "@media (max-width: 700px)",
         "@media (max-width: 768px)",
         "@media (max-width: 800px)",
+        "@media (max-width: 860px)",
         "@media (max-width: 900px)",
         "@media (max-width: 960px)",
         "@media (min-width: 1800px)"
       ],
       "healthyRulesCount": 53,
-      "goldRulesCount": 59,
+      "goldRulesCount": 61,
       "pigeonRulesCount": 56,
-      "footprintHash": "e30590f9bee2c0f9"
+      "footprintHash": "a7550d58d33c066a"
     },
     "event-playbook.css": {
       "filename": "event-playbook.css",

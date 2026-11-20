@@ -222,8 +222,9 @@ test('SimulationProcessingExperience — 6. Integração com modal, remoção do
   );
 
   // 3. Bloqueio de cliques duplicados em generateScenarioMass
+  const normalizedJs = jsContent.replace(/\r\n/g, '\n');
   assert.ok(
-    jsContent.includes('if (state.generatingMass) {\n      return null;\n    }'),
+    normalizedJs.includes('if (state.generatingMass) {\n      return null;\n    }'),
     'generateScenarioMass deve bloquear execuções concorrentes ou cliques duplicados'
   );
 
