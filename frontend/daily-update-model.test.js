@@ -465,3 +465,93 @@ test('DailyUpdateModel Card [04]: Checklist de Reconciliação com a Planilha Tr
   const posCustodyItem = recon.items.find(i => i.key === 'open_positions_custody');
   assert.ok(posCustodyItem.rule.includes('NUNCA somar posições ao Patrimônio Real'));
 });
+
+test('DailyUpdateModel Card [05]: cálculo da participação percentual das contas no Patrimônio Real (% do Total)', () => {
+  const model = new DailyUpdateModel();
+  const totalWealth = model.getConsolidatedRealWealth();
+  assert.ok(totalWealth > 0);
+
+  // Calcula para cada conta e verifica se a soma totaliza ~100%
+  let sumShares = 0;
+  model.accounts.forEach(acc => {
+    const share = model.getAccountWealthSharePct(acc);
+    assert.ok(typeof share === 'number');
+    assert.ok(share >= 0 && share <= 100);
+    // Fórmula: (saldo BRL / patrimônio total) * 100
+    const expected = Math.round(((acc.newBalance / totalWealth) * 100) * 100) / 100;
+    assert.equal(share, expected);
+    sumShares += share;
+  });
+
+  // Soma deve estar em 100% (com tolerância máxima de 0.05% para arredondamento a 2 casas)
+  assert.ok(Math.abs(sumShares - 100) < 0.05, `Soma das participações (${sumShares}%) deve ser ~100%`);
+
+  // Conta em USD (Nomad): calculada a partir do valor convertido em BRL (acc.newBalance)
+  const nomad = model.accounts.find(a => a.id === 'nomad_daniel');
+  assert.equal(nomad.currency, 'USD');
+  const nomadShare = model.getAccountWealthSharePct(nomad);
+  const expectedNomadShare = Math.round(((nomad.newBalance / totalWealth) * 100) * 100) / 100;
+  assert.equal(nomadShare, expectedNomadShare);
+});
+
+test('DailyUpdateModel Card [05]: recálculo dinâmico e tratamento seguro de divisão por zero ou dados nulos', () => {
+  const model = new DailyUpdateModel();
+
+  // 1. Recálculo ao alterar o saldo de uma conta
+  const initialTotal = model.getConsolidatedRealWealth();
+  const xp = model.accounts.find(a => a.id === 'xp_daniel');
+  const initialXpShare = model.getAccountWealthSharePct(xp);
+
+  // Aumenta o saldo da XP em R$ 100.000
+  model.updateAccountBalance('xp_daniel', xp.newBalance + 100000);
+  const newTotal = model.getConsolidatedRealWealth();
+  assert.equal(newTotal, initialTotal + 100000);
+
+  const updatedXpShare = model.getAccountWealthSharePct(xp);
+  assert.ok(updatedXpShare > initialXpShare, 'A participação da XP deve aumentar');
+
+  // A soma de todas as contas recalcula mantendo ~100%
+  const newSumShares = model.accounts.reduce((sum, a) => sum + model.getAccountWealthSharePct(a), 0);
+  assert.ok(Math.abs(newSumShares - 100) < 0.05);
+
+  // 2. Tratamento de divisão por zero / patrimônio zero ou negativo
+  assert.equal(model.getAccountWealthSharePct(xp, 0), 0);
+  assert.equal(model.getAccountWealthSharePct(xp, -5000), 0);
+  assert.equal(model.getAccountWealthSharePct(xp, null), 0);
+  assert.equal(model.getAccountWealthSharePct(null, newTotal), 0);
+
+  // 3. Status provisório de distribuição
+  assert.equal(model.isWealthDistributionProvisional(), false);
+  model.setAccountPending('genial_daniel');
+  assert.equal(model.isWealthDistributionProvisional(), true);
+  model.keepAccountBalance('genial_daniel');
+  assert.equal(model.isWealthDistributionProvisional(), false);
+});
+
+test('DailyUpdateModel Card [05]: persistência da participação percentual no snapshot e consulta histórica', () => {
+  const model = new DailyUpdateModel();
+  const snapshot = model.createSnapshot();
+
+  assert.ok(Array.isArray(snapshot.accounts));
+  assert.equal(snapshot.accounts.length, 6);
+
+  // Cada conta deve conter wealthSharePct gravado
+  let snapshotSharesSum = 0;
+  snapshot.accounts.forEach(acc => {
+    assert.ok(acc.wealthSharePct !== undefined);
+    assert.ok(typeof acc.wealthSharePct === 'number');
+    assert.ok(acc.wealthSharePct > 0);
+    snapshotSharesSum += acc.wealthSharePct;
+  });
+  assert.ok(Math.abs(snapshotSharesSum - 100) < 0.05);
+
+  // Comparação histórica inclui share1, share2 e shareDiff
+  const diff = model.compareSnapshots('2026-11-19', '2026-11-18');
+  assert.ok(diff);
+  assert.ok(Array.isArray(diff.accountsDiff));
+  diff.accountsDiff.forEach(a => {
+    assert.ok(a.share1 !== undefined);
+    assert.ok(a.share2 !== undefined);
+    assert.ok(a.shareDiff !== undefined);
+  });
+});

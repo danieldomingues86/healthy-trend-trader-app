@@ -423,3 +423,87 @@ test('DailyUpdateHub Card [04]: fechamento, snapshots históricos, ressalvas e a
   assert.equal(corrResult.snapshot.corrections.length, 1);
   assert.equal(controller.model.closingStatus, 'CORRECTED');
 });
+
+test('DailyUpdateHub Card [05]: renderização da coluna % do Total, badges de participação e recálculo live', () => {
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+
+  // Simula DOM para renderização e teste de recálculo live
+  const elementsById = new Map();
+  const elementsByAttr = new Map();
+
+  const mockDoc = {
+    getElementById: (id) => elementsById.get(id) || null,
+    querySelector: (sel) => {
+      // Suporta seletor [data-wealth-share-for="<id>"]
+      const match = sel.match(/\[data-wealth-share-for=["']?([^"']+)["']?\]/);
+      if (match) {
+        return elementsByAttr.get(match[1]) || null;
+      }
+      return null;
+    },
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    body: {
+      appendChild: () => {},
+      removeChild: () => {}
+    },
+    createElement: (tag) => ({
+      tagName: tag,
+      style: {},
+      innerHTML: '',
+      parentNode: null
+    })
+  };
+
+  const mockRoot = {
+    DailyUpdateModel: DailyUpdateModel,
+    showToast: () => {},
+    dispatchEvent: () => {},
+    healthyTrendApi: {
+      isAuthenticated: () => false
+    },
+    healthyTrendWorkspace: {
+      save: () => {}
+    }
+  };
+
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  runFn.call(mockRoot, mockRoot, mockDoc, null, function(){}, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  assert.ok(controller);
+
+  // Registra elementos DOM mockados para simular updateTotalsLive
+  const kpiRealWealth = { textContent: '' };
+  const tableConsolidatedWealth = { textContent: '' };
+  const provisionalHint = { style: {} };
+  elementsById.set('kpiRealWealth', kpiRealWealth);
+  elementsById.set('tableConsolidatedWealth', tableConsolidatedWealth);
+  elementsById.set('wealthDistributionProvisionalHint', provisionalHint);
+
+  const sharePillElements = new Map();
+  controller.model.accounts.forEach(acc => {
+    const el = {
+      textContent: '',
+      classList: {
+        add: () => {},
+        remove: () => {}
+      },
+      title: ''
+    };
+    sharePillElements.set(acc.id, el);
+    elementsByAttr.set(acc.id, el);
+  });
+
+  // Executa updateTotalsLive()
+  controller.updateTotalsLive();
+
+  // Verifica que cada elemento recebeu o percentual correto
+  const total = controller.model.getConsolidatedRealWealth();
+  controller.model.accounts.forEach(acc => {
+    const el = sharePillElements.get(acc.id);
+    const expectedShare = controller.model.getAccountWealthSharePct(acc, total);
+    const expectedFormatted = `${expectedShare.toFixed(2).replace('.', ',')}%`;
+    assert.equal(el.textContent, expectedFormatted);
+  });
+});

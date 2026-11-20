@@ -312,23 +312,26 @@
               </header>
 
               <div class="daily-update-table-container">
-                <table class="daily-update-table" aria-label="Tabela de Contas e Saldos">
+                <table class="daily-update-table accounts-table" aria-label="Tabela de Contas e Saldos">
                   <thead>
                     <tr>
-                      <th>Conta</th>
-                      <th>Saldo Anterior</th>
-                      <th>Novo Saldo</th>
-                      <th>Variação</th>
-                      <th>Ações</th>
+                      <th class="th-acc-name">Conta</th>
+                      <th class="th-acc-prev" style="text-align: right;">Saldo Anterior</th>
+                      <th class="th-acc-new" style="text-align: right;">Novo Saldo</th>
+                      <th class="th-acc-var" style="text-align: right;">Variação</th>
+                      <th class="th-acc-share" style="text-align: right;">% do Total</th>
+                      <th class="th-acc-actions" style="text-align: center;">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     ${model.accounts.map((acc) => {
                       const varPct = model.getAccountVariationPct(acc);
+                      const sharePct = model.getAccountWealthSharePct(acc, realWealth);
                       const isPending = acc.status === 'pending';
                       const isUpdated = acc.status === 'updated';
                       const isKeep = acc.status === 'keep';
                       const hasError = Boolean(acc.error);
+                      const isProvisional = model.isWealthDistributionProvisional();
                       const varClass = varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral';
                       const isNomad = acc.currency === 'USD';
                       const inputCurrency = acc.inputCurrency || 'BRL';
@@ -340,7 +343,7 @@
 
                       return `
                         <tr class="account-row ${isPending ? 'pending' : ''} ${hasError ? 'error' : ''}" data-account-id="${acc.id}">
-                          <td>
+                          <td class="td-acc-name">
                             <div class="account-name-cell">
                               <span class="broker-pill ${acc.broker}">${acc.broker === 'nomad' ? 'N' : acc.broker === 'genial' ? 'g' : acc.broker === 'clear' ? 'C' : 'xp'}</span>
                               <div class="account-labels">
@@ -359,22 +362,26 @@
                               </div>
                             ` : ''}
                           </td>
-                          <td class="account-prev-cell">
-                            <span class="prev-amount">${fmtBRL(acc.previousBalance)}</span>
-                            ${isNomad ? `<small class="prev-usd-hint">${fmtUSD(acc.previousBalanceUSD || 0)}</small>` : ''}
+                          <td class="td-acc-prev" style="text-align: right;">
+                            <div class="account-prev-stack">
+                              <span class="prev-amount">${fmtBRL(acc.previousBalance)}</span>
+                              ${isNomad ? `<small class="prev-usd-hint">${fmtUSD(acc.previousBalanceUSD || 0)}</small>` : ''}
+                            </div>
                           </td>
-                          <td class="account-input-cell">
-                            <input 
-                              type="text" 
-                              class="balance-input ${hasError ? 'input-error' : ''}" 
-                              data-account-input="${acc.id}" 
-                              value="${inputValue}" 
-                              aria-label="Novo saldo para ${acc.label}"
-                              placeholder="0,00"
-                            />
-                            ${hasError ? `<span class="account-error-msg">${acc.error}</span>` : ''}
+                          <td class="td-acc-new" style="text-align: right;">
+                            <div class="account-input-stack">
+                              <input 
+                                type="text" 
+                                class="balance-input ${hasError ? 'input-error' : ''}" 
+                                data-account-input="${acc.id}" 
+                                value="${inputValue}" 
+                                aria-label="Novo saldo para ${acc.label}"
+                                placeholder="0,00"
+                              />
+                              ${hasError ? `<span class="account-error-msg">${acc.error}</span>` : ''}
+                            </div>
                           </td>
-                          <td>
+                          <td class="td-acc-var" style="text-align: right;">
                             <div class="variation-stack">
                               <span class="variation-tag ${varClass}">
                                 ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
@@ -386,7 +393,16 @@
                               ` : ''}
                             </div>
                           </td>
-                          <td>
+                          <td class="td-acc-share" style="text-align: right;">
+                            <span 
+                              class="wealth-share-pill ${isProvisional ? 'provisional' : ''}" 
+                              data-wealth-share-for="${acc.id}"
+                              title="${isProvisional ? 'Participação provisória (contas pendentes de conferência)' : `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`}"
+                            >
+                              ${sharePct.toFixed(2).replace('.', ',')}%
+                            </span>
+                          </td>
+                          <td class="td-acc-actions" style="text-align: center;">
                             <div class="account-quick-actions">
                               <button 
                                 type="button" 
@@ -417,6 +433,13 @@
                 <div class="footer-metric-block">
                   <span class="footer-metric-label">Patrimônio Real (Consolidado)</span>
                   <strong class="footer-metric-val" id="tableConsolidatedWealth">${fmtBRL(realWealth)}</strong>
+                  <span 
+                    class="wealth-share-provisional-hint" 
+                    id="wealthDistributionProvisionalHint" 
+                    style="display: ${model.isWealthDistributionProvisional() ? 'inline-flex' : 'none'};"
+                  >
+                    ⚠️ Distribuição provisória (contas pendentes)
+                  </span>
                 </div>
                 <div class="footer-metric-block" style="text-align: right;">
                   <span class="footer-metric-label">Variação do Dia</span>
@@ -452,13 +475,13 @@
                 <table class="daily-update-table positions-table" aria-label="Tabela de Conferência de Posições Abertas">
                   <thead>
                     <tr>
-                      <th style="width: 72px;">Ativo</th>
-                      <th style="text-align: right; width: 55px;">Quantidade</th>
-                      <th style="text-align: right; width: 78px;">Preço Entrada</th>
-                      <th style="text-align: right; width: 80px;">Preço Atual</th>
-                      <th style="text-align: right; width: 62px;">Variação</th>
-                      <th style="text-align: right; width: 78px;">Stop / Trailing</th>
-                      <th style="text-align: center; width: 85px;">Status</th>
+                      <th class="th-pos-ticker" style="width: 14%;">Ativo</th>
+                      <th class="th-pos-qty" style="text-align: right; width: 11%;">Quantidade</th>
+                      <th class="th-pos-entry" style="text-align: right; width: 15%;">Preço Entrada</th>
+                      <th class="th-pos-price" style="text-align: right; width: 17%;">Preço Atual</th>
+                      <th class="th-pos-var" style="text-align: right; width: 12%;">Variação</th>
+                      <th class="th-pos-stop" style="text-align: right; width: 16%;">Stop / Trailing</th>
+                      <th class="th-pos-status" style="text-align: center; width: 15%;">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -842,6 +865,28 @@
       const progress = this.model.getProgress();
       const badgePositions = document.getElementById('badgePositionsChecked');
       if (badgePositions) badgePositions.textContent = `${progress.positionsChecked}/${this.model.positions.length} conferidas`;
+
+      // CARD [05] — Update % do Total for each account live without losing focus
+      const isProvisional = this.model.isWealthDistributionProvisional();
+      this.model.accounts.forEach(acc => {
+        const sharePct = this.model.getAccountWealthSharePct(acc, realWealth);
+        const elShare = document.querySelector(`[data-wealth-share-for="${acc.id}"]`);
+        if (elShare) {
+          elShare.textContent = `${sharePct.toFixed(2).replace('.', ',')}%`;
+          if (isProvisional) {
+            elShare.classList.add('provisional');
+            elShare.title = 'Participação provisória (contas pendentes de conferência)';
+          } else {
+            elShare.classList.remove('provisional');
+            elShare.title = `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`;
+          }
+        }
+      });
+
+      const elProvisionalHint = document.getElementById('wealthDistributionProvisionalHint');
+      if (elProvisionalHint) {
+        elProvisionalHint.style.display = isProvisional ? 'inline-flex' : 'none';
+      }
     }
 
     keepAccount(accountId) {
@@ -1560,23 +1605,32 @@
               <tr>
                 <th>Conta / Corretora</th>
                 <th style="text-align: right;">Saldo Registrado</th>
+                <th style="text-align: right;">% do Total</th>
                 <th style="text-align: right;">Moeda Original / Câmbio</th>
                 <th style="text-align: center;">Status</th>
               </tr>
             </thead>
             <tbody>
-              ${(snapshot.accounts || []).map(a => `
-                <tr>
-                  <td><strong>${a.label}</strong></td>
-                  <td style="text-align: right; font-weight: 700;">${fmtBRL(a.newBalance)}</td>
-                  <td style="text-align: right; color: var(--muted, #63786c); font-size: 11px;">
-                    ${a.currency === 'USD' ? `US$ ${Number(a.newBalanceUSD || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} @ R$ ${(a.fxRate || 5.73).toFixed(2).replace('.', ',')}` : 'BRL'}
-                  </td>
-                  <td style="text-align: center;">
-                    <span class="status-tag ${a.status}">${a.status === 'keep' ? 'Manter' : a.status === 'updated' ? 'Atualizado' : 'Pendente'}</span>
-                  </td>
-                </tr>
-              `).join('')}
+              ${(snapshot.accounts || []).map(a => {
+                const sPct = a.wealthSharePct !== undefined 
+                  ? Number(a.wealthSharePct) 
+                  : (snapshot.realWealth > 0 ? (Number(a.newBalance || 0) / snapshot.realWealth) * 100 : 0);
+                return `
+                  <tr>
+                    <td><strong>${a.label}</strong></td>
+                    <td style="text-align: right; font-weight: 700;">${fmtBRL(a.newBalance)}</td>
+                    <td style="text-align: right;">
+                      <span class="wealth-share-pill">${sPct.toFixed(2).replace('.', ',')}%</span>
+                    </td>
+                    <td style="text-align: right; color: var(--muted, #63786c); font-size: 11px;">
+                      ${a.currency === 'USD' ? `US$ ${Number(a.newBalanceUSD || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} @ R$ ${(a.fxRate || 5.73).toFixed(2).replace('.', ',')}` : 'BRL'}
+                    </td>
+                    <td style="text-align: center;">
+                      <span class="status-tag ${a.status}">${a.status === 'keep' ? 'Manter' : a.status === 'updated' ? 'Atualizado' : 'Pendente'}</span>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
             </tbody>
           </table>
 
@@ -1625,6 +1679,7 @@
                 <th style="text-align: right;">Saldo em ${d1}</th>
                 <th style="text-align: right;">Variação (R$)</th>
                 <th style="text-align: right;">Variação (%)</th>
+                <th style="text-align: right;">% do Total (${d1})</th>
               </tr>
             </thead>
             <tbody>
@@ -1638,6 +1693,9 @@
                   </td>
                   <td style="text-align: right; color: ${a.diffPct >= 0 ? '#1e7e4a' : '#d14343'}; font-weight: 700;">
                     ${fmtPct(a.diffPct)}
+                  </td>
+                  <td style="text-align: right;">
+                    <span class="wealth-share-pill">${(a.share1 || 0).toFixed(2).replace('.', ',')}%</span>
                   </td>
                 </tr>
               `).join('')}

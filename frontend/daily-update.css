@@ -4,13 +4,19 @@
    ========================================================================== */
 
 .daily-update-page {
-  padding: 24px 32px 64px;
-  max-width: 1600px;
-  margin: 0 auto;
+  padding: 20px 24px 64px;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+#dailyupdate.page {
+  width: 100%;
+  max-width: 100%;
 }
 
 /* --------------------------------------------------------------------------
@@ -277,9 +283,10 @@
    -------------------------------------------------------------------------- */
 .daily-update-workspace-grid {
   display: grid;
-  grid-template-columns: 1fr 1.18fr;
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
+  width: 100%;
 }
 
 .daily-update-card {
@@ -413,9 +420,79 @@
   vertical-align: middle;
 }
 
+/* Tabela de Contas com alinhamento rigoroso e distribuição perfeita */
+.accounts-table {
+  width: 100%;
+}
+
+.accounts-table th,
+.accounts-table td {
+  padding: 8px 6px;
+}
+
+.th-acc-name { text-align: left; width: 27%; min-width: 135px; }
+.th-acc-prev { text-align: right; width: 16%; min-width: 95px; }
+.th-acc-new { text-align: right; width: 18%; min-width: 110px; }
+.th-acc-var { text-align: right; width: 11%; min-width: 58px; }
+.th-acc-share { text-align: right; width: 11%; min-width: 62px; }
+.th-acc-actions { text-align: center; width: 17%; min-width: 125px; }
+
+.td-acc-name { text-align: left; vertical-align: middle; }
+.td-acc-prev { text-align: right; vertical-align: middle; }
+.td-acc-new { text-align: right; vertical-align: middle; }
+.td-acc-var { text-align: right; vertical-align: middle; }
+.td-acc-share { text-align: right; vertical-align: middle; }
+.td-acc-actions { text-align: center; vertical-align: middle; }
+
+.account-prev-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.account-prev-stack .prev-amount {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink, #123424);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.account-prev-stack .prev-usd-hint {
+  font-size: 10px;
+  color: var(--muted, #63786c);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.account-input-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  width: 100%;
+}
+
+.account-input-stack .balance-input {
+  width: 100%;
+  max-width: 125px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-input-stack .account-error-msg {
+  font-size: 10px;
+  font-weight: 700;
+  color: #d14343;
+  text-align: right;
+  display: block;
+  line-height: 1.2;
+}
+
 .positions-table th,
 .positions-table td {
-  padding: 8px 5px;
+  padding: 8px 6px;
   font-size: 11.5px;
 }
 
@@ -515,30 +592,6 @@
   border-color: #1e7e4a;
 }
 
-.account-prev-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.prev-amount {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--muted, #63786c);
-}
-
-.prev-usd-hint {
-  font-size: 10.5px;
-  color: #8ea195;
-  font-weight: 500;
-}
-
-.account-input-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
 .balance-input {
   background: #f7faf8;
   border: 1px solid #c8d9cf;
@@ -548,7 +601,7 @@
   font-size: 12px;
   font-weight: 700;
   font-family: inherit;
-  width: 115px;
+  width: 100%;
   box-sizing: border-box;
   transition: all 0.2s ease;
 }
@@ -595,9 +648,9 @@
 }
 
 .btn-action-chip {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 10.5px;
   font-weight: 700;
   cursor: pointer;
   border: 1px solid transparent;
@@ -652,6 +705,47 @@
   background: #f1f5f3;
   color: #123424;
   border: 1px solid #d2ded7;
+}
+
+/* --------------------------------------------------------------------------
+   CARD [05] — PARTICIPAÇÃO PERCENTUAL DAS CONTAS NO PATRIMÔNIO
+   -------------------------------------------------------------------------- */
+.wealth-share-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(30, 126, 74, 0.08);
+  border: 1px solid rgba(30, 126, 74, 0.22);
+  color: #1e7e4a;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.2s ease;
+}
+
+.wealth-share-pill.provisional {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #b45309;
+}
+
+.wealth-share-provisional-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px dashed rgba(245, 158, 11, 0.35);
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-top: 6px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .variation-tag {
@@ -2760,6 +2854,24 @@ body[data-theme="gold"] .compare-select {
   color: #dfd7c5;
 }
 
+body[data-theme="gold"] .wealth-share-pill {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.35);
+  color: #d4af37;
+}
+
+body[data-theme="gold"] .wealth-share-pill.provisional {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+}
+
+body[data-theme="gold"] .wealth-share-provisional-hint {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
 /* PIGEON LIGHT */
 body[data-theme="pigeon"] .btn-closing-secondary {
   background: #ffffff;
@@ -2802,18 +2914,103 @@ body[data-theme="pigeon"] .btn-modal-primary:hover {
   background: #11845f;
 }
 
+body[data-theme="pigeon"] .wealth-share-pill {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+}
+
+body[data-theme="pigeon"] .wealth-share-pill.provisional {
+  background: #fef3c7;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+body[data-theme="pigeon"] .wealth-share-provisional-hint {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
 /* --------------------------------------------------------------------------
-   RESPONSIVENESS
+   RESPONSIVENESS & WIDE / ULTRAWIDE OPTIMIZATION
    -------------------------------------------------------------------------- */
-@media (max-width: 1200px) {
+
+/* Monitores UltraWide (2200px - 3440px+) */
+@media (min-width: 2200px) {
+  .daily-update-page {
+    padding: 24px 36px 64px;
+    gap: 28px;
+  }
+  .daily-update-workspace-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px;
+  }
+  .daily-update-card {
+    padding: 26px 32px;
+  }
+  .daily-update-kpi-grid {
+    gap: 20px;
+  }
+  .daily-update-kpi-val {
+    font-size: 26px;
+  }
+  .account-input-stack .balance-input {
+    max-width: 155px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .pos-price-clean-input {
+    width: 90px;
+    padding: 6px 8px;
+  }
+}
+
+/* Monitores Wide padrão (1600px - 2199px) */
+@media (min-width: 1600px) and (max-width: 2199px) {
+  .daily-update-page {
+    padding: 22px 30px 64px;
+    gap: 24px;
+  }
+  .daily-update-workspace-grid {
+    grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+    gap: 24px;
+  }
+  .account-input-stack .balance-input {
+    max-width: 130px;
+  }
+}
+
+/* Desktop convencional e Notebooks (1200px - 1599px) */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .daily-update-page {
+    padding: 20px 24px 64px;
+    gap: 20px;
+  }
+  .daily-update-workspace-grid {
+    grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
+    gap: 20px;
+  }
+  .th-acc-name { width: 26%; }
+  .th-acc-prev { width: 17%; }
+  .th-acc-new { width: 19%; }
+  .th-acc-var { width: 11%; }
+  .th-acc-share { width: 11%; }
+  .th-acc-actions { width: 16%; }
+}
+
+/* Telas menores que 1200px: 1 coluna */
+@media (max-width: 1199px) {
   .daily-update-kpi-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   .daily-update-workspace-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 }
 
+/* Telas mobile / estreitas (< 800px) */
 @media (max-width: 800px) {
   .daily-update-page {
     padding: 16px;

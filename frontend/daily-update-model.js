@@ -137,12 +137,12 @@
       exposurePct: 9.19,
       portfolioHeat: 0.00,
       accounts: [
-        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 206800.00, newBalance: 207521.00, variationPct: 0.35, status: 'updated' },
-        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18350.00, newBalanceUSD: 18389.70, fxRate: 5.73, previousBalance: 104962.00, newBalance: 105374.00, variationPct: 0.39, status: 'updated' },
-        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, status: 'keep' },
-        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, status: 'keep' },
-        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 220000.00, newBalance: 220328.00, variationPct: 0.15, status: 'updated' },
-        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 306401.00, newBalance: 307725.43, variationPct: 0.43, status: 'updated' }
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 206800.00, newBalance: 207521.00, variationPct: 0.35, wealthSharePct: 18.84, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18350.00, newBalanceUSD: 18389.70, fxRate: 5.73, previousBalance: 104962.00, newBalance: 105374.00, variationPct: 0.39, wealthSharePct: 9.57, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.37, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 220000.00, newBalance: 220328.00, variationPct: 0.15, wealthSharePct: 20.00, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 306401.00, newBalance: 307725.43, variationPct: 0.43, wealthSharePct: 27.94, status: 'updated' }
       ],
       positions: [
         { id: 'pos_1', ticker: 'JNJB34', quantity: 300, entryPrice: 98.40, currentPrice: 104.20, status: 'conferida', checked: true, hasDivergence: false },
@@ -171,12 +171,12 @@
       exposurePct: 8.97,
       portfolioHeat: 0.00,
       accounts: [
-        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 206000.00, newBalance: 206800.00, variationPct: 0.39, status: 'updated' },
-        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18280.00, newBalanceUSD: 18350.00, fxRate: 5.71, previousBalance: 104378.00, newBalance: 104962.00, variationPct: 0.56, status: 'updated' },
-        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, status: 'keep' },
-        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, status: 'keep' },
-        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 219500.00, newBalance: 220000.00, variationPct: 0.23, status: 'updated' },
-        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 304835.00, newBalance: 306401.00, variationPct: 0.51, status: 'updated' }
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 206000.00, newBalance: 206800.00, variationPct: 0.39, wealthSharePct: 18.82, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18280.00, newBalanceUSD: 18350.00, fxRate: 5.71, previousBalance: 104378.00, newBalance: 104962.00, variationPct: 0.56, wealthSharePct: 9.55, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.43, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 219500.00, newBalance: 220000.00, variationPct: 0.23, wealthSharePct: 20.02, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 304835.00, newBalance: 306401.00, variationPct: 0.51, wealthSharePct: 27.89, status: 'updated' }
       ],
       positions: [
         { id: 'pos_1', ticker: 'JNJB34', quantity: 300, entryPrice: 98.40, currentPrice: 103.10, status: 'conferida', checked: true, hasDivergence: false },
@@ -330,6 +330,29 @@
       const curr = Number(account.newBalance || 0);
       if (!prev || prev <= 0) return 0;
       return ((curr - prev) / prev) * 100;
+    }
+
+    /**
+     * CARD [05] — Calculates individual account percentage share of consolidated Real Wealth.
+     * Formula: (converted balance in BRL / consolidated Real Wealth in BRL) * 100.
+     * Returns a Number with 2 decimal places. Handles zero or negative wealth safely.
+     */
+    getAccountWealthSharePct(account, totalWealth = undefined) {
+      if (totalWealth === null) return 0;
+      const wealth = totalWealth !== undefined ? Number(totalWealth) : this.getConsolidatedRealWealth();
+      if (!wealth || !Number.isFinite(wealth) || wealth <= 0) return 0;
+      const balanceBrl = Number(account?.newBalance || 0);
+      if (!balanceBrl || !Number.isFinite(balanceBrl) || balanceBrl <= 0) return 0;
+      return Math.round(((balanceBrl / wealth) * 100) * 100) / 100;
+    }
+
+    /**
+     * CARD [05] — Determines if current wealth distribution is provisional/partial.
+     * True if any account is in 'pending' status or has validation errors.
+     */
+    isWealthDistributionProvisional() {
+      const progress = this.getProgress();
+      return progress.pendingAccounts > 0 || progress.invalidAccounts > 0 || !progress.accountsComplete;
     }
 
     /**
@@ -794,6 +817,7 @@
             previousBalance: Number(a.previousBalance || 0),
             newBalance: Number(a.newBalance || 0),
             variationPct: this.getAccountVariationPct(a),
+            wealthSharePct: this.getAccountWealthSharePct(a, realWealth),
             status: a.status || 'keep',
             updatedAt: a.updatedAt || new Date().toISOString()
           };
@@ -1042,6 +1066,8 @@
         const b2 = a2 ? Number(a2.newBalance || 0) : b1;
         const delta = b1 - b2;
         const deltaPct = b2 > 0 ? (delta / b2) * 100 : 0;
+        const s1 = a1.wealthSharePct !== undefined ? Number(a1.wealthSharePct) : (realWealth1 > 0 ? (b1 / realWealth1) * 100 : 0);
+        const s2 = a2 && a2.wealthSharePct !== undefined ? Number(a2.wealthSharePct) : (realWealth2 > 0 ? (b2 / realWealth2) * 100 : 0);
         return {
           id: a1.id,
           label: a1.label,
@@ -1050,7 +1076,10 @@
           balance1: b1,
           balance2: b2,
           diffAmount: delta,
-          diffPct: deltaPct
+          diffPct: deltaPct,
+          share1: Math.round(s1 * 100) / 100,
+          share2: Math.round(s2 * 100) / 100,
+          shareDiff: Math.round((s1 - s2) * 100) / 100
         };
       });
 
