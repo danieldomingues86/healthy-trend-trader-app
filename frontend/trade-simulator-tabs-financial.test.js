@@ -276,7 +276,8 @@ test('Rebuild UI & CSS — 6. Arquivo trade-simulator.js implementa as 5 abas e 
   assert.ok(jsContent.includes('renderTimelineTab'), 'Deve conter renderTimelineTab (Aba 5)');
 
   // Verifica controles do cabeçalho
-  assert.ok(jsContent.includes('simBtnExecute'), 'Deve conter botão Executar Simulação');
+  assert.ok(jsContent.includes('simBtnOpenAdvConfig'), 'Deve conter botão principal Configurar e Executar Simulação');
+  assert.ok(jsContent.includes('Configurar e Executar Simulação'), 'Deve conter texto Configurar e Executar Simulação');
   assert.ok(jsContent.includes('simCapitalInput'), 'Deve conter input de capital inicial');
   assert.ok(jsContent.includes('simBtnRubricModeToggle'), 'Deve conter alternador de Modo Rubric');
 
@@ -315,7 +316,7 @@ test('Refinamento Premium — 7. Separação visual das abas, botão Ver Anális
 
   // 3. Ações Diretas no Cabeçalho
   assert.ok(jsContent.includes('sim-header-actions-group'), 'Cabeçalho deve agrupar ações com hierarquia visual clara');
-  assert.ok(jsContent.includes('id="simBtnExecute"'), 'Executar Simulação deve ser o botão principal');
+  assert.ok(jsContent.includes('id="simBtnOpenAdvConfig"') && jsContent.includes('Configurar e Executar Simulação'), 'Configurar e Executar Simulação deve ser o botão principal unificado');
   assert.ok(jsContent.includes('id="simBtnCompareModal"'), 'Comparar Cenários deve estar diretamente visível no cabeçalho');
   assert.ok(jsContent.includes('id="simBtnMassModal"'), 'Gerar Massa de Teste deve estar diretamente visível no cabeçalho');
   assert.ok(cssContent.includes('.sim-btn-header-secondary'), 'CSS deve ter estilo secundário elegante para Comparar e Gerar Massa');
@@ -805,4 +806,81 @@ test('Separação Estrita de Parâmetros — 16. Modal de Trend Following e Moda
   assert.equal(st.filters.trigger, '1-2-3 de Compra', 'resetVolatilityTradingDefaults NÃO deve alterar trigger do Trend Following');
   assert.equal(st.filters.grade, 'B', 'resetVolatilityTradingDefaults NÃO deve alterar grade do Trend Following');
   assert.equal(st.rubricMode, false, 'resetVolatilityTradingDefaults NÃO deve alterar rubricMode do Trend Following');
+});
+
+test('Ajustes do Simulador — 17. Período padrão 24 meses, botão unificado "Configurar e Executar Simulação" e loading obrigatório até 100%', async () => {
+  const vm = require('node:vm');
+  const VolatilityTradeSimulatorModel = require('./volatility-trade-simulator-model');
+  const jsContent = fs.readFileSync(path.resolve(__dirname, 'trade-simulator.js'), 'utf8');
+
+  const sandbox = {
+    window: null,
+    addEventListener: () => {},
+    document: {
+      readyState: 'loading',
+      addEventListener: () => {},
+      getElementById: () => null,
+      querySelector: () => null,
+      querySelectorAll: () => []
+    },
+    localStorage: {
+      getItem: () => null,
+      setItem: () => {}
+    },
+    TradeSimulatorModel,
+    VolatilityTradeSimulatorModel,
+    SimulationProcessingExperience: TradeSimulatorModel.SimulationProcessingExperience,
+    setTimeout: (fn) => { fn(); return 1; },
+    clearTimeout: () => {},
+    console
+  };
+  sandbox.window = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(jsContent, sandbox);
+
+  const sim = sandbox.TradeSimulator;
+  const st = sim.getState();
+
+  // 1. Período padrão inicial: Últimos 24 meses (730) nos dois simuladores
+  assert.equal(st.filters.days, 730, 'Trend Following deve iniciar com Últimos 24 meses (730 dias) por padrão');
+  assert.equal(st.volatilityState.period, '730', 'Volatility Trading deve iniciar com Últimos 24 meses (730) por padrão');
+  assert.equal(st.massConfig.period, 730, 'massConfig deve iniciar com período 730 (Últimos 24 meses)');
+
+  // 2. Cabeçalhos unificados: sem botão independente "Executar Simulação" e com botão "Configurar e Executar Simulação"
+  const tfHeaderHtml = sim.renderHeader();
+  assert.ok(!tfHeaderHtml.includes('id="simBtnExecute"'), 'Cabeçalho de Trend Following NÃO deve ter botão independente #simBtnExecute');
+  assert.ok(tfHeaderHtml.includes('id="simBtnOpenAdvConfig"'), 'Cabeçalho de Trend Following deve ter #simBtnOpenAdvConfig');
+  assert.ok(tfHeaderHtml.includes('Configurar e Executar Simulação'), 'Botão principal de Trend Following deve exibir "Configurar e Executar Simulação"');
+  assert.ok(tfHeaderHtml.includes('<option value="730" selected>Últimos 24 meses</option>'), 'Seletor de período do Trend Following deve iniciar com Últimos 24 meses selecionado');
+
+  const volHeaderHtml = sim.renderVolatilityHeader();
+  assert.ok(!volHeaderHtml.includes('id="volBtnExecuteHeader"'), 'Cabeçalho de Volatility Trading NÃO deve ter botão independente #volBtnExecuteHeader');
+  assert.ok(volHeaderHtml.includes('id="simBtnOpenAdvConfig"'), 'Cabeçalho de Volatility Trading deve ter #simBtnOpenAdvConfig');
+  assert.ok(volHeaderHtml.includes('Configurar e Executar Simulação'), 'Botão principal de Volatility Trading deve exibir "Configurar e Executar Simulação"');
+  assert.ok(volHeaderHtml.includes('<option value="730" selected>Últimos 24 meses</option>'), 'Seletor de período do Volatility Trading deve iniciar com Últimos 24 meses selecionado');
+
+  // 3. Loading obrigatório durante toda a execução e bloqueio de disparos duplicados (Trend Following)
+  st.generatingMass = true;
+  const duplicateTf = await sim.executeStrategyFromModal({ mode: 'TREND_FOLLOWING' });
+  assert.equal(duplicateTf, null, 'Disparo duplicado de Trend Following deve ser bloqueado enquanto em processamento');
+  const loadingDrawerTf = sim.renderAdvancedConfigDrawer();
+  assert.ok(loadingDrawerTf.includes('sim-processing-experience'), 'Durante o processamento do Trend Following, o modal deve renderizar o estado de loading');
+  assert.ok(loadingDrawerTf.includes('Executando simulação... Aguarde enquanto processamos os dados.'), 'Deve exibir mensagem clara de processamento');
+  st.generatingMass = false;
+
+  const tfResult = await sim.executeStrategyFromModal({ mode: 'TREND_FOLLOWING', keepSuccessOpen: true });
+  assert.ok(Array.isArray(tfResult) && tfResult.length > 0, 'Execução do Trend Following a partir do modal deve concluir e retornar simulações');
+  assert.equal(st.massProcessingState.status, 'SUCCESS', 'Trend Following deve atingir status SUCCESS');
+  assert.equal(st.massProcessingState.realProgressPct, 100, 'Trend Following deve atingir exatamente 100% de conclusão');
+
+  // 4. Loading obrigatório durante toda a execução e bloqueio de disparos duplicados (Volatility Trading)
+  st.volatilityState.loading = true;
+  const duplicateVol = await sim.executeStrategyFromModal({ mode: 'VOLATILITY_TRADING' });
+  assert.equal(duplicateVol, null, 'Disparo duplicado de Volatility Trading deve ser bloqueado enquanto em processamento');
+  st.volatilityState.loading = false;
+
+  const volResult = await sim.executeStrategyFromModal({ mode: 'VOLATILITY_TRADING', keepSuccessOpen: true });
+  assert.ok(volResult && Array.isArray(volResult.trades), 'Execução do Volatility Trading a partir do modal deve concluir e retornar resultado real');
+  assert.equal(st.massProcessingState.status, 'SUCCESS', 'Volatility Trading deve atingir status SUCCESS');
+  assert.equal(st.massProcessingState.realProgressPct, 100, 'Volatility Trading deve atingir exatamente 100% de conclusão');
 });
