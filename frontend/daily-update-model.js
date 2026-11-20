@@ -185,6 +185,366 @@
       summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
       auditReason: 'Fechamento Diário (18/11/2026) — Total R$ 1.098.650,00 consolidado com sucesso.',
       corrections: []
+    },
+    {
+      id: 'snap_2026-11-17_180000',
+      date: '2026-11-17',
+      closedAt: '2026-11-17T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1095200.00,
+      previousRealWealth: 1092150.00,
+      dayVariationAmount: 3050.00,
+      dayVariationPct: 0.28,
+      strategyEquity: 1100500.00,
+      totalExposure: 96800.00,
+      exposurePct: 8.84,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 204900.00, newBalance: 205500.00, variationPct: 0.29, wealthSharePct: 18.76, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18200.00, newBalanceUSD: 18269.23, fxRate: 5.72, previousBalance: 104100.00, newBalance: 104500.00, variationPct: 0.38, wealthSharePct: 9.54, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.50, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 218500.00, newBalance: 219100.00, variationPct: 0.27, wealthSharePct: 20.01, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 304163.00, newBalance: 305613.00, variationPct: 0.48, wealthSharePct: 27.91, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (17/11/2026) — Total R$ 1.095.200,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-14_180000',
+      date: '2026-11-14',
+      closedAt: '2026-11-14T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1092150.00,
+      previousRealWealth: 1088900.00,
+      dayVariationAmount: 3250.00,
+      dayVariationPct: 0.30,
+      strategyEquity: 1097200.00,
+      totalExposure: 95000.00,
+      exposurePct: 8.70,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 204200.00, newBalance: 204900.00, variationPct: 0.34, wealthSharePct: 18.76, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18130.00, newBalanceUSD: 18200.00, fxRate: 5.72, previousBalance: 103700.00, newBalance: 104100.00, variationPct: 0.39, wealthSharePct: 9.53, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.57, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 217800.00, newBalance: 218500.00, variationPct: 0.32, wealthSharePct: 20.01, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 302713.00, newBalance: 304163.00, variationPct: 0.48, wealthSharePct: 27.85, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (14/11/2026) — Total R$ 1.092.150,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-13_180000',
+      date: '2026-11-13',
+      closedAt: '2026-11-13T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1088900.00,
+      previousRealWealth: 1090400.00,
+      dayVariationAmount: -1500.00,
+      dayVariationPct: -0.14,
+      strategyEquity: 1094100.00,
+      totalExposure: 94000.00,
+      exposurePct: 8.63,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 204600.00, newBalance: 204200.00, variationPct: -0.20, wealthSharePct: 18.75, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18195.80, newBalanceUSD: 18129.37, fxRate: 5.72, previousBalance: 103900.00, newBalance: 103700.00, variationPct: -0.19, wealthSharePct: 9.52, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.64, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 218200.00, newBalance: 217800.00, variationPct: -0.18, wealthSharePct: 20.00, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 303213.00, newBalance: 302713.00, variationPct: -0.16, wealthSharePct: 27.81, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (13/11/2026) — Total R$ 1.088.900,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-12_180000',
+      date: '2026-11-12',
+      closedAt: '2026-11-12T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1090400.00,
+      previousRealWealth: 1086200.00,
+      dayVariationAmount: 4200.00,
+      dayVariationPct: 0.39,
+      strategyEquity: 1095500.00,
+      totalExposure: 95500.00,
+      exposurePct: 8.76,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 203500.00, newBalance: 204600.00, variationPct: 0.54, wealthSharePct: 18.76, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18105.26, newBalanceUSD: 18195.80, fxRate: 5.71, previousBalance: 103200.00, newBalance: 103900.00, variationPct: 0.68, wealthSharePct: 9.53, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.61, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 217100.00, newBalance: 218200.00, variationPct: 0.51, wealthSharePct: 20.01, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 301913.00, newBalance: 303213.00, variationPct: 0.43, wealthSharePct: 27.81, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (12/11/2026) — Total R$ 1.090.400,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-11_180000',
+      date: '2026-11-11',
+      closedAt: '2026-11-11T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1086200.00,
+      previousRealWealth: 1082500.00,
+      dayVariationAmount: 3700.00,
+      dayVariationPct: 0.34,
+      strategyEquity: 1091200.00,
+      totalExposure: 93500.00,
+      exposurePct: 8.61,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 202400.00, newBalance: 203500.00, variationPct: 0.54, wealthSharePct: 18.73, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 18000.00, newBalanceUSD: 18105.26, fxRate: 5.70, previousBalance: 102600.00, newBalance: 103200.00, variationPct: 0.58, wealthSharePct: 9.50, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.70, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 216200.00, newBalance: 217100.00, variationPct: 0.42, wealthSharePct: 19.99, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 300813.00, newBalance: 301913.00, variationPct: 0.37, wealthSharePct: 27.80, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (11/11/2026) — Total R$ 1.086.200,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-10_180000',
+      date: '2026-11-10',
+      closedAt: '2026-11-10T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1082500.00,
+      previousRealWealth: 1079100.00,
+      dayVariationAmount: 3400.00,
+      dayVariationPct: 0.32,
+      strategyEquity: 1087500.00,
+      totalExposure: 92000.00,
+      exposurePct: 8.50,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 201200.00, newBalance: 202400.00, variationPct: 0.60, wealthSharePct: 18.70, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17894.74, newBalanceUSD: 18000.00, fxRate: 5.70, previousBalance: 102000.00, newBalance: 102600.00, variationPct: 0.59, wealthSharePct: 9.48, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.78, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 215400.00, newBalance: 216200.00, variationPct: 0.37, wealthSharePct: 19.97, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 300013.00, newBalance: 300813.00, variationPct: 0.27, wealthSharePct: 27.79, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (10/11/2026) — Total R$ 1.082.500,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-07_180000',
+      date: '2026-11-07',
+      closedAt: '2026-11-07T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1079100.00,
+      previousRealWealth: 1076400.00,
+      dayVariationAmount: 2700.00,
+      dayVariationPct: 0.25,
+      strategyEquity: 1084000.00,
+      totalExposure: 90000.00,
+      exposurePct: 8.34,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 200500.00, newBalance: 201200.00, variationPct: 0.35, wealthSharePct: 18.64, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17824.56, newBalanceUSD: 17894.74, fxRate: 5.70, previousBalance: 101600.00, newBalance: 102000.00, variationPct: 0.39, wealthSharePct: 9.45, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.85, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.28, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 214700.00, newBalance: 215400.00, variationPct: 0.33, wealthSharePct: 19.96, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 299113.00, newBalance: 300013.00, variationPct: 0.30, wealthSharePct: 27.80, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (07/11/2026) — Total R$ 1.079.100,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-06_180000',
+      date: '2026-11-06',
+      closedAt: '2026-11-06T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1076400.00,
+      previousRealWealth: 1073800.00,
+      dayVariationAmount: 2600.00,
+      dayVariationPct: 0.24,
+      strategyEquity: 1081500.00,
+      totalExposure: 88500.00,
+      exposurePct: 8.22,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 199800.00, newBalance: 200500.00, variationPct: 0.35, wealthSharePct: 18.63, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17754.39, newBalanceUSD: 17824.56, fxRate: 5.70, previousBalance: 101200.00, newBalance: 101600.00, variationPct: 0.39, wealthSharePct: 9.44, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.91, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.29, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 214000.00, newBalance: 214700.00, variationPct: 0.33, wealthSharePct: 19.95, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 298313.00, newBalance: 299113.00, variationPct: 0.27, wealthSharePct: 27.79, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (06/11/2026) — Total R$ 1.076.400,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-05_180000',
+      date: '2026-11-05',
+      closedAt: '2026-11-05T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1073800.00,
+      previousRealWealth: 1071200.00,
+      dayVariationAmount: 2600.00,
+      dayVariationPct: 0.24,
+      strategyEquity: 1078800.00,
+      totalExposure: 87000.00,
+      exposurePct: 8.10,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 199000.00, newBalance: 199800.00, variationPct: 0.40, wealthSharePct: 18.61, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17715.29, newBalanceUSD: 17754.39, fxRate: 5.70, previousBalance: 100800.00, newBalance: 101200.00, variationPct: 0.40, wealthSharePct: 9.42, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 23.97, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.29, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 213300.00, newBalance: 214000.00, variationPct: 0.33, wealthSharePct: 19.93, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 297613.00, newBalance: 298313.00, variationPct: 0.24, wealthSharePct: 27.78, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (05/11/2026) — Total R$ 1.073.800,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-04_180000',
+      date: '2026-11-04',
+      closedAt: '2026-11-04T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1071200.00,
+      previousRealWealth: 1068500.00,
+      dayVariationAmount: 2700.00,
+      dayVariationPct: 0.25,
+      strategyEquity: 1076000.00,
+      totalExposure: 85500.00,
+      exposurePct: 7.98,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 198200.00, newBalance: 199000.00, variationPct: 0.40, wealthSharePct: 18.58, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17645.00, newBalanceUSD: 17715.29, fxRate: 5.69, previousBalance: 100400.00, newBalance: 100800.00, variationPct: 0.40, wealthSharePct: 9.41, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 24.03, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.29, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 212500.00, newBalance: 213300.00, variationPct: 0.38, wealthSharePct: 19.91, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 296913.00, newBalance: 297613.00, variationPct: 0.24, wealthSharePct: 27.78, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (04/11/2026) — Total R$ 1.071.200,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-11-03_180000',
+      date: '2026-11-03',
+      closedAt: '2026-11-03T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1068500.00,
+      previousRealWealth: 1065000.00,
+      dayVariationAmount: 3500.00,
+      dayVariationPct: 0.33,
+      strategyEquity: 1073200.00,
+      totalExposure: 84000.00,
+      exposurePct: 7.86,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 197000.00, newBalance: 198200.00, variationPct: 0.61, wealthSharePct: 18.55, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17539.54, newBalanceUSD: 17645.00, fxRate: 5.69, previousBalance: 99800.00, newBalance: 100400.00, variationPct: 0.60, wealthSharePct: 9.40, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 24.09, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.29, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 211500.00, newBalance: 212500.00, variationPct: 0.47, wealthSharePct: 19.89, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 296213.00, newBalance: 296913.00, variationPct: 0.24, wealthSharePct: 27.79, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (03/11/2026) — Total R$ 1.068.500,00 consolidado com sucesso.',
+      corrections: []
+    },
+    {
+      id: 'snap_2026-10-31_180000',
+      date: '2026-10-31',
+      closedAt: '2026-10-31T18:00:00.000Z',
+      version: 1,
+      status: 'closed',
+      hasException: false,
+      exceptions: [],
+      user: { name: 'Daniel' },
+      realWealth: 1065000.00,
+      previousRealWealth: 1062000.00,
+      dayVariationAmount: 3000.00,
+      dayVariationPct: 0.28,
+      strategyEquity: 1070000.00,
+      totalExposure: 82000.00,
+      exposurePct: 7.70,
+      portfolioHeat: 0.00,
+      accounts: [
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 195500.00, newBalance: 197000.00, variationPct: 0.77, wealthSharePct: 18.50, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17400.00, newBalanceUSD: 17539.54, fxRate: 5.69, previousBalance: 99000.00, newBalance: 99800.00, variationPct: 0.81, wealthSharePct: 9.37, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 257418.00, newBalance: 257418.00, variationPct: 0.00, wealthSharePct: 24.17, status: 'keep' },
+        { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3069.00, newBalance: 3069.00, variationPct: 0.00, wealthSharePct: 0.29, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 210000.00, newBalance: 211500.00, variationPct: 0.71, wealthSharePct: 19.86, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 295013.00, newBalance: 296213.00, variationPct: 0.41, wealthSharePct: 27.81, status: 'updated' }
+      ],
+      positions: [],
+      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 12, positionsChecked: 12, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (31/10/2026) — Total R$ 1.065.000,00 consolidado com sucesso.',
+      corrections: []
     }
   ];
 
@@ -257,6 +617,19 @@
     const num = Number(val || 0);
     const sign = withSign && num > 0 ? '+' : '';
     return `${sign}${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
+  }
+
+  function formatCompactBRL(val) {
+    const num = Number(val || 0);
+    const abs = Math.abs(num);
+    const sign = num < 0 ? '-' : '';
+    if (abs >= 1000000) {
+      return `${sign}R$ ${(abs / 1000000).toFixed(2).replace('.', ',')}M`;
+    }
+    if (abs >= 1000) {
+      return `${sign}R$ ${(abs / 1000).toFixed(0)}k`;
+    }
+    return `${sign}R$ ${abs.toFixed(0)}`;
   }
 
   function formatRelativeDate(isoStr) {
@@ -1188,6 +1561,189 @@
         strategyEquity: this.strategyEquity
       };
     }
+
+    /**
+     * EQUITY HISTORY — Retrieves chronological daily equity series and comparative metrics
+     * for Daniel, Natália, and Consolidated, with period filtering and consecutive delta calculations.
+     */
+    getEquityHistorySeries(options = {}) {
+      const period = options.period || 'all'; // '30D', '90D', '6M', '1A', 'all'
+      const owner = options.owner || 'both'; // 'both', 'daniel', 'natalia', 'consolidated'
+      const storage = options.storage !== undefined ? options.storage : (typeof localStorage !== 'undefined' ? localStorage : null);
+
+      const allSnapshots = this.getHistory(storage);
+      if (!allSnapshots || allSnapshots.length === 0) {
+        return {
+          series: [],
+          summary: {
+            daniel: { current: 0, dayVarAmount: 0, dayVarPct: 0, periodVarAmount: 0, periodVarPct: 0, min: 0, max: 0 },
+            natalia: { current: 0, dayVarAmount: 0, dayVarPct: 0, periodVarAmount: 0, periodVarPct: 0, min: 0, max: 0 },
+            total: { current: 0, dayVarAmount: 0, dayVarPct: 0, periodVarAmount: 0, periodVarPct: 0, min: 0, max: 0 }
+          },
+          meta: {
+            period,
+            owner,
+            totalSnapshots: 0,
+            filteredSnapshots: 0,
+            hasDaniel: false,
+            hasNatalia: false,
+            isReliableSplit: false
+          }
+        };
+      }
+
+      // 1. Sort snapshots chronologically ascending (oldest to newest)
+      const chronological = [...allSnapshots].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+      // 2. Filter by period relative to the last recorded date
+      const latestDateStr = chronological[chronological.length - 1].date;
+      const latestDate = new Date(latestDateStr + 'T12:00:00Z');
+
+      let filtered = chronological;
+      if (period !== 'all') {
+        const days = period === '30D' ? 30 : period === '90D' ? 90 : period === '6M' ? 180 : period === '1A' ? 365 : null;
+        if (days !== null) {
+          const cutoff = new Date(latestDate.getTime() - days * 24 * 60 * 60 * 1000);
+          const cutoffStr = cutoff.toISOString().slice(0, 10);
+          filtered = chronological.filter(s => s.date >= cutoffStr);
+          if (filtered.length < 2 && chronological.length >= 2) {
+            filtered = chronological.slice(-2);
+          }
+        }
+      }
+
+      function getTitularWealth(snapshot, personName) {
+        if (!snapshot) return 0;
+        const accs = Array.isArray(snapshot.accounts) ? snapshot.accounts : [];
+        const matched = accs.filter(a => {
+          const p = (a.person || '').toLowerCase();
+          const id = (a.id || '').toLowerCase();
+          const label = (a.label || '').toLowerCase();
+          if (personName === 'daniel') {
+            return p.includes('daniel') || id.includes('daniel') || label.includes('daniel');
+          }
+          if (personName === 'natalia') {
+            return p.includes('nat') || id.includes('natalia') || label.includes('natália') || label.includes('natalia');
+          }
+          return false;
+        });
+
+        if (matched.length > 0) {
+          return matched.reduce((sum, a) => sum + Number(a.newBalance || 0), 0);
+        }
+        return 0;
+      }
+
+      let hasDaniel = true;
+      let hasNatalia = true;
+
+      const series = [];
+      for (let i = 0; i < filtered.length; i++) {
+        const s = filtered[i];
+        const prev = i > 0 ? filtered[i - 1] : null;
+
+        const dWealth = getTitularWealth(s, 'daniel');
+        const nWealth = getTitularWealth(s, 'natalia');
+        const totWealth = Number(s.realWealth !== undefined ? s.realWealth : (dWealth + nWealth));
+
+        if (dWealth === 0) hasDaniel = false;
+        if (nWealth === 0) hasNatalia = false;
+
+        const prevDWealth = prev ? getTitularWealth(prev, 'daniel') : 0;
+        const prevNWealth = prev ? getTitularWealth(prev, 'natalia') : 0;
+        const prevTotWealth = prev ? Number(prev.realWealth !== undefined ? prev.realWealth : (prevDWealth + prevNWealth)) : 0;
+
+        let dVarAmount = 0;
+        let dVarPct = 0;
+        let nVarAmount = 0;
+        let nVarPct = 0;
+        let totVarAmount = 0;
+        let totVarPct = 0;
+
+        if (prev) {
+          dVarAmount = Math.round((dWealth - prevDWealth) * 100) / 100;
+          dVarPct = prevDWealth > 0 ? Math.round(((dWealth / prevDWealth) - 1) * 10000) / 100 : 0;
+
+          nVarAmount = Math.round((nWealth - prevNWealth) * 100) / 100;
+          nVarPct = prevNWealth > 0 ? Math.round(((nWealth / prevNWealth) - 1) * 10000) / 100 : 0;
+
+          totVarAmount = Math.round((totWealth - prevTotWealth) * 100) / 100;
+          totVarPct = prevTotWealth > 0 ? Math.round(((totWealth / prevTotWealth) - 1) * 10000) / 100 : 0;
+        } else {
+          totVarAmount = Number(s.dayVariationAmount || 0);
+          totVarPct = Number(s.dayVariationPct || 0);
+        }
+
+        const parts = (s.date || '').split('-');
+        const dateFormatted = parts.length === 3 ? `${parts[2]}/${parts[1]}` : s.date;
+        const fullDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : s.date;
+
+        series.push({
+          id: s.id,
+          date: s.date,
+          dateFormatted,
+          fullDate,
+          closedAt: s.closedAt,
+          version: s.version || 1,
+          status: s.status,
+          hasException: Boolean(s.hasException),
+          danielWealth: Math.round(dWealth * 100) / 100,
+          nataliaWealth: Math.round(nWealth * 100) / 100,
+          totalWealth: Math.round(totWealth * 100) / 100,
+          danielVarAmount: dVarAmount,
+          danielVarPct: dVarPct,
+          nataliaVarAmount: nVarAmount,
+          nataliaVarPct: nVarPct,
+          totalVarAmount: totVarAmount,
+          totalVarPct: totVarPct
+        });
+      }
+
+      const isReliableSplit = hasDaniel && hasNatalia;
+
+      const firstPoint = series[0] || {};
+      const lastPoint = series[series.length - 1] || {};
+
+      function computeSummary(valKey, varAmountKey, varPctKey) {
+        const vals = series.map(p => p[valKey]).filter(Number.isFinite);
+        const current = lastPoint[valKey] || 0;
+        const firstVal = firstPoint[valKey] || 0;
+        const dayVarAmount = lastPoint[varAmountKey] || 0;
+        const dayVarPct = lastPoint[varPctKey] || 0;
+        const periodVarAmount = Math.round((current - firstVal) * 100) / 100;
+        const periodVarPct = firstVal > 0 ? Math.round(((current / firstVal) - 1) * 10000) / 100 : 0;
+        const min = vals.length > 0 ? Math.min(...vals) : 0;
+        const max = vals.length > 0 ? Math.max(...vals) : 0;
+
+        return {
+          current,
+          dayVarAmount,
+          dayVarPct,
+          periodVarAmount,
+          periodVarPct,
+          min,
+          max
+        };
+      }
+
+      return {
+        series,
+        summary: {
+          daniel: computeSummary('danielWealth', 'danielVarAmount', 'danielVarPct'),
+          natalia: computeSummary('nataliaWealth', 'nataliaVarAmount', 'nataliaVarPct'),
+          total: computeSummary('totalWealth', 'totalVarAmount', 'totalVarPct')
+        },
+        meta: {
+          period,
+          owner,
+          totalSnapshots: allSnapshots.length,
+          filteredSnapshots: series.length,
+          hasDaniel,
+          hasNatalia,
+          isReliableSplit
+        }
+      };
+    }
   }
 
   DailyUpdateModel.DEFAULT_ACCOUNTS = DEFAULT_ACCOUNTS;
@@ -1201,6 +1757,7 @@
   DailyUpdateModel.formatBRL = formatBRL;
   DailyUpdateModel.formatUSD = formatUSD;
   DailyUpdateModel.formatPercent = formatPercent;
+  DailyUpdateModel.formatCompactBRL = formatCompactBRL;
   DailyUpdateModel.formatRelativeDate = formatRelativeDate;
 
   return DailyUpdateModel;

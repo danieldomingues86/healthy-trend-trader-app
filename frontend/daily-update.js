@@ -47,6 +47,9 @@
       this.model = new (root.DailyUpdateModel || Object)();
       this.isLoading = false;
       this.isInitialized = false;
+      this.equityPeriod = 'all';
+      this.equityOwner = 'both';
+      this.activeHistoryTab = 'details';
     }
 
     async init() {
@@ -1434,11 +1437,14 @@
             </header>
 
             <nav class="history-tabs-bar">
-              <button type="button" class="history-tab-btn active" id="tabBtnDetails" onclick="window.DailyUpdateHub.switchHistoryTab('details')">
+              <button type="button" class="history-tab-btn ${this.activeHistoryTab === 'details' ? 'active' : ''}" id="tabBtnDetails" onclick="window.DailyUpdateHub.switchHistoryTab('details')">
                 📅 Fechamentos Gravados
               </button>
-              <button type="button" class="history-tab-btn" id="tabBtnCompare" onclick="window.DailyUpdateHub.switchHistoryTab('compare')">
+              <button type="button" class="history-tab-btn ${this.activeHistoryTab === 'compare' ? 'active' : ''}" id="tabBtnCompare" onclick="window.DailyUpdateHub.switchHistoryTab('compare')">
                 🔄 Comparar Datas
+              </button>
+              <button type="button" class="history-tab-btn ${this.activeHistoryTab === 'equity' ? 'active' : ''}" id="tabBtnEquity" onclick="window.DailyUpdateHub.switchHistoryTab('equity')">
+                📈 Evolução da Equity
               </button>
             </nav>
 
@@ -1510,7 +1516,14 @@
                   ${history.length >= 2 ? this.renderComparisonDetailHtml(history[0].date, history[1].date) : '<p style="padding: 24px; text-align: center;">É necessário ter ao menos dois fechamentos gravados para comparar.</p>'}
                 </div>
               </div>
+
+              <!-- Tab 3: Evolução da Equity -->
+              <div class="history-tab-content ${this.activeHistoryTab === 'equity' ? 'active' : ''}" id="historyTabEquity" style="${this.activeHistoryTab === 'equity' ? '' : 'display: none;'}">
+                ${this.renderEquityTabHtml()}
+              </div>
             </div>
+
+            <div id="equityChartTooltip" class="equity-chart-tooltip" style="display: none;"></div>
 
             <footer class="daily-update-modal-footer">
               <button type="button" class="btn-modal-secondary" onclick="window.DailyUpdateHub.closeModal('dailyUpdateHistoryModal')">
@@ -1717,22 +1730,530 @@
     }
 
     switchHistoryTab(tabName) {
+      this.activeHistoryTab = tabName;
       const tabDetails = document.getElementById('historyTabDetails');
       const tabCompare = document.getElementById('historyTabCompare');
+      const tabEquity = document.getElementById('historyTabEquity');
       const btnDetails = document.getElementById('tabBtnDetails');
       const btnCompare = document.getElementById('tabBtnCompare');
+      const btnEquity = document.getElementById('tabBtnEquity');
 
-      if (tabName === 'details') {
-        if (tabDetails) tabDetails.style.display = 'block';
-        if (tabCompare) tabCompare.style.display = 'none';
-        if (btnDetails) btnDetails.classList.add('active');
-        if (btnCompare) btnCompare.classList.remove('active');
-      } else {
-        if (tabDetails) tabDetails.style.display = 'none';
-        if (tabCompare) tabCompare.style.display = 'block';
-        if (btnDetails) btnDetails.classList.remove('active');
-        if (btnCompare) btnCompare.classList.add('active');
+      if (tabDetails) tabDetails.style.display = tabName === 'details' ? 'block' : 'none';
+      if (tabCompare) tabCompare.style.display = tabName === 'compare' ? 'block' : 'none';
+      if (tabEquity) tabEquity.style.display = tabName === 'equity' ? 'block' : 'none';
+
+      if (btnDetails) btnDetails.classList.toggle('active', tabName === 'details');
+      if (btnCompare) btnCompare.classList.toggle('active', tabName === 'compare');
+      if (btnEquity) btnEquity.classList.toggle('active', tabName === 'equity');
+
+      if (tabName === 'equity') {
+        this.renderEquityTabContent();
       }
+    }
+
+    setEquityPeriod(period) {
+      this.equityPeriod = period;
+      this.renderEquityTabContent();
+    }
+
+    setEquityOwner(owner) {
+      this.equityOwner = owner;
+      this.renderEquityTabContent();
+    }
+
+    renderEquityTabContent() {
+      const container = document.getElementById('historyTabEquity');
+      if (container) {
+        container.innerHTML = this.renderEquityTabHtml();
+      }
+    }
+
+    examineSnapshotFromEquity(date) {
+      this.switchHistoryTab('details');
+      this.selectHistorySnapshot(date);
+      if (typeof setTimeout === 'function') {
+        setTimeout(() => {
+          const activeBtn = typeof document !== 'undefined' && typeof document.querySelector === 'function' 
+            ? document.querySelector('.history-date-item.active') 
+            : null;
+          if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
+            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 50);
+      }
+    }
+
+    showEquityTooltip(evt, dataStr) {
+      let data;
+      try {
+        data = typeof dataStr === 'string' ? JSON.parse(decodeURIComponent(dataStr)) : dataStr;
+      } catch (_) {
+        return;
+      }
+      const tt = document.getElementById('equityChartTooltip');
+      if (!tt) return;
+
+      const fmtBRL = root.DailyUpdateModel?.formatBRL || ((v) => `R$ ${Number(v).toFixed(2)}`);
+      const fmtPct = root.DailyUpdateModel?.formatPercent || ((v) => `${Number(v).toFixed(2)}%`);
+      const isUp = (data.varAmount || 0) >= 0;
+
+      tt.innerHTML = `
+        <div class="equity-tt-head">
+          <span class="equity-tt-date">${data.fullDate || data.dateFormatted || data.date}</span>
+          <span class="equity-tt-badge ${data.status || 'closed'}">
+            ${data.version > 1 ? `v${data.version}` : data.hasException ? 'Ressalvas' : 'Homologado'}
+          </span>
+        </div>
+        <div class="equity-tt-body">
+          <div class="equity-tt-title">${data.ownerLabel || 'Patrimônio'}</div>
+          <div class="equity-tt-val">${fmtBRL(data.value)}</div>
+          <div class="equity-tt-delta" style="color: ${isUp ? '#1e7e4a' : '#d14343'};">
+            ${isUp ? '▲ +' : '▼ '}${fmtBRL(data.varAmount || 0)} (${fmtPct(data.varPct || 0)}) vs. dia ant.
+          </div>
+        </div>
+        <div class="equity-tt-footer">
+          <span>Clique no ponto para examinar snapshot</span>
+        </div>
+      `;
+
+      tt.style.display = 'block';
+
+      const rect = evt.target.getBoundingClientRect();
+      const modal = document.querySelector('.daily-update-modal.history-modal');
+      const modalRect = modal ? modal.getBoundingClientRect() : { left: 0, top: 0 };
+
+      const left = rect.left - modalRect.left + (rect.width / 2);
+      const top = rect.top - modalRect.top - 10;
+
+      tt.style.left = `${left}px`;
+      tt.style.top = `${top}px`;
+    }
+
+    hideEquityTooltip() {
+      const tt = document.getElementById('equityChartTooltip');
+      if (tt) tt.style.display = 'none';
+    }
+
+    buildEquitySvgChart(cfg) {
+      const {
+        id,
+        title,
+        subtitle,
+        badge,
+        points,
+        valKey,
+        varAmountKey,
+        varPctKey,
+        strokeColor,
+        ownerLabel,
+        w = 680,
+        h = 250
+      } = cfg;
+
+      if (!points || points.length === 0) {
+        return `
+          <article class="equity-chart-card">
+            <header class="equity-chart-card-header">
+              <div>
+                <h4>${title}</h4>
+                <span class="equity-chart-sub">${subtitle}</span>
+              </div>
+            </header>
+            <div class="equity-chart-empty"><p>Sem registros para o período selecionado.</p></div>
+          </article>
+        `;
+      }
+
+      const pLeft = 82;
+      const pRight = 24;
+      const pTop = 24;
+      const pBottom = 34;
+      const plotW = w - pLeft - pRight;
+      const plotH = h - pTop - pBottom;
+
+      const vals = points.map(p => Number(p[valKey] || 0));
+      const minVal = Math.min(...vals);
+      const maxVal = Math.max(...vals);
+
+      let yMin = minVal;
+      let yMax = maxVal;
+      if (yMin === yMax) {
+        yMin = yMin * 0.95;
+        yMax = yMax * 1.05;
+      } else {
+        const pad = (yMax - yMin) * 0.12;
+        yMin = Math.max(0, yMin - pad);
+        yMax = yMax + pad;
+      }
+
+      const ticks = [0, 0.333, 0.666, 1.0];
+      const gridLines = ticks.map(f => {
+        const v = yMin + f * (yMax - yMin);
+        const y = pTop + plotH - f * plotH;
+        const label = (root.DailyUpdateModel?.formatCompactBRL || ((val) => `R$ ${(val / 1000).toFixed(0)}k`))(v);
+        return `
+          <g class="chart-grid-row">
+            <line x1="${pLeft}" y1="${y.toFixed(1)}" x2="${(w - pRight).toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line, #e2ebe5)" stroke-width="1" stroke-dasharray="3,3" />
+            <text x="${(pLeft - 8).toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" font-size="10" font-weight="600" fill="var(--muted, #63786c)">${label}</text>
+          </g>
+        `;
+      }).join('');
+
+      const coords = points.map((p, idx) => {
+        const x = points.length === 1 ? pLeft + plotW / 2 : pLeft + (idx / (points.length - 1)) * plotW;
+        const y = pTop + plotH - ((Number(p[valKey] || 0) - yMin) / (yMax - yMin)) * plotH;
+        return { x, y, p };
+      });
+
+      const linePath = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+      const areaPath = `${linePath} L ${coords[coords.length - 1].x.toFixed(1)},${(pTop + plotH).toFixed(1)} L ${coords[0].x.toFixed(1)},${(pTop + plotH).toFixed(1)} Z`;
+
+      const dateStep = points.length <= 8 ? 1 : points.length <= 14 ? 2 : Math.ceil(points.length / 6);
+      const xLabels = coords.filter((c, i) => i === 0 || i === coords.length - 1 || i % dateStep === 0).map(c => `
+        <text x="${c.x.toFixed(1)}" y="${(pTop + plotH + 20).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="var(--muted, #63786c)">
+          ${c.p.dateFormatted}
+        </text>
+      `).join('');
+
+      const dots = coords.map(c => {
+        const pointData = {
+          id: c.p.id,
+          date: c.p.date,
+          dateFormatted: c.p.dateFormatted,
+          fullDate: c.p.fullDate,
+          version: c.p.version,
+          status: c.p.status,
+          hasException: c.p.hasException,
+          ownerLabel,
+          value: c.p[valKey],
+          varAmount: c.p[varAmountKey],
+          varPct: c.p[varPctKey]
+        };
+        const encoded = encodeURIComponent(JSON.stringify(pointData));
+        return `
+          <g class="equity-dot-group">
+            <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="3.5" fill="${strokeColor}" stroke="#ffffff" stroke-width="1.8" class="equity-chart-dot" />
+            <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="12" fill="transparent" class="equity-dot-hit" data-point="${encoded}" onmouseenter="window.DailyUpdateHub.showEquityTooltip(event, this.dataset.point)" onmouseleave="window.DailyUpdateHub.hideEquityTooltip()" onclick="window.DailyUpdateHub.examineSnapshotFromEquity('${c.p.date}')" style="cursor: pointer;" />
+          </g>
+        `;
+      }).join('');
+
+      return `
+        <article class="equity-chart-card">
+          <header class="equity-chart-card-header">
+            <div>
+              <h4>${title}</h4>
+              <span class="equity-chart-sub">${subtitle}</span>
+            </div>
+            <div class="equity-chart-badges">
+              <span class="equity-scale-badge">${badge}</span>
+            </div>
+          </header>
+          <div class="equity-svg-wrap">
+            <svg class="equity-chart-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="${id}_grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="${strokeColor}" stop-opacity="0.25" />
+                  <stop offset="90%" stop-color="${strokeColor}" stop-opacity="0.01" />
+                  <stop offset="100%" stop-color="${strokeColor}" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              ${gridLines}
+              <path d="${areaPath}" fill="url(#${id}_grad)" class="equity-area-path" />
+              <path d="${linePath}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="equity-line-path" />
+              ${dots}
+              ${xLabels}
+            </svg>
+          </div>
+        </article>
+      `;
+    }
+
+    renderEquityTabHtml() {
+      const data = this.model.getEquityHistorySeries({
+        period: this.equityPeriod,
+        owner: this.equityOwner
+      });
+
+      const { series, summary, meta } = data;
+      const fmtBRL = root.DailyUpdateModel?.formatBRL || ((v) => `R$ ${Number(v).toFixed(2)}`);
+      const fmtPct = root.DailyUpdateModel?.formatPercent || ((v) => `${Number(v).toFixed(2)}%`);
+
+      const periods = [
+        { id: '30D', label: '30 Dias' },
+        { id: '90D', label: '90 Dias' },
+        { id: '6M', label: '6 Meses' },
+        { id: '1A', label: '1 Ano' },
+        { id: 'all', label: 'Todo o Histórico' }
+      ];
+
+      const scopes = [
+        { id: 'both', label: 'Ambos (Daniel & Natália)' },
+        { id: 'daniel', label: 'Daniel' },
+        { id: 'natalia', label: 'Natália' },
+        { id: 'total', label: 'Consolidado' }
+      ];
+
+      let chartsHtml = '';
+      if (this.equityOwner === 'both') {
+        chartsHtml = `
+          <div class="equity-charts-grid two-cols">
+            ${this.buildEquitySvgChart({
+              id: 'chart_daniel',
+              title: 'Evolução da Equity — Daniel',
+              subtitle: 'Contas XP, Nomad, Genial e Clear',
+              badge: 'Escala Dedicada (Daniel)',
+              points: series,
+              valKey: 'danielWealth',
+              varAmountKey: 'danielVarAmount',
+              varPctKey: 'danielVarPct',
+              strokeColor: '#10b981',
+              ownerLabel: 'Daniel',
+              w: 680,
+              h: 250
+            })}
+            ${this.buildEquitySvgChart({
+              id: 'chart_natalia',
+              title: 'Evolução da Equity — Natália',
+              subtitle: 'Contas XP e Genial',
+              badge: 'Escala Dedicada (Natália)',
+              points: series,
+              valKey: 'nataliaWealth',
+              varAmountKey: 'nataliaVarAmount',
+              varPctKey: 'nataliaVarPct',
+              strokeColor: '#0284c7',
+              ownerLabel: 'Natália',
+              w: 680,
+              h: 250
+            })}
+          </div>
+        `;
+      } else if (this.equityOwner === 'daniel') {
+        chartsHtml = `
+          <div class="equity-charts-grid single-col">
+            ${this.buildEquitySvgChart({
+              id: 'chart_daniel_single',
+              title: 'Evolução da Equity — Daniel',
+              subtitle: 'Visão detalhada: XP, Nomad, Genial e Clear',
+              badge: 'Titular Selecionado',
+              points: series,
+              valKey: 'danielWealth',
+              varAmountKey: 'danielVarAmount',
+              varPctKey: 'danielVarPct',
+              strokeColor: '#10b981',
+              ownerLabel: 'Daniel',
+              w: 1200,
+              h: 300
+            })}
+          </div>
+        `;
+      } else if (this.equityOwner === 'natalia') {
+        chartsHtml = `
+          <div class="equity-charts-grid single-col">
+            ${this.buildEquitySvgChart({
+              id: 'chart_natalia_single',
+              title: 'Evolução da Equity — Natália',
+              subtitle: 'Visão detalhada: XP e Genial',
+              badge: 'Titular Selecionada',
+              points: series,
+              valKey: 'nataliaWealth',
+              varAmountKey: 'nataliaVarAmount',
+              varPctKey: 'nataliaVarPct',
+              strokeColor: '#0284c7',
+              ownerLabel: 'Natália',
+              w: 1200,
+              h: 300
+            })}
+          </div>
+        `;
+      } else {
+        chartsHtml = `
+          <div class="equity-charts-grid single-col">
+            ${this.buildEquitySvgChart({
+              id: 'chart_total_single',
+              title: 'Patrimônio Real Consolidado',
+              subtitle: 'Evolução da soma de todas as 6 contas registradas',
+              badge: 'Consolidado Geral',
+              points: series,
+              valKey: 'totalWealth',
+              varAmountKey: 'totalVarAmount',
+              varPctKey: 'totalVarPct',
+              strokeColor: '#166534',
+              ownerLabel: 'Total Consolidado',
+              w: 1200,
+              h: 300
+            })}
+          </div>
+        `;
+      }
+
+      const dSummary = summary.daniel;
+      const nSummary = summary.natalia;
+      const tSummary = summary.total;
+
+      const kpisHtml = `
+        <div class="equity-kpis-grid">
+          <div class="equity-kpi-card ${this.equityOwner === 'daniel' || this.equityOwner === 'both' ? 'active' : ''}">
+            <div class="equity-kpi-head">
+              <span class="equity-kpi-tag daniel">Daniel</span>
+              <span class="equity-kpi-range">Min: ${fmtBRL(dSummary.min)} | Max: ${fmtBRL(dSummary.max)}</span>
+            </div>
+            <strong class="equity-kpi-val">${fmtBRL(dSummary.current)}</strong>
+            <div class="equity-kpi-vars">
+              <span class="equity-var-pill ${dSummary.dayVarAmount >= 0 ? 'up' : 'down'}">
+                Dia: ${fmtPct(dSummary.dayVarPct)} (${dSummary.dayVarAmount >= 0 ? '+' : ''}${fmtBRL(dSummary.dayVarAmount)})
+              </span>
+              <span class="equity-var-pill period ${dSummary.periodVarAmount >= 0 ? 'up' : 'down'}">
+                Período: ${fmtPct(dSummary.periodVarPct)}
+              </span>
+            </div>
+          </div>
+
+          <div class="equity-kpi-card ${this.equityOwner === 'natalia' || this.equityOwner === 'both' ? 'active' : ''}">
+            <div class="equity-kpi-head">
+              <span class="equity-kpi-tag natalia">Natália</span>
+              <span class="equity-kpi-range">Min: ${fmtBRL(nSummary.min)} | Max: ${fmtBRL(nSummary.max)}</span>
+            </div>
+            <strong class="equity-kpi-val">${fmtBRL(nSummary.current)}</strong>
+            <div class="equity-kpi-vars">
+              <span class="equity-var-pill ${nSummary.dayVarAmount >= 0 ? 'up' : 'down'}">
+                Dia: ${fmtPct(nSummary.dayVarPct)} (${nSummary.dayVarAmount >= 0 ? '+' : ''}${fmtBRL(nSummary.dayVarAmount)})
+              </span>
+              <span class="equity-var-pill period ${nSummary.periodVarAmount >= 0 ? 'up' : 'down'}">
+                Período: ${fmtPct(nSummary.periodVarPct)}
+              </span>
+            </div>
+          </div>
+
+          <div class="equity-kpi-card total ${this.equityOwner === 'total' || this.equityOwner === 'both' ? 'active' : ''}">
+            <div class="equity-kpi-head">
+              <span class="equity-kpi-tag total">Consolidado Total</span>
+              <span class="equity-kpi-range">Min: ${fmtBRL(tSummary.min)} | Max: ${fmtBRL(tSummary.max)}</span>
+            </div>
+            <strong class="equity-kpi-val">${fmtBRL(tSummary.current)}</strong>
+            <div class="equity-kpi-vars">
+              <span class="equity-var-pill ${tSummary.dayVarAmount >= 0 ? 'up' : 'down'}">
+                Dia: ${fmtPct(tSummary.dayVarPct)} (${tSummary.dayVarAmount >= 0 ? '+' : ''}${fmtBRL(tSummary.dayVarAmount)})
+              </span>
+              <span class="equity-var-pill period ${tSummary.periodVarAmount >= 0 ? 'up' : 'down'}">
+                Período: ${fmtPct(tSummary.periodVarPct)}
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const tableRows = [...series].reverse().map(p => `
+        <tr>
+          <td>
+            <strong>${p.fullDate}</strong>
+          </td>
+          <td style="text-align: right;">
+            <div class="table-equity-val">${fmtBRL(p.danielWealth)}</div>
+            <small style="color: ${p.danielVarAmount >= 0 ? '#1e7e4a' : '#d14343'}; font-weight: 600;">
+              ${fmtPct(p.danielVarPct)}
+            </small>
+          </td>
+          <td style="text-align: right;">
+            <div class="table-equity-val">${fmtBRL(p.nataliaWealth)}</div>
+            <small style="color: ${p.nataliaVarAmount >= 0 ? '#1e7e4a' : '#d14343'}; font-weight: 600;">
+              ${fmtPct(p.nataliaVarPct)}
+            </small>
+          </td>
+          <td style="text-align: right; font-weight: 700;">
+            <div class="table-equity-val">${fmtBRL(p.totalWealth)}</div>
+            <small style="color: ${p.totalVarAmount >= 0 ? '#1e7e4a' : '#d14343'}; font-weight: 600;">
+              ${fmtPct(p.totalVarPct)}
+            </small>
+          </td>
+          <td style="text-align: center;">
+            <span class="history-badge ${p.status}">
+              ${p.version > 1 ? `v${p.version}` : p.hasException ? 'Ressalvas' : 'OK'}
+            </span>
+          </td>
+          <td style="text-align: center;">
+            <button type="button" class="btn-table-examine" onclick="window.DailyUpdateHub.examineSnapshotFromEquity('${p.date}')" title="Examinar detalhes completos deste fechamento">
+              Examinar ➔
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      return `
+        <div class="equity-history-container">
+          <!-- Control Bar: Periods & Scopes -->
+          <div class="equity-control-bar">
+            <div class="equity-filter-group">
+              <span class="equity-filter-label">Período:</span>
+              <div class="equity-filter-pills">
+                ${periods.map(p => `
+                  <button 
+                    type="button" 
+                    class="equity-filter-pill ${this.equityPeriod === p.id ? 'active' : ''}" 
+                    onclick="window.DailyUpdateHub.setEquityPeriod('${p.id}')"
+                  >
+                    ${p.label}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="equity-filter-group">
+              <span class="equity-filter-label">Visão / Titular:</span>
+              <div class="equity-filter-pills">
+                ${scopes.map(s => `
+                  <button 
+                    type="button" 
+                    class="equity-filter-pill ${this.equityOwner === s.id ? 'active' : ''}" 
+                    onclick="window.DailyUpdateHub.setEquityOwner('${s.id}')"
+                  >
+                    ${s.label}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Methodology Note / Disclaimer -->
+          <div class="equity-methodology-note">
+            <span class="equity-note-icon">ℹ️</span>
+            <div class="equity-note-text">
+              <strong>Variação Patrimonial:</strong> Os gráficos representam a evolução dos saldos consolidados registrados em cada fechamento diário. As variações nominais (R$) e percentuais (%) refletem a alteração de saldo entre fechamentos consecutivos válidos (incluindo caixa, cotações de posições e eventuais aportes/retiradas), distinguindo-se da rentabilidade líquida da estratégia.
+            </div>
+          </div>
+
+          <!-- KPI Summary Cards -->
+          ${kpisHtml}
+
+          <!-- SVG Charts -->
+          ${chartsHtml}
+
+          <!-- Historical Series Table -->
+          <div class="equity-table-section">
+            <div class="equity-table-header">
+              <h4>Fechamentos do Período (${series.length} registros)</h4>
+              <span class="equity-table-hint">Clique em "Examinar" para inspecionar saldos de contas e posições de qualquer data</span>
+            </div>
+            <div class="equity-table-wrap">
+              <table class="snapshot-subtable equity-history-table">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th style="text-align: right;">Equity Daniel</th>
+                    <th style="text-align: right;">Equity Natália</th>
+                    <th style="text-align: right;">Total Consolidado</th>
+                    <th style="text-align: center;">Status</th>
+                    <th style="text-align: center;">Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     handleCompareSelection() {

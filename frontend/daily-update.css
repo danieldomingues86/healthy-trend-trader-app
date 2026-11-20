@@ -1981,7 +1981,32 @@ body[data-theme="pigeon"] .pos-stop-val {
 }
 
 .daily-update-modal.history-modal {
-  max-width: 1080px;
+  width: 95vw;
+  max-width: 1540px;
+  height: 90vh;
+  max-height: 920px;
+}
+
+@media (min-width: 2200px) {
+  .daily-update-modal.history-modal {
+    max-width: 1720px;
+    max-height: 960px;
+  }
+}
+
+@media (max-width: 1599px) {
+  .daily-update-modal.history-modal {
+    max-width: 1320px;
+  }
+}
+
+@media (max-width: 1199px) {
+  .daily-update-modal.history-modal {
+    width: 96vw;
+    max-width: 100%;
+    height: auto;
+    max-height: 94vh;
+  }
 }
 
 .daily-update-modal.reconciliation-modal {
@@ -3027,4 +3052,540 @@ body[data-theme="pigeon"] .wealth-share-provisional-hint {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ==========================================================================
+   EQUITY HISTORY — Gráficos Diários por Titular & Modal Wide
+   ========================================================================== */
+
+.equity-history-container {
+  padding: 24px 28px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* Control Bar (Filters) */
+.equity-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: #f8faf8;
+  border: 1px solid var(--line, #e2ebe5);
+  border-radius: 14px;
+}
+
+.equity-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.equity-filter-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted, #63786c);
+}
+
+.equity-filter-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.equity-filter-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--line, #ccdcd3);
+  background: var(--card-bg, #ffffff);
+  color: var(--muted, #63786c);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.equity-filter-pill:hover {
+  background: #f0f7f3;
+  color: var(--ink, #123424);
+  border-color: #1e7e4a;
+}
+
+.equity-filter-pill.active {
+  background: #1e7e4a;
+  border-color: #1e7e4a;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(30, 126, 74, 0.25);
+}
+
+/* Methodology Disclaimer Note */
+.equity-methodology-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 18px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #166534;
+}
+
+.equity-note-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.equity-note-text strong {
+  color: #14532d;
+}
+
+/* KPI Summary Cards */
+.equity-kpis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+.equity-kpi-card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--line, #e2ebe5);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.equity-kpi-card.active {
+  border-color: #10b981;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.08);
+}
+
+.equity-kpi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.equity-kpi-tag {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.equity-kpi-tag.daniel {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+.equity-kpi-tag.natalia {
+  background: rgba(2, 132, 199, 0.12);
+  color: #0284c7;
+}
+
+.equity-kpi-tag.total {
+  background: rgba(22, 101, 52, 0.12);
+  color: #166534;
+}
+
+.equity-kpi-range {
+  font-size: 11px;
+  color: var(--muted, #63786c);
+  font-weight: 600;
+}
+
+.equity-kpi-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink, #123424);
+  letter-spacing: -0.02em;
+}
+
+.equity-kpi-vars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.equity-var-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.equity-var-pill.up {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.equity-var-pill.down {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.equity-var-pill.period {
+  border: 1px solid currentColor;
+  background: transparent;
+}
+
+/* Charts Grid */
+.equity-charts-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.equity-charts-grid.two-cols {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.equity-charts-grid.single-col {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 1040px) {
+  .equity-charts-grid.two-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.equity-chart-card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--line, #e2ebe5);
+  border-radius: 18px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+}
+
+.equity-chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.equity-chart-card-header h4 {
+  margin: 0 0 2px 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink, #123424);
+}
+
+.equity-chart-sub {
+  font-size: 12px;
+  color: var(--muted, #63786c);
+}
+
+.equity-scale-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #f1f5f3;
+  color: var(--muted, #63786c);
+  border: 1px solid var(--line, #e2ebe5);
+  white-space: nowrap;
+}
+
+.equity-svg-wrap {
+  width: 100%;
+  position: relative;
+  overflow: visible;
+}
+
+.equity-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.equity-chart-dot {
+  transition: r 0.15s ease, stroke-width 0.15s ease;
+}
+
+.equity-dot-group:hover .equity-chart-dot {
+  r: 5.5px;
+  stroke-width: 2.2px;
+}
+
+/* Tooltip */
+.equity-chart-tooltip {
+  position: absolute;
+  z-index: 1300;
+  background: #123424;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  min-width: 190px;
+  transition: opacity 0.1s ease;
+}
+
+.equity-tt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.equity-tt-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.equity-tt-title {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.equity-tt-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #6ee7b7;
+  margin: 2px 0;
+}
+
+.equity-tt-delta {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.equity-tt-footer {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 4px;
+  text-align: center;
+}
+
+/* Historical Series Table */
+.equity-table-section {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--line, #e2ebe5);
+  border-radius: 18px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.equity-table-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.equity-table-header h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink, #123424);
+}
+
+.equity-table-hint {
+  font-size: 11px;
+  color: var(--muted, #63786c);
+}
+
+.equity-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-equity-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink, #123424);
+}
+
+.btn-table-examine {
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: #f0f7f3;
+  border: 1px solid #cce5d7;
+  color: #1e7e4a;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-table-examine:hover {
+  background: #1e7e4a;
+  color: #ffffff;
+  border-color: #1e7e4a;
+}
+
+/* ==========================================================================
+   THEME ADAPTATIONS (GOLD & PIGEON LIGHT)
+   ========================================================================== */
+
+/* Gold Theme */
+body[data-theme="gold"] .equity-control-bar {
+  background: #1c1a17;
+  border-color: #2e2a24;
+}
+
+body[data-theme="gold"] .equity-filter-pill {
+  background: #141311;
+  border-color: #38332a;
+  color: #a8a29e;
+}
+
+body[data-theme="gold"] .equity-filter-pill:hover {
+  background: #24211d;
+  color: #e5e5e5;
+  border-color: #c8a84e;
+}
+
+body[data-theme="gold"] .equity-filter-pill.active {
+  background: #c8a84e;
+  border-color: #c8a84e;
+  color: #0f0f0e;
+  box-shadow: 0 2px 8px rgba(200, 168, 78, 0.3);
+}
+
+body[data-theme="gold"] .equity-methodology-note {
+  background: #1f1b14;
+  border-color: #3d3422;
+  color: #e5c365;
+}
+
+body[data-theme="gold"] .equity-methodology-note strong {
+  color: #f3d789;
+}
+
+body[data-theme="gold"] .equity-kpi-card,
+body[data-theme="gold"] .equity-chart-card,
+body[data-theme="gold"] .equity-table-section {
+  background: #181614;
+  border-color: #2e2a24;
+}
+
+body[data-theme="gold"] .equity-kpi-card.active {
+  border-color: #c8a84e;
+  box-shadow: 0 6px 20px rgba(200, 168, 78, 0.08);
+}
+
+body[data-theme="gold"] .equity-chart-card-header h4,
+body[data-theme="gold"] .equity-table-header h4,
+body[data-theme="gold"] .equity-kpi-val,
+body[data-theme="gold"] .table-equity-val {
+  color: #f5f5f4;
+}
+
+body[data-theme="gold"] .equity-scale-badge {
+  background: #24211d;
+  border-color: #38332a;
+  color: #a8a29e;
+}
+
+body[data-theme="gold"] .btn-table-examine {
+  background: #26221a;
+  border-color: #4a3f28;
+  color: #c8a84e;
+}
+
+body[data-theme="gold"] .btn-table-examine:hover {
+  background: #c8a84e;
+  color: #0f0f0e;
+  border-color: #c8a84e;
+}
+
+/* Pigeon Light Theme */
+body[data-theme="pigeon"] .equity-control-bar {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+body[data-theme="pigeon"] .equity-filter-pill {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+body[data-theme="pigeon"] .equity-filter-pill:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #0284c7;
+}
+
+body[data-theme="pigeon"] .equity-filter-pill.active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+body[data-theme="pigeon"] .equity-methodology-note {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0369a1;
+}
+
+body[data-theme="pigeon"] .equity-methodology-note strong {
+  color: #075985;
+}
+
+body[data-theme="pigeon"] .equity-kpi-card,
+body[data-theme="pigeon"] .equity-chart-card,
+body[data-theme="pigeon"] .equity-table-section {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+body[data-theme="pigeon"] .equity-kpi-card.active {
+  border-color: #0284c7;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.08);
+}
+
+body[data-theme="pigeon"] .btn-table-examine {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+body[data-theme="pigeon"] .btn-table-examine:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
 }

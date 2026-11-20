@@ -507,3 +507,110 @@ test('DailyUpdateHub Card [05]: renderização da coluna % do Total, badges de p
     assert.equal(el.textContent, expectedFormatted);
   });
 });
+
+test('DailyUpdateHub: aba Evolução da Equity, gráficos SVG independentes e modal Wide', () => {
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+
+  const elementsById = new Map();
+  const mockDoc = {
+    getElementById: (id) => elementsById.get(id) || null,
+    querySelectorAll: () => [],
+    querySelector: () => null,
+    addEventListener: () => {},
+    createElement: (tag) => ({
+      tagName: tag,
+      style: {},
+      innerHTML: '',
+      parentNode: null
+    })
+  };
+
+  const mockRoot = {
+    DailyUpdateModel: DailyUpdateModel,
+    showToast: () => {},
+    dispatchEvent: () => {},
+    healthyTrendApi: {
+      isAuthenticated: () => false
+    },
+    healthyTrendWorkspace: {
+      save: () => {}
+    }
+  };
+
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  runFn.call(mockRoot, mockRoot, mockDoc, null, function(){}, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  assert.ok(controller);
+
+  // 1. Injeta modal de histórico mockado
+  let injectedModalHtml = '';
+  controller.injectModal = (html, modalId) => {
+    injectedModalHtml = html;
+  };
+  controller.openHistoryModal();
+
+  assert.ok(injectedModalHtml.includes('id="tabBtnEquity"'), 'Modal deve conter o botão da aba Evolução da Equity');
+  assert.ok(injectedModalHtml.includes('📈 Evolução da Equity'), 'Botão da aba deve ter o texto com ícone');
+  assert.ok(injectedModalHtml.includes('id="historyTabEquity"'), 'Modal deve conter o container da aba');
+  assert.ok(injectedModalHtml.includes('id="equityChartTooltip"'), 'Modal deve conter tooltip de hover');
+
+  // 2. Renderização da aba Evolução da Equity
+  const equityHtml = controller.renderEquityTabHtml();
+  assert.ok(equityHtml.includes('equity-control-bar'), 'Deve conter barra de controles e filtros');
+  assert.ok(equityHtml.includes('Variação Patrimonial:'), 'Deve conter a nota metodológica de disclaimer');
+  assert.ok(equityHtml.includes('equity-kpis-grid'), 'Deve conter os cards de resumo KPI');
+  assert.ok(equityHtml.includes('Evolução da Equity — Daniel'), 'Deve conter card de gráfico do Daniel');
+  assert.ok(equityHtml.includes('Evolução da Equity — Natália'), 'Deve conter card de gráfico da Natália');
+  assert.ok(equityHtml.includes('Escala Dedicada (Daniel)'), 'Gráfico do Daniel deve ter badge de escala dedicada');
+  assert.ok(equityHtml.includes('Escala Dedicada (Natália)'), 'Gráfico da Natália deve ter badge de escala dedicada');
+  assert.ok(equityHtml.includes('equity-table-section'), 'Deve conter tabela histórica de fechamentos');
+  assert.ok(equityHtml.includes('Examinar ➔'), 'Tabela deve ter ação de examinar snapshot');
+
+  // 3. Teste de filtros de período e titular
+  const tabEquityContainer = { innerHTML: '', style: {} };
+  elementsById.set('historyTabEquity', tabEquityContainer);
+
+  controller.setEquityPeriod('30D');
+  assert.equal(controller.equityPeriod, '30D');
+  assert.ok(tabEquityContainer.innerHTML.length > 0);
+
+  controller.setEquityOwner('daniel');
+  assert.equal(controller.equityOwner, 'daniel');
+  const danielOnlyHtml = controller.renderEquityTabHtml();
+  assert.ok(danielOnlyHtml.includes('Titular Selecionado'));
+  assert.ok(!danielOnlyHtml.includes('two-cols'), 'Visão de titular individual deve ser coluna única expandida');
+
+  controller.setEquityOwner('both');
+  assert.equal(controller.equityOwner, 'both');
+  const bothHtml = controller.renderEquityTabHtml();
+  assert.ok(bothHtml.includes('two-cols'), 'Visão de ambos deve renderizar dois gráficos lado a lado');
+
+  // 4. Teste de troca de aba
+  const tabDetails = { style: {} };
+  const tabCompare = { style: {} };
+  const btnDetails = { classList: { add: () => {}, remove: () => {}, toggle: () => {} } };
+  const btnCompare = { classList: { add: () => {}, remove: () => {}, toggle: () => {} } };
+  const btnEquity = { classList: { add: () => {}, remove: () => {}, toggle: () => {} } };
+
+  elementsById.set('historyTabDetails', tabDetails);
+  elementsById.set('historyTabCompare', tabCompare);
+  elementsById.set('tabBtnDetails', btnDetails);
+  elementsById.set('tabBtnCompare', btnCompare);
+  elementsById.set('tabBtnEquity', btnEquity);
+
+  controller.switchHistoryTab('equity');
+  assert.equal(controller.activeHistoryTab, 'equity');
+  assert.equal(tabEquityContainer.style.display, 'block');
+  assert.equal(tabDetails.style.display, 'none');
+  assert.equal(tabCompare.style.display, 'none');
+
+  // 5. Teste de ação examineSnapshotFromEquity
+  let selectedSnapshotDate = null;
+  controller.selectHistorySnapshot = (d) => {
+    selectedSnapshotDate = d;
+  };
+  controller.examineSnapshotFromEquity('2026-11-19');
+  assert.equal(controller.activeHistoryTab, 'details');
+  assert.equal(selectedSnapshotDate, '2026-11-19');
+});

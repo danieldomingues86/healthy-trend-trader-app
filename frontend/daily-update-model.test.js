@@ -555,3 +555,75 @@ test('DailyUpdateModel Card [05]: persistência da participação percentual no 
     assert.ok(a.shareDiff !== undefined);
   });
 });
+
+test('DailyUpdateModel: getEquityHistorySeries() e separação rigorosa por titular (Daniel vs Natália)', () => {
+  const model = new DailyUpdateModel();
+  const res = model.getEquityHistorySeries({ period: 'all', owner: 'both' });
+
+  assert.ok(res);
+  assert.ok(Array.isArray(res.series));
+  assert.ok(res.series.length >= 10, 'Deve conter histórico de snapshots consolidado');
+  assert.equal(res.meta.isReliableSplit, true, 'Separação de titulares deve ser 100% confiável');
+
+  // Verifica que em todos os snapshots da série: Daniel + Natália === Total Consolidado
+  res.series.forEach(point => {
+    assert.ok(point.danielWealth > 0, 'Daniel deve ter patrimônio positivo');
+    assert.ok(point.nataliaWealth > 0, 'Natália deve ter patrimônio positivo');
+    assert.ok(point.totalWealth > 0, 'Total deve ter patrimônio positivo');
+
+    const sum = Math.round((point.danielWealth + point.nataliaWealth) * 100) / 100;
+    assert.equal(sum, point.totalWealth, `Soma dos titulares (${sum}) deve bater com totalWealth (${point.totalWealth})`);
+    assert.ok(point.dateFormatted);
+    assert.ok(point.fullDate);
+  });
+
+  // Verifica filtro de período
+  const res30d = model.getEquityHistorySeries({ period: '30D' });
+  assert.ok(res30d.series.length > 0);
+  assert.ok(res30d.series.length <= res.series.length);
+
+  // Formatação compacta BRL
+  assert.equal(DailyUpdateModel.formatCompactBRL(1104419.93), 'R$ 1,10M');
+  assert.equal(DailyUpdateModel.formatCompactBRL(573408), 'R$ 573k');
+  assert.equal(DailyUpdateModel.formatCompactBRL(500), 'R$ 500');
+  assert.equal(DailyUpdateModel.formatCompactBRL(-25000), '-R$ 25k');
+});
+
+test('DailyUpdateModel: cálculo preciso de variações diárias consecutivas e acumuladas do período', () => {
+  const model = new DailyUpdateModel();
+  const res = model.getEquityHistorySeries({ period: 'all' });
+
+  const summary = res.summary;
+  assert.ok(summary.daniel);
+  assert.ok(summary.natalia);
+  assert.ok(summary.total);
+
+  // Daniel summary
+  assert.ok(summary.daniel.current > 0);
+  assert.ok(summary.daniel.min > 0);
+  assert.ok(summary.daniel.max >= summary.daniel.min);
+  assert.ok(typeof summary.daniel.periodVarPct === 'number');
+
+  // Natália summary
+  assert.ok(summary.natalia.current > 0);
+  assert.ok(summary.natalia.min > 0);
+  assert.ok(summary.natalia.max >= summary.natalia.min);
+  assert.ok(typeof summary.natalia.periodVarPct === 'number');
+
+  // Total summary
+  assert.ok(summary.total.current > 0);
+  assert.ok(summary.total.min > 0);
+  assert.ok(summary.total.max >= summary.total.min);
+  assert.ok(typeof summary.total.periodVarPct === 'number');
+
+  // Verifica fórmula de variação consecutiva entre dois pontos
+  if (res.series.length >= 2) {
+    const p1 = res.series[0];
+    const p2 = res.series[1];
+    const expectedVarNominal = Math.round((p2.totalWealth - p1.totalWealth) * 100) / 100;
+    const expectedVarPct = Math.round(((p2.totalWealth / p1.totalWealth) - 1) * 10000) / 100;
+
+    assert.equal(p2.totalVarAmount, expectedVarNominal);
+    assert.equal(p2.totalVarPct, expectedVarPct);
+  }
+});
