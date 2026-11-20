@@ -692,3 +692,117 @@ test('Redesign UX/UI Multi-Strategy — 15. Seletor simplificado, 3 ambientes vi
   assert.ok(jsContent.includes('sim-active-config-summary'), 'Resumo discreto da configuração ativa deve existir no cabeçalho');
   assert.ok(jsContent.includes('Indicadores e Gatilhos') && jsContent.includes('Dimensionamento') && jsContent.includes('Execução e Saídas') && jsContent.includes('Proteções'), 'Categorias do Drawer de Configurações devem estar presentes');
 });
+
+test('Separação Estrita de Parâmetros — 16. Modal de Trend Following e Modal de Volatility Trading não misturam parâmetros nem estados', () => {
+  const vm = require('node:vm');
+  const jsContent = fs.readFileSync(path.resolve(__dirname, 'trade-simulator.js'), 'utf8');
+
+  const sandbox = {
+    window: null,
+    addEventListener: () => {},
+    document: {
+      readyState: 'loading',
+      addEventListener: () => {},
+      getElementById: () => null,
+      querySelector: () => null,
+      querySelectorAll: () => []
+    },
+    localStorage: {
+      getItem: () => null,
+      setItem: () => {}
+    },
+    TradeSimulatorModel,
+    setTimeout: () => 1,
+    clearTimeout: () => {},
+    console
+  };
+  sandbox.window = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(jsContent, sandbox);
+
+  const sim = sandbox.TradeSimulator;
+  assert.ok(sim, 'TradeSimulator deve ser exportado no escopo global');
+  assert.equal(typeof sim.renderAdvancedConfigDrawer, 'function', 'renderAdvancedConfigDrawer deve estar exposta');
+
+  // 1. Auditoria do Modal de Trend Following
+  const tfHtml = sim.renderAdvancedConfigDrawer(null, 'TREND_FOLLOWING');
+  assert.ok(tfHtml.includes('data-drawer-env="TREND_FOLLOWING"'), 'Modal de Trend Following deve identificar ambiente TREND_FOLLOWING');
+  assert.ok(tfHtml.includes('id="simFilterTrigger"'), 'Trend Following deve exibir seletor de Gatilho Operacional (#simFilterTrigger)');
+  assert.ok(tfHtml.includes('EMA 10 (Curta) &amp; EMA 72 (Longa)'), 'Trend Following deve exibir médias EMA 10 e EMA 72');
+  assert.ok(tfHtml.includes('RS ≥ 80 na Data do Sinal'), 'Trend Following deve exibir filtro oficial RS >= 80');
+  assert.ok(tfHtml.includes('id="simFilterGrade"'), 'Trend Following deve exibir filtro por Nota do Rubric (#simFilterGrade)');
+  assert.ok(tfHtml.includes('id="simBtnRubricModeToggle"'), 'Trend Following deve exibir controle de Modo Rubric (#simBtnRubricModeToggle)');
+  assert.ok(tfHtml.includes('id="simAdvScenarioSelect"'), 'Trend Following deve exibir seletor de Cenário de Gestão e Saída (#simAdvScenarioSelect)');
+  assert.ok(tfHtml.includes('1R Técnico Real'), 'Trend Following deve exibir unidade de risco técnica real 1R');
+
+  // Garantir que NENHUM parâmetro exclusivo de Volatility Trading vaze para o modal de Trend Following
+  assert.ok(!tfHtml.includes('id="volHeaderOversold"'), 'Trend Following NÃO deve exibir seletor IFR(2) de Volatility Trading');
+  assert.ok(!tfHtml.includes('SMA(7)'), 'Trend Following NÃO deve exibir SMA(7) de Volatility Trading');
+  assert.ok(!tfHtml.includes('id="volHeaderSizingModel"'), 'Trend Following NÃO deve exibir Modelo de Alocação de Volatility Trading');
+  assert.ok(!tfHtml.includes('id="volHeaderAllocationInput"'), 'Trend Following NÃO deve exibir input de Valor Financeiro Fixo de Volatility Trading');
+  assert.ok(!tfHtml.includes('id="volAdvMaxPositions"'), 'Trend Following NÃO deve exibir seletor de 10 posições do Volatility Trading');
+  assert.ok(!tfHtml.includes('id="volHeaderExitTiming"'), 'Trend Following NÃO deve exibir Momento de Execução da Saída (SMA 7 / Tempo)');
+  assert.ok(!tfHtml.includes('id="volAdvHoldingSessions"'), 'Trend Following NÃO deve exibir Permanência Máxima (Time Stop)');
+  assert.ok(!tfHtml.includes('Time Stop'), 'Trend Following NÃO deve mencionar Time Stop');
+  assert.ok(!tfHtml.includes('7 pregões'), 'Trend Following NÃO deve mencionar 7 pregões de Time Stop');
+  assert.ok(!tfHtml.includes('id="volAdvSqnRiskUnit"'), 'Trend Following NÃO deve exibir Unidade de Risco Financeiro (SQN Sem Stop)');
+
+  // 2. Auditoria do Modal de Volatility Trading
+  const volHtml = sim.renderAdvancedConfigDrawer(null, 'VOLATILITY_TRADING');
+  assert.ok(volHtml.includes('data-drawer-env="VOLATILITY_TRADING"'), 'Modal de Volatility Trading deve identificar ambiente VOLATILITY_TRADING');
+  assert.ok(volHtml.includes('id="volHeaderOversold"'), 'Volatility Trading deve exibir Limite de Sobrevenda IFR(2)');
+  assert.ok(volHtml.includes('SMA(7)') && volHtml.includes('SMA(200)'), 'Volatility Trading deve exibir SMA(7) e SMA(200)');
+  assert.ok(volHtml.includes('id="volHeaderRsFilter"'), 'Volatility Trading deve exibir Filtro de Força Relativa (#volHeaderRsFilter)');
+  assert.ok(volHtml.includes('id="volAdvMinTrades"'), 'Volatility Trading deve exibir Liquidez Mínima (#volAdvMinTrades)');
+  assert.ok(volHtml.includes('id="volHeaderSizingModel"'), 'Volatility Trading deve exibir Modelo de Alocação (#volHeaderSizingModel)');
+  assert.ok(volHtml.includes('id="volHeaderAllocationInput"'), 'Volatility Trading deve exibir Valor Financeiro por Trade (#volHeaderAllocationInput)');
+  assert.ok(volHtml.includes('id="volAdvMaxPositions"'), 'Volatility Trading deve exibir Limite de Posições Simultâneas (#volAdvMaxPositions)');
+  assert.ok(volHtml.includes('id="volHeaderExitTiming"'), 'Volatility Trading deve exibir Momento de Execução da Saída (SMA 7 / Tempo)');
+  assert.ok(volHtml.includes('id="volAdvHoldingSessions"'), 'Volatility Trading deve exibir Permanência Máxima (Time Stop)');
+  assert.ok(volHtml.includes('7 pregões (Oficial)'), 'Volatility Trading deve exibir 7 pregões (Oficial) no Time Stop');
+  assert.ok(volHtml.includes('id="volAdvSqnRiskUnit"'), 'Volatility Trading deve exibir Unidade de Risco Financeiro (SQN Sem Stop)');
+
+  // Garantir que NENHUM parâmetro exclusivo de Trend Following vaze para o modal de Volatility Trading
+  assert.ok(!volHtml.includes('id="simFilterTrigger"'), 'Volatility Trading NÃO deve exibir Gatilho Operacional de Trend Following');
+  assert.ok(!volHtml.includes('EMA 10'), 'Volatility Trading NÃO deve exibir EMA 10 de Trend Following');
+  assert.ok(!volHtml.includes('EMA 72'), 'Volatility Trading NÃO deve exibir EMA 72 de Trend Following');
+  assert.ok(!volHtml.includes('id="simFilterGrade"'), 'Volatility Trading NÃO deve exibir Filtro por Nota de Rubric de Trend Following');
+  assert.ok(!volHtml.includes('id="simBtnRubricModeToggle"'), 'Volatility Trading NÃO deve exibir botão Modo Rubric de Trend Following');
+  assert.ok(!volHtml.includes('id="simAdvScenarioSelect"'), 'Volatility Trading NÃO deve exibir Cenário de Gestão 2R/2.5R de Trend Following');
+
+  // 3. Auditoria do Modal de Comparação entre Sistemas (Separação explícita + Identificação de Compartilhados)
+  const cmpHtml = sim.renderAdvancedConfigDrawer(null, 'SYSTEM_COMPARISON');
+  assert.ok(cmpHtml.includes('Sistema 01 — Trend Following (Exclusivos)'), 'Comparação deve isolar bloco de parâmetros exclusivos do Trend Following');
+  assert.ok(cmpHtml.includes('Sistema 02 — Volatility Trading (Exclusivos)'), 'Comparação deve isolar bloco de parâmetros exclusivos do Volatility Trading');
+  assert.ok(cmpHtml.includes('[COMPARTILHADO]'), 'Comparação deve identificar explicitamente os parâmetros compartilhados');
+
+  // 4. Isolamento de Estado e Restauração de Padrões entre as Modalidades
+  const st = sim.getState();
+  st.filters.trigger = 'Inside Bar';
+  st.filters.grade = 'A';
+  st.rubricMode = false;
+  st.volatilityState.oversoldLevel = 5;
+  st.volatilityState.holdingPeriodSessions = 10;
+  st.volatilityState.fixedCapitalPerTrade = 25000;
+
+  // Restaurar padrões do Trend Following NÃO pode alterar configurações do Volatility Trading
+  sim.resetTrendFollowingDefaults();
+  assert.equal(st.filters.trigger, 'ALL', 'resetTrendFollowingDefaults deve restaurar trigger para ALL');
+  assert.equal(st.filters.grade, 'ALL', 'resetTrendFollowingDefaults deve restaurar grade para ALL');
+  assert.equal(st.rubricMode, true, 'resetTrendFollowingDefaults deve restaurar rubricMode para true');
+  assert.equal(st.volatilityState.oversoldLevel, 5, 'resetTrendFollowingDefaults NÃO deve alterar oversoldLevel do Volatility Trading');
+  assert.equal(st.volatilityState.holdingPeriodSessions, 10, 'resetTrendFollowingDefaults NÃO deve alterar holdingPeriodSessions do Volatility Trading');
+  assert.equal(st.volatilityState.fixedCapitalPerTrade, 25000, 'resetTrendFollowingDefaults NÃO deve alterar fixedCapitalPerTrade do Volatility Trading');
+
+  // Restaurar padrões do Volatility Trading NÃO pode alterar configurações do Trend Following
+  st.filters.trigger = '1-2-3 de Compra';
+  st.filters.grade = 'B';
+  st.rubricMode = false;
+  sim.resetVolatilityTradingDefaults(false);
+  assert.equal(st.volatilityState.oversoldLevel, 10, 'resetVolatilityTradingDefaults deve restaurar oversoldLevel para 10');
+  assert.equal(st.volatilityState.holdingPeriodSessions, 7, 'resetVolatilityTradingDefaults deve restaurar holdingPeriodSessions para 7');
+  assert.equal(st.volatilityState.fixedCapitalPerTrade, 10000, 'resetVolatilityTradingDefaults deve restaurar fixedCapitalPerTrade para 10000');
+  assert.equal(st.filters.trigger, '1-2-3 de Compra', 'resetVolatilityTradingDefaults NÃO deve alterar trigger do Trend Following');
+  assert.equal(st.filters.grade, 'B', 'resetVolatilityTradingDefaults NÃO deve alterar grade do Trend Following');
+  assert.equal(st.rubricMode, false, 'resetVolatilityTradingDefaults NÃO deve alterar rubricMode do Trend Following');
+});

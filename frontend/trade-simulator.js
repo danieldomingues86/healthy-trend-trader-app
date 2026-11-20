@@ -2996,6 +2996,12 @@
 
     const formattedCapital = `R$ ${formatMoney(state.initialCapital || 500000).replace('R$ ', '')}`;
 
+    const scenarioMetaObj = (root.TradeSimulatorModel?.SCENARIO_METADATA && root.TradeSimulatorModel.SCENARIO_METADATA[state.activeScenario || '2R'])
+      || { shortLabel: '2R Base' };
+    const gradeLabel = state.filters.grade && state.filters.grade !== 'ALL'
+      ? `Grade ${state.filters.grade}`
+      : 'Grades A, B, C';
+
     return `
       <div class="sim-header sim-rebuild-header sim-env-hero-header env-trend-hero">
         <div class="sim-hero-art-bg" aria-hidden="true"></div>
@@ -3016,7 +3022,9 @@
             <span class="sim-active-config-sep">|</span>
             <span class="sim-active-config-chip">EMA 10 &amp; EMA 72</span>
             <span class="sim-active-config-sep">|</span>
-            <span class="sim-active-config-chip">Modo Rubric <strong>${state.rubricMode ? 'Ativado' : 'Desativado'}</strong></span>
+            <span class="sim-active-config-chip">Modo Rubric <strong>${state.rubricMode ? 'Ativado' : 'Desativado'}</strong> (${escapeHtml(gradeLabel)})</span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Gestão: <strong>${escapeHtml(scenarioMetaObj.shortLabel || '2R Base')}</strong></span>
             <span class="sim-active-config-sep">|</span>
             <span class="sim-active-config-chip">Liquidez ≥ R$ 500k/dia</span>
             <span class="sim-active-config-sep">|</span>
@@ -8356,6 +8364,13 @@
     addSimulation,
     generateScenarioMass,
     resetToDefaults,
+    resetTrendFollowingDefaults,
+    resetVolatilityTradingDefaults,
+    setSimulatorStrategy,
+    renderAdvancedConfigDrawer,
+    renderTrendFollowingConfigSections,
+    renderVolatilityTradingConfigSections,
+    renderSystemComparisonConfigSections,
     evaluateActive,
     openExportModal,
     executeExport,
@@ -8491,7 +8506,9 @@
     const vState = state.volatilityState;
     const periodVal = customOpts.period !== undefined
       ? String(customOpts.period)
-      : String(state.filters.days || vState.period || '120');
+      : (state.activeStrategyMode === 'SYSTEM_COMPARISON'
+          ? String(state.filters.days || vState.period || '120')
+          : String(vState.period || '120'));
     const oversoldVal = customOpts.oversoldLevel !== undefined
       ? Number(customOpts.oversoldLevel)
       : Number(vState.oversoldLevel || vState.activeOversoldPreset || 10);
@@ -8777,14 +8794,14 @@
             <!-- 1. Período Histórico -->
             <div class="sim-control-select-wrap">
               <select class="sim-header-select" id="volHeaderPeriod" title="Período histórico da simulação">
-                <option value="30" ${String(state.filters.days) === '30' ? 'selected' : ''}>Últimos 30 dias</option>
-                <option value="90" ${String(state.filters.days) === '90' ? 'selected' : ''}>Últimos 90 dias</option>
-                <option value="120" ${String(state.filters.days) === '120' ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
-                <option value="180" ${String(state.filters.days) === '180' ? 'selected' : ''}>Últimos 6 meses</option>
-                <option value="365" ${String(state.filters.days) === '365' ? 'selected' : ''}>Últimos 12 meses</option>
-                <option value="730" ${String(state.filters.days) === '730' ? 'selected' : ''}>Últimos 24 meses</option>
-                <option value="1095" ${String(state.filters.days) === '1095' ? 'selected' : ''}>Últimos 36 meses</option>
-                <option value="ALL" ${String(state.filters.days) === 'ALL' ? 'selected' : ''}>Todo o período</option>
+                <option value="30" ${String(vState.period || '120') === '30' ? 'selected' : ''}>Últimos 30 dias</option>
+                <option value="90" ${String(vState.period || '120') === '90' ? 'selected' : ''}>Últimos 90 dias</option>
+                <option value="120" ${String(vState.period || '120') === '120' ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
+                <option value="180" ${String(vState.period || '120') === '180' ? 'selected' : ''}>Últimos 6 meses</option>
+                <option value="365" ${String(vState.period || '120') === '365' ? 'selected' : ''}>Últimos 12 meses</option>
+                <option value="730" ${String(vState.period || '120') === '730' ? 'selected' : ''}>Últimos 24 meses</option>
+                <option value="1095" ${String(vState.period || '120') === '1095' ? 'selected' : ''}>Últimos 36 meses</option>
+                <option value="ALL" ${String(vState.period || '120') === 'ALL' ? 'selected' : ''}>Todo o período</option>
               </select>
             </div>
 
@@ -10002,217 +10019,541 @@
   }
 
   /**
-   * SEÇÃO 5.2 — CONFIGURAÇÕES AVANÇADAS (DRAWER / PAINEL LATERAL POR CATEGORIA)
+   * Restaura exclusivamente os parâmetros padrão do Trend Following
+   * sem causar efeitos colaterais no Volatility Trading.
    */
-  function renderAdvancedConfigDrawer(scoped) {
-    if (!state.advConfigOpen) return '';
-    const mode = state.activeStrategyMode || 'TREND_FOLLOWING';
-    const vState = state.volatilityState;
-    const isVol = mode === 'VOLATILITY_TRADING';
-    const isCmp = mode === 'SYSTEM_COMPARISON';
+  function resetTrendFollowingDefaults() {
+    state.filters.trigger = 'ALL';
+    state.filters.grade = 'ALL';
+    state.rubricMode = true;
+    try {
+      localStorage.setItem('healthy-trade-simulator-rubric-mode', 'true');
+    } catch {}
+    const hadDifferentScenario = state.activeScenario && state.activeScenario !== '2R';
+    state.activeScenario = '2R';
+    state.tempScenarioSelection = '2R';
+    if (hadDifferentScenario) {
+      generateScenarioMass('2R');
+    }
+  }
 
+  /**
+   * Restaura exclusivamente os parâmetros padrão do Volatility Trading
+   * sem causar efeitos colaterais no Trend Following.
+   */
+  function resetVolatilityTradingDefaults(shouldExecute = true) {
+    state.volatilityState.oversoldLevel = 10;
+    state.volatilityState.activeOversoldPreset = 10;
+    state.volatilityState.rsFilterMode = 'NONE';
+    state.volatilityState.positionSizingModel = 'FIXED_FINANCIAL';
+    state.volatilityState.fixedCapitalPerTrade = 10000;
+    state.volatilityState.equityPercentPerTrade = 2;
+    state.volatilityState.maxConcurrentPositions = 10;
+    state.volatilityState.minDailyTrades = 500;
+    state.volatilityState.holdingPeriodSessions = 7;
+    state.volatilityState.exitExecutionTiming = 'NEXT_OPEN';
+    state.volatilityState.extremeEventProtectionEnabled = true;
+    state.volatilityState.financialRiskUnitMode = 'PERCENT_OF_POSITION';
+    state.volatilityState.financialRiskUnitValue = 5;
+    state.volatilityState.costsPerTrade = 0;
+    state.volatilityState.slippagePct = 0.05;
+    if (shouldExecute) {
+      executeVolatilitySimulation();
+    }
+  }
+
+  /**
+   * Renderiza exclusivamente as seções de parâmetros do sistema Trend Following.
+   */
+  function renderTrendFollowingConfigSections() {
+    const officialPolicy = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getOfficialRiskPolicy === 'function')
+      ? root.TradeSimulatorModel.getOfficialRiskPolicy()
+      : null;
+    const gradesList = officialPolicy?.grades || [];
+    const findGradeRisk = (g, def) => {
+      const item = gradesList.find(x => x.grade === g);
+      return item && item.riskPct != null ? (Number(item.riskPct) * 100).toFixed(2).replace('.', ',') : def;
+    };
+    const riskAPct = findGradeRisk('A', '0,40');
+    const riskBPct = findGradeRisk('B', '0,20');
+    const riskCPct = findGradeRisk('C', '0,10');
+    const activeProfileKey = officialPolicy?.selectedProfile || 'standard';
+    const activeProfile = officialPolicy?.profiles?.[activeProfileKey] || officialPolicy?.profiles?.standard || {};
+    const maxPositionsTF = activeProfile.maximumPositions || 6;
+    const maxHeatTF = activeProfile.maximumPortfolioRiskPct != null
+      ? (Number(activeProfile.maximumPortfolioRiskPct) * 100).toFixed(2).replace('.', ',')
+      : '3,00';
+    const currentScenario = state.activeScenario || '2R';
+
+    return `
+      <!-- Categoria 1: Indicadores e Gatilhos (Exclusivo Trend Following) -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">🎯</span>
+          <span>Indicadores e Gatilhos</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="simFilterTrigger">Gatilho Operacional</label>
+            <select class="sim-header-select" id="simFilterTrigger">
+              <option value="ALL" ${state.filters.trigger === 'ALL' ? 'selected' : ''}>Todos os gatilhos</option>
+              <option value="Inside Bar" ${state.filters.trigger === 'Inside Bar' ? 'selected' : ''}>Inside Bar</option>
+              <option value="1-2-3 de Compra" ${state.filters.trigger === '1-2-3 de Compra' ? 'selected' : ''}>1-2-3 de Compra</option>
+              <option value="PFR de Compra" ${state.filters.trigger === 'PFR de Compra' ? 'selected' : ''}>PFR de Compra</option>
+              <option value="Barra Vermelha Ignorada" ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'RBI') ? 'selected' : ''}>Barra Vermelha Ignorada</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label>Médias de Tendência &amp; Alinhamento</label>
+            <div class="sim-adv-readonly-box">EMA 10 (Curta) &amp; EMA 72 (Longa) — Diário (Preço &gt; EMA 10 &gt; EMA 72 ↑)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categoria 2: Filtros (Exclusivo Trend Following) -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">🔍</span>
+          <span>Filtros</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label>Filtro de Força Relativa (RS) &amp; Ciclo</label>
+            <div class="sim-adv-readonly-box">RS ≥ 80 na Data do Sinal &amp; Ciclo de Mercado Positivo</div>
+          </div>
+          <div class="sim-adv-field">
+            <label for="simFilterGrade">Filtro por Nota de Qualidade (Rubric)</label>
+            <select class="sim-header-select" id="simFilterGrade">
+              <option value="ALL" ${(!state.filters.grade || state.filters.grade === 'ALL') ? 'selected' : ''}>Todas as Notas Elegíveis (Grades A, B, C)</option>
+              <option value="A" ${state.filters.grade === 'A' ? 'selected' : ''}>Apenas Grade A (Alta Qualidade)</option>
+              <option value="B" ${state.filters.grade === 'B' ? 'selected' : ''}>Apenas Grade B (Bom Edge)</option>
+              <option value="C" ${state.filters.grade === 'C' ? 'selected' : ''}>Apenas Grade C (Pequeno Edge)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label>Liquidez Mínima (Liquidity Gate B3)</label>
+            <div class="sim-adv-readonly-box">Volume ≥ R$ 500.000/dia e ≥ 500 negócios/dia (21 pregões)</div>
+          </div>
+          <div class="sim-adv-field">
+            <label>Filtro do Índice de Referência</label>
+            <div class="sim-adv-readonly-box">Benchmark Acima das EMAs 10 e 72 Simultaneamente no Diário</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categoria 3: Dimensionamento (Exclusivo Trend Following) -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">📐</span>
+          <span>Dimensionamento</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label>Qualidade &amp; Risk Budget</label>
+            <div>
+              <button type="button" class="sim-rubric-pill-btn ${state.rubricMode ? 'active' : ''}" id="simBtnRubricModeToggle" title="Alternar entre Modo Rubric (Risk Budget por Grade A, B, C) e Risco Fixo">
+                <span class="pill-dot"></span>
+                <span>${state.rubricMode ? 'Modo Rubric Ativado (Grades A, B, C)' : 'Modo Risco Fixo (0,50% por trade)'}</span>
+              </button>
+            </div>
+          </div>
+          <div class="sim-adv-field">
+            <label>Orçamento de Risco por Nota (Política de Risco)</label>
+            <div class="sim-adv-readonly-box">Grade A: ${riskAPct}% • Grade B: ${riskBPct}% • Grade C: ${riskCPct}% (Grade D: 0%)</div>
+          </div>
+          <div class="sim-adv-field">
+            <label>Método de Position Sizing</label>
+            <div class="sim-adv-readonly-box">Baseado em Stop Técnico (1R = Entrada − Stop | Lote 100 ações)</div>
+          </div>
+          <div class="sim-adv-field">
+            <label>Limite de Posições &amp; Portfolio Heat</label>
+            <div class="sim-adv-readonly-box">Até ${maxPositionsTF} posições simultâneas • Max Portfolio Heat: ${maxHeatTF}%</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categoria 4: Execução e Saídas (Exclusivo Trend Following) -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">⏱️</span>
+          <span>Execução e Saídas</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="simAdvScenarioSelect">Cenário de Gestão e Saída</label>
+            <select class="sim-header-select" id="simAdvScenarioSelect">
+              <option value="2R" ${currentScenario === '2R' ? 'selected' : ''}>Gestão 2R — Base (Saída 100% em +2R)</option>
+              <option value="2.5R" ${currentScenario === '2.5R' ? 'selected' : ''}>Gestão 2,5R — Alvo Estendido (Saída 100% em +2,5R)</option>
+              <option value="PYRAMID_1R_2R" ${currentScenario === 'PYRAMID_1R_2R' ? 'selected' : ''}>Gestão Pirâmide — Adição em +1R e Saída em +2R</option>
+              <option value="PARTIAL_50_2R_EMA9" ${currentScenario === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}>Gestão Parcial 50% (2R) + Condução pela EMA 10</option>
+              <option value="PARTIAL_80_2R_EMA9" ${currentScenario === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}>Gestão Parcial 80% (2R) + Condução pela EMA 10</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label>Regra de Entrada e Validade da Ordem</label>
+            <div class="sim-adv-readonly-box">Máxima do Gatilho + R$ 0,01 exclusivamente em T+1</div>
+          </div>
+          <div class="sim-adv-field">
+            <label>Stop Técnico Inicial &amp; Condução</label>
+            <div class="sim-adv-readonly-box">Mínima de Referência − R$ 0,01 • Trailing Stop pela EMA 10</div>
+          </div>
+          <div class="sim-adv-field">
+            <label>Política de Ambiguidade Intradiária</label>
+            <div class="sim-adv-readonly-box">Execução Conservadora (Precedência de Stop em conflito OHLC)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categoria 5: Proteções (Exclusivo Trend Following) -->
+      <section class="sim-adv-config-section sim-adv-section-full">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">🛡️</span>
+          <span>Proteções</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label>Extreme Event Protection (Saída Preventiva D-1)</label>
+            <div class="sim-adv-readonly-box">Ativada — Encerramento obrigatório no fechamento anterior a Eventos Extremos</div>
+          </div>
+          <div class="sim-adv-field">
+            <label>Unidade de Risco e Apuração de SQN</label>
+            <div class="sim-adv-readonly-box">1R Técnico Real = Distância entre Entrada Executada e Stop Inicial</div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  /**
+   * Renderiza exclusivamente as seções de parâmetros do sistema Volatility Trading.
+   */
+  function renderVolatilityTradingConfigSections() {
+    const vState = state.volatilityState;
     const allocValFormatted = vState.positionSizingModel === 'EQUITY_PERCENT'
       ? `${Number(vState.equityPercentPerTrade || 2).toFixed(1).replace('.', ',')}`
       : `R$ ${formatMoney(vState.fixedCapitalPerTrade || 10000).replace('R$ ', '')}`;
 
-    const sqnRiskRaw = vState.financialRiskUnitMode === 'NONE'
+    const normSqnMode = (vState.financialRiskUnitMode === 'PERCENT_OF_POSITION' || !vState.financialRiskUnitMode)
+      ? 'ALLOCATED_PCT'
+      : vState.financialRiskUnitMode;
+    const sqnRiskRaw = normSqnMode === 'NONE'
       ? 'NONE'
-      : `${vState.financialRiskUnitMode || 'ALLOCATED_PCT'}:${vState.financialRiskUnitValue || 5}`;
+      : `${normSqnMode}:${vState.financialRiskUnitValue || 5}`;
+
+    return `
+      <!-- Categoria 1: Indicadores e Gatilhos (Exclusivo Volatility Trading) -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">🎯</span>
+          <span>Indicadores e Gatilhos</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="volHeaderOversold">Limite de Sobrevenda IFR(2)</label>
+            <select class="sim-header-select" id="volHeaderOversold">
+              <option value="5" ${Number(vState.oversoldLevel) === 5 ? 'selected' : ''}>IFR(2) ≤ 5 (Extremo)</option>
+              <option value="10" ${Number(vState.oversoldLevel) === 10 ? 'selected' : ''}>IFR(2) ≤ 10 (Oficial)</option>
+              <option value="15" ${Number(vState.oversoldLevel) === 15 ? 'selected' : ''}>IFR(2) ≤ 15 (Moderado)</option>
+              <option value="20" ${Number(vState.oversoldLevel) === 20 ? 'selected' : ''}>IFR(2) ≤ 20 (Amplo)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label>Médias Móveis e Condição de Gatilho</label>
+            <div class="sim-adv-readonly-box">Close &lt; SMA(${vState.shortMaPeriod || 7}) &amp; Close &gt; SMA(${vState.longMaPeriod || 200}) — Diário</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categoria 2: Filtros (Exclusivo Volatility Trading) -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">🔍</span>
+          <span>Filtros</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="volHeaderRsFilter">Filtro de Força Relativa (RS)</label>
+            <select class="sim-header-select" id="volHeaderRsFilter">
+              <option value="NONE" ${vState.rsFilterMode === 'NONE' ? 'selected' : ''}>RS: Sem Filtro (Padrão)</option>
+              <option value="RS_POSITIVE" ${vState.rsFilterMode === 'RS_POSITIVE' ? 'selected' : ''}>RS: Positiva (&gt; 0)</option>
+              <option value="RS_RISING" ${vState.rsFilterMode === 'RS_RISING' ? 'selected' : ''}>RS: Crescente (Δ5d &gt; 0)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volAdvMinTrades">Liquidez Mínima (Negócios / Dia)</label>
+            <select class="sim-header-select" id="volAdvMinTrades">
+              <option value="300" ${Number(vState.minDailyTrades) === 300 ? 'selected' : ''}>≥ 300 negócios/dia (21 pregões)</option>
+              <option value="500" ${Number(vState.minDailyTrades || 500) === 500 ? 'selected' : ''}>≥ 500 negócios/dia (Padrão Oficial)</option>
+              <option value="1000" ${Number(vState.minDailyTrades) === 1000 ? 'selected' : ''}>≥ 1.000 negócios/dia (Alta Liquidez)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categoria 3: Dimensionamento (Exclusivo Volatility Trading) -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">📐</span>
+          <span>Dimensionamento</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="volHeaderSizingModel">Modelo de Alocação</label>
+            <select class="sim-header-select" id="volHeaderSizingModel">
+              <option value="FIXED_FINANCIAL" ${vState.positionSizingModel === 'FIXED_FINANCIAL' ? 'selected' : ''}>Valor Financeiro Fixo por Trade</option>
+              <option value="EQUITY_PERCENT" ${vState.positionSizingModel === 'EQUITY_PERCENT' ? 'selected' : ''}>Percentual do Patrimônio (%)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volHeaderAllocationInput">${vState.positionSizingModel === 'EQUITY_PERCENT' ? 'Percentual por Trade (%)' : 'Valor Financeiro por Trade (R$)'}</label>
+            <input type="text" id="volHeaderAllocationInput" class="sim-adv-input" value="${allocValFormatted}" />
+          </div>
+          <div class="sim-adv-field">
+            <label for="volAdvMaxPositions">Limite de Posições Simultâneas</label>
+            <select class="sim-header-select" id="volAdvMaxPositions">
+              <option value="5" ${Number(vState.maxConcurrentPositions) === 5 ? 'selected' : ''}>Até 5 posições</option>
+              <option value="10" ${Number(vState.maxConcurrentPositions || 10) === 10 ? 'selected' : ''}>Até 10 posições (Padrão)</option>
+              <option value="15" ${Number(vState.maxConcurrentPositions) === 15 ? 'selected' : ''}>Até 15 posições</option>
+              <option value="20" ${Number(vState.maxConcurrentPositions) === 20 ? 'selected' : ''}>Até 20 posições</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label>Regra de Stop Inicial</label>
+            <div class="sim-adv-readonly-box">Sem Stop Técnico Inicial (Saída na SMA 7 ou Time Stop)</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categoria 4: Execução e Saídas (Exclusivo Volatility Trading) -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">⏱️</span>
+          <span>Execução e Saídas</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="volHeaderExitTiming">Momento de Execução da Saída (SMA 7 / Tempo)</label>
+            <select class="sim-header-select" id="volHeaderExitTiming">
+              <option value="NEXT_OPEN" ${vState.exitExecutionTiming === 'NEXT_OPEN' ? 'selected' : ''}>Próximo Pregão (Open T+1 — Oficial)</option>
+              <option value="SAME_CLOSE" ${vState.exitExecutionTiming === 'SAME_CLOSE' ? 'selected' : ''}>Fechamento do Dia do Sinal (D0)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volAdvHoldingSessions">Permanência Máxima (Time Stop)</label>
+            <select class="sim-header-select" id="volAdvHoldingSessions">
+              <option value="5" ${Number(vState.holdingPeriodSessions) === 5 ? 'selected' : ''}>5 pregões</option>
+              <option value="7" ${Number(vState.holdingPeriodSessions || 7) === 7 ? 'selected' : ''}>7 pregões (Oficial)</option>
+              <option value="10" ${Number(vState.holdingPeriodSessions) === 10 ? 'selected' : ''}>10 pregões</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volAdvCosts">Custo Operacional por Trade (R$)</label>
+            <input type="number" step="1" min="0" id="volAdvCosts" class="sim-adv-input" value="${Number(vState.costsPerTrade || 0)}" />
+          </div>
+          <div class="sim-adv-field">
+            <label for="volAdvSlippage">Slippage Estimado (%)</label>
+            <input type="number" step="0.01" min="0" id="volAdvSlippage" class="sim-adv-input" value="${Number(vState.slippagePct ?? 0.05)}" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Categoria 5: Proteções (Exclusivo Volatility Trading) -->
+      <section class="sim-adv-config-section sim-adv-section-full">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">🛡️</span>
+          <span>Proteções</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="volAdvExtremeProtection">Extreme Event Protection (Saída Preventiva D-1)</label>
+            <select class="sim-header-select" id="volAdvExtremeProtection">
+              <option value="true" ${vState.extremeEventProtectionEnabled !== false ? 'selected' : ''}>Ativada (Obrigatória antes de Eventos Extremos)</option>
+              <option value="false" ${vState.extremeEventProtectionEnabled === false ? 'selected' : ''}>Desativada (Apenas para estudo comparativo)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volAdvSqnRiskUnit">Unidade de Risco Financeiro (SQN Sem Stop)</label>
+            <select class="sim-header-select" id="volAdvSqnRiskUnit">
+              <option value="ALLOCATED_PCT:5" ${sqnRiskRaw === 'ALLOCATED_PCT:5' ? 'selected' : ''}>1R = 5,0% do Capital Alocado no Trade</option>
+              <option value="ALLOCATED_PCT:3" ${sqnRiskRaw === 'ALLOCATED_PCT:3' ? 'selected' : ''}>1R = 3,0% do Capital Alocado no Trade</option>
+              <option value="EQUITY_PCT:1" ${sqnRiskRaw === 'EQUITY_PCT:1' ? 'selected' : ''}>1R = 1,0% do Patrimônio Total</option>
+              <option value="NONE" ${sqnRiskRaw === 'NONE' ? 'selected' : ''}>Desativar R Financeiro</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  /**
+   * Renderiza as seções do modo Comparação entre Sistemas com separação estrita
+   * entre Sistema 01 (Trend Following), Sistema 02 (Volatility Trading) e Parâmetros Compartilhados.
+   */
+  function renderSystemComparisonConfigSections() {
+    const vState = state.volatilityState;
+    const currentScenario = state.activeScenario || '2R';
+    const allocValFormatted = vState.positionSizingModel === 'EQUITY_PERCENT'
+      ? `${Number(vState.equityPercentPerTrade || 2).toFixed(1).replace('.', ',')}`
+      : `R$ ${formatMoney(vState.fixedCapitalPerTrade || 10000).replace('R$ ', '')}`;
+    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 500000).replace('R$ ', '')}`;
+
+    return `
+      <!-- Coluna 1: Parâmetros Exclusivos do Sistema 01 — Trend Following -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">📈</span>
+          <span>Sistema 01 — Trend Following (Exclusivos)</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="simFilterTrigger">Gatilho Operacional (Trend Following)</label>
+            <select class="sim-header-select" id="simFilterTrigger">
+              <option value="ALL" ${state.filters.trigger === 'ALL' ? 'selected' : ''}>Todos os gatilhos</option>
+              <option value="Inside Bar" ${state.filters.trigger === 'Inside Bar' ? 'selected' : ''}>Inside Bar</option>
+              <option value="1-2-3 de Compra" ${state.filters.trigger === '1-2-3 de Compra' ? 'selected' : ''}>1-2-3 de Compra</option>
+              <option value="PFR de Compra" ${state.filters.trigger === 'PFR de Compra' ? 'selected' : ''}>PFR de Compra</option>
+              <option value="Barra Vermelha Ignorada" ${(state.filters.trigger === 'Barra Vermelha Ignorada' || state.filters.trigger === 'RBI') ? 'selected' : ''}>Barra Vermelha Ignorada</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label>Médias de Tendência (Trend Following)</label>
+            <div class="sim-adv-readonly-box">EMA 10 (Curta) &amp; EMA 72 (Longa) — Diário</div>
+          </div>
+          <div class="sim-adv-field">
+            <label>Qualidade &amp; Risk Budget (Trend Following)</label>
+            <div>
+              <button type="button" class="sim-rubric-pill-btn ${state.rubricMode ? 'active' : ''}" id="simBtnRubricModeToggle">
+                <span class="pill-dot"></span>
+                <span>${state.rubricMode ? 'Modo Rubric Ativado (Grades A, B, C)' : 'Modo Risco Fixo'}</span>
+              </button>
+            </div>
+          </div>
+          <div class="sim-adv-field">
+            <label for="simAdvScenarioSelect">Cenário de Gestão e Saída (Trend Following)</label>
+            <select class="sim-header-select" id="simAdvScenarioSelect">
+              <option value="2R" ${currentScenario === '2R' ? 'selected' : ''}>Gestão 2R — Base (Saída 100% em +2R)</option>
+              <option value="2.5R" ${currentScenario === '2.5R' ? 'selected' : ''}>Gestão 2,5R — Alvo Estendido (+2,5R)</option>
+              <option value="PYRAMID_1R_2R" ${currentScenario === 'PYRAMID_1R_2R' ? 'selected' : ''}>Gestão Pirâmide — 1R → 2R</option>
+              <option value="PARTIAL_50_2R_EMA9" ${currentScenario === 'PARTIAL_50_2R_EMA9' ? 'selected' : ''}>Gestão Parcial 50% (2R) + EMA 10</option>
+              <option value="PARTIAL_80_2R_EMA9" ${currentScenario === 'PARTIAL_80_2R_EMA9' ? 'selected' : ''}>Gestão Parcial 80% (2R) + EMA 10</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Coluna 2: Parâmetros Exclusivos do Sistema 02 — Volatility Trading -->
+      <section class="sim-adv-config-section">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">⚡</span>
+          <span>Sistema 02 — Volatility Trading (Exclusivos)</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="volHeaderOversold">Limite de Sobrevenda IFR(2)</label>
+            <select class="sim-header-select" id="volHeaderOversold">
+              <option value="5" ${Number(vState.oversoldLevel) === 5 ? 'selected' : ''}>IFR(2) ≤ 5 (Extremo)</option>
+              <option value="10" ${Number(vState.oversoldLevel) === 10 ? 'selected' : ''}>IFR(2) ≤ 10 (Oficial)</option>
+              <option value="15" ${Number(vState.oversoldLevel) === 15 ? 'selected' : ''}>IFR(2) ≤ 15 (Moderado)</option>
+              <option value="20" ${Number(vState.oversoldLevel) === 20 ? 'selected' : ''}>IFR(2) ≤ 20 (Amplo)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label>Médias Móveis (Volatility Trading)</label>
+            <div class="sim-adv-readonly-box">Close &lt; SMA(${vState.shortMaPeriod || 7}) &amp; Close &gt; SMA(${vState.longMaPeriod || 200})</div>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volHeaderSizingModel">Modelo de Alocação (Volatility Trading)</label>
+            <select class="sim-header-select" id="volHeaderSizingModel">
+              <option value="FIXED_FINANCIAL" ${vState.positionSizingModel === 'FIXED_FINANCIAL' ? 'selected' : ''}>Valor Financeiro Fixo por Trade</option>
+              <option value="EQUITY_PERCENT" ${vState.positionSizingModel === 'EQUITY_PERCENT' ? 'selected' : ''}>Percentual do Patrimônio (%)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volHeaderAllocationInput">${vState.positionSizingModel === 'EQUITY_PERCENT' ? 'Percentual por Trade (%)' : 'Valor Financeiro por Trade (R$)'}</label>
+            <input type="text" id="volHeaderAllocationInput" class="sim-adv-input" value="${allocValFormatted}" />
+          </div>
+          <div class="sim-adv-field">
+            <label for="volHeaderExitTiming">Momento da Saída (SMA 7 / Tempo)</label>
+            <select class="sim-header-select" id="volHeaderExitTiming">
+              <option value="NEXT_OPEN" ${vState.exitExecutionTiming === 'NEXT_OPEN' ? 'selected' : ''}>Próximo Pregão (Open T+1 — Oficial)</option>
+              <option value="SAME_CLOSE" ${vState.exitExecutionTiming === 'SAME_CLOSE' ? 'selected' : ''}>Fechamento do Dia do Sinal (D0)</option>
+            </select>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volAdvHoldingSessions">Permanência Máxima (Time Stop)</label>
+            <select class="sim-header-select" id="volAdvHoldingSessions">
+              <option value="5" ${Number(vState.holdingPeriodSessions) === 5 ? 'selected' : ''}>5 pregões</option>
+              <option value="7" ${Number(vState.holdingPeriodSessions || 7) === 7 ? 'selected' : ''}>7 pregões (Oficial)</option>
+              <option value="10" ${Number(vState.holdingPeriodSessions) === 10 ? 'selected' : ''}>10 pregões</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Seção 3: Parâmetros Genuinamente Compartilhados na Comparação -->
+      <section class="sim-adv-config-section sim-adv-section-full">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">🔗</span>
+          <span>Parâmetros Compartilhados da Comparação (Sincronizados entre Sistemas)</span>
+        </div>
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label>Base Monetária &amp; Timeframe Compartilhados</label>
+            <div class="sim-adv-readonly-box">[COMPARTILHADO] Capital Inicial: ${formattedCapital} • Universo: ${escapeHtml(vState.universe || 'IBOV')} • Timeframe Diário</div>
+          </div>
+          <div class="sim-adv-field">
+            <label for="volAdvExtremeProtection">Extreme Event Protection — Saída Preventiva D-1 [COMPARTILHADO]</label>
+            <select class="sim-header-select" id="volAdvExtremeProtection">
+              <option value="true" ${vState.extremeEventProtectionEnabled !== false ? 'selected' : ''}>Ativada em ambos os motores (Obrigatória antes de Eventos Extremos)</option>
+              <option value="false" ${vState.extremeEventProtectionEnabled === false ? 'selected' : ''}>Desativada (Apenas para estudo comparativo)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  /**
+   * SEÇÃO 5.2 — MODAL DE CONFIGURAÇÕES AVANÇADAS DA ESTRATÉGIA
+   * Separação estrita: cada modalidade renderiza exclusivamente seus próprios parâmetros.
+   */
+  function renderAdvancedConfigDrawer(scoped, overrideMode) {
+    if (!state.advConfigOpen && !overrideMode) return '';
+    const mode = overrideMode || state.activeStrategyMode || 'TREND_FOLLOWING';
+    const isVol = mode === 'VOLATILITY_TRADING';
+    const isCmp = mode === 'SYSTEM_COMPARISON';
 
     const envLabel = isVol
       ? 'Volatility Trading'
       : (isCmp ? 'Comparação entre Sistemas' : 'Trend Following');
 
+    const subtitleText = isVol
+      ? 'Parâmetros exclusivos de reversão à média (IFR 2, SMA 7 / SMA 200, alocação financeira e Time Stop).'
+      : (isCmp
+          ? 'Configurações isoladas de cada sistema e parâmetros explicitamente compartilhados para comparação lado a lado.'
+          : 'Parâmetros exclusivos de acompanhamento de tendência (gatilhos, EMAs 10 e 72, Trading Rubric e gestão em múltiplos de R).');
+
+    const sectionsHtml = isVol
+      ? renderVolatilityTradingConfigSections()
+      : (isCmp ? renderSystemComparisonConfigSections() : renderTrendFollowingConfigSections());
+
     return `
-      <div class="sim-modal-overlay sim-adv-config-overlay open" id="simAdvConfigOverlay" role="dialog" aria-modal="true" aria-label="Configurações da Estratégia">
+      <div class="sim-modal-overlay sim-adv-config-overlay open" id="simAdvConfigOverlay" role="dialog" aria-modal="true" aria-label="Configurações da Estratégia — ${envLabel}">
         <div class="sim-adv-config-drawer" data-drawer-env="${mode}">
           <div class="sim-adv-config-head">
             <div class="sim-adv-config-head-left">
               <div class="sim-adv-config-tags">
                 <span class="sim-adv-config-badge">${envLabel}</span>
-                <span class="sim-adv-config-eyebrow">Parâmetros Operacionais</span>
+                <span class="sim-adv-config-eyebrow">Parâmetros Operacionais Exclusivos</span>
               </div>
               <h3 class="sim-adv-config-title">Configurações da Estratégia</h3>
-              <p class="sim-adv-config-subtitle">Ajuste gatilhos, modelos de dimensionamento, filtros de liquidez e parâmetros de execução.</p>
+              <p class="sim-adv-config-subtitle">${subtitleText}</p>
             </div>
             <button type="button" class="sim-modal-close sim-adv-config-close" id="simAdvConfigClose" title="Fechar Configurações" aria-label="Fechar">✕</button>
           </div>
 
           <div class="sim-adv-config-body">
-            <!-- Categoria 1: Indicadores e Gatilhos -->
-            <section class="sim-adv-config-section">
-              <div class="sim-adv-section-title">
-                <span class="sim-adv-section-icon">🎯</span>
-                <span>Indicadores e Gatilhos</span>
-              </div>
-              <div class="sim-adv-grid">
-                ${!isVol ? `
-                <div class="sim-adv-field">
-                  <label for="simFilterTrigger">Gatilho Operacional (Trend Following)</label>
-                  <select class="sim-header-select" id="simFilterTrigger">
-                    <option value="ALL" ${state.filters.trigger === 'ALL' ? 'selected' : ''}>Todos os gatilhos</option>
-                    <option value="Gatilho 123" ${state.filters.trigger === 'Gatilho 123' ? 'selected' : ''}>Gatilho 123</option>
-                    <option value="Inside Bar" ${state.filters.trigger === 'Inside Bar' ? 'selected' : ''}>Inside Bar</option>
-                    <option value="Rompimento de Pivô" ${state.filters.trigger === 'Rompimento de Pivô' ? 'selected' : ''}>Rompimento de Pivô</option>
-                    <option value="Pullback na MME9/21" ${state.filters.trigger === 'Pullback na MME9/21' ? 'selected' : ''}>Pullback na MME9/21</option>
-                  </select>
-                </div>
-                <div class="sim-adv-field">
-                  <label>Médias de Tendência (Trend Following)</label>
-                  <div class="sim-adv-readonly-box">EMA 10 (Curta) &amp; EMA 72 (Longa) — Diário</div>
-                </div>
-                ` : ''}
-
-                ${(isVol || isCmp) ? `
-                <div class="sim-adv-field">
-                  <label for="volHeaderOversold">Limite de Sobrevenda IFR(2)</label>
-                  <select class="sim-header-select" id="volHeaderOversold">
-                    <option value="5" ${Number(vState.oversoldLevel) === 5 ? 'selected' : ''}>IFR(2) ≤ 5 (Extremo)</option>
-                    <option value="10" ${Number(vState.oversoldLevel) === 10 ? 'selected' : ''}>IFR(2) ≤ 10 (Oficial)</option>
-                    <option value="15" ${Number(vState.oversoldLevel) === 15 ? 'selected' : ''}>IFR(2) ≤ 15 (Moderado)</option>
-                    <option value="20" ${Number(vState.oversoldLevel) === 20 ? 'selected' : ''}>IFR(2) ≤ 20 (Amplo)</option>
-                  </select>
-                </div>
-                <div class="sim-adv-field">
-                  <label>Médias Móveis (Volatility Trading)</label>
-                  <div class="sim-adv-readonly-box">Close &lt; SMA(${vState.shortMaPeriod || 7}) &amp; Close &gt; SMA(${vState.longMaPeriod || 200})</div>
-                </div>
-                ` : ''}
-              </div>
-            </section>
-
-            <!-- Categoria 2: Filtros -->
-            <section class="sim-adv-config-section">
-              <div class="sim-adv-section-title">
-                <span class="sim-adv-section-icon">🔍</span>
-                <span>Filtros</span>
-              </div>
-              <div class="sim-adv-grid">
-                <div class="sim-adv-field">
-                  <label for="volHeaderRsFilter">Filtro de Força Relativa (RS)</label>
-                  <select class="sim-header-select" id="volHeaderRsFilter">
-                    <option value="NONE" ${vState.rsFilterMode === 'NONE' ? 'selected' : ''}>RS: Sem Filtro (Padrão)</option>
-                    <option value="RS_POSITIVE" ${vState.rsFilterMode === 'RS_POSITIVE' ? 'selected' : ''}>RS: Positiva (&gt; 0)</option>
-                    <option value="RS_RISING" ${vState.rsFilterMode === 'RS_RISING' ? 'selected' : ''}>RS: Crescente (Δ5d &gt; 0)</option>
-                  </select>
-                </div>
-                <div class="sim-adv-field">
-                  <label for="volAdvMinTrades">Liquidez Mínima (Negócios / Dia)</label>
-                  <select class="sim-header-select" id="volAdvMinTrades">
-                    <option value="300" ${Number(vState.minDailyTrades) === 300 ? 'selected' : ''}>≥ 300 negócios/dia (21 pregões)</option>
-                    <option value="500" ${Number(vState.minDailyTrades || 500) === 500 ? 'selected' : ''}>≥ 500 negócios/dia (Padrão Oficial)</option>
-                    <option value="1000" ${Number(vState.minDailyTrades) === 1000 ? 'selected' : ''}>≥ 1.000 negócios/dia (Alta Liquidez)</option>
-                  </select>
-                </div>
-              </div>
-            </section>
-
-            <!-- Categoria 3: Dimensionamento -->
-            <section class="sim-adv-config-section">
-              <div class="sim-adv-section-title">
-                <span class="sim-adv-section-icon">📐</span>
-                <span>Dimensionamento</span>
-              </div>
-              <div class="sim-adv-grid">
-                ${!isVol ? `
-                <div class="sim-adv-field">
-                  <label>Qualidade &amp; Risk Budget (Trend Following)</label>
-                  <div>
-                    <button type="button" class="sim-rubric-pill-btn ${state.rubricMode ? 'active' : ''}" id="simBtnRubricModeToggle" title="Alternar entre Modo Rubric (Risk Budget por Grade A, B, C) e Risco Fixo">
-                      <span class="pill-dot"></span>
-                      <span>${state.rubricMode ? 'Modo Rubric Ativado (Grades A, B, C)' : 'Modo Risco Fixo'}</span>
-                    </button>
-                  </div>
-                </div>
-                ` : ''}
-
-                <div class="sim-adv-field">
-                  <label for="volHeaderSizingModel">Modelo de Alocação (Volatility Trading)</label>
-                  <select class="sim-header-select" id="volHeaderSizingModel">
-                    <option value="FIXED_FINANCIAL" ${vState.positionSizingModel === 'FIXED_FINANCIAL' ? 'selected' : ''}>Valor Financeiro Fixo por Trade</option>
-                    <option value="EQUITY_PERCENT" ${vState.positionSizingModel === 'EQUITY_PERCENT' ? 'selected' : ''}>Percentual do Patrimônio (%)</option>
-                  </select>
-                </div>
-
-                <div class="sim-adv-field">
-                  <label for="volHeaderAllocationInput">${vState.positionSizingModel === 'EQUITY_PERCENT' ? 'Percentual por Trade (%)' : 'Valor Financeiro por Trade (R$)'}</label>
-                  <input type="text" id="volHeaderAllocationInput" class="sim-adv-input" value="${allocValFormatted}" />
-                </div>
-
-                <div class="sim-adv-field">
-                  <label for="volAdvMaxPositions">Limite de Posições Simultâneas</label>
-                  <select class="sim-header-select" id="volAdvMaxPositions">
-                    <option value="5" ${Number(vState.maxConcurrentPositions) === 5 ? 'selected' : ''}>Até 5 posições</option>
-                    <option value="10" ${Number(vState.maxConcurrentPositions || 10) === 10 ? 'selected' : ''}>Até 10 posições (Padrão)</option>
-                    <option value="15" ${Number(vState.maxConcurrentPositions) === 15 ? 'selected' : ''}>Até 15 posições</option>
-                    <option value="20" ${Number(vState.maxConcurrentPositions) === 20 ? 'selected' : ''}>Até 20 posições</option>
-                  </select>
-                </div>
-              </div>
-            </section>
-
-            <!-- Categoria 4: Execução e Saídas -->
-            <section class="sim-adv-config-section">
-              <div class="sim-adv-section-title">
-                <span class="sim-adv-section-icon">⏱️</span>
-                <span>Execução e Saídas</span>
-              </div>
-              <div class="sim-adv-grid">
-                <div class="sim-adv-field">
-                  <label for="volHeaderExitTiming">Momento de Execução da Saída (SMA7 / Tempo)</label>
-                  <select class="sim-header-select" id="volHeaderExitTiming">
-                    <option value="NEXT_OPEN" ${vState.exitExecutionTiming === 'NEXT_OPEN' ? 'selected' : ''}>Próximo Pregão (Open T+1 — Oficial)</option>
-                    <option value="SAME_CLOSE" ${vState.exitExecutionTiming === 'SAME_CLOSE' ? 'selected' : ''}>Fechamento do Dia do Sinal (D0)</option>
-                  </select>
-                </div>
-
-                <div class="sim-adv-field">
-                  <label for="volAdvHoldingSessions">Permanência Máxima (Time Stop)</label>
-                  <select class="sim-header-select" id="volAdvHoldingSessions">
-                    <option value="5" ${Number(vState.holdingPeriodSessions) === 5 ? 'selected' : ''}>5 pregões</option>
-                    <option value="7" ${Number(vState.holdingPeriodSessions || 7) === 7 ? 'selected' : ''}>7 pregões (Oficial)</option>
-                    <option value="10" ${Number(vState.holdingPeriodSessions) === 10 ? 'selected' : ''}>10 pregões</option>
-                  </select>
-                </div>
-
-                <div class="sim-adv-field">
-                  <label for="volAdvCosts">Custo Operacional por Trade (R$)</label>
-                  <input type="number" step="1" min="0" id="volAdvCosts" class="sim-adv-input" value="${Number(vState.costsPerTrade || 0)}" />
-                </div>
-
-                <div class="sim-adv-field">
-                  <label for="volAdvSlippage">Slippage Estimado (%)</label>
-                  <input type="number" step="0.01" min="0" id="volAdvSlippage" class="sim-adv-input" value="${Number(vState.slippagePct || 0)}" />
-                </div>
-              </div>
-            </section>
-
-            <!-- Categoria 5: Proteções -->
-            <section class="sim-adv-config-section sim-adv-section-full">
-              <div class="sim-adv-section-title">
-                <span class="sim-adv-section-icon">🛡️</span>
-                <span>Proteções</span>
-              </div>
-              <div class="sim-adv-grid">
-                <div class="sim-adv-field">
-                  <label for="volAdvExtremeProtection">Extreme Event Protection (Saída Preventiva D-1)</label>
-                  <select class="sim-header-select" id="volAdvExtremeProtection">
-                    <option value="true" ${vState.extremeEventProtectionEnabled !== false ? 'selected' : ''}>Ativada (Obrigatória antes de Eventos Extremos)</option>
-                    <option value="false" ${vState.extremeEventProtectionEnabled === false ? 'selected' : ''}>Desativada (Apenas para estudo comparativo)</option>
-                  </select>
-                </div>
-
-                <div class="sim-adv-field">
-                  <label for="volAdvSqnRiskUnit">Unidade de Risco Financeiro (SQN Sem Stop)</label>
-                  <select class="sim-header-select" id="volAdvSqnRiskUnit">
-                    <option value="ALLOCATED_PCT:5" ${sqnRiskRaw === 'ALLOCATED_PCT:5' ? 'selected' : ''}>1R = 5,0% do Capital Alocado no Trade</option>
-                    <option value="ALLOCATED_PCT:3" ${sqnRiskRaw === 'ALLOCATED_PCT:3' ? 'selected' : ''}>1R = 3,0% do Capital Alocado no Trade</option>
-                    <option value="EQUITY_PCT:1" ${sqnRiskRaw === 'EQUITY_PCT:1' ? 'selected' : ''}>1R = 1,0% do Patrimônio Total</option>
-                    <option value="NONE" ${sqnRiskRaw === 'NONE' ? 'selected' : ''}>Desativar R Financeiro</option>
-                  </select>
-                </div>
-              </div>
-            </section>
+            ${sectionsHtml}
           </div>
 
           <div class="sim-adv-config-foot">
@@ -10250,7 +10591,7 @@
       });
     });
 
-    // 1.2 Abertura e fechamento do Drawer de Configurações Avançadas
+    // 1.2 Abertura e fechamento do Modal de Configurações Avançadas
     rootEl.querySelector('#simBtnOpenAdvConfig')?.addEventListener('click', (e) => {
       e.stopPropagation();
       state.advConfigOpen = !state.advConfigOpen;
@@ -10271,12 +10612,39 @@
       }
     });
 
+    // Controles exclusivos de Trend Following dentro do modal
+    rootEl.querySelector('#simFilterGrade')?.addEventListener('change', (e) => {
+      state.filters.grade = e.target.value || 'ALL';
+      render();
+    });
+
+    rootEl.querySelector('#simAdvScenarioSelect')?.addEventListener('change', (e) => {
+      const nextScenario = e.target.value || '2R';
+      state.tempScenarioSelection = nextScenario;
+      if (nextScenario !== state.activeScenario) {
+        generateScenarioMass(nextScenario);
+      } else {
+        render();
+      }
+    });
+
     rootEl.querySelector('#simAdvConfigApplyBtn')?.addEventListener('click', (e) => {
       e.stopPropagation();
+      const scenarioSelect = rootEl.querySelector('#simAdvScenarioSelect');
+      const targetScenario = scenarioSelect ? scenarioSelect.value : state.activeScenario;
       state.advConfigOpen = false;
       if (state.activeStrategyMode === 'TREND_FOLLOWING') {
-        render();
+        if (targetScenario && targetScenario !== state.activeScenario) {
+          generateScenarioMass(targetScenario);
+        } else {
+          render();
+        }
+      } else if (state.activeStrategyMode === 'VOLATILITY_TRADING') {
+        executeVolatilitySimulation();
       } else {
+        if (targetScenario && targetScenario !== state.activeScenario) {
+          generateScenarioMass(targetScenario);
+        }
         executeVolatilitySimulation();
       }
       if (typeof root.showToast === 'function') {
@@ -10284,36 +10652,38 @@
       }
     });
 
-    const resetDefaultsHandler = (e) => {
+    // Restauração de padrões estritamente isolada por modalidade
+    rootEl.querySelector('#simAdvConfigResetBtn')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      state.volatilityState.oversoldLevel = 10;
-      state.volatilityState.activeOversoldPreset = 10;
-      state.volatilityState.rsFilterMode = 'NONE';
-      state.volatilityState.positionSizingModel = 'FIXED_FINANCIAL';
-      state.volatilityState.fixedCapitalPerTrade = 10000;
-      state.volatilityState.equityPercentPerTrade = 2;
-      state.volatilityState.maxConcurrentPositions = 10;
-      state.volatilityState.minDailyTrades = 500;
-      state.volatilityState.holdingPeriodSessions = 7;
-      state.volatilityState.exitExecutionTiming = 'NEXT_OPEN';
-      state.volatilityState.extremeEventProtectionEnabled = true;
-      state.volatilityState.costsPerTrade = 0;
-      state.volatilityState.slippagePct = 0;
-      state.filters.trigger = 'ALL';
       state.advConfigOpen = false;
       state.activeDropdown = null;
-      executeVolatilitySimulation();
-      if (typeof root.showToast === 'function') {
-        root.showToast('Parâmetros restaurados para o padrão oficial.');
+      if (state.activeStrategyMode === 'TREND_FOLLOWING') {
+        resetTrendFollowingDefaults();
+        render();
+      } else if (state.activeStrategyMode === 'VOLATILITY_TRADING') {
+        resetVolatilityTradingDefaults(true);
+      } else {
+        resetTrendFollowingDefaults();
+        resetVolatilityTradingDefaults(true);
       }
-    };
-    rootEl.querySelector('#simAdvConfigResetBtn')?.addEventListener('click', resetDefaultsHandler);
-    rootEl.querySelector('#volBtnResetDefaults')?.addEventListener('click', resetDefaultsHandler);
+      if (typeof root.showToast === 'function') {
+        root.showToast('Parâmetros restaurados para o padrão oficial da estratégia.');
+      }
+    });
 
-    // 2. Controles do Cabeçalho do Volatility Trading / Comparação
+    rootEl.querySelector('#volBtnResetDefaults')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      state.advConfigOpen = false;
+      state.activeDropdown = null;
+      resetVolatilityTradingDefaults(true);
+      if (typeof root.showToast === 'function') {
+        root.showToast('Parâmetros do Volatility Trading restaurados para o padrão oficial.');
+      }
+    });
+
+    // 2. Controles do Cabeçalho do Volatility Trading / Comparação (Isolados do Trend Following)
     rootEl.querySelector('#volHeaderPeriod')?.addEventListener('change', (e) => {
       const val = e.target.value;
-      state.filters.days = val === 'ALL' ? 'ALL' : Number(val);
       state.volatilityState.period = String(val);
       executeVolatilitySimulation({ period: String(val) });
     });
