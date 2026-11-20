@@ -618,3 +618,86 @@ test('DailyUpdateHub: aba Evolução da Equity, gráficos SVG independentes e mo
   assert.equal(controller.activeHistoryTab, 'details');
   assert.equal(selectedSnapshotDate, '2026-11-19');
 });
+
+test('DailyUpdateHub: renderização dos cards agrupados por titular, subtotais e banner consolidado', () => {
+  const elementsById = new Map();
+  const elementsByAttr = new Map();
+
+  const mockDoc = {
+    getElementById: (id) => elementsById.get(id) || null,
+    querySelector: (sel) => {
+      if (sel.startsWith('#')) return elementsById.get(sel.slice(1)) || null;
+      return elementsByAttr.get(sel) || null;
+    },
+    querySelectorAll: () => [],
+    addEventListener: () => {}
+  };
+
+  const mockRoot = {
+    DailyUpdateModel: DailyUpdateModel,
+    showToast: () => {},
+    dispatchEvent: () => {},
+    healthyTrendApi: { isAuthenticated: () => true },
+    healthyTrendWorkspace: { raw: () => null, save: () => {} }
+  };
+  mockRoot.self = mockRoot;
+
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  class MockCustomEvent { constructor(t, i) { this.type = t; this.detail = i?.detail; } }
+  runFn.call(mockRoot, mockRoot, mockDoc, {}, MockCustomEvent, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  assert.ok(controller, 'DailyUpdateHub controller deve estar instanciado');
+  assert.ok(controller.collapsedTitulares instanceof Set);
+
+  // Testa modelo agrupado
+  const model = controller.model;
+  const realWealth = model.getConsolidatedRealWealth();
+  assert.equal(realWealth, 1000295.73);
+
+  const grouped = model.getGroupedAccounts(realWealth);
+  assert.equal(grouped.length, 2);
+
+  const danielGroup = grouped.find(g => g.person === 'Daniel');
+  assert.ok(danielGroup);
+  assert.equal(danielGroup.theme, 'blue');
+  assert.equal(danielGroup.count, 5);
+  assert.equal(danielGroup.subtotal, 578675.60);
+  assert.equal(danielGroup.sharePct, 57.85);
+
+  const nataliaGroup = grouped.find(g => g.person === 'Natália');
+  assert.ok(nataliaGroup);
+  assert.equal(nataliaGroup.theme, 'purple');
+  assert.equal(nataliaGroup.count, 2);
+  assert.equal(nataliaGroup.subtotal, 421620.13);
+  assert.equal(nataliaGroup.sharePct, 42.15);
+
+  // Testa toggleTitularGroup
+  assert.equal(controller.collapsedTitulares.has('Daniel'), false);
+  controller.toggleTitularGroup('Daniel');
+  assert.equal(controller.collapsedTitulares.has('Daniel'), true);
+  controller.toggleTitularGroup('Daniel');
+  assert.equal(controller.collapsedTitulares.has('Daniel'), false);
+
+  // Testa recálculo live com updateTotalsLive()
+  const mockSubtotalD = { textContent: '' };
+  const mockShareD = { textContent: '' };
+  const mockHeaderD = { innerHTML: '' };
+  const mockBannerWealth = { textContent: '' };
+  const mockBannerDayVar = { innerHTML: '', className: '', style: {} };
+
+  elementsByAttr.set('[data-titular-subtotal="Daniel"]', mockSubtotalD);
+  elementsByAttr.set('[data-titular-share="Daniel"]', mockShareD);
+  elementsByAttr.set('[data-titular-header-total="Daniel"]', mockHeaderD);
+  elementsById.set('tableConsolidatedWealth', mockBannerWealth);
+  elementsById.set('tableDayVar', mockBannerDayVar);
+
+  controller.updateTotalsLive();
+
+  assert.equal(mockSubtotalD.textContent, DailyUpdateModel.formatBRL(578675.60));
+  assert.equal(mockShareD.textContent, '57,85% do patrimônio');
+  assert.ok(mockHeaderD.innerHTML.includes(DailyUpdateModel.formatBRL(578675.60)));
+  assert.ok(mockHeaderD.innerHTML.includes('57,85%'));
+  assert.equal(mockBannerWealth.textContent, DailyUpdateModel.formatBRL(1000295.73));
+});

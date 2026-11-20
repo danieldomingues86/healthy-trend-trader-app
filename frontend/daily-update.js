@@ -50,6 +50,7 @@
       this.equityPeriod = 'all';
       this.equityOwner = 'both';
       this.activeHistoryTab = 'details';
+      this.collapsedTitulares = new Set();
     }
 
     async init() {
@@ -329,128 +330,201 @@
                 </div>
               </header>
 
-              <div class="daily-update-table-container">
-                <table class="daily-update-table accounts-table" aria-label="Tabela de Contas e Saldos">
-                  <thead>
-                    <tr>
-                      <th class="th-acc-name">Conta</th>
-                      <th class="th-acc-prev" style="text-align: right;">Saldo Anterior</th>
-                      <th class="th-acc-new" style="text-align: right;">Novo Saldo</th>
-                      <th class="th-acc-var" style="text-align: right;">Variação</th>
-                      <th class="th-acc-share" style="text-align: right;">% do Total</th>
-                      <th class="th-acc-actions" style="text-align: center;">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${model.accounts.map((acc) => {
-                      const varPct = model.getAccountVariationPct(acc);
-                      const sharePct = model.getAccountWealthSharePct(acc, realWealth);
-                      const isPending = acc.status === 'pending';
-                      const isUpdated = acc.status === 'updated';
-                      const isKeep = acc.status === 'keep';
-                      const hasError = Boolean(acc.error);
-                      const isProvisional = model.isWealthDistributionProvisional();
-                      const varClass = varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral';
-                      const isNomad = acc.currency === 'USD';
-                      const inputCurrency = acc.inputCurrency || 'BRL';
+              <!-- Titular Groups Container -->
+              <div class="titular-groups-container">
+                ${model.getGroupedAccounts(realWealth).map((group) => {
+                  const isCollapsed = this.collapsedTitulares.has(group.person);
+                  const themeClass = `titular-group--${group.theme}`;
 
-                      let inputValue = fmtBRL(acc.newBalance);
-                      if (isNomad && inputCurrency === 'USD') {
-                        inputValue = fmtUSD(acc.newBalanceUSD || 0);
-                      }
+                  return `
+                    <div class="titular-group-card ${themeClass}" data-titular="${group.person}">
+                      <header class="titular-group-header" onclick="window.DailyUpdateHub.toggleTitularGroup('${group.person}')" title="Clique para recolher ou expandir">
+                        <div class="titular-header-left">
+                          <span class="titular-avatar-icon" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                              <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                          </span>
+                          <span class="titular-name">${group.person.toUpperCase()}</span>
+                          <span class="titular-count-badge">${group.count} ${group.count === 1 ? 'conta' : 'contas'}</span>
+                        </div>
+                        <div class="titular-header-right">
+                          <span class="titular-header-total" data-titular-header-total="${group.person}">
+                            Total: <strong>${fmtBRL(group.subtotal)}</strong> (${group.sharePct.toFixed(2).replace('.', ',')}%)
+                          </span>
+                          <button type="button" class="titular-toggle-btn" aria-label="Recolher ou expandir grupo ${group.person}">
+                            <svg class="titular-chevron ${isCollapsed ? 'collapsed' : ''}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <polyline points="18 15 12 9 6 15"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </header>
 
-                      return `
-                        <tr class="account-row ${isPending ? 'pending' : ''} ${hasError ? 'error' : ''}" data-account-id="${acc.id}">
-                          <td class="td-acc-name">
-                            <div class="account-name-cell">
-                              <span class="broker-pill ${acc.broker}">${acc.broker === 'nomad' ? 'N' : acc.broker === 'genial' ? 'g' : acc.broker === 'clear' ? 'C' : 'xp'}</span>
-                              <div class="account-labels">
-                                <span class="account-label-title">${acc.label}</span>
-                                <span class="account-meta-time">${fmtTime(acc.updatedAt)}</span>
-                              </div>
-                            </div>
-                            ${isNomad ? `
-                              <div class="nomad-fx-strip">
-                                <span class="nomad-fx-badge" title="Cotação cambial de referência para conversão em BRL">
-                                  ${fmtUSD(acc.newBalanceUSD || 0)} @ R$ ${(acc.fxRate || 5.73).toFixed(2).replace('.', ',')}
-                                </span>
-                                <button type="button" class="btn-currency-toggle" onclick="window.DailyUpdateHub.toggleNomadCurrency('${acc.id}')" title="Alternar digitação entre Real (BRL) e Dólar (USD)">
-                                  Modo: <strong>${inputCurrency}</strong>
-                                </button>
-                              </div>
-                            ` : ''}
-                          </td>
-                          <td class="td-acc-prev" style="text-align: right;">
-                            <div class="account-prev-stack">
-                              <span class="prev-amount">${fmtBRL(acc.previousBalance)}</span>
-                              ${isNomad ? `<small class="prev-usd-hint">${fmtUSD(acc.previousBalanceUSD || 0)}</small>` : ''}
-                            </div>
-                          </td>
-                          <td class="td-acc-new" style="text-align: right;">
-                            <div class="account-input-stack">
-                              <input 
-                                type="text" 
-                                class="balance-input ${hasError ? 'input-error' : ''}" 
-                                data-account-input="${acc.id}" 
-                                value="${inputValue}" 
-                                aria-label="Novo saldo para ${acc.label}"
-                                placeholder="0,00"
-                              />
-                              ${hasError ? `<span class="account-error-msg">${acc.error}</span>` : ''}
-                            </div>
-                          </td>
-                          <td class="td-acc-var" style="text-align: right;">
-                            <div class="variation-stack">
-                              <span class="variation-tag ${varClass}">
-                                ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
-                              </span>
-                              ${isNomad ? `
-                                <small class="usd-var-hint ${model.getAccountUsdVariationPct(acc) >= 0 ? 'positive' : 'negative'}">
-                                  ${model.getAccountUsdVariationPct(acc) >= 0 ? '+' : ''}${model.getAccountUsdVariationPct(acc).toFixed(2).replace('.', ',')}% USD
-                                </small>
-                              ` : ''}
-                            </div>
-                          </td>
-                          <td class="td-acc-share" style="text-align: right;">
-                            <span 
-                              class="wealth-share-pill ${isProvisional ? 'provisional' : ''}" 
-                              data-wealth-share-for="${acc.id}"
-                              title="${isProvisional ? 'Participação provisória (contas pendentes de conferência)' : `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`}"
-                            >
-                              ${sharePct.toFixed(2).replace('.', ',')}%
-                            </span>
-                          </td>
-                          <td class="td-acc-actions" style="text-align: center;">
-                            <div class="account-quick-actions">
-                              <button 
-                                type="button" 
-                                class="btn-action-chip keep ${isKeep ? 'active' : ''}" 
-                                onclick="window.DailyUpdateHub.keepAccount('${acc.id}')"
-                                title="Manter saldo anterior inalterado"
-                              >
-                                ✓ Manter
-                              </button>
-                              <button 
-                                type="button" 
-                                class="btn-action-chip pending ${isPending ? 'active' : ''}" 
-                                onclick="window.DailyUpdateHub.setPending('${acc.id}')"
-                                title="Marcar como pendente de conferência"
-                              >
-                                ⏳ Pendente
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      `;
-                    }).join('')}
-                  </tbody>
-                </table>
+                      <!-- Body table for this titular (collapsible) -->
+                      <div class="titular-group-body" style="display: ${isCollapsed ? 'none' : 'block'};">
+                        <div class="daily-update-table-container">
+                          <table class="daily-update-table accounts-table" aria-label="Tabela de Contas — ${group.person}">
+                            <thead>
+                              <tr>
+                                <th class="th-acc-name">Conta</th>
+                                <th class="th-acc-prev" style="text-align: right;">Saldo Anterior</th>
+                                <th class="th-acc-new" style="text-align: right;">Novo Saldo</th>
+                                <th class="th-acc-var" style="text-align: right;">Variação</th>
+                                <th class="th-acc-share" style="text-align: right;">% do Total</th>
+                                <th class="th-acc-actions" style="text-align: center;">Ações</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              ${group.accounts.map((acc) => {
+                                const varPct = model.getAccountVariationPct(acc);
+                                const sharePct = model.getAccountWealthSharePct(acc, realWealth);
+                                const isPending = acc.status === 'pending';
+                                const isUpdated = acc.status === 'updated';
+                                const isKeep = acc.status === 'keep';
+                                const hasError = Boolean(acc.error);
+                                const isProvisional = model.isWealthDistributionProvisional();
+                                const varClass = varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral';
+                                const isNomad = acc.currency === 'USD';
+                                const inputCurrency = acc.inputCurrency || 'BRL';
+
+                                let inputValue = fmtBRL(acc.newBalance);
+                                if (isNomad && inputCurrency === 'USD') {
+                                  inputValue = fmtUSD(acc.newBalanceUSD || 0);
+                                }
+
+                                const brokerInitial = acc.broker === 'nomad' ? 'N' : acc.broker === 'genial' ? 'g' : acc.broker === 'clear' ? 'C' : acc.broker === 'eqseed' ? 'E' : 'xp';
+
+                                return `
+                                  <tr class="account-row ${isPending ? 'pending' : ''} ${hasError ? 'error' : ''}" data-account-id="${acc.id}">
+                                    <td class="td-acc-name">
+                                      <div class="account-name-cell">
+                                        <span class="broker-pill ${acc.broker}">${brokerInitial}</span>
+                                        <div class="account-labels">
+                                          <span class="account-label-title">${acc.label}</span>
+                                          <span class="account-meta-time">${fmtTime(acc.updatedAt)}</span>
+                                        </div>
+                                      </div>
+                                      ${isNomad ? `
+                                        <div class="nomad-fx-strip">
+                                          <span class="nomad-fx-badge" title="Cotação cambial de referência para conversão em BRL">
+                                            ${fmtUSD(acc.newBalanceUSD || 0)} @ R$ ${(acc.fxRate || 5.73).toFixed(2).replace('.', ',')}
+                                          </span>
+                                          <button type="button" class="btn-currency-toggle" onclick="window.DailyUpdateHub.toggleNomadCurrency('${acc.id}')" title="Alternar digitação entre Real (BRL) e Dólar (USD)">
+                                            Modo: <strong>${inputCurrency}</strong>
+                                          </button>
+                                        </div>
+                                      ` : ''}
+                                    </td>
+                                    <td class="td-acc-prev" style="text-align: right;">
+                                      <div class="account-prev-stack">
+                                        <span class="prev-amount">${fmtBRL(acc.previousBalance)}</span>
+                                        ${isNomad ? `<small class="prev-usd-hint">${fmtUSD(acc.previousBalanceUSD || 0)}</small>` : ''}
+                                      </div>
+                                    </td>
+                                    <td class="td-acc-new" style="text-align: right;">
+                                      <div class="account-input-stack">
+                                        <input 
+                                          type="text" 
+                                          class="balance-input ${hasError ? 'input-error' : ''}" 
+                                          data-account-input="${acc.id}" 
+                                          value="${inputValue}" 
+                                          aria-label="Novo saldo para ${acc.label}"
+                                          placeholder="0,00"
+                                        />
+                                        ${hasError ? `<span class="account-error-msg">${acc.error}</span>` : ''}
+                                      </div>
+                                    </td>
+                                    <td class="td-acc-var" style="text-align: right;">
+                                      <div class="variation-stack">
+                                        <span class="variation-tag ${varClass}">
+                                          ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
+                                        </span>
+                                        ${isNomad ? `
+                                          <small class="usd-var-hint ${model.getAccountUsdVariationPct(acc) >= 0 ? 'positive' : 'negative'}">
+                                            ${model.getAccountUsdVariationPct(acc) >= 0 ? '+' : ''}${model.getAccountUsdVariationPct(acc).toFixed(2).replace('.', ',')}% USD
+                                          </small>
+                                        ` : ''}
+                                      </div>
+                                    </td>
+                                    <td class="td-acc-share" style="text-align: right;">
+                                      <span 
+                                        class="wealth-share-pill ${isProvisional ? 'provisional' : ''}" 
+                                        data-wealth-share-for="${acc.id}"
+                                        title="${isProvisional ? 'Participação provisória (contas pendentes de conferência)' : `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`}"
+                                      >
+                                        ${sharePct.toFixed(2).replace('.', ',')}%
+                                      </span>
+                                    </td>
+                                    <td class="td-acc-actions" style="text-align: center;">
+                                      <div class="account-quick-actions">
+                                        <button 
+                                          type="button" 
+                                          class="btn-action-chip keep ${isKeep ? 'active' : ''}" 
+                                          onclick="window.DailyUpdateHub.keepAccount('${acc.id}')"
+                                          title="Manter saldo anterior inalterado"
+                                        >
+                                          ✓ Manter
+                                        </button>
+                                        <button 
+                                          type="button" 
+                                          class="btn-action-chip pending ${isPending ? 'active' : ''}" 
+                                          onclick="window.DailyUpdateHub.setPending('${acc.id}')"
+                                          title="Marcar como pendente de conferência"
+                                        >
+                                          ⏳ Pendente
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                `;
+                              }).join('')}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <!-- Subtotal Footer (CRITICAL: remains visible even when collapsed) -->
+                      <div class="titular-group-subtotal">
+                        <div class="titular-subtotal-left">
+                          <span class="titular-subtotal-icon" aria-hidden="true">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                              <polyline points="2 17 12 22 22 17"/>
+                              <polyline points="2 12 12 17 22 12"/>
+                            </svg>
+                          </span>
+                          <span class="titular-subtotal-label">TOTAL ${group.person.toUpperCase()}</span>
+                        </div>
+                        <div class="titular-subtotal-right">
+                          <strong class="titular-subtotal-amount" data-titular-subtotal="${group.person}">${fmtBRL(group.subtotal)}</strong>
+                          <span class="titular-subtotal-share" data-titular-share="${group.person}">${group.sharePct.toFixed(2).replace('.', ',')}% do patrimônio</span>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
               </div>
 
-              <footer class="daily-update-card-footer">
-                <div class="footer-metric-block">
-                  <span class="footer-metric-label">Patrimônio Real (Consolidado)</span>
-                  <strong class="footer-metric-val" id="tableConsolidatedWealth">${fmtBRL(realWealth)}</strong>
+              <!-- Faixa de Destaque: PATRIMÔNIO TOTAL CONSOLIDADO -->
+              <div class="consolidated-wealth-banner">
+                <div class="consolidated-banner-left">
+                  <div class="consolidated-banner-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <ellipse cx="12" cy="6" rx="8" ry="3"/>
+                      <path d="M4 6v6a8 3 0 0 0 16 0V6"/>
+                      <path d="M4 12v6a8 3 0 0 0 16 0v-6"/>
+                    </svg>
+                  </div>
+                  <div class="consolidated-banner-titles">
+                    <span class="consolidated-banner-title">PATRIMÔNIO TOTAL CONSOLIDADO</span>
+                    <span class="consolidated-banner-subtitle" id="consolidatedBannerSubtitle">
+                      ${model.accounts.length} contas · ${model.getTitulares().length} titulares
+                    </span>
+                  </div>
+                </div>
+                <div class="consolidated-banner-center">
+                  <strong class="consolidated-banner-amount" id="tableConsolidatedWealth">${fmtBRL(realWealth)}</strong>
                   <span 
                     class="wealth-share-provisional-hint" 
                     id="wealthDistributionProvisionalHint" 
@@ -459,13 +533,15 @@
                     ⚠️ Distribuição provisória (contas pendentes)
                   </span>
                 </div>
-                <div class="footer-metric-block" style="text-align: right;">
-                  <span class="footer-metric-label">Variação do Dia</span>
-                  <strong class="footer-metric-val" id="tableDayVar" style="color: ${dayVarNominal >= 0 ? '#1e7e4a' : '#d14343'}; font-size: 15px;">
-                    ${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)})
-                  </strong>
+                <div class="consolidated-banner-right">
+                  <div class="consolidated-var-stack">
+                    <span class="consolidated-var-tag ${dayVarNominal >= 0 ? 'positive' : 'negative'}" id="tableDayVar">
+                      ${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)})
+                    </span>
+                    <span class="consolidated-var-label">Variação do Dia</span>
+                  </div>
                 </div>
-              </footer>
+              </div>
             </section>
 
             <!-- Right: Conferir Posições Abertas -->
@@ -765,6 +841,16 @@
 
           this.model.updateAccountBalance(accId, val, isUSD);
           this.updateTotalsLive();
+
+          const row = input.closest('tr');
+          if (row && acc) {
+            const varPct = this.model.getAccountVariationPct(acc);
+            const varTag = row.querySelector('.variation-tag');
+            if (varTag) {
+              varTag.className = `variation-tag ${varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral'}`;
+              varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
+            }
+          }
         });
 
         input.addEventListener('change', (e) => {
@@ -876,7 +962,8 @@
 
       const elTableDayVar = document.getElementById('tableDayVar');
       if (elTableDayVar) {
-        elTableDayVar.style.color = dayVarNominal >= 0 ? '#1e7e4a' : '#d14343';
+        if (elTableDayVar.style) elTableDayVar.style.color = dayVarNominal >= 0 ? '#1e7e4a' : '#d14343';
+        elTableDayVar.className = `consolidated-var-tag ${dayVarNominal >= 0 ? 'positive' : 'negative'}`;
         elTableDayVar.innerHTML = `${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)})`;
       }
 
@@ -901,9 +988,45 @@
         }
       });
 
+      // Update titular group subtotals, shares, and header totals live
+      const grouped = this.model.getGroupedAccounts(realWealth);
+      grouped.forEach(group => {
+        const elSubtotal = document.querySelector(`[data-titular-subtotal="${group.person}"]`);
+        if (elSubtotal) elSubtotal.textContent = fmtBRL(group.subtotal);
+
+        const elShare = document.querySelector(`[data-titular-share="${group.person}"]`);
+        if (elShare) elShare.textContent = `${group.sharePct.toFixed(2).replace('.', ',')}% do patrimônio`;
+
+        const elHeaderTotal = document.querySelector(`[data-titular-header-total="${group.person}"]`);
+        if (elHeaderTotal) elHeaderTotal.innerHTML = `Total: <strong>${fmtBRL(group.subtotal)}</strong> (${group.sharePct.toFixed(2).replace('.', ',')}%)`;
+      });
+
       const elProvisionalHint = document.getElementById('wealthDistributionProvisionalHint');
       if (elProvisionalHint) {
         elProvisionalHint.style.display = isProvisional ? 'inline-flex' : 'none';
+      }
+    }
+
+    toggleTitularGroup(person) {
+      if (!person) return;
+      if (this.collapsedTitulares.has(person)) {
+        this.collapsedTitulares.delete(person);
+      } else {
+        this.collapsedTitulares.add(person);
+      }
+      const groupCard = document.querySelector(`.titular-group-card[data-titular="${person}"]`);
+      if (groupCard) {
+        const body = groupCard.querySelector('.titular-group-body');
+        const chevron = groupCard.querySelector('.titular-chevron');
+        const nowCollapsed = this.collapsedTitulares.has(person);
+        if (body) {
+          body.style.display = nowCollapsed ? 'none' : 'block';
+        }
+        if (chevron) {
+          chevron.classList.toggle('collapsed', nowCollapsed);
+        }
+      } else {
+        this.render();
       }
     }
 

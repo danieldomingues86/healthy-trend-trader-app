@@ -623,3 +623,54 @@ test('DailyUpdateModel: cálculo preciso de variações diárias consecutivas e 
     assert.equal(p2.totalVarPct, expectedVarPct);
   }
 });
+
+test('DailyUpdateModel: Agrupamento de Contas por Titular (getTitulares, getGroupedAccounts, subtotais e participações)', () => {
+  const model = new DailyUpdateModel();
+  
+  // 1. getTitulares()
+  const titulares = model.getTitulares();
+  assert.deepEqual(titulares, ['Daniel', 'Natália']);
+
+  // 2. getTitularTheme()
+  assert.equal(model.getTitularTheme('Daniel'), 'blue');
+  assert.equal(model.getTitularTheme('Natália'), 'purple');
+  assert.equal(model.getTitularTheme('Natalia'), 'purple');
+  assert.equal(model.getTitularTheme('Outro Titular', 2), 'emerald');
+
+  // 3. Subtotais individuais por titular
+  const subtotalDaniel = model.getTitularSubtotal('Daniel');
+  const subtotalNatalia = model.getTitularSubtotal('Natália');
+  const realWealth = model.getConsolidatedRealWealth();
+
+  assert.equal(subtotalDaniel, 578675.60);
+  assert.equal(subtotalNatalia, 421620.13);
+  assert.equal(Math.round((subtotalDaniel + subtotalNatalia) * 100) / 100, 1000295.73);
+  assert.equal(Math.round((subtotalDaniel + subtotalNatalia) * 100) / 100, Math.round(realWealth * 100) / 100);
+
+  // 4. Participações percentuais dos titulares
+  const shareDaniel = model.getTitularSharePct('Daniel');
+  const shareNatalia = model.getTitularSharePct('Natália');
+  assert.equal(shareDaniel, 57.85);
+  assert.equal(shareNatalia, 42.15);
+  assert.equal(Math.round((shareDaniel + shareNatalia) * 100) / 100, 100.00);
+
+  // 5. getGroupedAccounts()
+  const grouped = model.getGroupedAccounts();
+  assert.equal(grouped.length, 2);
+
+  const groupD = grouped[0];
+  assert.equal(groupD.person, 'Daniel');
+  assert.equal(groupD.theme, 'blue');
+  assert.equal(groupD.count, 5);
+  assert.equal(groupD.subtotal, 578675.60);
+  assert.equal(groupD.sharePct, 57.85);
+  assert.equal(groupD.accounts.length, 5);
+
+  const groupN = grouped[1];
+  assert.equal(groupN.person, 'Natália');
+  assert.equal(groupN.theme, 'purple');
+  assert.equal(groupN.count, 2);
+  assert.equal(groupN.subtotal, 421620.13);
+  assert.equal(groupN.sharePct, 42.15);
+  assert.equal(groupN.accounts.length, 2);
+});

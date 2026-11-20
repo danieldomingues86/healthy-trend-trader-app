@@ -748,6 +748,406 @@
   white-space: nowrap;
 }
 
+/* --------------------------------------------------------------------------
+   AGRUPAMENTO DE CONTAS POR TITULAR & CONSOLIDAÇÃO PATRIMONIAL
+   -------------------------------------------------------------------------- */
+.titular-groups-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+  margin-bottom: 14px;
+}
+
+.titular-group-card {
+  border-radius: 14px;
+  border: 1px solid var(--titular-border, #bfdbfe);
+  background: var(--titular-bg, #ffffff);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Identidade Visual — Daniel (100% Azul Coerente de Ponta a Ponta) */
+.titular-group--blue {
+  --titular-border: #bfdbfe;
+  --titular-bg: #f8fbff;
+  --titular-header-bg: #e1ecfe;
+  --titular-header-border: #c7ddfd;
+  --titular-primary: #1d4ed8;
+  --titular-title: #1e3a8a;
+  --titular-badge-bg: #dbeafe;
+  --titular-badge-text: #1e40af;
+  --titular-subtotal-bg: #e1ecfe;
+  --titular-subtotal-text: #1e3a8a;
+  --titular-subtotal-val: #1d4ed8;
+  --titular-subtotal-share: #1e40af;
+  --titular-subtotal-border: #c7ddfd;
+  --titular-row-hover: rgba(37, 99, 235, 0.04);
+  --titular-line: #e2edfd;
+}
+
+/* Identidade Visual — Natália (100% Roxo/Púrpura Coerente de Ponta a Ponta) */
+.titular-group--purple {
+  --titular-border: #e9d5ff;
+  --titular-bg: #fcfaff;
+  --titular-header-bg: #f3e8ff;
+  --titular-header-border: #e4ccfd;
+  --titular-primary: #7e22ce;
+  --titular-title: #581c87;
+  --titular-badge-bg: #ede9fe;
+  --titular-badge-text: #6b21a8;
+  --titular-subtotal-bg: #f3e8ff;
+  --titular-subtotal-text: #581c87;
+  --titular-subtotal-val: #7e22ce;
+  --titular-subtotal-share: #6b21a8;
+  --titular-subtotal-border: #e4ccfd;
+  --titular-row-hover: rgba(147, 51, 234, 0.04);
+  --titular-line: #f0e4fc;
+}
+
+/* Fallbacks Dinâmicos para novos titulares */
+.titular-group--emerald {
+  --titular-border: #a7f3d0;
+  --titular-bg: #f5fcf8;
+  --titular-header-bg: #d1fae5;
+  --titular-header-border: #a7f3d0;
+  --titular-primary: #059669;
+  --titular-title: #064e3b;
+  --titular-badge-bg: #ecfdf5;
+  --titular-badge-text: #065f46;
+  --titular-subtotal-bg: #d1fae5;
+  --titular-subtotal-text: #064e3b;
+  --titular-subtotal-val: #059669;
+  --titular-subtotal-share: #065f46;
+  --titular-subtotal-border: #a7f3d0;
+  --titular-row-hover: rgba(5, 150, 105, 0.04);
+  --titular-line: #d1fae5;
+}
+
+.titular-group--amber {
+  --titular-border: #fde68a;
+  --titular-bg: #fffdf7;
+  --titular-header-bg: #fef3c7;
+  --titular-header-border: #fde68a;
+  --titular-primary: #d97706;
+  --titular-title: #78350f;
+  --titular-badge-bg: #fffbeb;
+  --titular-badge-text: #92400e;
+  --titular-subtotal-bg: #fef3c7;
+  --titular-subtotal-text: #78350f;
+  --titular-subtotal-val: #d97706;
+  --titular-subtotal-share: #92400e;
+  --titular-subtotal-border: #fde68a;
+  --titular-row-hover: rgba(217, 119, 6, 0.04);
+  --titular-line: #fef3c7;
+}
+
+/* Titular Header */
+.titular-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--titular-header-bg);
+  border-bottom: 1px solid var(--titular-header-border);
+  cursor: pointer;
+  user-select: none;
+  transition: filter 0.15s ease;
+}
+
+.titular-group-header:hover {
+  filter: brightness(0.98);
+}
+
+.titular-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.titular-avatar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--titular-badge-bg);
+  color: var(--titular-primary);
+  flex-shrink: 0;
+}
+
+.titular-name {
+  font-weight: 800;
+  font-size: 13.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--titular-title);
+}
+
+.titular-count-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--titular-badge-bg);
+  color: var(--titular-badge-text);
+  white-space: nowrap;
+}
+
+.titular-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titular-header-total {
+  font-size: 12.5px;
+  color: var(--titular-title);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.titular-header-total strong {
+  font-weight: 800;
+  color: var(--titular-primary);
+}
+
+.titular-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--titular-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: transform 0.2s ease;
+}
+
+.titular-chevron {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.titular-chevron.collapsed {
+  transform: rotate(180deg);
+}
+
+/* Titular Table Overrides */
+.titular-group-card .daily-update-table-container {
+  margin-bottom: 0;
+  overflow-x: auto;
+}
+
+.titular-group-card .accounts-table {
+  width: 100%;
+}
+
+.titular-group-card .accounts-table th,
+.titular-group-card .accounts-table td {
+  padding: 6px 4px;
+}
+
+.titular-group-card .th-acc-name { width: 26%; min-width: 110px; }
+.titular-group-card .th-acc-prev { width: 16%; min-width: 85px; }
+.titular-group-card .th-acc-new { width: 18%; min-width: 95px; }
+.titular-group-card .th-acc-var { width: 11%; min-width: 48px; }
+.titular-group-card .th-acc-share { width: 11%; min-width: 52px; }
+.titular-group-card .th-acc-actions { width: 18%; min-width: 105px; }
+
+.titular-group-card .balance-input {
+  max-width: 105px;
+  padding: 4px 6px;
+  font-size: 11.5px;
+}
+
+.titular-group-card .daily-update-table td {
+  border-bottom: 1px solid var(--titular-line, #edf3ef);
+}
+
+.titular-group-card .daily-update-table tr:hover td {
+  background: var(--titular-row-hover, rgba(46, 125, 88, 0.03));
+}
+
+/* Titular Subtotal Line (Always visible even when body collapsed) */
+.titular-group-subtotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: var(--titular-subtotal-bg);
+  border-top: 1px solid var(--titular-subtotal-border);
+}
+
+.titular-subtotal-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titular-subtotal-icon {
+  color: var(--titular-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.titular-subtotal-label {
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--titular-subtotal-text);
+}
+
+.titular-subtotal-right {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.titular-subtotal-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--titular-subtotal-val);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.titular-subtotal-share {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--titular-subtotal-share);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   FAIXA DE DESTAQUE: PATRIMÔNIO TOTAL CONSOLIDADO
+   -------------------------------------------------------------------------- */
+.consolidated-wealth-banner {
+  background: #092015;
+  background: linear-gradient(135deg, #0d281a 0%, #081d13 100%);
+  border: 1px solid rgba(46, 125, 88, 0.35);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+}
+
+.consolidated-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.consolidated-banner-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(46, 125, 88, 0.28);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4ade80;
+  flex-shrink: 0;
+}
+
+.consolidated-banner-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.consolidated-banner-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #f0fdf4;
+}
+
+.consolidated-banner-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: #86efac;
+  opacity: 0.9;
+}
+
+.consolidated-banner-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.consolidated-banner-amount {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.consolidated-banner-right {
+  display: flex;
+  align-items: center;
+}
+
+.consolidated-var-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.consolidated-var-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.consolidated-var-tag.positive {
+  background: rgba(34, 197, 94, 0.22);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.consolidated-var-tag.negative {
+  background: rgba(239, 68, 68, 0.22);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.consolidated-var-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #86efac;
+  opacity: 0.85;
+}
+
+.broker-pill.eqseed {
+  background: #0b2545;
+  color: #10b981;
+  border: 1px solid #134e4a;
+  font-weight: 800;
+}
+
 .variation-tag {
   font-weight: 700;
 }

@@ -740,6 +740,91 @@
     }
 
     /**
+     * Returns list of unique titulars in registration order.
+     */
+    getTitulares() {
+      const list = [];
+      this.accounts.forEach(acc => {
+        const person = (acc.person || 'Outros').trim();
+        if (!list.includes(person)) {
+          list.push(person);
+        }
+      });
+      return list;
+    }
+
+    /**
+     * Resolves visual identity theme for a titular.
+     * Daniel -> 'blue', Natália -> 'purple'.
+     * Deterministic fallback palette for other titulars.
+     */
+    getTitularTheme(person, index = 0) {
+      if (!person) return 'blue';
+      const norm = person.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      if (norm.includes('daniel')) return 'blue';
+      if (norm.includes('natalia')) return 'purple';
+      const THEMES = ['blue', 'purple', 'emerald', 'amber', 'rose', 'cyan'];
+      return THEMES[index % THEMES.length];
+    }
+
+    /**
+     * Calculates subtotal for a given titular.
+     */
+    getTitularSubtotal(person, field = 'newBalance') {
+      if (!person) return 0;
+      return this.accounts
+        .filter(acc => (acc.person || 'Outros').trim() === person.trim())
+        .reduce((sum, acc) => sum + (Number(acc[field]) || 0), 0);
+    }
+
+    /**
+     * Calculates previous subtotal for a given titular.
+     */
+    getTitularPreviousSubtotal(person) {
+      return this.getTitularSubtotal(person, 'previousBalance');
+    }
+
+    /**
+     * Calculates percentage share of a titular relative to consolidated Real Wealth.
+     */
+    getTitularSharePct(person, totalWealth = undefined) {
+      const wealth = totalWealth !== undefined ? Number(totalWealth) : this.getConsolidatedRealWealth();
+      if (!wealth || !Number.isFinite(wealth) || wealth <= 0) return 0;
+      const subtotal = this.getTitularSubtotal(person, 'newBalance');
+      if (!subtotal || subtotal <= 0) return 0;
+      return Math.round(((subtotal / wealth) * 100) * 100) / 100;
+    }
+
+    /**
+     * Returns accounts grouped by titular with subtotals, theme and wealth shares.
+     */
+    getGroupedAccounts(totalWealth = undefined) {
+      const wealth = totalWealth !== undefined ? Number(totalWealth) : this.getConsolidatedRealWealth();
+      const titulares = this.getTitulares();
+      return titulares.map((person, idx) => {
+        const accounts = this.accounts.filter(acc => (acc.person || 'Outros').trim() === person.trim());
+        const subtotal = accounts.reduce((sum, a) => sum + (Number(a.newBalance) || 0), 0);
+        const previousSubtotal = accounts.reduce((sum, a) => sum + (Number(a.previousBalance) || 0), 0);
+        const nominalVariation = subtotal - previousSubtotal;
+        const percentVariation = previousSubtotal > 0 ? (nominalVariation / previousSubtotal) * 100 : 0;
+        const sharePct = (wealth > 0 && subtotal > 0) ? Math.round(((subtotal / wealth) * 100) * 100) / 100 : 0;
+        const theme = this.getTitularTheme(person, idx);
+
+        return {
+          person,
+          theme,
+          accounts,
+          count: accounts.length,
+          subtotal,
+          previousSubtotal,
+          nominalVariation,
+          percentVariation,
+          sharePct
+        };
+      });
+    }
+
+    /**
      * Calculates variation % in USD for foreign currency accounts (Nomad).
      */
     getAccountUsdVariationPct(account) {
