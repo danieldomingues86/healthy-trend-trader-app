@@ -114,13 +114,13 @@
 
   // Default sample open positions for instant preview
   const DEFAULT_POSITIONS = [
-    { id: 'pos_aapl34', ticker: 'AAPL34', broker: 'Pendente de conferência', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 100.86, currentPrice: 103.21, stopPrice: 96.49, trailingStop: 96.49, atr: 2.77, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_amzn34', ticker: 'AMZN34', broker: 'Pendente de conferência', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 78.69, currentPrice: 77.03, stopPrice: 73.48, trailingStop: 73.48, atr: 3.33, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_winz26', ticker: 'WINZ26', broker: 'Pendente de conferência', quantity: 2, initialQuantity: 2, isPartial: false, partialCount: 0, entryPrice: 167685, currentPrice: 167595, stopPrice: 174435, trailingStop: 174435, atr: 5202.14, mult: 0.2, contractMult: 0.2, side: 'Venda', direction: 'short', strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_brav3', ticker: 'BRAV3', broker: 'Pendente de conferência', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 14.06, currentPrice: 12.87, stopPrice: 12.00, trailingStop: 12.00, atr: 0.83, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-11', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_bbas3', ticker: 'BBAS3', broker: 'Pendente de conferência', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 15.48, currentPrice: 14.30, stopPrice: 12.00, trailingStop: 12.00, atr: 1.09, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_bgix26', ticker: 'BGIX26', broker: 'Pendente de conferência', quantity: 1, initialQuantity: 1, isPartial: false, partialCount: 0, entryPrice: 402.25, currentPrice: 399.00, stopPrice: 395.00, trailingStop: 395.00, atr: 3.93, mult: 330, contractMult: 330, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_m2st34', ticker: 'M2ST34', broker: 'Pendente de conferência', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 8.99, currentPrice: 7.38, stopPrice: 7.00, trailingStop: 7.00, atr: 0.74, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false }
+    { id: 'pos_aapl34', ticker: 'AAPL34', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 100.86, currentPrice: 103.21, stopPrice: 96.49, trailingStop: 96.49, atr: 2.77, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_amzn34', ticker: 'AMZN34', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 78.69, currentPrice: 77.03, stopPrice: 73.48, trailingStop: 73.48, atr: 3.33, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_winz26', ticker: 'WINZ26', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 2, initialQuantity: 2, isPartial: false, partialCount: 0, entryPrice: 167685, currentPrice: 167595, stopPrice: 174435, trailingStop: 174435, atr: 5202.14, mult: 0.2, contractMult: 0.2, side: 'Venda', direction: 'short', strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_brav3', ticker: 'BRAV3', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 14.06, currentPrice: 12.87, stopPrice: 12.00, trailingStop: 12.00, atr: 0.83, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-11', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_bbas3', ticker: 'BBAS3', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 15.48, currentPrice: 14.30, stopPrice: 12.00, trailingStop: 12.00, atr: 1.09, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_bgix26', ticker: 'BGIX26', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 1, initialQuantity: 1, isPartial: false, partialCount: 0, entryPrice: 402.25, currentPrice: 399.00, stopPrice: 395.00, trailingStop: 395.00, atr: 3.93, mult: 330, contractMult: 330, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_m2st34', ticker: 'M2ST34', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 8.99, currentPrice: 7.38, stopPrice: 7.00, trailingStop: 7.00, atr: 0.74, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false }
   ];
 
   // Default sample historical snapshots for consultation and comparison
@@ -1052,8 +1052,9 @@ const DEFAULT_HISTORY = [
     /**
      * Updates an open position's current price.
      * Validates input. Crucial: does NOT overwrite entryPrice, stopPrice, trailingStop, or quantity.
+     * When linked to an account (pos.accountId), automatically reflects price changes in the account's total balance.
      */
-    updatePositionPrice(positionId, newPrice) {
+    updatePositionPrice(positionId, newPrice, options = {}) {
       const pos = this.positions.find(p => p.id === positionId);
       if (!pos) return { success: false, error: 'Posição não encontrada.' };
 
@@ -1064,15 +1065,65 @@ const DEFAULT_HISTORY = [
         return Object.assign({ success: false, error: validation.error, position: pos }, pos);
       }
 
+      const oldPrice = Number(pos.currentPrice || pos.entryPrice || 0);
+      const newPriceNum = validation.amount;
+      const deltaPerUnit = newPriceNum - oldPrice;
+      const mult = Number(pos.contractMult || pos.mult || 1);
+      const qty = Number(pos.quantity || 0);
+      const deltaTotal = Math.round(deltaPerUnit * qty * mult * 100) / 100;
+
       pos.error = null;
-      pos.currentPrice = validation.amount;
+      pos.previousCheckedPrice = oldPrice;
+      pos.currentPrice = newPriceNum;
       pos.checked = true;
       if (!pos.hasDivergence) {
         pos.status = 'conferida';
       }
       pos.checkedAt = new Date().toISOString();
+
+      // Reflect price change in linked account balance
+      let affectedAccount = null;
+      if (pos.accountId && deltaTotal !== 0 && options.syncAccount !== false) {
+        const acc = this.accounts.find(a => a.id === pos.accountId);
+        if (acc) {
+          if (acc.currency === 'USD') {
+            const fx = Number(acc.fxRate || 5.95);
+            const deltaUSD = Math.round((deltaTotal / fx) * 100) / 100;
+            acc.newBalanceUSD = Math.round(((acc.newBalanceUSD || 0) + deltaUSD) * 100) / 100;
+            acc.newBalance = Math.round((acc.newBalanceUSD * fx) * 100) / 100;
+          } else {
+            acc.newBalance = Math.round(((Number(acc.newBalance) || 0) + deltaTotal) * 100) / 100;
+          }
+          acc.status = 'updated';
+          affectedAccount = acc;
+        }
+      }
+
       this.updateClosingReadiness();
-      return Object.assign({ success: true, position: pos }, pos);
+      return Object.assign({ success: true, position: pos, affectedAccount, deltaTotal }, pos);
+    }
+
+    /**
+     * Links/flags an open position to a specific account/brokerage.
+     */
+    linkPositionToAccount(positionId, accountId) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return null;
+      const oldAccountId = pos.accountId;
+      const acc = this.accounts.find(a => a.id === accountId);
+      pos.accountId = acc ? acc.id : null;
+      pos.broker = acc ? acc.label : 'Não vinculada';
+      pos.accountLabel = acc ? acc.label : null;
+      this.updateClosingReadiness();
+      return { position: pos, account: acc, oldAccountId };
+    }
+
+    /**
+     * Gets all open positions linked to a specific account.
+     */
+    getPositionsByAccount(accountId) {
+      if (!accountId) return [];
+      return this.positions.filter(p => p.accountId === accountId);
     }
 
     /**
@@ -1314,6 +1365,8 @@ const DEFAULT_HISTORY = [
         positions: this.positions.map(p => ({
           id: p.id,
           ticker: p.ticker,
+          accountId: p.accountId || null,
+          accountLabel: p.accountLabel || p.broker || null,
           broker: p.broker,
           quantity: Number(p.quantity || 0),
           entryPrice: Number(p.entryPrice || 0),

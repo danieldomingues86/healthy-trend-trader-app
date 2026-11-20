@@ -492,8 +492,8 @@
 
 .positions-table th,
 .positions-table td {
-  padding: 8px 6px;
-  font-size: 11.5px;
+  padding: 6px 4px;
+  font-size: 11px;
 }
 
 .daily-update-table tr:hover td {
@@ -1305,12 +1305,12 @@
   border: 1px solid #c8d9cf;
   border-radius: 8px;
   color: var(--ink, #123424);
-  padding: 4px 6px;
-  font-size: 11.5px;
+  padding: 3px 5px;
+  font-size: 11px;
   font-weight: 700;
   font-family: inherit;
   text-align: right;
-  width: 78px;
+  width: 72px;
   box-sizing: border-box;
   transition: all 0.2s ease;
 }
@@ -1326,6 +1326,55 @@
   border-color: #d14343 !important;
   background: #fff5f5 !important;
   color: #b91c1c !important;
+}
+
+.pos-account-select {
+  background: #f7faf8;
+  border: 1px solid #c8d9cf;
+  border-radius: 8px;
+  color: var(--ink, #123424);
+  padding: 3px 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: inherit;
+  width: 100%;
+  max-width: 135px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pos-account-select:focus {
+  outline: none;
+  border-color: #1e7e4a;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(30, 126, 74, 0.12);
+}
+
+.pos-account-select.linked {
+  border-color: #8fe0aa;
+  background: rgba(143, 224, 170, 0.1);
+  color: #123424;
+}
+
+.pos-account-select.unlinked {
+  border-style: dashed;
+  color: var(--muted, #63786c);
+}
+
+.account-positions-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(46, 125, 88, 0.08);
+  color: #1e7e4a;
+  border: 1px solid rgba(46, 125, 88, 0.18);
+  width: fit-content;
 }
 
 /* Position status dropdown and popover */
@@ -1966,6 +2015,20 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-price-clean-inp
 body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-stop-val {
   color: #f5efe3;
 }
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-account-select {
+  background: #161817;
+  border-color: #383428;
+  color: #f5efe3;
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-account-select.linked {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.12);
+}
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .account-positions-pill {
+  background: rgba(212, 175, 55, 0.12);
+  color: #f3d887;
+  border-color: rgba(212, 175, 55, 0.25);
+}
 
 /* ==========================================================================
    THEME: PIGEON LIGHT
@@ -2244,6 +2307,20 @@ body[data-theme="pigeon"] .pos-price-clean-input {
 }
 body[data-theme="pigeon"] .pos-stop-val {
   color: #172b24;
+}
+body[data-theme="pigeon"] .pos-account-select {
+  background: #f7faf8;
+  border-color: #ccd7d1;
+  color: #172b24;
+}
+body[data-theme="pigeon"] .pos-account-select.linked {
+  border-color: #5ba382;
+  background: rgba(91, 163, 130, 0.08);
+}
+body[data-theme="pigeon"] .account-positions-pill {
+  background: rgba(91, 163, 130, 0.12);
+  color: #1d5f42;
+  border-color: rgba(91, 163, 130, 0.25);
 }
 
 /* ==========================================================================

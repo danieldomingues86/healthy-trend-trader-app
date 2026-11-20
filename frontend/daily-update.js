@@ -426,6 +426,17 @@
                                         <div class="account-labels">
                                           <span class="account-label-title">${acc.label}</span>
                                           <span class="account-meta-time">${fmtTime(acc.updatedAt)}</span>
+                                          ${(() => {
+                                            const linkedPositions = typeof model.getPositionsByAccount === 'function'
+                                              ? model.getPositionsByAccount(acc.id)
+                                              : (model.positions || []).filter(p => p.accountId === acc.id);
+                                            if (linkedPositions.length === 0) return '';
+                                            return `
+                                              <span class="account-positions-pill" title="Posições vinculadas: ${linkedPositions.map(p => p.ticker).join(', ')}">
+                                                💼 ${linkedPositions.length} ${linkedPositions.length === 1 ? 'posição' : 'posições'} (${linkedPositions.map(p => p.ticker).join(', ')})
+                                              </span>
+                                            `;
+                                          })()}
                                         </div>
                                       </div>
                                       ${isNomad ? `
@@ -460,7 +471,7 @@
                                     </td>
                                     <td class="td-acc-var" style="text-align: right;">
                                       <div class="variation-stack">
-                                        <span class="variation-tag ${varClass}">
+                                        <span class="variation-tag ${varClass}" data-account-var-for="${acc.id}">
                                           ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
                                         </span>
                                         ${isNomad ? `
@@ -592,17 +603,20 @@
                 <table class="daily-update-table positions-table" aria-label="Tabela de Conferência de Posições Abertas">
                   <thead>
                     <tr>
-                      <th class="th-pos-ticker" style="width: 14%;">Ativo</th>
-                      <th class="th-pos-qty" style="text-align: right; width: 11%;">Quantidade</th>
-                      <th class="th-pos-entry" style="text-align: right; width: 15%;">Preço Entrada</th>
-                      <th class="th-pos-price" style="text-align: right; width: 17%;">Preço Atual</th>
-                      <th class="th-pos-var" style="text-align: right; width: 12%;">Variação</th>
-                      <th class="th-pos-stop" style="text-align: right; width: 16%;">Stop / Trailing</th>
-                      <th class="th-pos-status" style="text-align: center; width: 15%;">Status</th>
+                      <th class="th-pos-ticker" style="width: 12%;">Ativo</th>
+                      <th class="th-pos-account" style="width: 18%;">Conta / Corretora</th>
+                      <th class="th-pos-qty" style="text-align: right; width: 10%;">Quantidade</th>
+                      <th class="th-pos-entry" style="text-align: right; width: 12%;">Preço Entrada</th>
+                      <th class="th-pos-price" style="text-align: right; width: 14%;">Preço Atual</th>
+                      <th class="th-pos-var" style="text-align: right; width: 10%;">Variação</th>
+                      <th class="th-pos-stop" style="text-align: right; width: 12%;">Stop / Trailing</th>
+                      <th class="th-pos-status" style="text-align: center; width: 12%;">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    ${model.positions.map((pos, pIdx) => {
+                    ${(() => {
+                      const groupedAccounts = typeof model.getGroupedAccounts === 'function' ? model.getGroupedAccounts() : [];
+                      return model.positions.map((pos, pIdx) => {
                       const entry = Number(pos.entryPrice || 0);
                       const curr = Number(pos.currentPrice || entry);
                       const varPct = entry > 0 ? ((curr - entry) / entry) * 100 : 0;
@@ -635,6 +649,26 @@
                             <div class="pos-ticker-group">
                               <strong class="pos-ticker" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}');" title="Ver detalhes completos da operação na corretora">${pos.ticker}</strong>
                             </div>
+                          </td>
+                          <td class="td-pos-account">
+                            <select 
+                              class="pos-account-select ${pos.accountId ? 'linked' : 'unlinked'}" 
+                              data-position-id="${pos.id}"
+                              onchange="window.DailyUpdateHub.handlePositionAccountChange('${pos.id}', this.value)"
+                              title="Conta onde esta posição está custodiada. Atualizações de preço refletem no saldo desta conta."
+                              aria-label="Conta onde ${pos.ticker} está custodiada"
+                            >
+                              <option value="" ${!pos.accountId ? 'selected' : ''}>— Selecionar conta —</option>
+                              ${groupedAccounts.map(g => `
+                                <optgroup label="${g.person}">
+                                  ${g.accounts.map(a => `
+                                    <option value="${a.id}" ${pos.accountId === a.id ? 'selected' : ''}>
+                                      ${a.label}
+                                    </option>
+                                  `).join('')}
+                                </optgroup>
+                              `).join('')}
+                            </select>
                           </td>
                           <td style="text-align: right;">
                             <div class="pos-qty-cell">
@@ -703,7 +737,8 @@
                           </td>
                         </tr>
                       `;
-                    }).join('')}
+                    }).join('');
+                  })()}
                   </tbody>
                 </table>
               </div>
@@ -717,13 +752,6 @@
                       <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                     </svg>
                     Atualizar Preços em Lote
-                  </button>
-                  <button type="button" class="btn-ghost-compact" disabled title="Em breve integração direta via Open Finance">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/>
-                      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/>
-                    </svg>
-                    Recarregar da Corretora (em breve)
                   </button>
                 </div>
                 <div class="card-footer-links">
@@ -899,17 +927,38 @@
           if (parsed !== null && parsed > 0) {
             const pos = this.model.positions.find(p => p.id === posId);
             if (pos) {
+              const oldPrice = Number(pos.currentPrice || pos.entryPrice || 0);
+              const mult = Number(pos.contractMult || pos.mult || 1);
+              const qty = Number(pos.quantity || 0);
+              const deltaTotal = Math.round((parsed - oldPrice) * qty * mult * 100) / 100;
+
               pos.currentPrice = parsed;
               pos.checked = true;
               if (!pos.hasDivergence) pos.status = 'conferida';
               pos.error = null;
+
+              // Live update linked account balance
+              if (pos.accountId && deltaTotal !== 0) {
+                const acc = this.model.accounts.find(a => a.id === pos.accountId);
+                if (acc) {
+                  if (acc.currency === 'USD') {
+                    const fx = Number(acc.fxRate || 5.95);
+                    const deltaUSD = Math.round((deltaTotal / fx) * 100) / 100;
+                    acc.newBalanceUSD = Math.round(((acc.newBalanceUSD || 0) + deltaUSD) * 100) / 100;
+                    acc.newBalance = Math.round((acc.newBalanceUSD * fx) * 100) / 100;
+                  } else {
+                    acc.newBalance = Math.round(((Number(acc.newBalance) || 0) + deltaTotal) * 100) / 100;
+                  }
+                  acc.status = 'updated';
+                }
+              }
             }
             this.updateTotalsLive();
             // Update row variation badge live
             const row = input.closest('tr');
             if (row && pos) {
               const varPct = ((parsed - pos.entryPrice) / pos.entryPrice) * 100;
-              const varTag = row.querySelector('.position-var-tag');
+              const varTag = row.querySelector('.position-var-tag, .variation-tag');
               if (varTag) {
                 varTag.className = `variation-tag position-var-tag ${varPct > 0 ? 'positive' : varPct < 0 ? 'negative' : 'neutral'}`;
                 varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
@@ -1008,6 +1057,19 @@
             elShare.classList.remove('provisional');
             elShare.title = `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`;
           }
+        }
+
+        const accInput = document.querySelector(`.account-balance-clean-input[data-account-input="${acc.id}"]`);
+        if (accInput && document.activeElement !== accInput) {
+          const isUSD = acc.currency === 'USD' && acc.inputCurrency === 'USD';
+          accInput.value = isUSD ? fmtUSD(acc.newBalanceUSD || 0) : fmtBRL(acc.newBalance);
+        }
+
+        const varTag = document.querySelector(`[data-account-var-for="${acc.id}"]`);
+        if (varTag) {
+          const varPct = this.model.getAccountVariationPct(acc);
+          varTag.className = `variation-tag ${varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral'}`;
+          varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
         }
       });
 
@@ -1206,16 +1268,33 @@
         root.showToast('Atualizando cotações das posições abertas...');
       }
       this.model.positions.forEach(p => {
-        p.currentPrice = Math.round(Number(p.currentPrice) * 1.002 * 100) / 100;
-        p.checked = true;
-        if (!p.hasDivergence) p.status = 'conferida';
-        p.checkedAt = new Date().toISOString();
+        const newPrice = Math.round(Number(p.currentPrice) * 1.002 * 100) / 100;
+        this.model.updatePositionPrice(p.id, newPrice);
       });
       this.model.saveDraft();
       this.render();
       if (typeof root.showToast === 'function') {
-        root.showToast('Preços atualizados com sucesso.');
+        root.showToast('Preços atualizados com sucesso e refletidos nas contas vinculadas.');
       }
+    }
+
+    handlePositionAccountChange(positionId, accountId) {
+      const res = this.model.linkPositionToAccount(positionId, accountId);
+      this.model.saveDraft();
+      if (root.healthyTrendWorkspace?.save) {
+        root.healthyTrendWorkspace.save(
+          root.DailyUpdateModel?.STORAGE_KEY_DRAFT || 'healthy-daily-update-draft-v1',
+          { accounts: this.model.accounts, positions: this.model.positions, closingDate: this.model.closingDate }
+        );
+      }
+      if (typeof root.showToast === 'function') {
+        if (res?.account) {
+          root.showToast(`Posição vinculada à conta ${res.account.label}.`);
+        } else {
+          root.showToast('Vínculo da posição com conta removido.');
+        }
+      }
+      this.render();
     }
 
     saveDraftAction() {

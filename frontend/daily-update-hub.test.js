@@ -798,3 +798,86 @@ test('DailyUpdateHub: Integridade e Paridade entre Seção 1 e Evolução da Equ
   assert.ok(!equityHtml.includes('1.101.435,43'), 'HTML de Equity NÃO deve conter o valor mock antigo de 1.101.435,43');
   assert.ok(!equityHtml.includes('528.053,43'), 'HTML de Equity NÃO deve conter o valor mock antigo de Natália 528.053,43');
 });
+
+test('DailyUpdateHub: Remoção do botão Recarregar da Corretora e Vinculação de Posições a Contas', () => {
+  const elementsById = new Map();
+  const fakeElement = {
+    addEventListener: () => {},
+    classList: { add: () => {}, remove: () => {}, toggle: () => {} },
+    innerHTML: '',
+    textContent: '',
+    style: {}
+  };
+
+  const mockStorageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => mockStorageMap.get(k) || null,
+    setItem: (k, v) => mockStorageMap.set(k, String(v)),
+    removeItem: (k) => mockStorageMap.delete(k)
+  };
+
+  let renderedHtml = '';
+  const mockRoot = {
+    DailyUpdateModel,
+    healthyTrendWorkspace: {
+      raw: (k) => mockStorageMap.get(k) || null,
+      save: (k, v) => mockStorageMap.set(k, typeof v === 'string' ? v : JSON.stringify(v))
+    }
+  };
+
+  const mockDoc = {
+    getElementById: (id) => {
+      if (id === 'dailyUpdateRoot') {
+        return {
+          set innerHTML(val) { renderedHtml = val; },
+          get innerHTML() { return renderedHtml; },
+          querySelectorAll: () => [],
+          querySelector: () => null,
+          addEventListener: () => {}
+        };
+      }
+      return fakeElement;
+    },
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    createElement: () => ({ setAttribute: () => {}, appendChild: () => {}, style: {} }),
+    body: { appendChild: () => {}, removeChild: () => {} }
+  };
+
+  class MockCustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  }
+
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  runFn.call(mockRoot, mockRoot, mockDoc, mockStorage, MockCustomEvent, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  controller.render();
+
+  // 1. Botão "Recarregar da Corretora (em breve)" foi removido
+  assert.ok(!renderedHtml.includes('Recarregar da Corretora (em breve)'), 'Botão Recarregar da Corretora NÃO deve estar presente no HTML');
+  assert.ok(renderedHtml.includes('Atualizar Preços em Lote'), 'Botão Atualizar Preços em Lote deve permanecer');
+
+  // 2. Coluna "Conta / Corretora" está presente no cabeçalho
+  assert.ok(renderedHtml.includes('Conta / Corretora'), 'Coluna Conta / Corretora deve estar presente no thead');
+
+  // 3. Select de vinculação da conta está presente na linha de cada posição
+  assert.ok(renderedHtml.includes('pos-account-select'), 'Select de conta da posição deve ser renderizado');
+  assert.ok(renderedHtml.includes('handlePositionAccountChange'), 'Chamada handlePositionAccountChange deve existir no onchange');
+
+  // 4. Teste de vinculação no controller via handlePositionAccountChange
+  controller.handlePositionAccountChange('pos_aapl34', 'xp_daniel');
+  const aapl = controller.model.positions.find(p => p.id === 'pos_aapl34');
+  assert.equal(aapl.accountId, 'xp_daniel');
+  assert.equal(aapl.broker, 'XP — Daniel');
+
+  // 5. Section 1 exibe as posições vinculadas à conta
+  controller.render();
+  assert.ok(renderedHtml.includes('account-positions-pill'), 'Pill de posições vinculadas deve estar presente na Seção 1');
+  assert.ok(renderedHtml.includes('AAPL34'), 'Ticker da posição vinculada deve aparecer no badge da conta');
+});

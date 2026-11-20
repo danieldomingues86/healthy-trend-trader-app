@@ -739,6 +739,52 @@ test('DailyUpdateModel: Reconciliação e paridade matemática absoluta entre At
 
   // O storage mockado foi atualizado com a versão higienizada
   const storedAfter = JSON.parse(mockStorageMap.get('healthy-daily-update-history'));
-  assert.equal(storedAfter[0].date, '2026-11-19');
+  assert.equal(storedAfter[0].date, '2026-11-20' ? '2026-11-19' : '2026-11-19');
   assert.equal(storedAfter[0].realWealth, 1000295.73);
+});
+
+test('DailyUpdateModel: Vinculação de posições a contas e reflexo automático nos Saldos Totais', () => {
+  const model = new DailyUpdateModel();
+
+  // 1. Vinculação de posição à conta (linkPositionToAccount)
+  const linkRes = model.linkPositionToAccount('pos_aapl34', 'xp_daniel');
+  assert.ok(linkRes);
+  assert.equal(linkRes.position.accountId, 'xp_daniel');
+  assert.equal(linkRes.account.label, 'XP — Daniel');
+
+  // getPositionsByAccount retorna as posições vinculadas
+  const xpPositions = model.getPositionsByAccount('xp_daniel');
+  assert.ok(xpPositions.some(p => p.id === 'pos_aapl34'));
+
+  // 2. Reflexo de atualização de cotação no Saldo Total da Conta
+  const xpAcc = model.accounts.find(a => a.id === 'xp_daniel');
+  const initialBalance = Number(xpAcc.newBalance); // 207521.00
+  const pos = model.positions.find(p => p.id === 'pos_aapl34');
+  const initialPosPrice = Number(pos.currentPrice); // 103.21
+  const qty = Number(pos.quantity); // 600
+
+  // Usuário confere e altera cotação de 103.21 para 105.21 (+R$ 2,00 por ação = +R$ 1.200,00)
+  const updateRes = model.updatePositionPrice('pos_aapl34', '105,21');
+  assert.equal(updateRes.success, true);
+  assert.equal(pos.currentPrice, 105.21);
+  assert.equal(updateRes.deltaTotal, 1200.00);
+  assert.equal(updateRes.affectedAccount.id, 'xp_daniel');
+
+  // Saldo da conta XP reflete exatamente a variação de +R$ 1.200,00
+  assert.equal(xpAcc.newBalance, initialBalance + 1200.00);
+  assert.equal(xpAcc.status, 'updated');
+
+  // 3. Posição desvinculada (accountId: null) não afeta contas
+  model.linkPositionToAccount('pos_amzn34', null);
+  const amznPos = model.positions.find(p => p.id === 'pos_amzn34');
+  assert.equal(amznPos.accountId, null);
+  const xpBalanceBeforeAmzn = xpAcc.newBalance;
+  model.updatePositionPrice('pos_amzn34', '85,00');
+  assert.equal(xpAcc.newBalance, xpBalanceBeforeAmzn, 'Posição desvinculada não deve alterar saldos de contas');
+
+  // 4. Inclusão de accountId e accountLabel no snapshot de fechamento
+  const snapshot = model.createSnapshot();
+  const snapAapl = snapshot.positions.find(p => p.id === 'pos_aapl34');
+  assert.equal(snapAapl.accountId, 'xp_daniel');
+  assert.equal(snapAapl.accountLabel, 'XP — Daniel');
 });
