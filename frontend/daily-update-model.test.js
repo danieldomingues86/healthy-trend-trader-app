@@ -334,3 +334,134 @@ test('DailyUpdateModel Card [03]: operações com realização parcial (Peel Off
   // (110 - 98.40) * 200 = 11.60 * 200 = 2320.00
   assert.equal(Math.round(unrealized * 100) / 100, 2320.00);
 });
+
+test('DailyUpdateModel Card [04]: criação e persistência de Snapshot completo do fechamento', () => {
+  const model = new DailyUpdateModel();
+  const snapshot = model.createSnapshot({ date: '2026-11-20' });
+
+  assert.equal(snapshot.date, '2026-11-20');
+  assert.equal(snapshot.version, 1);
+  assert.equal(snapshot.status, 'closed');
+  assert.equal(snapshot.hasException, false);
+  assert.equal(snapshot.realWealth, 1104419.93);
+  assert.equal(snapshot.dayVariationAmount, 2984.50);
+  assert.equal(snapshot.dayVariationPct, 0.27);
+  assert.equal(snapshot.strategyEquity, 1112309.50);
+  assert.equal(snapshot.accounts.length, 6);
+  assert.equal(snapshot.positions.length, 12);
+  assert.ok(snapshot.auditReason.includes('Fechamento Diário'));
+
+  // Teste de salvamento no storage
+  const storageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v)),
+    removeItem: (k) => storageMap.delete(k)
+  };
+
+  model.saveSnapshot(snapshot, mockStorage);
+  assert.equal(model.closingStatus, 'CLOSED');
+  assert.equal(model.isDateClosed('2026-11-20', mockStorage), true);
+
+  const retrieved = model.getSnapshotByDate('2026-11-20', mockStorage);
+  assert.equal(retrieved.id, snapshot.id);
+  assert.equal(retrieved.realWealth, 1104419.93);
+});
+
+test('DailyUpdateModel Card [04]: conclusão com ressalvas / exceções permitidas', () => {
+  const model = new DailyUpdateModel();
+
+  // Marca uma conta como pendente e uma posição com divergência
+  model.setAccountPending('xp_daniel');
+  model.reportPositionDivergence('pos_1', {
+    field: 'quantity',
+    reported: 250,
+    note: 'Corretora exibe 250 un. vs 300 un. registradas'
+  });
+
+  const progress = model.getProgress();
+  assert.equal(progress.readyToClose, false);
+
+  const storageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v)),
+    removeItem: (k) => storageMap.delete(k)
+  };
+
+  const closedWithEx = model.closeWithException('XP com instabilidade temporária na visualização de extrato', mockStorage);
+  assert.equal(closedWithEx.status, 'closed_with_exception');
+  assert.equal(closedWithEx.hasException, true);
+  assert.equal(closedWithEx.exceptions.length, 2);
+  assert.ok(closedWithEx.exceptions.some(e => e.type === 'pending_account' && e.id === 'xp_daniel'));
+  assert.ok(closedWithEx.exceptions.some(e => e.type === 'divergence' && e.id === 'pos_1'));
+  assert.equal(model.closingStatus, 'CLOSED_WITH_EXCEPTION');
+});
+
+test('DailyUpdateModel Card [04]: correção versionada de fechamento (v1 -> v2) com trilha de auditoria', () => {
+  const storageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v)),
+    removeItem: (k) => storageMap.delete(k)
+  };
+
+  const model = new DailyUpdateModel();
+  const snapV1 = model.createSnapshot({ date: '2026-11-20' });
+  model.saveSnapshot(snapV1, mockStorage);
+
+  assert.equal(model.isDateClosed('2026-11-20', mockStorage), true);
+
+  // Realiza correção: atualiza saldo da XP Daniel para 210.000 (diferença de +2.479)
+  const updatedAccounts = JSON.parse(JSON.stringify(model.accounts));
+  const xpAcc = updatedAccounts.find(a => a.id === 'xp_daniel');
+  xpAcc.newBalance = 210000.00;
+
+  const result = model.correctSnapshot('2026-11-20', { accounts: updatedAccounts }, 'Ajuste de saldo após liquidação de dividendo na XP', mockStorage);
+  assert.equal(result.success, true);
+
+  const snapV2 = result.snapshot;
+  assert.equal(snapV2.version, 2);
+  assert.equal(snapV2.status, 'corrected');
+  assert.equal(snapV2.correctionReason, 'Ajuste de saldo após liquidação de dividendo na XP');
+  assert.ok(snapV2.corrections.length === 1);
+  assert.equal(snapV2.corrections[0].version, 1);
+  assert.equal(snapV2.corrections[0].realWealth, 1104419.93);
+  assert.equal(snapV2.realWealth, 1106898.93);
+  assert.ok(snapV2.auditReason.includes('[CORREÇÃO v2]'));
+});
+
+test('DailyUpdateModel Card [04]: comparação entre dois snapshots históricos', () => {
+  const model = new DailyUpdateModel();
+  const history = model.getHistory();
+
+  // Compara os dois fechamentos de amostra (19/11 e 18/11)
+  const diff = model.compareSnapshots('2026-11-19', '2026-11-18');
+  assert.ok(diff !== null);
+  assert.equal(diff.date1, '2026-11-19');
+  assert.equal(diff.date2, '2026-11-18');
+
+  // Real wealth: 1101435.43 - 1098650.00 = +2785.43
+  assert.equal(Math.round(diff.diffAmount * 100) / 100, 2785.43);
+  assert.ok(diff.diffPct > 0);
+  assert.equal(diff.accountsDiff.length, 6);
+});
+
+test('DailyUpdateModel Card [04]: Checklist de Reconciliação com a Planilha Trading Log Premium', () => {
+  const model = new DailyUpdateModel();
+  const recon = model.getSpreadsheetReconciliationData();
+
+  assert.equal(recon.isFullyReconciled, true);
+  assert.equal(recon.items.length, 5);
+
+  const keys = recon.items.map(i => i.key);
+  assert.ok(keys.includes('accounts_balance'));
+  assert.ok(keys.includes('open_positions_custody'));
+  assert.ok(keys.includes('cash_flows'));
+  assert.ok(keys.includes('strategy_vs_real'));
+  assert.ok(keys.includes('foreign_currency_nomad'));
+
+  // Confirma a regra fundamental: posições abertas NÃO são somadas ao patrimônio real
+  const posCustodyItem = recon.items.find(i => i.key === 'open_positions_custody');
+  assert.ok(posCustodyItem.rule.includes('NUNCA somar posições ao Patrimônio Real'));
+});

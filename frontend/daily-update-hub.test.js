@@ -304,3 +304,122 @@ test('DailyUpdateHub Card [03]: DailyUpdateHubController conferência de posiç�
     assert.equal(p.status, 'conferida');
   });
 });
+
+test('DailyUpdateHub Card [04]: fechamento, snapshots históricos, ressalvas e auditoria de reconciliação', async () => {
+  const dispatchedEvents = [];
+  const apiRequests = [];
+  const workspaceSaves = [];
+  const storageMap = new Map();
+
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v)),
+    removeItem: (k) => storageMap.delete(k)
+  };
+
+  const mockRoot = {
+    DailyUpdateModel: DailyUpdateModel,
+    showToast: () => {},
+    dispatchEvent: (ev) => dispatchedEvents.push(ev.type),
+    healthyTrendApi: {
+      isAuthenticated: () => true,
+      request: async (url, opts) => {
+        apiRequests.push({ url, body: opts?.body });
+        return { ok: true };
+      }
+    },
+    healthyTrendWorkspace: {
+      save: (key, val) => workspaceSaves.push({ key, val })
+    },
+    setOperationalEquity: (eq) => { mockRoot.operationalEquity = eq; }
+  };
+
+  const createdElements = [];
+  const mockDoc = {
+    getElementById: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    body: {
+      appendChild: (el) => createdElements.push(el),
+      removeChild: (el) => {
+        const idx = createdElements.indexOf(el);
+        if (idx >= 0) createdElements.splice(idx, 1);
+      }
+    },
+    createElement: (tag) => {
+      const el = {
+        tagName: tag,
+        style: {},
+        innerHTML: '',
+        parentNode: null
+      };
+      return el;
+    }
+  };
+
+  class MockCustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  }
+
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  runFn.call(mockRoot, mockRoot, mockDoc, mockStorage, MockCustomEvent, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  assert.ok(controller);
+
+  // 1. Fechamento normal bem-sucedido quando 100% pronto
+  assert.equal(controller.model.getProgress().readyToClose, true);
+  const saveSuccess = await controller.saveDailyClosing();
+  assert.equal(saveSuccess, true);
+  assert.equal(controller.model.closingStatus, 'CLOSED');
+
+  // Verifica persistência de snapshot no histórico
+  const history = controller.model.getHistory(mockStorage);
+  assert.ok(history.length >= 1);
+  const todaySnap = controller.model.getSnapshotByDate(controller.model.closingDate, mockStorage);
+  assert.ok(todaySnap !== null);
+  assert.equal(todaySnap.version, 1);
+  assert.equal(todaySnap.status, 'closed');
+  assert.equal(todaySnap.realWealth, 1104419.93);
+
+  // Verifica sincronização com API de adjustments e workspace
+  assert.ok(apiRequests.some(r => r.url === '/api/wealth/adjustments'));
+  assert.ok(workspaceSaves.some(s => s.key === 'healthy-daily-update-history'));
+
+  // 2. Modais e utilitários de reconciliação
+  controller.openHistoryModal();
+  assert.ok(createdElements.length > 0);
+
+  controller.openReconciliationModal();
+  assert.ok(createdElements.length > 0);
+
+  const reconData = controller.model.getSpreadsheetReconciliationData();
+  assert.equal(reconData.isFullyReconciled, true);
+  assert.equal(reconData.items.length, 5);
+
+  // 3. Fechamento com ressalvas / exceção
+  controller.model.setAccountPending('xp_daniel');
+  assert.equal(controller.model.getProgress().readyToClose, false);
+
+  const exSnapshot = controller.model.closeWithException('XP com instabilidade momentânea', mockStorage);
+  assert.equal(exSnapshot.hasException, true);
+  assert.equal(exSnapshot.status, 'closed_with_exception');
+  assert.equal(controller.model.closingStatus, 'CLOSED_WITH_EXCEPTION');
+
+  // 4. Correção versionada (v1 -> v2)
+  const corrResult = controller.model.correctSnapshot(
+    controller.model.closingDate,
+    { accounts: controller.model.accounts },
+    'Correção manual após conciliação bancária',
+    mockStorage
+  );
+  assert.equal(corrResult.success, true);
+  assert.equal(corrResult.snapshot.version, 2);
+  assert.equal(corrResult.snapshot.status, 'corrected');
+  assert.equal(corrResult.snapshot.corrections.length, 1);
+  assert.equal(controller.model.closingStatus, 'CORRECTED');
+});
