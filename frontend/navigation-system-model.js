@@ -290,6 +290,17 @@
 
     // Carteira & Risco
     {
+      id: 'dailyupdate',
+      page: 'dailyupdate',
+      label: 'Atualização Diária',
+      labelEn: 'Daily Update',
+      category: 'portfolio-risk',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`,
+      desc: 'Rotina de fechamento diário, saldos e posições.',
+      descEn: 'Daily close routine, balances and positions.',
+      proOnly: false
+    },
+    {
       id: 'dashboard',
       page: 'dashboard',
       label: 'Patrimônio',
@@ -613,9 +624,9 @@
       id: 'fast',
       label: 'Fast',
       labelEn: 'Fast',
-      desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Desktop, Novo Trade, Diário, Watchlist, Gráficos), com categorias organizadas para fluxo ágil.',
+      desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Atualização Diária, Desktop, Novo Trade, Diário, Watchlist, Gráficos), com categorias organizadas para fluxo ágil.',
       descEn: 'Lightning-fast access to most frequent tools with streamlined categories.',
-      quickAccess: ['today', 'newtrade', 'journal', 'watchlist', 'charts'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts'],
       categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'simulators', 'data-performance', 'mindset', 'resources'],
       collapsedCategories: ['simulators', 'data-performance', 'mindset', 'resources']
     },
@@ -625,7 +636,7 @@
       labelEn: 'Trader Focus',
       desc: 'Organização estritamente orientada à execução do pregão, enfatizando Operação, Risco, Mercado e Treinamento.',
       descEn: 'Strict execution-focused hierarchy emphasizing Daily Trading, Risk, Market and Training.',
-      quickAccess: ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal'],
       categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'data-performance', 'simulators', 'mindset', 'resources'],
       collapsedCategories: ['data-performance', 'simulators', 'mindset', 'resources']
     },
@@ -635,7 +646,7 @@
       labelEn: 'Professional / Full',
       desc: 'Visão integral de todas as dimensões da plataforma: Operação, Treinamento, Mercado, Simuladores, Risco, Performance e Mindset.',
       descEn: 'Complete structured view of all platform pillars.',
-      quickAccess: ['today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard'],
       categoryOrder: ['market-analysis', 'daily', 'training-recovery', 'simulators', 'portfolio-risk', 'data-performance', 'mindset', 'resources'],
       collapsedCategories: []
     }

@@ -48,7 +48,7 @@ test('Dual Strategy Architecture: Trend Following preserva 100% dos módulos do 
   assert.equal(typeof nav.validateIntegrity, 'function');
   const integrity = nav.validateIntegrity();
   assert.equal(integrity.isValid, true, 'NavigationSystemModel deve manter 100% dos módulos válidos');
-  assert.equal(MODULES.length, 46, 'Deve preservar exatamente os 46 módulos do software');
+  assert.equal(MODULES.length, 47, 'Deve preservar exatamente os 47 módulos do software');
 });
 
 test('Dual Strategy Architecture: persistência, alternância e imutabilidade dos trades', () => {

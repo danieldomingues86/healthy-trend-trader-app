@@ -44,7 +44,7 @@ test('NavigationSystemModel: PREDEFINIÇÃO FAST preserva 100% dos módulos', ()
 
   assert.equal(integrity.isValid, true);
   assert.equal(tree.preset, 'fast');
-  assert.deepEqual(tree.quickAccess.map(i => i.id), ['today', 'newtrade', 'journal', 'watchlist', 'charts']);
+  assert.deepEqual(tree.quickAccess.map(i => i.id), ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts']);
   assert.equal(integrity.totalModules, integrity.representedCount);
 });
 
@@ -56,7 +56,7 @@ test('NavigationSystemModel: PREDEFINIÇÃO TRADER_FOCUS preserva 100% dos módu
 
   assert.equal(integrity.isValid, true);
   assert.equal(tree.preset, 'trader_focus');
-  assert.deepEqual(tree.quickAccess.map(i => i.id), ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
+  assert.deepEqual(tree.quickAccess.map(i => i.id), ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
   assert.equal(integrity.totalModules, integrity.representedCount);
 });
 
@@ -77,7 +77,7 @@ test('NavigationSystemModel: Predefinições governam exclusivamente o Acesso R�
   
   // 1. Inicia com preset 'fast'
   assert.equal(model.state.preset, 'fast');
-  assert.deepEqual(model.state.quickAccess, ['today', 'newtrade', 'journal', 'watchlist', 'charts']);
+  assert.deepEqual(model.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts']);
 
   // 2. Módulos pertencem estritamente às suas categorias oficiais (ex: portfolioheat em 'portfolio-risk')
   const treeFast = model.getNavigationTree();
@@ -97,7 +97,7 @@ test('NavigationSystemModel: Predefinições governam exclusivamente o Acesso R�
   // 3. Ao aplicar a predefinição 'trader_focus', Acesso Rápido e ordenação atualizam automaticamente
   model.applyPreset('trader_focus');
   assert.equal(model.state.preset, 'trader_focus');
-  assert.deepEqual(model.state.quickAccess, ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
+  assert.deepEqual(model.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
 
   // REGRA DE NÃO DUPLICAÇÃO em trader_focus
   const treeFocus = model.getNavigationTree();
@@ -130,7 +130,7 @@ test('NavigationSystemModel: persistência em mock storage e restauração de es
 
   assert.equal(model2.state.style, 'tiles');
   assert.equal(model2.state.preset, 'full');
-  assert.deepEqual(model2.state.quickAccess, ['today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard']);
+  assert.deepEqual(model2.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard']);
   assert.ok(model2.isCategoryCollapsed('mindset'));
 });
 

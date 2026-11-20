@@ -721,7 +721,10 @@
               <h2>Histórico de Snapshots Patrimoniais</h2>
               <p>Registros oficiais de Equity da Estratégia, Patrimônio Real e ajustes manuais para auditoria.</p>
             </div>
-            <button type="button" class="primary btn-compact" onclick="window.openEquityAdjustModal()">+ Atualizar Equity Total</button>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <button type="button" class="btn-daily-update-shortcut" onclick="go('dailyupdate')"><span>📅</span> Fechamento Diário →</button>
+              <button type="button" class="primary btn-compact" onclick="window.openEquityAdjustModal()">+ Atualizar Equity Total</button>
+            </div>
           </header>
           ${adjustments.length ? `
             <div style="margin-bottom: 24px;">
@@ -1149,6 +1152,9 @@
             </div>
             
             <div class="wealth-artistic-aside">
+              <button type="button" class="btn-daily-update-shortcut" onclick="go('dailyupdate')" title="Ir para a Central de Atualização Diária">
+                <span class="btn-icon">📅</span> Atualização Diária →
+              </button>
               <p class="artistic-quote">
                 Capital bem gerenciado<br>
                 constrói o trader que você quer ser.

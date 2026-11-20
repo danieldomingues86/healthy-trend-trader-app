@@ -150,7 +150,7 @@
     };
   }
 
-  // 3. COMPLETE SCREEN INVENTORY (46 MODULES)
+  // 3. COMPLETE SCREEN INVENTORY (47 MODULES)
   const SCREEN_REGISTRY = [
     // Operação Diária (6)
     { id: 'today', page: 'today', name: 'Meu Desktop', category: 'Operação Diária' },
@@ -176,8 +176,9 @@
     { id: 'charts', page: 'charts', name: 'Gráficos', category: 'Análise de Mercado' },
     { id: 'markettreemap', page: 'markettreemap', name: 'Setores', category: 'Análise de Mercado' },
 
-    // Carteira & Risco (6)
+    // Carteira & Risco (7)
     { id: 'dashboard', page: 'dashboard', name: 'Patrimônio', category: 'Carteira & Risco' },
+    { id: 'dailyupdate', page: 'dailyupdate', name: 'Atualização Diária', category: 'Carteira & Risco' },
     { id: 'positions', page: 'positions', name: 'Posições Abertas', category: 'Carteira & Risco' },
     { id: 'closedpositions', page: 'closedpositions', name: 'Posições Encerradas', category: 'Carteira & Risco' },
     { id: 'portfolioheat', page: 'portfolioheat', name: 'Portfolio Heat', category: 'Carteira & Risco' },
