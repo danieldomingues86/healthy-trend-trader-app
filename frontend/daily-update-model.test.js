@@ -438,8 +438,8 @@ test('DailyUpdateModel Card [04]: comparação entre dois snapshots históricos'
   assert.equal(diff.date1, '2026-11-19');
   assert.equal(diff.date2, '2026-11-18');
 
-  // Real wealth: 1000295.73 - 1098650.00 = -98354.27
-  assert.equal(Math.round(diff.diffAmount * 100) / 100, -98354.27);
+  // Real wealth: 1000295.73 - 999746.13 = 549.60
+  assert.equal(Math.round(diff.diffAmount * 100) / 100, 549.60);
   assert.equal(diff.accountsDiff.length, 7);
 });
 
@@ -673,4 +673,72 @@ test('DailyUpdateModel: Agrupamento de Contas por Titular (getTitulares, getGrou
   assert.equal(groupN.subtotal, 421620.13);
   assert.equal(groupN.sharePct, 42.15);
   assert.equal(groupN.accounts.length, 2);
+});
+
+test('DailyUpdateModel: Reconciliação e paridade matemática absoluta entre Atualização Diária e Evolução da Equity', () => {
+  const model = new DailyUpdateModel();
+
+  // 1. Valores da tela Atualização Diária (Agrupamento de Contas)
+  const grouped = model.getGroupedAccounts();
+  const danielGroup = grouped.find(g => g.person === 'Daniel');
+  const nataliaGroup = grouped.find(g => g.person === 'Natália');
+  const consolidatedRealWealth = model.getConsolidatedRealWealth();
+
+  assert.equal(danielGroup.subtotal, 578675.60, 'Daniel na Atualização Diária deve ser R$ 578.675,60');
+  assert.equal(nataliaGroup.subtotal, 421620.13, 'Natália na Atualização Diária deve ser R$ 421.620,13');
+  assert.equal(consolidatedRealWealth, 1000295.73, 'Consolidado na Atualização Diária deve ser R$ 1.000.295,73');
+  assert.equal(Math.round((danielGroup.subtotal + nataliaGroup.subtotal) * 100) / 100, consolidatedRealWealth);
+
+  // 2. Valores da aba Evolução da Equity (Modal)
+  const equityData = model.getEquityHistorySeries({ period: 'all', owner: 'both' });
+  const summary = equityData.summary;
+
+  assert.equal(summary.daniel.current, 578675.60, 'Daniel na Evolução da Equity deve ser R$ 578.675,60');
+  assert.equal(summary.natalia.current, 421620.13, 'Natália na Evolução da Equity deve ser R$ 421.620,13');
+  assert.equal(summary.total.current, 1000295.73, 'Consolidado na Evolução da Equity deve ser R$ 1.000.295,73');
+
+  // Paridade exata (diferença zero)
+  assert.equal(danielGroup.subtotal - summary.daniel.current, 0, 'Divergência de Daniel entre as telas deve ser ZERO');
+  assert.equal(nataliaGroup.subtotal - summary.natalia.current, 0, 'Divergência de Natália entre as telas deve ser ZERO');
+  assert.equal(consolidatedRealWealth - summary.total.current, 0, 'Divergência Consolidada entre as telas deve ser ZERO');
+
+  // 3. Regra de ouro: Em todos os pontos da série histórica, Daniel + Natália === Total Consolidado
+  equityData.series.forEach(point => {
+    const sum = Math.round((point.danielWealth + point.nataliaWealth) * 100) / 100;
+    assert.equal(sum, point.totalWealth, `Ponto ${point.date}: Daniel (${point.danielWealth}) + Natália (${point.nataliaWealth}) !== Total (${point.totalWealth})`);
+  });
+
+  // 4. Auto-sanitização de dados legados corrompidos/mockados no storage
+  const mockStorageMap = new Map();
+  const staleMockData = [
+    {
+      id: 'snap_corrupt',
+      date: '2026-11-20',
+      realWealth: 1101435.43,
+      accounts: [
+        { id: 'xp_daniel', person: 'Daniel', newBalance: 207521.00 },
+        { id: 'nomad_daniel', person: 'Daniel', newBalance: 105374.00 },
+        { id: 'genial_daniel', person: 'Daniel', newBalance: 257418.00 },
+        { id: 'clear_daniel', person: 'Daniel', newBalance: 3069.00 },
+        { id: 'xp_natalia', person: 'Natália', newBalance: 220328.00 },
+        { id: 'genial_natalia', person: 'Natália', newBalance: 307725.43 } // Mock antigo com > 300k
+      ]
+    }
+  ];
+  mockStorageMap.set('healthy-daily-update-history', JSON.stringify(staleMockData));
+
+  const mockStorage = {
+    getItem: (k) => mockStorageMap.get(k) || null,
+    setItem: (k, v) => mockStorageMap.set(k, String(v))
+  };
+
+  const sanitizedHistory = model.getHistory(mockStorage);
+  assert.ok(sanitizedHistory.length >= 10);
+  assert.equal(sanitizedHistory[0].date, '2026-11-19');
+  assert.equal(sanitizedHistory[0].realWealth, 1000295.73);
+
+  // O storage mockado foi atualizado com a versão higienizada
+  const storedAfter = JSON.parse(mockStorageMap.get('healthy-daily-update-history'));
+  assert.equal(storedAfter[0].date, '2026-11-19');
+  assert.equal(storedAfter[0].realWealth, 1000295.73);
 });

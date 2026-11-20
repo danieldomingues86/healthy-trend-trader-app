@@ -701,3 +701,100 @@ test('DailyUpdateHub: renderização dos cards agrupados por titular, subtotais 
   assert.ok(mockHeaderD.innerHTML.includes('57,85%'));
   assert.equal(mockBannerWealth.textContent, DailyUpdateModel.formatBRL(1000295.73));
 });
+
+test('DailyUpdateHub: Integridade e Paridade entre Seção 1 e Evolução da Equity no Controller', () => {
+  const elementsById = new Map();
+  const elementsByClass = new Map();
+  const elementsByAttr = new Map();
+  const createdElements = [];
+  const eventListeners = [];
+
+  const fakeElement = {
+    addEventListener: (ev, fn) => eventListeners.push({ ev, fn }),
+    classList: { add: () => {}, remove: () => {}, toggle: () => {} },
+    innerHTML: '',
+    textContent: '',
+    style: {}
+  };
+
+  const mockStorageMap = new Map();
+  // Simula histórico corrompido pré-existente no browser com o mock antigo
+  mockStorageMap.set('healthy-daily-update-history', JSON.stringify([
+    {
+      id: 'snap_old_mock',
+      date: '2026-11-20',
+      realWealth: 1101435.43,
+      accounts: [
+        { id: 'xp_daniel', person: 'Daniel', newBalance: 207521.00 },
+        { id: 'nomad_daniel', person: 'Daniel', newBalance: 105374.00 },
+        { id: 'genial_daniel', person: 'Daniel', newBalance: 257418.00 },
+        { id: 'clear_daniel', person: 'Daniel', newBalance: 3069.00 },
+        { id: 'xp_natalia', person: 'Natália', newBalance: 220328.00 },
+        { id: 'genial_natalia', person: 'Natália', newBalance: 307725.43 }
+      ]
+    }
+  ]));
+
+  const mockStorage = {
+    getItem: (k) => mockStorageMap.get(k) || null,
+    setItem: (k, v) => mockStorageMap.set(k, String(v)),
+    removeItem: (k) => mockStorageMap.delete(k)
+  };
+
+  const mockDoc = {
+    getElementById: (id) => elementsById.get(id) || fakeElement,
+    querySelector: (sel) => elementsByAttr.get(sel) || null,
+    querySelectorAll: (sel) => elementsByClass.get(sel) || [],
+    addEventListener: () => {},
+    createElement: (tag) => {
+      const el = {
+        tagName: tag,
+        id: '',
+        className: '',
+        innerHTML: '',
+        style: {},
+        setAttribute: () => {},
+        appendChild: () => {}
+      };
+      createdElements.push(el);
+      return el;
+    },
+    body: { appendChild: () => {}, removeChild: () => {} }
+  };
+
+  class MockCustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  }
+
+  const mockRoot = {
+    DailyUpdateModel,
+    healthyTrendWorkspace: {
+      raw: (k) => mockStorageMap.get(k) || null,
+      save: (k, v) => mockStorageMap.set(k, typeof v === 'string' ? v : JSON.stringify(v))
+    }
+  };
+
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  runFn.call(mockRoot, mockRoot, mockDoc, mockStorage, MockCustomEvent, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  assert.ok(controller, 'Controller deve ser instanciado');
+  controller.loadSavedState();
+
+  // Verifica que o storage foi higienizado
+  const cleaned = JSON.parse(mockStorageMap.get('healthy-daily-update-history'));
+  assert.equal(cleaned[0].date, '2026-11-19');
+  assert.equal(cleaned[0].realWealth, 1000295.73);
+
+  // Verifica paridade no HTML da aba Evolução da Equity
+  const equityHtml = controller.renderEquityTabHtml();
+  assert.ok(equityHtml.includes(DailyUpdateModel.formatBRL(578675.60)), 'HTML de Equity deve conter Daniel R$ 578.675,60');
+  assert.ok(equityHtml.includes(DailyUpdateModel.formatBRL(421620.13)), 'HTML de Equity deve conter Natália R$ 421.620,13');
+  assert.ok(equityHtml.includes(DailyUpdateModel.formatBRL(1000295.73)), 'HTML de Equity deve conter Consolidado R$ 1.000.295,73');
+  assert.ok(!equityHtml.includes('1.101.435,43'), 'HTML de Equity NÃO deve conter o valor mock antigo de 1.101.435,43');
+  assert.ok(!equityHtml.includes('528.053,43'), 'HTML de Equity NÃO deve conter o valor mock antigo de Natália 528.053,43');
+});

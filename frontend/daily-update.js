@@ -94,6 +94,29 @@
           }
         }
       } catch (_) {}
+
+      // 3. History in localStorage and workspace-state (sanitize if containing obsolete legacy mock snapshots)
+      try {
+        const historyKey = root.DailyUpdateModel?.STORAGE_KEY_HISTORY || 'healthy-daily-update-history';
+        if (typeof localStorage !== 'undefined') {
+          const rawHist = localStorage.getItem(historyKey);
+          if (rawHist) {
+            const parsedHist = JSON.parse(rawHist);
+            const hasLegacyMock = Array.isArray(parsedHist) && parsedHist.some(s => {
+              const accs = Array.isArray(s.accounts) ? s.accounts : [];
+              return accs.some(a => a.id === 'genial_natalia' && (Number(a.newBalance || 0) > 300000 || Number(a.previousBalance || 0) > 300000)) ||
+                     (s.date && s.date.startsWith('2026-11') && Number(s.realWealth || 0) > 1050000);
+            });
+            if (hasLegacyMock) {
+              const clean = this.model.getHistory();
+              localStorage.setItem(historyKey, JSON.stringify(clean));
+              if (root.healthyTrendWorkspace?.save) {
+                root.healthyTrendWorkspace.save(historyKey, clean);
+              }
+            }
+          }
+        }
+      } catch (_) {}
     }
 
     async syncWithBackend() {
@@ -2139,7 +2162,7 @@
             ${this.buildEquitySvgChart({
               id: 'chart_daniel',
               title: 'Evolução da Equity — Daniel',
-              subtitle: 'Contas XP, Nomad, Genial e Clear',
+              subtitle: 'Contas XP, Nomad, Genial, Clear e EqSeed',
               badge: 'Escala Dedicada (Daniel)',
               points: series,
               valKey: 'danielWealth',
@@ -2172,7 +2195,7 @@
             ${this.buildEquitySvgChart({
               id: 'chart_daniel_single',
               title: 'Evolução da Equity — Daniel',
-              subtitle: 'Visão detalhada: XP, Nomad, Genial e Clear',
+              subtitle: 'Visão detalhada: XP, Nomad, Genial, Clear e EqSeed',
               badge: 'Titular Selecionado',
               points: series,
               valKey: 'danielWealth',
@@ -2210,7 +2233,7 @@
             ${this.buildEquitySvgChart({
               id: 'chart_total_single',
               title: 'Patrimônio Real Consolidado',
-              subtitle: 'Evolução da soma de todas as 6 contas registradas',
+              subtitle: 'Evolução da soma de todas as 7 contas registradas (Daniel & Natália)',
               badge: 'Consolidado Geral',
               points: series,
               valKey: 'totalWealth',
