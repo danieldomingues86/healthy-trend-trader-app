@@ -124,8 +124,6 @@
   ];
 
   // Default sample historical snapshots for consultation and comparison
-const fs = require('fs');
-
 const DEFAULT_HISTORY = [
   {
     id: 'snap_2026-11-19_180000',
