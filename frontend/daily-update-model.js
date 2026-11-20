@@ -44,13 +44,13 @@
       broker: 'nomad',
       person: 'Daniel',
       currency: 'USD',
-      previousBalanceUSD: 17762.62,
-      newBalanceUSD: 17762.62,
-      fxRate: 5.9335,
-      fxSource: 'PTAX / Referência Planilha V11',
+      previousBalanceUSD: 17759.25,
+      newBalanceUSD: 17759.25,
+      fxRate: 5.95,
+      fxSource: 'Planilha V11 (D26)',
       fxTimestamp: '2026-11-19T18:00:00.000Z',
-      previousBalance: 105374.51,
-      newBalance: 105374.51,
+      previousBalance: 105667.54,
+      newBalance: 105667.54,
       status: 'keep',
       inputCurrency: 'BRL', // 'BRL' | 'USD'
       updatedAt: '2026-11-19T18:00:00.000Z'
@@ -74,6 +74,17 @@
       currency: 'BRL',
       previousBalance: 3068.91,
       newBalance: 3068.91,
+      status: 'keep',
+      updatedAt: '2026-11-19T18:00:00.000Z'
+    },
+    {
+      id: 'eqseed_daniel',
+      label: 'EqSeed — Daniel (Startup)',
+      broker: 'eqseed',
+      person: 'Daniel',
+      currency: 'BRL',
+      previousBalance: 5000.00,
+      newBalance: 5000.00,
       status: 'keep',
       updatedAt: '2026-11-19T18:00:00.000Z'
     },
@@ -123,21 +134,22 @@
       hasException: false,
       exceptions: [],
       user: { name: 'Daniel' },
-      realWealth: 995002.70,
+      realWealth: 1000295.73,
       previousRealWealth: 1001317.92,
-      dayVariationAmount: -6315.22,
-      dayVariationPct: -0.63,
+      dayVariationAmount: -1022.19,
+      dayVariationPct: -0.10,
       strategyEquity: 1112175.49,
       totalExposure: 314302.00,
-      exposurePct: 31.59,
+      exposurePct: 31.42,
       portfolioHeat: 0.00,
       accounts: [
-        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 206028.00, newBalance: 207521.00, variationPct: 0.72, wealthSharePct: 20.86, status: 'updated' },
-        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17759.25, newBalanceUSD: 17762.62, fxRate: 5.9335, previousBalance: 97143.36, newBalance: 105374.51, variationPct: 8.47, wealthSharePct: 10.59, status: 'updated' },
-        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 265776.90, newBalance: 257418.15, variationPct: -3.14, wealthSharePct: 25.87, status: 'updated' },
+        { id: 'xp_daniel', label: 'XP — Daniel', broker: 'xp', person: 'Daniel', currency: 'BRL', previousBalance: 206028.00, newBalance: 207521.00, variationPct: 0.72, wealthSharePct: 20.75, status: 'updated' },
+        { id: 'nomad_daniel', label: 'Nomad — Daniel', broker: 'nomad', person: 'Daniel', currency: 'USD', previousBalanceUSD: 17759.25, newBalanceUSD: 17759.25, fxRate: 5.95, previousBalance: 97143.36, newBalance: 105667.54, variationPct: 8.77, wealthSharePct: 10.56, status: 'updated' },
+        { id: 'genial_daniel', label: 'Genial — Daniel', broker: 'genial', person: 'Daniel', currency: 'BRL', previousBalance: 265776.90, newBalance: 257418.15, variationPct: -3.14, wealthSharePct: 25.73, status: 'updated' },
         { id: 'clear_daniel', label: 'Clear — Daniel', broker: 'clear', person: 'Daniel', currency: 'BRL', previousBalance: 3068.91, newBalance: 3068.91, variationPct: 0.00, wealthSharePct: 0.31, status: 'keep' },
-        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 205019.25, newBalance: 200911.07, variationPct: -2.00, wealthSharePct: 20.19, status: 'updated' },
-        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 219281.50, newBalance: 220709.06, variationPct: 0.65, wealthSharePct: 22.18, status: 'updated' }
+        { id: 'eqseed_daniel', label: 'EqSeed — Daniel (Startup)', broker: 'eqseed', person: 'Daniel', currency: 'BRL', previousBalance: 5000.00, newBalance: 5000.00, variationPct: 0.00, wealthSharePct: 0.50, status: 'keep' },
+        { id: 'xp_natalia', label: 'XP — Natália', broker: 'xp', person: 'Natália', currency: 'BRL', previousBalance: 205019.25, newBalance: 200911.07, variationPct: -2.00, wealthSharePct: 20.08, status: 'updated' },
+        { id: 'genial_natalia', label: 'Genial — Natália', broker: 'genial', person: 'Natália', currency: 'BRL', previousBalance: 219281.50, newBalance: 220709.06, variationPct: 0.65, wealthSharePct: 22.06, status: 'updated' }
       ],
       positions: [
         { id: 'pos_aapl34', ticker: 'AAPL34', quantity: 600, entryPrice: 100.86, currentPrice: 103.21, status: 'conferida', checked: true, hasDivergence: false },
@@ -148,8 +160,8 @@
         { id: 'pos_bgix26', ticker: 'BGIX26', quantity: 1, entryPrice: 402.25, currentPrice: 399.00, status: 'conferida', checked: true, hasDivergence: false },
         { id: 'pos_m2st34', ticker: 'M2ST34', quantity: 600, entryPrice: 8.99, currentPrice: 7.38, status: 'conferida', checked: true, hasDivergence: false }
       ],
-      summary: { totalAccounts: 6, accountsChecked: 6, pendingAccounts: 0, totalPositions: 7, positionsChecked: 7, pendingPositions: 0, divergences: 0 },
-      auditReason: 'Fechamento Diário (19/11/2026) — Total R$ 995.002,70 consolidado com sucesso.',
+      summary: { totalAccounts: 7, accountsChecked: 7, pendingAccounts: 0, totalPositions: 7, positionsChecked: 7, pendingPositions: 0, divergences: 0 },
+      auditReason: 'Fechamento Diário (19/11/2026) — Total R$ 1.000.295,73 consolidado com sucesso.',
       corrections: []
     },
     {
@@ -656,7 +668,7 @@
       this.portfolioHeat = options.portfolioHeat !== undefined ? Number(options.portfolioHeat) : 0.00;
       this.heatLimit = options.heatLimit !== undefined ? Number(options.heatLimit) : 12.50;
       this.closingDate = options.closingDate || new Date().toISOString().slice(0, 10);
-      this.previousClosingWealth = options.previousClosingWealth !== undefined ? Number(options.previousClosingWealth) : 995002.70;
+      this.previousClosingWealth = options.previousClosingWealth !== undefined ? Number(options.previousClosingWealth) : 1000295.73;
       this.closingStatus = options.closingStatus || 'READY_TO_CLOSE'; // 'NOT_STARTED' | 'IN_PROGRESS' | 'READY_TO_CLOSE' | 'CLOSED'
     }
 

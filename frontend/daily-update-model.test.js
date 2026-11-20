@@ -5,7 +5,7 @@ const DailyUpdateModel = require('./daily-update-model.js');
 test('DailyUpdateModel: inicializa com contas e posições padrão homologadas', () => {
   const model = new DailyUpdateModel();
 
-  assert.equal(model.accounts.length, 6);
+  assert.equal(model.accounts.length, 7);
   assert.equal(model.positions.length, 7);
   assert.equal(model.strategyEquity, 1112175.49);
 
@@ -27,9 +27,9 @@ test('DailyUpdateModel: cálculo correto do Patrimônio Real Consolidado e Varia
   const nominalVar = model.getDayNominalVariation();
   const pctVar = model.getDayPercentVariation();
 
-  // 207521 + 105374.51 + 257418.15 + 3068.91 + 200911.07 + 220709.06 = 995002.70
-  assert.equal(Math.round(realWealth * 100) / 100, 995002.70);
-  assert.equal(Math.round(prevWealth * 100) / 100, 995002.70);
+  // 207521 + 105667.54 + 257418.15 + 3068.91 + 200911.07 + 220709.06 = 1000295.73
+  assert.equal(Math.round(realWealth * 100) / 100, 1000295.73);
+  assert.equal(Math.round(prevWealth * 100) / 100, 1000295.73);
   // Variação nominal = 0.00 (saldos mantidos conforme fechamento V11)
   assert.equal(Math.round(nominalVar * 100) / 100, 0.00);
   assert.equal(Math.round(pctVar * 100) / 100, 0.00);
@@ -60,7 +60,7 @@ test('DailyUpdateModel: cálculo de Exposição Atual e Heat do Portfólio', () 
   assert.ok(exposurePct > 0 && exposurePct < 100);
 
   const progress = model.getProgress();
-  assert.equal(progress.totalAccounts, 6);
+  assert.equal(progress.totalAccounts, 7);
   assert.equal(progress.totalPositions, 7);
   assert.equal(progress.divergences, 0);
   assert.equal(progress.readyToClose, true);
@@ -162,14 +162,14 @@ test('DailyUpdateModel Card [02]: ações rápidas Manter Saldo, Manter Todos e 
 test('DailyUpdateModel Card [02]: rastreamento detalhado de Nomad (USD) e independência cambial', () => {
   const model = new DailyUpdateModel();
 
-  // Nomad padrão com USD 17.762,62 e cotação 5,9335
+  // Nomad padrão com USD 17.759,25 e cotação 5,95
   const fxDetails = model.getForeignCurrencyDetails('nomad_daniel');
   assert.ok(fxDetails !== null);
   assert.equal(fxDetails.currency, 'USD');
-  assert.equal(fxDetails.balanceUSD, 17762.62);
-  assert.equal(fxDetails.previousBalanceUSD, 17762.62);
-  assert.equal(fxDetails.fxRate, 5.9335);
-  assert.equal(fxDetails.convertedBRL, 105374.51);
+  assert.equal(fxDetails.balanceUSD, 17759.25);
+  assert.equal(fxDetails.previousBalanceUSD, 17759.25);
+  assert.equal(fxDetails.fxRate, 5.95);
+  assert.equal(fxDetails.convertedBRL, 105667.54);
 
   // Variação em USD é estritamente calculada sobre a moeda original
   const usdVar = model.getAccountUsdVariationPct(model.accounts.find(a => a.id === 'nomad_daniel'));
@@ -340,11 +340,11 @@ test('DailyUpdateModel Card [04]: criação e persistência de Snapshot completo
   assert.equal(snapshot.version, 1);
   assert.equal(snapshot.status, 'closed');
   assert.equal(snapshot.hasException, false);
-  assert.equal(snapshot.realWealth, 995002.70);
+  assert.equal(snapshot.realWealth, 1000295.73);
   assert.equal(snapshot.dayVariationAmount, 0.00);
   assert.equal(snapshot.dayVariationPct, 0.00);
   assert.equal(snapshot.strategyEquity, 1112175.49);
-  assert.equal(snapshot.accounts.length, 6);
+  assert.equal(snapshot.accounts.length, 7);
   assert.equal(snapshot.positions.length, 7);
   assert.ok(snapshot.auditReason.includes('Fechamento Diário'));
 
@@ -362,7 +362,7 @@ test('DailyUpdateModel Card [04]: criação e persistência de Snapshot completo
 
   const retrieved = model.getSnapshotByDate('2026-11-20', mockStorage);
   assert.equal(retrieved.id, snapshot.id);
-  assert.equal(retrieved.realWealth, 995002.70);
+  assert.equal(retrieved.realWealth, 1000295.73);
 });
 
 test('DailyUpdateModel Card [04]: conclusão com ressalvas / exceções permitidas', () => {
@@ -423,8 +423,8 @@ test('DailyUpdateModel Card [04]: correção versionada de fechamento (v1 -> v2)
   assert.equal(snapV2.correctionReason, 'Ajuste de saldo após liquidação de dividendo na XP');
   assert.ok(snapV2.corrections.length === 1);
   assert.equal(snapV2.corrections[0].version, 1);
-  assert.equal(snapV2.corrections[0].realWealth, 995002.70);
-  assert.equal(Math.round(snapV2.realWealth * 100) / 100, 997481.70);
+  assert.equal(snapV2.corrections[0].realWealth, 1000295.73);
+  assert.equal(Math.round(snapV2.realWealth * 100) / 100, 1002774.73);
   assert.ok(snapV2.auditReason.includes('[CORREÇÃO v2]'));
 });
 
@@ -438,9 +438,9 @@ test('DailyUpdateModel Card [04]: comparação entre dois snapshots históricos'
   assert.equal(diff.date1, '2026-11-19');
   assert.equal(diff.date2, '2026-11-18');
 
-  // Real wealth: 995002.70 - 1098650.00 = -103647.30
-  assert.equal(Math.round(diff.diffAmount * 100) / 100, -103647.30);
-  assert.equal(diff.accountsDiff.length, 6);
+  // Real wealth: 1000295.73 - 1098650.00 = -98354.27
+  assert.equal(Math.round(diff.diffAmount * 100) / 100, -98354.27);
+  assert.equal(diff.accountsDiff.length, 7);
 });
 
 test('DailyUpdateModel Card [04]: Checklist de Reconciliação com a Planilha Trading Log Premium', () => {
@@ -529,7 +529,7 @@ test('DailyUpdateModel Card [05]: persistência da participação percentual no 
   const snapshot = model.createSnapshot();
 
   assert.ok(Array.isArray(snapshot.accounts));
-  assert.equal(snapshot.accounts.length, 6);
+  assert.equal(snapshot.accounts.length, 7);
 
   // Cada conta deve conter wealthSharePct gravado
   let snapshotSharesSum = 0;

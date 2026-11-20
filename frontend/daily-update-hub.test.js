@@ -185,11 +185,11 @@ test('DailyUpdateHub Card [02]: DailyUpdateHubController métodos de ação e in
 
   // Valida que chamou /api/wealth/adjustments com os dados consolidados
   assert.ok(adjustmentPayload !== null, 'Deve ter chamado /api/wealth/adjustments');
-  assert.equal(Math.round(adjustmentPayload.newAmount * 100) / 100, 995002.70);
+  assert.equal(Math.round(adjustmentPayload.newAmount * 100) / 100, 1000295.73);
   assert.ok(adjustmentPayload.reason.includes('Fechamento Diário'));
 
   // Valida sincronização global do equity operacional
-  assert.equal(Math.round(operationalEquitySet * 100) / 100, 995002.70);
+  assert.equal(Math.round(operationalEquitySet * 100) / 100, 1000295.73);
 
   // Valida disparo dos eventos oficiais
   assert.ok(dispatchedEvents.includes('healthyTrend:equityUpdated'));
@@ -388,7 +388,7 @@ test('DailyUpdateHub Card [04]: fechamento, snapshots históricos, ressalvas e a
   assert.ok(todaySnap !== null);
   assert.equal(todaySnap.version, 1);
   assert.equal(todaySnap.status, 'closed');
-  assert.equal(todaySnap.realWealth, 995002.70);
+  assert.equal(todaySnap.realWealth, 1000295.73);
 
   // Verifica sincronização com API de adjustments e workspace
   assert.ok(apiRequests.some(r => r.url === '/api/wealth/adjustments'));

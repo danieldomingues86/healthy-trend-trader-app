@@ -64,11 +64,8 @@
     }
 
     loadSavedState() {
-      // Priority 1: draft in localStorage
-      const loadedDraft = this.model.loadDraft();
-      if (loadedDraft) return;
-
-      // Priority 2: saved accounts in workspace-state
+      // 1. Prioritize saved accounts in workspace-state
+      let workspaceAccountsLoaded = false;
       try {
         if (root.healthyTrendWorkspace?.raw) {
           const rawAccounts = root.healthyTrendWorkspace.raw('healthy-daily-update-accounts');
@@ -77,7 +74,22 @@
             if (Array.isArray(parsed) && parsed.length > 0) {
               this.model.accounts = parsed;
               this.model.updateClosingReadiness();
+              workspaceAccountsLoaded = true;
             }
+          }
+        }
+      } catch (_) {}
+
+      // 2. Draft in localStorage (discard if it contains obsolete legacy mock balances)
+      try {
+        const rawDraft = typeof localStorage !== 'undefined' ? localStorage.getItem(root.DailyUpdateModel?.STORAGE_KEY_DRAFT || 'healthy-daily-update-draft-v1') : null;
+        if (rawDraft) {
+          const parsedDraft = JSON.parse(rawDraft);
+          const hasLegacyMock = Array.isArray(parsedDraft?.accounts) && parsedDraft.accounts.some(a => a.id === 'genial_natalia' && (a.newBalance > 300000 || a.previousBalance > 300000));
+          if (hasLegacyMock) {
+            this.model.clearDraft();
+          } else if (!workspaceAccountsLoaded) {
+            this.model.loadDraft();
           }
         }
       } catch (_) {}
