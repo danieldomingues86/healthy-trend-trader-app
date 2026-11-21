@@ -368,23 +368,7 @@
             </article>
           </section>
 
-          <!-- 3. STEPPER INDICATOR -->
-          <nav class="daily-update-stepper" aria-label="Etapas do Fechamento">
-            <div class="stepper-step ${progress.accountsComplete ? 'completed' : 'active'}">
-              <span class="stepper-circle">${progress.accountsComplete ? '✓' : '1'}</span>
-              <span>1. Atualizar Contas</span>
-            </div>
-            <div class="stepper-step ${progress.positionsComplete ? 'completed' : progress.accountsComplete ? 'active' : ''}">
-              <span class="stepper-circle">${progress.positionsComplete ? '✓' : '2'}</span>
-              <span>2. Conferir Posições</span>
-            </div>
-            <div class="stepper-step ${progress.readyToClose ? 'active' : ''}">
-              <span class="stepper-circle">3</span>
-              <span>3. Fechamento</span>
-            </div>
-          </nav>
-
-          <!-- 4. WORKSPACE GRID (2 COLUMNS: CONTAS & POSIÇÕES) -->
+          <!-- 3. WORKSPACE GRID (2 COLUMNS: CONTAS & POSIÇÕES) -->
           <div class="daily-update-workspace-grid">
             <!-- Left: Contas (Saldos Totais) -->
             <section class="daily-update-card accounts-card">
