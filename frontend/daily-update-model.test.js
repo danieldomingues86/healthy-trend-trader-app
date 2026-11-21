@@ -903,3 +903,138 @@ test('DailyUpdateModel: 10 Cenários de Aceitação — Separação entre Patrim
   const rejectPos = modelWithFutureChecking.linkPositionToAccount('pos_aapl34', 'itau_natalia');
   assert.equal(rejectPos.success, false);
 });
+
+test('DailyUpdateModel: 11 Cenários de Aceitação — Volume Financeiro, Exposição Sincronizada e Heat Oficial', () => {
+  // Cenário 1: O volume financeiro de cada posição é calculado corretamente
+  const model = new DailyUpdateModel();
+
+  const vAapl = model.getPositionFinancialVolume(model.positions.find(p => p.id === 'pos_aapl34'));
+  const vAmzn = model.getPositionFinancialVolume(model.positions.find(p => p.id === 'pos_amzn34'));
+  const vWin = model.getPositionFinancialVolume(model.positions.find(p => p.id === 'pos_winz26'));
+  const vBrav = model.getPositionFinancialVolume(model.positions.find(p => p.id === 'pos_brav3'));
+  const vBbas = model.getPositionFinancialVolume(model.positions.find(p => p.id === 'pos_bbas3'));
+  const vBgi = model.getPositionFinancialVolume(model.positions.find(p => p.id === 'pos_bgix26'));
+  const vM2st = model.getPositionFinancialVolume(model.positions.find(p => p.id === 'pos_m2st34'));
+
+  assert.equal(vAapl, 61926.00); // 600 * 103.21 * 1
+  assert.equal(vAmzn, 38515.00); // 500 * 77.03 * 1
+  assert.equal(vWin, 67038.00);  // 2 * 167595 * 0.20
+  assert.equal(vBrav, 6435.00);  // 500 * 12.87 * 1
+  assert.equal(vBbas, 4290.00);  // 300 * 14.30 * 1
+  assert.equal(vBgi, 131670.00); // 1 * 399.00 * 330
+  assert.equal(vM2st, 4428.00);  // 600 * 7.38 * 1
+
+  // Cenário 2: O totalizador corresponde à soma das posições abertas
+  const expectedTotal = 61926.00 + 38515.00 + 67038.00 + 6435.00 + 4290.00 + 131670.00 + 4428.00;
+  assert.equal(expectedTotal, 314302.00);
+  assert.equal(model.getTotalExposure(), 314302.00);
+
+  // Cenário 3: O KPI Exposição Atual corresponde exatamente ao totalizador
+  const kpiExposure = model.getTotalExposure();
+  const tableTotalizer = model.positions
+    .filter(p => !p.closed && p.status !== 'encerrada')
+    .reduce((sum, p) => sum + model.getPositionFinancialVolume(p), 0);
+  assert.equal(kpiExposure, tableTotalizer);
+  assert.equal(Math.round(model.getExposurePct() * 100) / 100, 31.42);
+
+  // Cenário 4: O encerramento de uma posição atualiza os dois indicadores
+  const closeRes = model.closePosition('pos_aapl34');
+  assert.equal(closeRes.success, true);
+  assert.equal(model.getTotalExposure(), 314302.00 - 61926.00);
+  assert.equal(model.getTotalExposure(), 252376.00);
+  const updatedTableTotalizer = model.positions
+    .filter(p => !p.closed && p.status !== 'encerrada')
+    .reduce((sum, p) => sum + model.getPositionFinancialVolume(p), 0);
+  assert.equal(model.getTotalExposure(), updatedTableTotalizer);
+
+  // Cenário 5: A alteração de quantidade atualiza os dois indicadores
+  const modelQty = new DailyUpdateModel();
+  const qtyRes = modelQty.updatePositionQuantity('pos_aapl34', 300); // reduziu pela metade (300 ações a menos: -30.963,00)
+  assert.equal(qtyRes.success, true);
+  assert.equal(modelQty.getPositionFinancialVolume(modelQty.positions.find(p => p.id === 'pos_aapl34')), 30963.00);
+  assert.equal(modelQty.getTotalExposure(), 314302.00 - 30963.00);
+  assert.equal(modelQty.getTotalExposure(), 283339.00);
+
+  // Cenário 6: A atualização de preços recalcula corretamente a exposição
+  const modelPrice = new DailyUpdateModel();
+  const priceRes = modelPrice.updatePositionPrice('pos_aapl34', 110.00, { syncAccount: false });
+  assert.equal(priceRes.success, true);
+  assert.equal(modelPrice.getPositionFinancialVolume(modelPrice.positions.find(p => p.id === 'pos_aapl34')), 66000.00); // 600 * 110.00
+  assert.equal(modelPrice.getTotalExposure(), 314302.00 + (66000.00 - 61926.00));
+  assert.equal(modelPrice.getTotalExposure(), 318376.00);
+
+  // Cenário 7: Instrumentos com multiplicadores e moedas diferentes respeitam as regras de valuation
+  const modelInstruments = new DailyUpdateModel();
+  // WINZ26 com multiplicador de mini-índice (0.2)
+  const posWin = modelInstruments.positions.find(p => p.id === 'pos_winz26');
+  assert.equal(modelInstruments.getPositionFinancialVolume(posWin), 2 * 167595 * 0.2); // 67.038,00
+  // BGIX26 com multiplicador de boi gordo (330)
+  const posBgi = modelInstruments.positions.find(p => p.id === 'pos_bgix26');
+  assert.equal(modelInstruments.getPositionFinancialVolume(posBgi), 1 * 399.00 * 330); // 131.670,00
+  // Instrumento internacional em USD com conversão cambial
+  modelInstruments.positions.push({
+    id: 'pos_spy',
+    ticker: 'SPY',
+    quantity: 10,
+    currentPrice: 580.00,
+    currency: 'USD',
+    fxRate: 5.80,
+    contractMult: 1,
+    status: 'conferida'
+  });
+  const posSpy = modelInstruments.positions.find(p => p.id === 'pos_spy');
+  assert.equal(modelInstruments.getPositionFinancialVolume(posSpy), 10 * 580.00 * 1 * 5.80); // 33.640,00
+  assert.equal(modelInstruments.getTotalExposure(), 314302.00 + 33640.00);
+
+  // Cenário 8: O Heat da Atualização Diária é idêntico ao Heat do cabeçalho
+  const modelHeat = new DailyUpdateModel();
+  // Simula o provedor oficial do cabeçalho (window.portfolioHeatSnapshot)
+  global.window = global.window || {};
+  global.window.portfolioHeatSnapshot = () => ({ heat: 2.12, status: 'ok', totalRiskBrl: 21206.27 });
+  assert.equal(modelHeat.getPortfolioHeat(), 2.12);
+
+  // Cenário 9: O limite de Heat é obtido da configuração oficial, sem valores fixos (5,00%, nunca 12,50% fixo)
+  global.window.portfolioHeatLimitPct = () => 5.00;
+  assert.equal(modelHeat.getHeatLimit(), 5.00);
+  assert.notEqual(modelHeat.getHeatLimit(), 12.50);
+
+  // Testa recuperação dinâmica de perfil de política de risco (ex: 6.00%)
+  global.window.portfolioHeatLimitPct = () => 6.00;
+  assert.equal(modelHeat.getHeatLimit(), 6.00);
+
+  // Limpa os mocks de window
+  delete global.window.portfolioHeatSnapshot;
+  delete global.window.portfolioHeatLimitPct;
+
+  // Cenário 10: Alterações nas posições e nos stops atualizam o Heat conforme a metodologia oficial
+  const modelRisk = new DailyUpdateModel();
+  const initialCalculatedHeat = modelRisk.calculatePositionsRiskHeat();
+  assert.ok(initialCalculatedHeat > 0, 'Heat calculado deve ser maior que 0');
+
+  // Ao subir o trailing stop de AAPL34 (de 96.49 para 100.00), o risco diminui e o Heat cai
+  const stopRes = modelRisk.updatePositionStop('pos_aapl34', 100.00);
+  assert.equal(stopRes.success, true);
+  const updatedHeat = modelRisk.calculatePositionsRiskHeat();
+  assert.ok(updatedHeat < initialCalculatedHeat, `Heat atualizado (${updatedHeat}%) deve ser menor que o inicial (${initialCalculatedHeat}%)`);
+
+  // Ao encerrar uma posição com risco, o Heat cai ainda mais
+  modelRisk.closePosition('pos_winz26');
+  const heatAfterClose = modelRisk.calculatePositionsRiskHeat();
+  assert.ok(heatAfterClose < updatedHeat, `Heat após encerramento (${heatAfterClose}%) deve ser menor que o anterior (${updatedHeat}%)`);
+
+  // Cenário 11: Nenhum indicador apresenta divergência entre telas
+  const snapshotModel = new DailyUpdateModel();
+  snapshotModel.setPortfolioHeat(2.12);
+  snapshotModel.setHeatLimit(5.00);
+  const snapshot = snapshotModel.createSnapshot();
+
+  // Garante que o snapshot auditável gravado possui total paridade
+  assert.equal(snapshot.totalExposure, snapshotModel.getTotalExposure());
+  assert.equal(snapshot.portfolioHeat, 2.12);
+  assert.equal(snapshot.heatLimit, 5.00);
+  assert.equal(snapshot.totalExposure, 314302.00);
+  assert.equal(snapshot.positions.length, 7);
+  snapshot.positions.forEach(p => {
+    assert.ok(p.financialVolume > 0, `Posição ${p.ticker} deve registrar financialVolume`);
+  });
+});

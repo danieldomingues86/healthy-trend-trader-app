@@ -886,3 +886,119 @@ test('DailyUpdateHub: Remoção do botão Recarregar da Corretora e Vinculação
   assert.ok(renderedHtml.includes('posições'), 'Texto de posições vinculadas deve aparecer de forma compacta');
   assert.ok(renderedHtml.includes('title="Posições vinculadas:'), 'Ticker deve permanecer no tooltip title');
 });
+
+test('DailyUpdateHub: Volume Financeiro, Totalizador Sincronizado e Heat Oficial no Controller/DOM', () => {
+  let renderedHtml = '';
+  const fakeElement = {
+    set innerHTML(val) { renderedHtml = val; },
+    get innerHTML() { return renderedHtml; },
+    classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+    style: {},
+    appendChild: () => {},
+    querySelector: (sel) => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {}
+  };
+
+  const storageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v)),
+    removeItem: (k) => storageMap.delete(k)
+  };
+
+  let topHeatRendered = false;
+  let portfolioHeatRendered = false;
+  let tradesUpdatedDispatched = false;
+
+  const mockRoot = {
+    localStorage: mockStorage,
+    sessionStorage: mockStorage,
+    DailyUpdateModel,
+    portfolioHeatSnapshot: () => ({ heat: 2.12, status: 'ok' }),
+    portfolioHeatLimitPct: () => 5.00,
+    renderTopHeat: () => { topHeatRendered = true; },
+    renderPortfolioHeat: () => { portfolioHeatRendered = true; },
+    dispatchEvent: (ev) => {
+      if (ev.type === 'healthyTrend:tradesUpdated') tradesUpdatedDispatched = true;
+    },
+    operationalState: {
+      positions: [
+        { id: 'pos_aapl34', asset: 'AAPL34', quantity: 600, currentPrice: 103.21, currentStop: 96.49 }
+      ]
+    }
+  };
+
+  const mockDoc = {
+    getElementById: (id) => {
+      if (id === 'dailyUpdateRoot') return fakeElement;
+      return null;
+    },
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    createElement: () => ({ setAttribute: () => {}, appendChild: () => {}, style: {} }),
+    body: { appendChild: () => {}, removeChild: () => {} }
+  };
+
+  class MockCustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  }
+
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  runFn.call(mockRoot, mockRoot, mockDoc, mockStorage, MockCustomEvent, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  controller.render();
+
+  // 1. Coluna "Volume Financeiro" presente no cabeçalho da tabela de posições
+  assert.ok(renderedHtml.includes('th-pos-volume'), 'Classe th-pos-volume deve estar presente no thead');
+  assert.ok(renderedHtml.includes('Volume Financeiro'), 'Texto Volume Financeiro deve estar presente no thead');
+
+  // 2. Coluna e valores de volume em cada linha da tabela
+  assert.ok(renderedHtml.includes('td-pos-volume'), 'Classe td-pos-volume deve estar presente nas células');
+  assert.ok(renderedHtml.includes('pos-volume-val'), 'Classe pos-volume-val deve estar presente');
+  assert.ok(renderedHtml.includes('61.926,00'), 'Volume de AAPL34 (61.926,00) deve estar presente');
+  assert.ok(renderedHtml.includes('131.670,00'), 'Volume de BGIX26 com multiplicador 330 (131.670,00) deve estar presente');
+  assert.ok(renderedHtml.includes('67.038,00'), 'Volume de WINZ26 com multiplicador 0.20 (67.038,00) deve estar presente');
+
+  // 3. Linha de totalização no rodapé da tabela (tfoot)
+  assert.ok(renderedHtml.includes('positions-tfoot-row'), 'Linha de tfoot positions-tfoot-row deve estar presente');
+  assert.ok(renderedHtml.includes('TOTAL EXPOSTO:'), 'Rótulo TOTAL EXPOSTO: deve estar presente');
+  assert.ok(renderedHtml.includes('314.302,00'), 'Valor consolidado de 314.302,00 deve estar no rodapé da tabela');
+
+  // 4. Barra totalizadora com destaque visual moderado abaixo da tabela
+  assert.ok(renderedHtml.includes('positions-table-totalizer'), 'Barra positions-table-totalizer deve ser renderizada');
+  assert.ok(renderedHtml.includes('totalizer-amount'), 'Classe totalizer-amount deve estar presente');
+
+  // 5. Sincronização exata com o KPI 3 (Exposição Atual)
+  assert.ok(renderedHtml.includes('id="kpiTotalExposure"'), 'ID kpiTotalExposure deve estar presente no KPI 3');
+  assert.ok(renderedHtml.includes('31,42% do patrimônio'), 'Percentual de exposição de 31,42% deve estar presente');
+
+  // 6. Heat do Portfólio oficial (2,12% e limite 5,00% idênticos ao cabeçalho)
+  assert.ok(renderedHtml.includes('id="kpiPortfolioHeat"'), 'ID kpiPortfolioHeat deve estar presente no KPI 4');
+  assert.ok(renderedHtml.includes('id="kpiHeatLimit"'), 'ID kpiHeatLimit deve estar presente no KPI 4');
+  assert.ok(renderedHtml.includes('2,12%'), 'Heat oficial de 2,12% deve ser exibido no KPI 4');
+  assert.ok(renderedHtml.includes('Limite: 5,00%'), 'Limite oficial de 5,00% deve ser exibido no KPI 4 (sem 12,50% hardcoded)');
+
+  // 7. Teste de ações do controller e recálculo sincronizado
+  // Fechamento de posição (closePosition)
+  controller.closePosition('pos_aapl34');
+  assert.ok(topHeatRendered, 'renderTopHeat deve ter sido invocado');
+  assert.ok(portfolioHeatRendered, 'renderPortfolioHeat deve ter sido invocado');
+  assert.ok(tradesUpdatedDispatched, 'Evento healthyTrend:tradesUpdated deve ter sido disparado');
+  assert.equal(controller.model.getTotalExposure(), 252376.00);
+
+  // Alteração de quantidade (updatePositionQuantity)
+  controller.updatePositionQuantity('pos_amzn34', 250); // de 500 para 250 (-19.257,50)
+  assert.equal(controller.model.getTotalExposure(), 252376.00 - 19257.50);
+
+  // Alteração de stop (updatePositionStop)
+  const stopRes = controller.updatePositionStop('pos_brav3', 12.50);
+  assert.equal(stopRes.success, true);
+  assert.equal(controller.model.positions.find(p => p.id === 'pos_brav3').trailingStop, 12.50);
+});

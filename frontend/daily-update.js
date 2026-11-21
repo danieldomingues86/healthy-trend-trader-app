@@ -202,8 +202,21 @@
 
         // Fetch risk policy for heat limit from /api/risk-policy
         const policyRes = await root.healthyTrendApi.request('/api/risk-policy').catch(() => null);
-        if (policyRes?.profiles?.standard?.maximumPortfolioRiskPct) {
-          this.model.heatLimit = Number(policyRes.profiles.standard.maximumPortfolioRiskPct) * 100;
+        if (policyRes) {
+          const profileKey = policyRes.selectedProfile || 'standard';
+          const profile = policyRes.profiles?.[profileKey] || policyRes.profiles?.standard;
+          if (profile?.maximumPortfolioRiskPct) {
+            this.model.heatLimit = Number(profile.maximumPortfolioRiskPct) * 100;
+          }
+        }
+        if (typeof root.portfolioHeatLimitPct === 'function') {
+          this.model.heatLimit = root.portfolioHeatLimitPct();
+        }
+        if (typeof root.portfolioHeatSnapshot === 'function') {
+          const snap = root.portfolioHeatSnapshot();
+          if (snap && Number.isFinite(snap.heat)) {
+            this.model.portfolioHeat = snap.heat;
+          }
         }
       } catch (err) {
         console.warn('[DailyUpdateHub] Sync notice:', err.message);
@@ -215,6 +228,17 @@
       if (!container) return;
 
       const model = this.model;
+      if (typeof root !== 'undefined') {
+        if (typeof root.portfolioHeatSnapshot === 'function') {
+          const snap = root.portfolioHeatSnapshot();
+          if (snap && Number.isFinite(snap.heat)) {
+            model.portfolioHeat = snap.heat;
+          }
+        }
+        if (typeof root.portfolioHeatLimitPct === 'function') {
+          model.heatLimit = root.portfolioHeatLimitPct();
+        }
+      }
       const realWealth = model.getConsolidatedRealWealth();
       const prevWealth = model.getPreviousConsolidatedRealWealth();
       const dayVarNominal = model.getDayNominalVariation();
@@ -320,7 +344,7 @@
               </div>
               <div class="daily-update-kpi-content">
                 <span class="daily-update-kpi-label">Exposição Atual</span>
-                <strong class="daily-update-kpi-val">${fmtBRL(exposure)}</strong>
+                <strong class="daily-update-kpi-val" id="kpiTotalExposure">${fmtBRL(exposure)}</strong>
                 <span class="daily-update-kpi-sub" id="kpiExposurePct">
                   ${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio
                 </span>
@@ -336,9 +360,9 @@
               </div>
               <div class="daily-update-kpi-content">
                 <span class="daily-update-kpi-label">Heat do Portfólio</span>
-                <strong class="daily-update-kpi-val">${model.portfolioHeat.toFixed(2).replace('.', ',')}%</strong>
-                <span class="daily-update-kpi-sub">
-                  Limite: ${model.heatLimit.toFixed(2).replace('.', ',')}%
+                <strong class="daily-update-kpi-val" id="kpiPortfolioHeat">${model.getPortfolioHeat().toFixed(2).replace('.', ',')}%</strong>
+                <span class="daily-update-kpi-sub" id="kpiHeatLimit">
+                  Limite: ${model.getHeatLimit().toFixed(2).replace('.', ',')}%
                 </span>
               </div>
             </article>
@@ -643,12 +667,13 @@
                 <table class="daily-update-table positions-table" aria-label="Tabela de Conferência de Posições Abertas">
                   <thead>
                     <tr>
-                      <th class="th-pos-ticker" style="width: 12%;">Ativo</th>
-                      <th class="th-pos-account" style="width: 18%;">Conta / Corretora</th>
-                      <th class="th-pos-qty" style="text-align: right; width: 10%;">Quantidade</th>
-                      <th class="th-pos-entry" style="text-align: right; width: 12%;">Preço Entrada</th>
-                      <th class="th-pos-price" style="text-align: right; width: 14%;">Preço Atual</th>
-                      <th class="th-pos-var" style="text-align: right; width: 10%;">Variação</th>
+                      <th class="th-pos-ticker" style="width: 10%;">Ativo</th>
+                      <th class="th-pos-account" style="width: 15%;">Conta / Corretora</th>
+                      <th class="th-pos-qty" style="text-align: right; width: 8%;">Quantidade</th>
+                      <th class="th-pos-entry" style="text-align: right; width: 10%;">Preço Entrada</th>
+                      <th class="th-pos-price" style="text-align: right; width: 11%;">Preço Atual</th>
+                      <th class="th-pos-var" style="text-align: right; width: 8%;">Variação</th>
+                      <th class="th-pos-volume" style="text-align: right; width: 14%;">Volume Financeiro</th>
                       <th class="th-pos-stop" style="text-align: right; width: 12%;">Stop / Trailing</th>
                       <th class="th-pos-status" style="text-align: center; width: 12%;">Status</th>
                     </tr>
@@ -742,6 +767,11 @@
                               ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
                             </span>
                           </td>
+                          <td class="td-pos-volume" style="text-align: right;">
+                            <span class="pos-volume-val font-numeric">
+                              ${fmtBRL(model.getPositionFinancialVolume(pos))}
+                            </span>
+                          </td>
                           <td style="text-align: right;">
                             <span class="pos-stop-val" title="Stop inicial: ${fmtBRL(pos.stopPrice)} | Trailing stop: ${fmtBRL(pos.trailingStop || pos.stopPrice)}">
                               ${fmtBRL(pos.trailingStop || pos.stopPrice)}
@@ -784,7 +814,40 @@
                     }).join('');
                   })()}
                   </tbody>
+                  <tfoot>
+                    <tr class="positions-tfoot-row">
+                      <td colspan="6" class="td-total-label" style="text-align: right;">
+                        <strong>TOTAL EXPOSTO:</strong>
+                      </td>
+                      <td class="td-total-amount" style="text-align: right;">
+                        <strong class="pos-total-exposed-val font-numeric">${fmtBRL(exposure)}</strong>
+                      </td>
+                      <td colspan="2"></td>
+                    </tr>
+                  </tfoot>
                 </table>
+              </div>
+
+              <!-- Totalizador em destaque moderado no rodapé da tabela -->
+              <div class="positions-table-totalizer" id="positionsTableTotalizer">
+                <div class="positions-totalizer-left">
+                  <div class="totalizer-icon-badge">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="2" y1="12" x2="22" y2="12"/>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                  </div>
+                  <div class="totalizer-info">
+                    <span class="totalizer-label">TOTAL EXPOSTO</span>
+                    <span class="totalizer-count">(${model.positions.filter(p => !p.closed && p.status !== 'encerrada').length} posições abertas)</span>
+                  </div>
+                </div>
+                <div class="positions-totalizer-right">
+                  <span class="totalizer-legend">Volume financeiro total alocado:</span>
+                  <strong class="totalizer-amount font-numeric" id="positionsTotalizerAmount">${fmtBRL(exposure)}</strong>
+                  <span class="totalizer-share-tag" id="positionsTotalizerShare">${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio</span>
+                </div>
               </div>
 
               <footer class="daily-update-card-footer positions-footer">
@@ -1303,6 +1366,77 @@
         try {
           root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
         } catch (_) {}
+
+        // 4. Update top heat meter and portfolio heat views
+        try {
+          if (typeof root.renderTopHeat === 'function') root.renderTopHeat();
+          if (typeof root.renderPortfolioHeat === 'function') root.renderPortfolioHeat();
+        } catch (_) {}
+      }
+      return res;
+    }
+
+    updatePositionQuantity(positionId, newQuantity) {
+      const res = this.model.updatePositionQuantity(positionId, newQuantity);
+      if (res.success) {
+        this.model.saveDraft();
+        if (root.operationalState?.positions) {
+          const opp = root.operationalState.positions.find(x => x.id === positionId || x.asset === res.position?.ticker);
+          if (opp) {
+            opp.initialQty = Number(newQuantity);
+            opp.quantity = Number(newQuantity);
+          }
+        }
+        try {
+          root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
+          if (typeof root.renderTopHeat === 'function') root.renderTopHeat();
+          if (typeof root.renderPortfolioHeat === 'function') root.renderPortfolioHeat();
+        } catch (_) {}
+        this.render();
+      }
+      return res;
+    }
+
+    updatePositionStop(positionId, newStop) {
+      const res = this.model.updatePositionStop(positionId, newStop);
+      if (res.success) {
+        this.model.saveDraft();
+        if (root.operationalState?.positions) {
+          const opp = root.operationalState.positions.find(x => x.id === positionId || x.asset === res.position?.ticker);
+          if (opp) {
+            opp.currentStop = Number(newStop);
+            opp.trailingStop = Number(newStop);
+          }
+        }
+        try {
+          root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
+          if (typeof root.renderTopHeat === 'function') root.renderTopHeat();
+          if (typeof root.renderPortfolioHeat === 'function') root.renderPortfolioHeat();
+        } catch (_) {}
+        this.render();
+      }
+      return res;
+    }
+
+    closePosition(positionId) {
+      const res = this.model.closePosition(positionId);
+      if (res.success) {
+        this.model.saveDraft();
+        if (root.operationalState?.positions) {
+          const oppIdx = root.operationalState.positions.findIndex(x => x.id === positionId || x.asset === res.position?.ticker);
+          if (oppIdx !== -1) {
+            const [closed] = root.operationalState.positions.splice(oppIdx, 1);
+            if (closed && Array.isArray(root.operationalState.closedPositions)) {
+              root.operationalState.closedPositions.push(closed);
+            }
+          }
+        }
+        try {
+          root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
+          if (typeof root.renderTopHeat === 'function') root.renderTopHeat();
+          if (typeof root.renderPortfolioHeat === 'function') root.renderPortfolioHeat();
+        } catch (_) {}
+        this.render();
       }
       return res;
     }
@@ -1316,6 +1450,10 @@
         this.model.updatePositionPrice(p.id, newPrice);
       });
       this.model.saveDraft();
+      try {
+        if (typeof root.renderTopHeat === 'function') root.renderTopHeat();
+        if (typeof root.renderPortfolioHeat === 'function') root.renderPortfolioHeat();
+      } catch (_) {}
       this.render();
       if (typeof root.showToast === 'function') {
         root.showToast('Preços atualizados com sucesso e refletidos nas contas vinculadas.');

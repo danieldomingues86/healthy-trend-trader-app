@@ -714,11 +714,33 @@ const DEFAULT_HISTORY = [
       });
       this.positions = options.positions ? JSON.parse(JSON.stringify(options.positions)) : JSON.parse(JSON.stringify(DEFAULT_POSITIONS));
       this.strategyEquity = options.strategyEquity !== undefined ? Number(options.strategyEquity) : 1112175.49;
-      this.portfolioHeat = options.portfolioHeat !== undefined ? Number(options.portfolioHeat) : 0.00;
-      this.heatLimit = options.heatLimit !== undefined ? Number(options.heatLimit) : 12.50;
+      this._portfolioHeat = options.portfolioHeat !== undefined ? Number(options.portfolioHeat) : null;
+      this._heatLimit = options.heatLimit !== undefined ? Number(options.heatLimit) : null;
       this.closingDate = options.closingDate || new Date().toISOString().slice(0, 10);
       this.previousClosingWealth = options.previousClosingWealth !== undefined ? Number(options.previousClosingWealth) : 1000295.73;
       this.closingStatus = options.closingStatus || 'READY_TO_CLOSE'; // 'NOT_STARTED' | 'IN_PROGRESS' | 'READY_TO_CLOSE' | 'CLOSED'
+    }
+
+    get portfolioHeat() {
+      return this.getPortfolioHeat();
+    }
+    set portfolioHeat(val) {
+      this._portfolioHeat = (val !== null && val !== undefined) ? Number(val) : null;
+    }
+    setPortfolioHeat(val) {
+      this._portfolioHeat = (val !== null && val !== undefined) ? Number(val) : null;
+      return this;
+    }
+
+    get heatLimit() {
+      return this.getHeatLimit();
+    }
+    set heatLimit(val) {
+      this._heatLimit = (val !== null && val !== undefined) ? Number(val) : null;
+    }
+    setHeatLimit(val) {
+      this._heatLimit = (val !== null && val !== undefined) ? Number(val) : null;
+      return this;
     }
 
     /**
@@ -1038,15 +1060,26 @@ const DEFAULT_HISTORY = [
     }
 
     /**
+     * Calculates the financial volume allocated in a single open position.
+     * Takes into account quantity, current price, contract multipliers, and FX rates.
+     */
+    getPositionFinancialVolume(pos) {
+      if (!pos || pos.closed || pos.status === 'encerrada') return 0;
+      const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+      const price = Number(pos.currentPrice ?? pos.entryPrice ?? pos.entry ?? 0);
+      const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+      const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+      return Math.round(qty * price * mult * fxRate * 100) / 100;
+    }
+
+    /**
      * Calculates current total market exposure from open positions.
+     * Acts as the single source of truth for the KPI and the table totalizer.
      */
     getTotalExposure() {
-      return this.positions.reduce((sum, pos) => {
-        const qty = Number(pos.quantity || 0);
-        const price = Number(pos.currentPrice || pos.entryPrice || 0);
-        const mult = Number(pos.contractMult || pos.mult || 1);
-        return sum + (qty * price * mult);
-      }, 0);
+      return this.positions
+        .filter(pos => !pos.closed && pos.status !== 'encerrada')
+        .reduce((sum, pos) => sum + this.getPositionFinancialVolume(pos), 0);
     }
 
     /**
@@ -1057,6 +1090,87 @@ const DEFAULT_HISTORY = [
       const wealth = this.getInvestmentWealth();
       if (!wealth || wealth <= 0) return 0;
       return (this.getTotalExposure() / wealth) * 100;
+    }
+
+    /**
+     * Obtains the official Portfolio Heat limit percentage.
+     * Consumes the official risk policy dynamically without hardcoding.
+     */
+    getHeatLimit() {
+      const g = (typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : (typeof global !== 'undefined' ? global : null)));
+      if (g && typeof g.portfolioHeatLimitPct === 'function') {
+        return g.portfolioHeatLimitPct();
+      }
+      if (typeof root !== 'undefined' && typeof root.portfolioHeatLimitPct === 'function') {
+        return root.portfolioHeatLimitPct();
+      }
+      // Check active risk policy profile
+      const policy = (typeof riskPolicyState !== 'undefined' && riskPolicyState) || null;
+      if (policy) {
+        const Rubric = (typeof window !== 'undefined' && window.TradingRubrics) || (typeof TradingRubrics !== 'undefined' && TradingRubrics);
+        const profile = Rubric?.profileFor ? Rubric.profileFor(policy) : (policy.profiles?.[policy.selectedProfile] || policy.profiles?.standard);
+        if (profile?.maximumPortfolioRiskPct) {
+          return Math.round(Number(profile.maximumPortfolioRiskPct) * 100 * 100) / 100;
+        }
+      }
+      if (this._heatLimit !== null && this._heatLimit !== undefined) {
+        return this._heatLimit;
+      }
+      return 5.00;
+    }
+
+    /**
+     * Calculates the official Portfolio Heat from positions and operational equity.
+     * Guaranteed to match the top bar header indicator and the Portfolio Heat page.
+     */
+    getPortfolioHeat() {
+      // 1. If running in browser or environment and official snapshot engine is available:
+      const g = (typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : (typeof global !== 'undefined' ? global : null)));
+      if (g && typeof g.portfolioHeatSnapshot === 'function') {
+        const snap = g.portfolioHeatSnapshot();
+        if (snap && Number.isFinite(snap.heat)) {
+          return Math.round(snap.heat * 100) / 100;
+        }
+      }
+      if (typeof root !== 'undefined' && typeof root.portfolioHeatSnapshot === 'function') {
+        const snap = root.portfolioHeatSnapshot();
+        if (snap && Number.isFinite(snap.heat)) {
+          return Math.round(snap.heat * 100) / 100;
+        }
+      }
+
+      // If explicitly set and non-zero (e.g. from constructor options or snapshot restore):
+      if (this._portfolioHeat !== null && this._portfolioHeat !== undefined && this._portfolioHeat !== 0) {
+        return this._portfolioHeat;
+      }
+
+      // 2. Direct calculation from positions according to official risk methodology:
+      return this.calculatePositionsRiskHeat();
+    }
+
+    /**
+     * Internal calculation of aggregate risk percentage from positions.
+     */
+    calculatePositionsRiskHeat() {
+      const equity = (typeof getOperationalEquity === 'function' ? getOperationalEquity() : null) ||
+                     this.getInvestmentWealth() ||
+                     this.strategyEquity ||
+                     1000295.73;
+      if (!equity || equity <= 0) return 0;
+
+      const totalRisk = this.positions.reduce((sum, pos) => {
+        if (pos.closed || pos.mode === 'paper' || pos.status === 'encerrada') return sum;
+        const sign = (pos.direction === 'short' || pos.side === 'Venda') ? -1 : 1;
+        const currentPrice = Number(pos.currentPrice ?? pos.entryPrice ?? pos.entry ?? 0);
+        const currentStop = Number(pos.trailingStop ?? pos.stopPrice ?? pos.currentStop ?? 0);
+        const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+        const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+        const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+        const risk = Math.max(0, (currentPrice - currentStop) * sign * mult * fxRate * qty);
+        return sum + risk;
+      }, 0);
+
+      return Math.round((totalRisk / equity) * 100 * 100) / 100;
     }
 
     /**
@@ -1184,6 +1298,59 @@ const DEFAULT_HISTORY = [
 
       this.updateClosingReadiness();
       return Object.assign({ success: true, position: pos, affectedAccount, deltaTotal }, pos);
+    }
+
+    /**
+     * Updates an open position's quantity.
+     * Recalculates financial volume and overall exposure.
+     */
+    updatePositionQuantity(positionId, newQuantity) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return { success: false, error: 'Posição não encontrada.' };
+      const num = Number(newQuantity);
+      if (!Number.isFinite(num) || num < 0) {
+        return { success: false, error: 'Quantidade inválida.' };
+      }
+      pos.quantity = num;
+      if (num === 0) {
+        pos.closed = true;
+        pos.status = 'encerrada';
+      } else {
+        pos.closed = false;
+        if (pos.status === 'encerrada') pos.status = 'conferida';
+      }
+      this.updateClosingReadiness();
+      return { success: true, position: pos, totalExposure: this.getTotalExposure(), exposurePct: this.getExposurePct() };
+    }
+
+    /**
+     * Updates an open position's stop price / trailing stop.
+     * Recalculates risk and portfolio heat.
+     */
+    updatePositionStop(positionId, newStop) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return { success: false, error: 'Posição não encontrada.' };
+      const num = Number(newStop);
+      if (!Number.isFinite(num) || num <= 0) {
+        return { success: false, error: 'Stop deve ser um número positivo.' };
+      }
+      pos.trailingStop = num;
+      pos.stopPrice = num;
+      this.updateClosingReadiness();
+      return { success: true, position: pos, portfolioHeat: this.getPortfolioHeat() };
+    }
+
+    /**
+     * Closes an open position.
+     * Updates total exposure and heat immediately.
+     */
+    closePosition(positionId) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return { success: false, error: 'Posição não encontrada.' };
+      pos.closed = true;
+      pos.status = 'encerrada';
+      this.updateClosingReadiness();
+      return { success: true, position: pos, totalExposure: this.getTotalExposure(), portfolioHeat: this.getPortfolioHeat() };
     }
 
     /**
@@ -1425,8 +1592,9 @@ const DEFAULT_HISTORY = [
         dayVariationPct: Math.round(dayVarPct * 100) / 100,
         strategyEquity: this.strategyEquity,
         totalExposure: this.getTotalExposure(),
-        exposurePct: this.getExposurePct(),
-        portfolioHeat: this.portfolioHeat,
+        exposurePct: Math.round(this.getExposurePct() * 100) / 100,
+        portfolioHeat: this.getPortfolioHeat(),
+        heatLimit: this.getHeatLimit(),
         accounts: this.accounts.map(a => {
           const accCopy = {
             id: a.id,
@@ -1465,6 +1633,9 @@ const DEFAULT_HISTORY = [
           currentPrice: Number(p.currentPrice || p.entryPrice || 0),
           stopPrice: Number(p.stopPrice || 0),
           trailingStop: Number(p.trailingStop || p.stopPrice || 0),
+          contractMult: Number(p.contractMult || p.mult || 1),
+          mult: Number(p.contractMult || p.mult || 1),
+          financialVolume: this.getPositionFinancialVolume(p),
           isPartial: Boolean(p.isPartial),
           status: p.status || 'conferida',
           checked: Boolean(p.checked),
