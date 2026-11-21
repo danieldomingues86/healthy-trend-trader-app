@@ -433,7 +433,7 @@
                                             if (linkedPositions.length === 0) return '';
                                             return `
                                               <span class="account-positions-pill" title="Posições vinculadas: ${linkedPositions.map(p => p.ticker).join(', ')}">
-                                                💼 ${linkedPositions.length} ${linkedPositions.length === 1 ? 'posição' : 'posições'} (${linkedPositions.map(p => p.ticker).join(', ')})
+                                                💼 ${linkedPositions.length} ${linkedPositions.length === 1 ? 'posição' : 'posições'}
                                               </span>
                                             `;
                                           })()}

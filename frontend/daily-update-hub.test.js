@@ -876,8 +876,9 @@ test('DailyUpdateHub: Remoção do botão Recarregar da Corretora e Vinculação
   assert.equal(aapl.accountId, 'xp_daniel');
   assert.equal(aapl.broker, 'XP — Daniel');
 
-  // 5. Section 1 exibe as posições vinculadas à conta
+  // 5. Section 1 exibe a contagem compacta de posições vinculadas à conta (sem poluir com lista de tickers no texto visível)
   controller.render();
   assert.ok(renderedHtml.includes('account-positions-pill'), 'Pill de posições vinculadas deve estar presente na Seção 1');
-  assert.ok(renderedHtml.includes('AAPL34'), 'Ticker da posição vinculada deve aparecer no badge da conta');
+  assert.ok(renderedHtml.includes('posições'), 'Texto de posições vinculadas deve aparecer de forma compacta');
+  assert.ok(renderedHtml.includes('title="Posições vinculadas:'), 'Ticker deve permanecer no tooltip title');
 });
