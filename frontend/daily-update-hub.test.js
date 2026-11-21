@@ -976,6 +976,7 @@ test('DailyUpdateHub: Volume Financeiro, Totalizador Sincronizado e Heat Oficial
   assert.ok(renderedHtml.includes('positions-footer'), 'Menu inferior positions-footer deve estar presente');
   assert.ok(renderedHtml.includes('Atualizar Preços em Lote'), 'Botão Atualizar Preços em Lote deve estar no footer');
   assert.ok(renderedHtml.includes('Ir para Posições Abertas'), 'Link Ir para Posições Abertas deve estar no footer');
+  assert.ok(!renderedHtml.includes('Conferência c/ Planilha'), 'Botão Conferência c/ Planilha NÃO deve estar presente na tela');
 
   // 5. Sincronização exata com o KPI 3 (Exposição Atual)
   assert.ok(renderedHtml.includes('id="kpiTotalExposure"'), 'ID kpiTotalExposure deve estar presente no KPI 3');

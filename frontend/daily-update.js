@@ -924,14 +924,6 @@
               >
                 📜 Histórico
               </button>
-              <button 
-                type="button" 
-                class="btn-closing-secondary" 
-                onclick="window.DailyUpdateHub.openReconciliationModal()"
-                title="Auditar reconciliação matemática com a Planilha Trading Log Premium"
-              >
-                📋 Conferência c/ Planilha
-              </button>
 
               ${isAlreadyClosed ? `
                 <button 
