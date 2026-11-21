@@ -4,9 +4,11 @@
   if (!root) return;
 
   const BENCHMARKS = [
-    { id: 'IBOV', name: 'IBOV (Brasil)', symbol: '^BVSP', market: 'BR', flag: '🇧🇷' },
-    { id: 'IFIX', name: 'IFIX (FIIs)', symbol: 'IFIX', market: 'BR', flag: '🏢' },
-    { id: 'BDRX', name: 'BDRX (BDRs)', symbol: 'BDRX', market: 'BR', flag: '🌐' }
+    { id: 'IBOV', name: 'IBOV (Brasil)', symbol: '^BVSP', market: 'BR', flag: '🇧🇷', label: 'IBOV', sub: 'Brasil' },
+    { id: 'IFIX', name: 'IFIX (FIIs)', symbol: 'IFIX', market: 'BR', flag: '🏢', label: 'IFIX', sub: 'FIIs' },
+    { id: 'BDRX', name: 'BDRX (BDRs)', symbol: 'BDRX', market: 'BR', flag: '🌐', label: 'BDRX', sub: 'BDRs' },
+    { id: 'SP500', name: 'S&P 500 (SPY)', symbol: 'SPY', market: 'US', flag: '🇺🇸', label: 'S&P 500', sub: 'EUA' },
+    { id: 'NASDAQ', name: 'Nasdaq-100 (QQQ)', symbol: 'QQQ', market: 'US', flag: '🇺🇸', label: 'Nasdaq', sub: 'EUA' }
   ];
 
   const MARKET_REGISTRY = {
@@ -32,6 +34,22 @@
       benchmarkSymbol: 'IFIX',
       benchmarkName: 'Índice de Fundos de Investimentos Imobiliários (IFIX)',
       badge: 'IFIX',
+      hasBreadth: false
+    },
+    sp500: {
+      id: 'sp500',
+      name: 'S&P 500',
+      benchmarkSymbol: 'SP500',
+      benchmarkName: 'S&P 500 (SPY)',
+      badge: 'SP500',
+      hasBreadth: false
+    },
+    nasdaq: {
+      id: 'nasdaq',
+      name: 'Nasdaq-100',
+      benchmarkSymbol: 'NASDAQ',
+      benchmarkName: 'Nasdaq-100 (QQQ)',
+      badge: 'NASDAQ',
       hasBreadth: false
     }
   };
@@ -248,10 +266,60 @@
   syncActiveLayout();
   new MutationObserver(syncActiveLayout).observe(root, { attributes: true, attributeFilter: ['class'] });
 
+  function getMarketOperatingStatus(market) {
+    const isUs = market === 'US';
+    try {
+      const timeZone = isUs ? 'America/New_York' : 'America/Sao_Paulo';
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        weekday: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      });
+      const parts = formatter.formatToParts(now);
+      const getVal = type => parts.find(p => p.type === type)?.value;
+      const weekday = getVal('weekday');
+      const hour = parseInt(getVal('hour'), 10);
+      const minute = parseInt(getVal('minute'), 10);
+      const totalMinutes = hour * 60 + minute;
+
+      const isWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(weekday);
+
+      if (!isWeekday) {
+        return {
+          isOpen: false,
+          label: t('Mercado fechado', 'Market closed'),
+          marketBadge: isUs ? 'EUA (NYSE/NASDAQ)' : 'B3 (Brasil)'
+        };
+      }
+
+      const openMinutes = isUs ? (9 * 60 + 30) : (10 * 60);
+      const closeMinutes = isUs ? (16 * 60) : (17 * 60 + 55);
+
+      const isOpen = totalMinutes >= openMinutes && totalMinutes < closeMinutes;
+      return {
+        isOpen,
+        label: isOpen ? t('Mercado aberto', 'Market open') : t('Mercado fechado', 'Market closed'),
+        marketBadge: isUs ? 'EUA (NYSE/NASDAQ)' : 'B3 (Brasil)'
+      };
+    } catch {
+      return {
+        isOpen: false,
+        label: t('Mercado fechado', 'Market closed'),
+        marketBadge: isUs ? 'EUA' : 'B3'
+      };
+    }
+  }
+
   /**
-   * Top Header com título, status de mercado, data formatada e seletor em pills dos benchmarks brasileiros
+   * Top Header com título, seletor centralizado e destacado de benchmarks (Brasil & EUA),
+   * e badges contextuais de status do mercado e data de referência.
    */
   function renderHeader(benchmarkInfo, dataDate) {
+    const marketStatus = getMarketOperatingStatus(benchmarkInfo.market);
+
     return `<div class="mre-header">
       <div class="mre-title-block">
         <div class="mre-title-row">
@@ -260,24 +328,57 @@
         </div>
         <p class="mre-subtitle">${t('Regime de mercado atual, histórico e performance do seu sistema', 'Current market regime, history and performance of your system')}</p>
       </div>
-      <div class="mre-header-controls">
-        <div class="mre-badge-closed">
-          <span class="mre-closed-dot"></span>
-          <span>${t('Mercado fechado', 'Market closed')}</span>
+
+      <!-- SELETOR CENTRALIZADO E DESTACADO DE BENCHMARKS -->
+      <div class="mre-benchmark-center-panel" role="region" aria-label="${t('Seletor de Benchmarks', 'Benchmark Selector')}">
+        <div class="mre-benchmark-panel-header">
+          <span class="mre-benchmark-panel-eyebrow">${t('MERCADO & BENCHMARK', 'MARKET & BENCHMARK')}</span>
+          <span class="mre-benchmark-active-badge">${esc(benchmarkInfo.name)}</span>
         </div>
-        <div class="mre-badge-date">
-          ${svgIcons.calendar}
-          <span>${t('Dados de:', 'Data from:')} ${esc(formatDateWithWeekday(dataDate))}</span>
-        </div>
-        <div class="mre-benchmark-group">
-          <span class="mre-benchmark-label">${t('Benchmark:', 'Benchmark:')}</span>
-          <div class="mre-benchmark-pills" role="radiogroup">
-            ${BENCHMARKS.map(b => `
-              <button type="button" class="mre-pill-btn ${b.id === benchmarkInfo.id ? 'active' : ''}" data-benchmark-pill="${esc(b.id)}">
-                ${esc(b.id)}
+        <div class="mre-benchmark-pills mre-benchmark-pills-bar" role="radiogroup" aria-label="${t('Selecionar Índice de Referência', 'Select Benchmark Index')}">
+          <div class="mre-benchmark-group-sub mre-group-br" title="${t('Mercado Brasileiro (B3)', 'Brazilian Market (B3)')}">
+            ${BENCHMARKS.filter(b => b.market === 'BR').map(b => `
+              <button type="button" 
+                      class="mre-pill-btn ${b.id === benchmarkInfo.id ? 'active' : ''}" 
+                      data-benchmark-pill="${esc(b.id)}"
+                      aria-checked="${b.id === benchmarkInfo.id}"
+                      role="radio"
+                      title="${esc(b.name)}">
+                <span class="mre-pill-flag">${b.flag}</span>
+                <span class="mre-pill-text">${esc(b.label || b.id)}</span>
               </button>
             `).join('')}
           </div>
+          <div class="mre-benchmark-divider" aria-hidden="true"></div>
+          <div class="mre-benchmark-group-sub mre-group-us" title="${t('Mercado Norte-Americano (EUA)', 'US Market (USA)')}">
+            ${BENCHMARKS.filter(b => b.market === 'US').map(b => `
+              <button type="button" 
+                      class="mre-pill-btn ${b.id === benchmarkInfo.id ? 'active' : ''}" 
+                      data-benchmark-pill="${esc(b.id)}"
+                      aria-checked="${b.id === benchmarkInfo.id}"
+                      role="radio"
+                      title="${esc(b.name)}">
+                <span class="mre-pill-flag">${b.flag}</span>
+                <span class="mre-pill-text">${esc(b.label || b.id)}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- BADGES CONTEXTUAIS À DIREITA -->
+      <div class="mre-header-controls">
+        <div class="mre-badge-closed ${marketStatus.isOpen ? 'is-open' : 'is-closed'}">
+          <span class="mre-closed-dot ${marketStatus.isOpen ? 'is-open' : ''}"></span>
+          <span>${esc(marketStatus.label)}</span>
+        </div>
+        <div class="mre-badge-date" title="${t('Data do último pregão registrado', 'Last recorded session date')}">
+          ${svgIcons.calendar}
+          <span>${t('Dados de:', 'Data from:')} ${esc(formatDateWithWeekday(dataDate))}</span>
+        </div>
+        <div class="mre-badge-market-origin" title="${t('Praça de negociação', 'Trading venue')}">
+          <span class="mre-origin-flag">${benchmarkInfo.flag}</span>
+          <span>${esc(marketStatus.marketBadge)}</span>
         </div>
       </div>
     </div>`;
@@ -904,6 +1005,8 @@
 
   function normalizeMarketId(marketId) {
     const s = String(marketId || '').trim().toUpperCase();
+    if (s === 'SP500' || s === 'SPX' || s === 'SPY' || s.includes('S&P') || s.includes('SP500')) return 'SP500';
+    if (s === 'NASDAQ' || s === 'NDX' || s === 'QQQ' || s.includes('NASD')) return 'NASDAQ';
     if (s.includes('BDR') || s === 'BDRX') return 'BDRX';
     if (s.includes('FII') || s === 'IFIX') return 'IFIX';
     return 'IBOV';
@@ -923,7 +1026,12 @@
     render();
 
     try {
-      const marketParam = valid.id === 'IFIX' ? 'fii' : (valid.id === 'BDRX' ? 'bdr' : 'stock_b3');
+      let marketParam = 'stock_b3';
+      if (valid.id === 'IFIX') marketParam = 'fii';
+      else if (valid.id === 'BDRX') marketParam = 'bdr';
+      else if (valid.id === 'SP500') marketParam = 'sp500';
+      else if (valid.id === 'NASDAQ') marketParam = 'nasdaq';
+
       const [cycleRes, perfRes] = await Promise.all([
         fetch(`${(window.MARKET_DATA_API_URL || 'http://localhost:8787/api')}/market-cycle?market=${marketParam}&benchmark=${valid.id}`),
         fetch(`${(window.MARKET_DATA_API_URL || 'http://localhost:8787/api')}/trading-analytics/performance-by-regime?benchmark=${valid.id}`)

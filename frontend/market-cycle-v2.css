@@ -133,46 +133,177 @@ body:has(#marketcycle.active) {
   color: #84978f;
 }
 
-.mre-benchmark-group {
+.mre-badge-market-origin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8e4;
+  color: #5a6e65;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.mre-origin-flag {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.mre-badge-closed.is-open {
+  background: #ebf7f2;
+  border-color: #d1efe2;
+  color: #16a879;
+}
+
+.mre-badge-closed.is-closed {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+.mre-closed-dot.is-open {
+  background: #16a879;
+  box-shadow: 0 0 6px rgba(22, 168, 121, 0.6);
+}
+
+/* Painel Centralizado e Destacado de Benchmarks */
+.mre-benchmark-center-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1px solid #d8e5df;
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(13, 43, 32, 0.05);
+  margin: 0 auto;
+}
+
+.mre-benchmark-panel-header {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.mre-benchmark-label {
-  font-size: 13px;
-  font-weight: 500;
+.mre-benchmark-panel-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: #5a6e65;
 }
 
+.mre-benchmark-active-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #16a879;
+  background: #ebf7f2;
+  padding: 2px 9px;
+  border-radius: 10px;
+  border: 1px solid #d1efe2;
+}
+
+.mre-benchmark-pills-bar,
 .mre-benchmark-pills {
   display: inline-flex;
-  background: #ffffff;
-  border: 1px solid #e2e8e4;
+  align-items: center;
+  background: #f4f7f5;
+  border: 1px solid #e1ebe6;
   border-radius: 24px;
-  padding: 3px;
-  gap: 2px;
+  padding: 4px;
+  gap: 3px;
+}
+
+.mre-benchmark-group-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.mre-benchmark-divider {
+  width: 1px;
+  height: 20px;
+  background: #cbd9d2;
+  margin: 0 4px;
 }
 
 .mre-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 18px;
-  padding: 4px 14px;
-  font-size: 12.5px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #5a6e65;
+  color: #4b6358;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
 }
 
 .mre-pill-btn:hover {
+  background: #ffffff;
   color: #172b24;
+  border-color: #d1ded7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
 }
 
 .mre-pill-btn.active {
   background: #0d2b20 !important;
   color: #ffffff !important;
+  border-color: #0d2b20 !important;
+  box-shadow: 0 3px 10px rgba(13, 43, 32, 0.22);
+}
+
+.mre-pill-flag {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.mre-pill-text {
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 1300px) {
+  .mre-header {
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .mre-title-block {
+    text-align: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .mre-benchmark-center-panel {
+    order: 2;
+    width: auto;
+  }
+
+  .mre-header-controls {
+    order: 3;
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .mre-benchmark-pills-bar,
+  .mre-benchmark-pills {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .mre-benchmark-divider {
+    display: none;
+  }
 }
 
 /* Base Card Style */
@@ -1068,6 +1199,67 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-p
 body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mcv2-market-pill.active {
   background: #e0b750;
   color: #0d0a06;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-benchmark-center-panel {
+  background: #14110a;
+  border-color: #2e2617;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-benchmark-panel-eyebrow {
+  color: #a39274;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-benchmark-active-badge {
+  background: #2a2211;
+  color: #e0b750;
+  border-color: #4a3c1e;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-benchmark-pills-bar,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-benchmark-pills {
+  background: #1c170f;
+  border-color: #382e1c;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-benchmark-divider {
+  background: #382e1c;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-pill-btn {
+  color: #a39274;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-pill-btn:hover {
+  background: #2a2211;
+  color: #f5eedb;
+  border-color: #4a3c1e;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-pill-btn.active {
+  background: #e0b750 !important;
+  color: #0d0a06 !important;
+  border-color: #e0b750 !important;
+  box-shadow: 0 3px 12px rgba(224, 183, 80, 0.3);
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #marketcycle .mre-badge-market-origin {
+  background: #14110a;
+  border-color: #2e2617;
+  color: #a39274;
+}
+
+body[data-theme="pigeon"] #marketcycle .mre-benchmark-center-panel {
+  background: #ffffff;
+  border-color: #e2e8e4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+body[data-theme="pigeon"] #marketcycle .mre-pill-btn.active {
+  background: #13382c !important;
+  color: #ffffff !important;
+  border-color: #13382c !important;
 }
 
 #marketcycle .mcv2-page {

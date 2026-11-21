@@ -81,8 +81,11 @@
     if (cls === 'bdr' || cls === 'bdrs' || (!cls && isBdrSymbol(sym))) {
       return { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', assetClass: 'bdr' };
     }
-    if (cls === 'nasdaq' || cls === 'us' || (!cls && isNasdaqSymbol(sym))) {
+    if (cls === 'nasdaq' || sym === 'QQQ' || sym === 'NDX' || (!cls && isNasdaqSymbol(sym))) {
       return { symbol: 'QQQ', name: 'Invesco QQQ Trust (QQQ)', assetClass: 'nasdaq' };
+    }
+    if (cls === 'sp500' || cls === 'us' || sym === 'SPY' || sym === 'SPX' || sym === 'SP500' || sym === 'IVVB11') {
+      return { symbol: 'SPY', name: 'S&P 500 (SPY)', assetClass: 'sp500' };
     }
     return { symbol: 'IBOV', name: 'Índice Bovespa (IBOV)', assetClass: 'stock' };
   }

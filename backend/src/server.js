@@ -1233,13 +1233,20 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/market-cycle') {
       const benchmarkQuery = (url.searchParams.get('benchmark') || '').toUpperCase();
       let marketParam = url.searchParams.get('market') || 'stock_b3';
-      if (benchmarkQuery === 'BDRX') marketParam = 'bdr';
-      else if (benchmarkQuery === 'IFIX') marketParam = 'fii';
-      else if (benchmarkQuery === 'IBOV') marketParam = 'stock_b3';
+      if (benchmarkQuery === 'BDRX' || marketParam === 'bdr') marketParam = 'bdr';
+      else if (benchmarkQuery === 'IFIX' || marketParam === 'fii') marketParam = 'fii';
+      else if (['SP500', 'SPX', 'SPY'].includes(benchmarkQuery) || ['sp500', 'spx', 'spy'].includes(marketParam.toLowerCase())) marketParam = 'sp500';
+      else if (['NASDAQ', 'NDX', 'QQQ'].includes(benchmarkQuery) || ['nasdaq', 'ndx', 'qqq'].includes(marketParam.toLowerCase())) marketParam = 'nasdaq';
+      else if (benchmarkQuery === 'IBOV' || marketParam === 'stock_b3') marketParam = 'stock_b3';
 
       const payload = await resolveMarketCycle(cache, marketParam);
       try {
-        const benchmarkId = (marketParam === 'fii' || marketParam === 'ifix' || benchmarkQuery === 'IFIX') ? 'IFIX' : ((marketParam === 'bdr' || marketParam === 'bdrx' || benchmarkQuery === 'BDRX') ? 'BDRX' : 'IBOV');
+        let benchmarkId = 'IBOV';
+        if (marketParam === 'fii') benchmarkId = 'IFIX';
+        else if (marketParam === 'bdr') benchmarkId = 'BDRX';
+        else if (marketParam === 'sp500') benchmarkId = 'SP500';
+        else if (marketParam === 'nasdaq') benchmarkId = 'NASDAQ';
+
         const regimeData = await marketRegime.getRegimeHistory(benchmarkId);
         payload.marketRegime = {
           benchmarkId,

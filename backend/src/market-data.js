@@ -1202,8 +1202,94 @@ async function marketDataStatus() {
   return { blockedUntil: state.blockedUntil > Date.now() ? new Date(state.blockedUntil).toISOString() : null, reason: state.code, requestsToday: state.usage?.[new Date().toISOString().slice(0, 10)] || 0, trackedRequests: Object.values(state.usage || {}).reduce((a,b)=>a+b,0), liveQuoteIntervalMinutes: LIVE_QUOTE_MINUTES };
 }
 
+const US_BENCHMARKS_CACHE_PATH = path.join(__dirname, '..', 'data', 'us-benchmarks-cache.json');
+
+async function loadUsBenchmarkCandlesForMarketData(marketId) {
+  const norm = String(marketId || '').toUpperCase();
+  const isSp500 = norm === 'SP500' || norm === 'SPX' || norm === 'SPY';
+  const targetKey = isSp500 ? 'SP500' : 'NASDAQ';
+  const targetSymbol = isSp500 ? 'SPY' : 'QQQ';
+  let candles = [];
+
+  try {
+    const raw = await fs.readFile(US_BENCHMARKS_CACHE_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    const entry = parsed?.benchmarks?.[targetKey] || parsed?.benchmarks?.[targetSymbol];
+    if (Array.isArray(entry?.candles) && entry.candles.length >= 25) {
+      candles = entry.candles;
+    }
+  } catch (_) {}
+
+  if (!candles.length && process.env.TWELVE_DATA_API_KEY) {
+    try {
+      const { TwelveDataMarketDataProvider } = require('./twelve-data-provider');
+      const provider = new TwelveDataMarketDataProvider();
+      candles = await provider.getHistoricalDailyPrices(targetSymbol, { outputsize: 300 });
+    } catch (_) {}
+  }
+
+  return candles.map(c => ({
+    date: c.date || c.datetime,
+    open: Number(c.open) || Number(c.close),
+    high: Number(c.high) || Number(c.close),
+    low: Number(c.low) || Number(c.close),
+    close: Number(c.close),
+    volume: Number(c.volume) || 0
+  })).filter(c => c.date && Number.isFinite(c.close));
+}
+
 function marketCycleFor(cache, market = 'stock_b3') {
   const normalized = String(market || 'stock_b3').trim().toLowerCase();
+  const supportedMarkets = ['stock_b3', 'bdr', 'fii', 'sp500', 'nasdaq'];
+
+  if (['sp500', 'spx', 'spy'].includes(normalized)) {
+    const entry = cache?.cycles?.sp500;
+    if (entry?.cycle && entry?.benchmark) {
+      return {
+        updatedAt: entry.updatedAt || cache?.updatedAt || new Date().toISOString(),
+        source: entry.source || 'twelve_data',
+        cycle: entry.cycle,
+        benchmark: entry.benchmark,
+        breadth: entry.breadth || null,
+        market: 'sp500',
+        supportedMarkets
+      };
+    }
+    return {
+      updatedAt: cache?.updatedAt || new Date().toISOString(),
+      source: 'twelve_data',
+      cycle: { state: 'defensive', score: 25, reason: 'Histórico do S&P 500 indisponível no momento.' },
+      benchmark: { symbol: 'SPY', name: 'S&P 500 (SPY)', returns: { m1: 0, m3: 0 }, history: [] },
+      breadth: null,
+      market: 'sp500',
+      supportedMarkets
+    };
+  }
+
+  if (['nasdaq', 'ndx', 'qqq'].includes(normalized)) {
+    const entry = cache?.cycles?.nasdaq;
+    if (entry?.cycle && entry?.benchmark) {
+      return {
+        updatedAt: entry.updatedAt || cache?.updatedAt || new Date().toISOString(),
+        source: entry.source || 'twelve_data',
+        cycle: entry.cycle,
+        benchmark: entry.benchmark,
+        breadth: entry.breadth || null,
+        market: 'nasdaq',
+        supportedMarkets
+      };
+    }
+    return {
+      updatedAt: cache?.updatedAt || new Date().toISOString(),
+      source: 'twelve_data',
+      cycle: { state: 'defensive', score: 25, reason: 'Histórico do Nasdaq-100 indisponível no momento.' },
+      benchmark: { symbol: 'QQQ', name: 'Nasdaq-100 (QQQ)', returns: { m1: 0, m3: 0 }, history: [] },
+      breadth: null,
+      market: 'nasdaq',
+      supportedMarkets
+    };
+  }
+
   if (['bdr', 'bdrx'].includes(normalized)) {
     const entry = cache?.cycles?.bdr;
     if (entry?.cycle && entry?.benchmark) {
@@ -1214,7 +1300,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
         benchmark: entry.benchmark,
         breadth: entry.breadth || null,
         market: 'bdr',
-        supportedMarkets: ['stock_b3', 'bdr', 'fii']
+        supportedMarkets
       };
     }
     return {
@@ -1224,7 +1310,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
       benchmark: { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', returns: { m1: 0, m3: 0 }, history: [] },
       breadth: null,
       market: 'bdr',
-      supportedMarkets: ['stock_b3', 'bdr', 'fii']
+      supportedMarkets
     };
   }
   if (['fii', 'fiis', 'ifix'].includes(normalized)) {
@@ -1237,7 +1323,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
         benchmark: entry.benchmark,
         breadth: entry.breadth || null,
         market: 'fii',
-        supportedMarkets: ['stock_b3', 'bdr', 'fii']
+        supportedMarkets
       };
     }
     return {
@@ -1247,7 +1333,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
       benchmark: { symbol: 'IFIX', name: 'Índice de Fundos de Investimentos Imobiliários (IFIX)', returns: { m1: 0, m3: 0 }, history: [] },
       breadth: null,
       market: 'fii',
-      supportedMarkets: ['stock_b3', 'bdr', 'fii']
+      supportedMarkets
     };
   }
   const entry = cache?.cycles?.stock_b3;
@@ -1258,12 +1344,73 @@ function marketCycleFor(cache, market = 'stock_b3') {
     benchmark: entry?.benchmark || cache?.benchmark || null,
     breadth: entry?.breadth || cache?.overview?.breadth || null,
     market: 'stock_b3',
-    supportedMarkets: ['stock_b3', 'bdr', 'fii']
+    supportedMarkets
   };
 }
 
 async function resolveMarketCycle(cache, market = 'stock_b3') {
   const normalized = String(market || 'stock_b3').trim().toLowerCase();
+
+  if (['sp500', 'spx', 'spy'].includes(normalized)) {
+    if ((!cache?.cycles?.sp500?.cycle?.ema10 && !cache?.cycles?.sp500?.cycle?.ema9) || !cache?.cycles?.sp500?.benchmark?.history?.length) {
+      try {
+        const spyHistory = await loadUsBenchmarkCandlesForMarketData('SP500');
+        if (spyHistory?.length >= 25) {
+          const spyReturns = returns(spyHistory);
+          const spyCycle = scoreCycle(spyHistory);
+          const spyBenchmark = {
+            symbol: 'SPY',
+            name: 'S&P 500 (SPY)',
+            returns: spyReturns,
+            history: marketCycleSeries(spyHistory)
+          };
+          if (cache) {
+            cache.cycles = cache.cycles || {};
+            cache.cycles.sp500 = {
+              market: 'sp500',
+              benchmark: spyBenchmark,
+              cycle: spyCycle,
+              breadth: null
+            };
+          }
+        }
+      } catch {
+        // Degrada graciosamente se houver falha de rede
+      }
+    }
+    return marketCycleFor(cache, 'sp500');
+  }
+
+  if (['nasdaq', 'ndx', 'qqq'].includes(normalized)) {
+    if ((!cache?.cycles?.nasdaq?.cycle?.ema10 && !cache?.cycles?.nasdaq?.cycle?.ema9) || !cache?.cycles?.nasdaq?.benchmark?.history?.length) {
+      try {
+        const qqqHistory = await loadUsBenchmarkCandlesForMarketData('NASDAQ');
+        if (qqqHistory?.length >= 25) {
+          const qqqReturns = returns(qqqHistory);
+          const qqqCycle = scoreCycle(qqqHistory);
+          const qqqBenchmark = {
+            symbol: 'QQQ',
+            name: 'Nasdaq-100 (QQQ)',
+            returns: qqqReturns,
+            history: marketCycleSeries(qqqHistory)
+          };
+          if (cache) {
+            cache.cycles = cache.cycles || {};
+            cache.cycles.nasdaq = {
+              market: 'nasdaq',
+              benchmark: qqqBenchmark,
+              cycle: qqqCycle,
+              breadth: null
+            };
+          }
+        }
+      } catch {
+        // Degrada graciosamente se houver falha de rede
+      }
+    }
+    return marketCycleFor(cache, 'nasdaq');
+  }
+
   if (['bdr', 'bdrx'].includes(normalized)) {
     if ((!cache?.cycles?.bdr?.cycle?.ema10 && !cache?.cycles?.bdr?.cycle?.ema9) || !cache?.cycles?.bdr?.benchmark?.history?.length) {
       try {
