@@ -287,7 +287,7 @@
     error: null,
     showEma10: true,
     showEma72: true,
-    period: '6_meses',
+    period: '1_ano',
     hoverCandle: null
   };
 
@@ -570,8 +570,9 @@
     const candles = Array.isArray(historyCandles) ? historyCandles : [];
     
     // Período de filtragem
-    let count = 126; // 6 meses padrão
-    if (state.period === '1_ano') count = 252;
+    let count = 252; // 1 ano padrão
+    if (state.period === '6_meses') count = 126;
+    else if (state.period === '1_ano') count = 252;
     else if (state.period === '2_anos') count = 504;
     else if (state.period === 'max') count = candles.length;
 

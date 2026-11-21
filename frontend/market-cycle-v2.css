@@ -177,18 +177,22 @@ body:has(#marketcycle.active) {
    2. SELETOR DE BENCHMARKS BRASIL E ESTADOS UNIDOS EM 2 BLOCOS SIMÉTRICOS
    ========================================================================== */
 .mre-benchmarks-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 20px;
   width: 100%;
   box-sizing: border-box;
+  flex-wrap: wrap;
+  margin: 0 auto;
 }
 
 .mre-benchmark-card {
+  flex: 0 1 auto;
   background: linear-gradient(180deg, #0a1f16 0%, #06150f 100%);
   border: 1px solid rgba(46, 117, 89, 0.35);
   border-radius: 16px;
-  padding: 14px 22px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -998,7 +1002,12 @@ body:has(#marketcycle.active) {
 
 @media (max-width: 1000px) {
   .mre-benchmarks-row {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .mre-benchmark-card {
+    width: 100%;
+    justify-content: flex-start;
   }
   .mre-bottom-grid {
     grid-template-columns: 1fr;
