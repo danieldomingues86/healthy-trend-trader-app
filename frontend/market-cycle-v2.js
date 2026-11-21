@@ -221,6 +221,39 @@
     return `${day}/${month}/${year} (${weekday})`;
   }
 
+  const svgFlags = {
+    br: `<svg class="mre-flag-circle" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <clipPath id="mre-br-clip"><circle cx="16" cy="16" r="16"/></clipPath>
+      <g clip-path="url(#mre-br-clip)">
+        <rect width="32" height="32" fill="#009b3a"/>
+        <polygon points="16,3.5 28.5,16 16,28.5 3.5,16" fill="#fedf00"/>
+        <circle cx="16" cy="16" r="7.5" fill="#002776"/>
+        <path d="M8.8 17.2 C12 14.5 19 14.5 23.2 17.5" stroke="#ffffff" stroke-width="1.3" fill="none"/>
+      </g>
+    </svg>`,
+    us: `<svg class="mre-flag-circle" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <clipPath id="mre-us-clip"><circle cx="16" cy="16" r="16"/></clipPath>
+      <g clip-path="url(#mre-us-clip)">
+        <rect width="32" height="32" fill="#bf0a30"/>
+        <rect y="2.46" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="7.38" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="12.31" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="17.23" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="22.15" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="27.08" width="32" height="2.46" fill="#ffffff"/>
+        <rect width="14" height="15" fill="#002868"/>
+        <circle cx="3.5" cy="3.5" r="0.9" fill="#ffffff"/>
+        <circle cx="7" cy="3.5" r="0.9" fill="#ffffff"/>
+        <circle cx="10.5" cy="3.5" r="0.9" fill="#ffffff"/>
+        <circle cx="5.25" cy="7.5" r="0.9" fill="#ffffff"/>
+        <circle cx="8.75" cy="7.5" r="0.9" fill="#ffffff"/>
+        <circle cx="3.5" cy="11.5" r="0.9" fill="#ffffff"/>
+        <circle cx="7" cy="11.5" r="0.9" fill="#ffffff"/>
+        <circle cx="10.5" cy="11.5" r="0.9" fill="#ffffff"/>
+      </g>
+    </svg>`
+  };
+
   const svgIcons = {
     'chart-title': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>',
     'chart-section': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M17 7h4v4"/></svg>',
@@ -356,9 +389,9 @@
     return `<div class="mre-benchmarks-row mre-benchmark-center-panel" role="region" aria-label="${t('Seletor de Benchmarks', 'Benchmark Selector')}">
       <!-- Bloco BRASIL -->
       <div class="mre-benchmark-card mre-card-br">
-        <div class="mre-benchmark-card-tag">
-          <span class="mre-tag-flag">🇧🇷</span>
-          <span class="mre-tag-text">BRASIL</span>
+        <div class="mre-benchmark-country-group">
+          <span class="mre-flag-wrapper">${svgFlags.br}</span>
+          <span class="mre-country-name">BRASIL</span>
         </div>
         <div class="mre-benchmark-btn-group" role="radiogroup" aria-label="${t('Mercado Brasileiro', 'Brazilian Market')}">
           ${BENCHMARKS.filter(b => b.market === 'BR').map(b => `
@@ -377,9 +410,9 @@
 
       <!-- Bloco ESTADOS UNIDOS -->
       <div class="mre-benchmark-card mre-card-us">
-        <div class="mre-benchmark-card-tag">
-          <span class="mre-tag-flag">🇺🇸</span>
-          <span class="mre-tag-text">ESTADOS UNIDOS</span>
+        <div class="mre-benchmark-country-group">
+          <span class="mre-flag-wrapper">${svgFlags.us}</span>
+          <span class="mre-country-name">ESTADOS UNIDOS</span>
         </div>
         <div class="mre-benchmark-btn-group" role="radiogroup" aria-label="${t('Mercado Norte-Americano', 'US Market')}">
           ${BENCHMARKS.filter(b => b.market === 'US').map(b => `
@@ -398,9 +431,6 @@
     </div>`;
   }
 
-  /**
-   * 4. Card 1: Principais Métricas de Volatilidade (Grid 2x2 com cards de alto impacto)
-   */
   function renderVolatilityMetricsCard(currentRegime, dataDate) {
     const atr21 = hasNumber(currentRegime?.atr_21) ? number(currentRegime.atr_21, 2) : '—';
     const atrPct = hasNumber(currentRegime?.atr_percentage) ? `${number(currentRegime.atr_percentage, 2)}%` : '—';

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-21T22:12:43.088Z",
+  "updatedAt": "2026-11-21T22:23:20.683Z",
   "totalScreens": 47,
   "totalStylesheets": 11,
   "screens": {
@@ -698,7 +698,7 @@
     },
     "market-cycle-v2.css": {
       "filename": "market-cycle-v2.css",
-      "rulesCount": 148,
+      "rulesCount": 150,
       "mediaBreakpointsCount": 3,
       "mediaBreakpoints": [
         "@media (max-width: 1000px)",
@@ -708,7 +708,7 @@
       "healthyRulesCount": 7,
       "goldRulesCount": 7,
       "pigeonRulesCount": 9,
-      "footprintHash": "8ed08c33d9c94eb6"
+      "footprintHash": "799be289b78ea1f7"
     },
     "daily-routine.css": {
       "filename": "daily-routine.css",

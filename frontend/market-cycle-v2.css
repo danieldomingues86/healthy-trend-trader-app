@@ -1,4 +1,4 @@
-/* market-cycle-v2.css — Redesign Dark Premium: Ciclo de Mercado V4 */
+/* market-cycle-v2.css — Redesign Dark Premium: Ciclo de Mercado V4 (Refinamento V2) */
 
 #marketcycle {
   background: #06130d !important;
@@ -52,16 +52,16 @@ body:has(#marketcycle.active) {
 }
 
 /* ==========================================================================
-   1. HERO BANNER COM ARTE CINEMATOGRÁFICA DO TOURO & STATUS DO MERCADO
+   1. HERO BANNER CINEMATOGRÁFICO COM O TOURO & STATUS DO MERCADO
    ========================================================================== */
 .mre-hero-banner {
   position: relative;
   width: 100%;
-  min-height: 110px;
+  min-height: 135px;
   border-radius: 20px;
-  background: url('../assets/market-cycle-landscape-v2.png') right center / cover no-repeat, #071710;
+  background: url('../assets/market-cycle-hero-art-v3.jpg') right center / cover no-repeat, #071710;
   border: 1px solid rgba(34, 197, 94, 0.25);
-  padding: 24px 32px;
+  padding: 28px 36px;
   box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.65), 0 0 1px 1px rgba(34, 197, 94, 0.15);
   overflow: hidden;
   display: flex;
@@ -75,7 +75,7 @@ body:has(#marketcycle.active) {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(6, 19, 13, 0.96) 0%, rgba(6, 19, 13, 0.85) 45%, rgba(6, 19, 13, 0.25) 100%);
+  background: linear-gradient(90deg, rgba(6, 19, 13, 0.95) 0%, rgba(6, 19, 13, 0.8) 42%, rgba(6, 19, 13, 0.15) 100%);
   pointer-events: none;
 }
 
@@ -84,7 +84,7 @@ body:has(#marketcycle.active) {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .mre-title-row {
@@ -101,7 +101,7 @@ body:has(#marketcycle.active) {
 
 .mre-title {
   margin: 0;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 800;
   color: #ecfdf5 !important;
   letter-spacing: -0.025em;
@@ -109,7 +109,7 @@ body:has(#marketcycle.active) {
 
 .mre-subtitle {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   color: #94a3b8;
   font-weight: 400;
 }
@@ -174,7 +174,7 @@ body:has(#marketcycle.active) {
 }
 
 /* ==========================================================================
-   2. SELETOR DE BENCHMARKS BRASIL E ESTADOS UNIDOS EM 2 BLOCOS
+   2. SELETOR DE BENCHMARKS BRASIL E ESTADOS UNIDOS EM 2 BLOCOS SIMÉTRICOS
    ========================================================================== */
 .mre-benchmarks-row {
   display: grid;
@@ -185,34 +185,44 @@ body:has(#marketcycle.active) {
 }
 
 .mre-benchmark-card {
-  background: linear-gradient(180deg, #091a13 0%, #07150f 100%);
-  border: 1px solid rgba(34, 197, 94, 0.22);
+  background: linear-gradient(180deg, #0a1f16 0%, #06150f 100%);
+  border: 1px solid rgba(46, 117, 89, 0.35);
   border-radius: 16px;
-  padding: 12px 20px;
+  padding: 14px 22px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-start;
+  gap: 18px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
 }
 
-.mre-benchmark-card-tag {
+.mre-benchmark-country-group {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #ecfdf5;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  padding: 7px 16px;
-  border-radius: 20px;
-  white-space: nowrap;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.mre-tag-flag {
-  font-size: 15px;
+.mre-flag-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+.mre-flag-circle {
+  border-radius: 50%;
+  box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.25);
+  display: block;
+}
+
+.mre-country-name {
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  white-space: nowrap;
 }
 
 .mre-benchmark-btn-group {
@@ -226,7 +236,7 @@ body:has(#marketcycle.active) {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
+  padding: 9px 18px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.09);
@@ -246,10 +256,10 @@ body:has(#marketcycle.active) {
 }
 
 .mre-pill-btn.active {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.18) 100%);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.2) 100%);
   border: 1.5px solid #10b981;
   color: #ecfdf5;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.4), inset 0 0 10px rgba(16, 185, 129, 0.18);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.45), inset 0 0 10px rgba(16, 185, 129, 0.2);
 }
 
 .mre-pill-icon {
@@ -596,7 +606,7 @@ body:has(#marketcycle.active) {
 }
 
 /* ==========================================================================
-   4. GRID INFERIOR (3 GRANDES CARDS LADO A LADO)
+   4. GRID INFERIOR (3 GRANDES CARDS LADO A LADO COM ESPAÇAMENTOS REFINADOS)
    ========================================================================== */
 .mre-bottom-grid {
   display: grid;
@@ -611,7 +621,7 @@ body:has(#marketcycle.active) {
   background: linear-gradient(180deg, #091a13 0%, #07150f 100%);
   border: 1px solid rgba(34, 197, 94, 0.2);
   border-radius: 18px;
-  padding: 20px 24px;
+  padding: 22px 26px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 1px 1px rgba(34, 197, 94, 0.08);
   box-sizing: border-box;
   display: flex;
@@ -622,7 +632,7 @@ body:has(#marketcycle.active) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .mre-card-title-group {
@@ -639,30 +649,30 @@ body:has(#marketcycle.active) {
 
 .mre-card-title {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   color: #ffffff !important;
   letter-spacing: -0.01em;
 }
 
-/* 4.1 Card 1: Principais Métricas de Volatilidade (Grid 2x2) */
+/* 4.1 Card 1: Principais Métricas de Volatilidade (Grid 2x2 com Maior Legibilidade) */
 .mre-vol-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
   height: 100%;
 }
 
 .mre-vol-tile {
   background: rgba(13, 32, 24, 0.7);
   border: 1px solid rgba(46, 117, 89, 0.3);
-  border-radius: 12px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
 .mre-vol-tile-head {
@@ -672,8 +682,8 @@ body:has(#marketcycle.active) {
 }
 
 .mre-vol-icon-box {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
   background: rgba(16, 185, 129, 0.15);
   border: 1px solid rgba(16, 185, 129, 0.3);
@@ -690,13 +700,13 @@ body:has(#marketcycle.active) {
 }
 
 .mre-vol-tile-label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: #94a3b8;
 }
 
 .mre-vol-tile-value {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 800;
   color: #ffffff;
   letter-spacing: -0.02em;
@@ -710,24 +720,24 @@ body:has(#marketcycle.active) {
   color: #34d399;
 }
 
-/* 4.2 Card 2: Regime Atual do Mercado */
+/* 4.2 Card 2: Regime Atual do Mercado (Hero Tile Expandido + Orientações Claras) */
 .mre-current-content-split {
   display: grid;
-  grid-template-columns: 190px 1fr;
-  gap: 16px;
+  grid-template-columns: 210px 1fr;
+  gap: 20px;
   align-items: center;
   height: calc(100% - 35px);
 }
 
 .mre-hero-tile {
-  border-radius: 14px;
-  padding: 18px 14px;
+  border-radius: 16px;
+  padding: 22px 16px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   position: relative;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
@@ -769,9 +779,9 @@ body:has(#marketcycle.active) {
 }
 
 .mre-hero-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
@@ -781,24 +791,24 @@ body:has(#marketcycle.active) {
 
 .mre-hero-title {
   margin: 0;
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 800;
   color: #ffffff;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 .mre-hero-subtitle {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: #cbd5e1;
 }
 
 .mre-hero-badge {
-  margin-top: 4px;
-  font-size: 10px;
+  margin-top: 6px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.08em;
-  padding: 3px 10px;
+  padding: 4px 14px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -808,21 +818,21 @@ body:has(#marketcycle.active) {
 .mre-strategy-guidance-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   justify-content: center;
 }
 
 .mre-guidance-block {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .mre-guidance-title {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -836,34 +846,36 @@ body:has(#marketcycle.active) {
 
 .mre-guidance-text {
   margin: 0;
-  font-size: 11.5px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.55;
   color: #cbd5e1;
 }
 
-/* 4.3 Card 3: Os 6 Regimes de Mercado (Grid 2x3 com Realce Luminoso) */
+/* 4.3 Card 3: Os 6 Regimes de Mercado (Grid 2x3 com Realce Luminoso e Melhor Espaçamento) */
 .mre-six-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 .mre-regime-box {
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-height: 56px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.07);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   transition: all 0.2s;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .mre-box-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   display: flex;
   align-items: center;
@@ -875,19 +887,19 @@ body:has(#marketcycle.active) {
 .mre-box-texts {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
 }
 
 .mre-box-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #ecfdf5;
   white-space: nowrap;
 }
 
 .mre-box-sub {
-  font-size: 10.5px;
+  font-size: 11px;
   color: #94a3b8;
   white-space: nowrap;
 }
@@ -895,8 +907,8 @@ body:has(#marketcycle.active) {
 /* Destaque luminoso especial do regime ativo nos 6 regimes */
 .mre-regime-box.is-active.regime-down-volatile {
   background: rgba(239, 68, 68, 0.18);
-  border: 1.5px solid #ef4444;
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.45);
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.45);
 }
 
 .mre-regime-box.is-active.regime-down-volatile .mre-box-icon {
@@ -906,8 +918,8 @@ body:has(#marketcycle.active) {
 
 .mre-regime-box.is-active.regime-up-quiet {
   background: rgba(16, 185, 129, 0.18);
-  border: 1.5px solid #10b981;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
+  border: 2px solid #10b981;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
 }
 
 .mre-regime-box.is-active.regime-up-quiet .mre-box-icon {
@@ -917,8 +929,8 @@ body:has(#marketcycle.active) {
 
 .mre-regime-box.is-active.regime-up-volatile {
   background: rgba(245, 158, 11, 0.18);
-  border: 1.5px solid #f59e0b;
-  box-shadow: 0 0 16px rgba(245, 158, 11, 0.45);
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.45);
 }
 
 .mre-regime-box.is-active.regime-up-volatile .mre-box-icon {
@@ -928,8 +940,8 @@ body:has(#marketcycle.active) {
 
 .mre-regime-box.is-active.regime-sideways-quiet {
   background: rgba(59, 130, 246, 0.18);
-  border: 1.5px solid #3b82f6;
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.45);
+  border: 2px solid #3b82f6;
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.45);
 }
 
 .mre-regime-box.is-active.regime-sideways-quiet .mre-box-icon {
@@ -939,8 +951,8 @@ body:has(#marketcycle.active) {
 
 .mre-regime-box.is-active.regime-sideways-volatile {
   background: rgba(249, 115, 22, 0.18);
-  border: 1.5px solid #f97316;
-  box-shadow: 0 0 16px rgba(249, 115, 22, 0.45);
+  border: 2px solid #f97316;
+  box-shadow: 0 0 18px rgba(249, 115, 22, 0.45);
 }
 
 .mre-regime-box.is-active.regime-sideways-volatile .mre-box-icon {
@@ -950,8 +962,8 @@ body:has(#marketcycle.active) {
 
 .mre-regime-box.is-active.regime-down-quiet {
   background: rgba(100, 116, 139, 0.18);
-  border: 1.5px solid #64748b;
-  box-shadow: 0 0 16px rgba(100, 116, 139, 0.45);
+  border: 2px solid #64748b;
+  box-shadow: 0 0 18px rgba(100, 116, 139, 0.45);
 }
 
 .mre-regime-box.is-active.regime-down-quiet .mre-box-icon {
