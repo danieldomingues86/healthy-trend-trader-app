@@ -30,9 +30,12 @@
     {
       id: 'xp_daniel',
       label: 'XP — Daniel',
+      institution: 'XP Investimentos',
       broker: 'xp',
       person: 'Daniel',
+      type: 'INVESTMENT',
       currency: 'BRL',
+      subtitle: 'Nº 123-4567',
       previousBalance: 207521.00,
       newBalance: 207521.00,
       status: 'keep', // 'keep' | 'updated' | 'pending'
@@ -41,9 +44,12 @@
     {
       id: 'nomad_daniel',
       label: 'Nomad — Daniel',
+      institution: 'Nomad Global',
       broker: 'nomad',
       person: 'Daniel',
+      type: 'INVESTMENT',
       currency: 'USD',
+      subtitle: 'Nº 111-5500',
       previousBalanceUSD: 17759.25,
       newBalanceUSD: 17759.25,
       fxRate: 5.95,
@@ -58,9 +64,12 @@
     {
       id: 'genial_daniel',
       label: 'Genial — Daniel',
+      institution: 'Genial Investimentos',
       broker: 'genial',
       person: 'Daniel',
+      type: 'INVESTMENT',
       currency: 'BRL',
+      subtitle: 'Nº 987-6543',
       previousBalance: 257418.15,
       newBalance: 257418.15,
       status: 'keep',
@@ -69,9 +78,12 @@
     {
       id: 'clear_daniel',
       label: 'Clear — Daniel',
+      institution: 'Clear Corretora',
       broker: 'clear',
       person: 'Daniel',
+      type: 'INVESTMENT',
       currency: 'BRL',
+      subtitle: 'Nº 444-0502',
       previousBalance: 3068.91,
       newBalance: 3068.91,
       status: 'keep',
@@ -80,20 +92,40 @@
     {
       id: 'eqseed_daniel',
       label: 'EqSeed — Daniel (Startup)',
+      institution: 'EqSeed Venture',
       broker: 'eqseed',
       person: 'Daniel',
+      type: 'INVESTMENT',
       currency: 'BRL',
+      subtitle: 'Nº 618-8900',
       previousBalance: 5000.00,
       newBalance: 5000.00,
       status: 'keep',
       updatedAt: '2026-11-19T18:00:00.000Z'
     },
     {
+      id: 'bradesco_daniel',
+      label: 'Bradesco — Daniel',
+      institution: 'Banco Bradesco',
+      broker: 'bradesco',
+      person: 'Daniel',
+      type: 'CHECKING',
+      currency: 'BRL',
+      subtitle: 'Ag. 1234 | C/C 56789-0',
+      previousBalance: 14000.00,
+      newBalance: 14000.00,
+      status: 'keep',
+      updatedAt: '2026-11-19T18:00:00.000Z'
+    },
+    {
       id: 'xp_natalia',
       label: 'XP — Natália',
+      institution: 'XP Investimentos',
       broker: 'xp',
       person: 'Natália',
+      type: 'INVESTMENT',
       currency: 'BRL',
+      subtitle: 'Nº 114-5500',
       previousBalance: 200911.07,
       newBalance: 200911.07,
       status: 'keep',
@@ -102,9 +134,12 @@
     {
       id: 'genial_natalia',
       label: 'Genial — Natália',
+      institution: 'Genial Investimentos',
       broker: 'genial',
       person: 'Natália',
+      type: 'INVESTMENT',
       currency: 'BRL',
+      subtitle: 'Nº 114-5501',
       previousBalance: 220709.06,
       newBalance: 220709.06,
       status: 'keep',
@@ -673,6 +708,10 @@ const DEFAULT_HISTORY = [
   class DailyUpdateModel {
     constructor(options = {}) {
       this.accounts = options.accounts ? JSON.parse(JSON.stringify(options.accounts)) : JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
+      // Ensure all accounts have a valid type ('INVESTMENT' | 'CHECKING')
+      this.accounts.forEach(acc => {
+        if (!acc.type) acc.type = 'INVESTMENT';
+      });
       this.positions = options.positions ? JSON.parse(JSON.stringify(options.positions)) : JSON.parse(JSON.stringify(DEFAULT_POSITIONS));
       this.strategyEquity = options.strategyEquity !== undefined ? Number(options.strategyEquity) : 1112175.49;
       this.portfolioHeat = options.portfolioHeat !== undefined ? Number(options.portfolioHeat) : 0.00;
@@ -684,10 +723,38 @@ const DEFAULT_HISTORY = [
 
     /**
      * Calculates consolidated Real Wealth (Patrimônio Real).
-     * Sum of all new balances.
+     * Sum of all new balances across ALL accounts (investments and checking).
      */
     getConsolidatedRealWealth() {
       return this.accounts.reduce((sum, acc) => sum + (Number(acc.newBalance) || 0), 0);
+    }
+
+    /**
+     * Calculates consolidated Investment Wealth (Equity de Investimentos).
+     * Strictly sums accounts with type !== 'CHECKING'.
+     */
+    getInvestmentWealth() {
+      return this.accounts
+        .filter(acc => acc.type !== 'CHECKING')
+        .reduce((sum, acc) => sum + (Number(acc.newBalance) || 0), 0);
+    }
+
+    /**
+     * Calculates consolidated Checking Wealth (Contas Correntes).
+     * Strictly sums accounts with type === 'CHECKING'.
+     */
+    getCheckingWealth() {
+      return this.accounts
+        .filter(acc => acc.type === 'CHECKING')
+        .reduce((sum, acc) => sum + (Number(acc.newBalance) || 0), 0);
+    }
+
+    /**
+     * Checks if there is a difference between Real Wealth and Investment Wealth
+     * due to existing checking accounts.
+     */
+    hasCheckingDifference() {
+      return this.getCheckingWealth() > 0 || this.accounts.some(a => a.type === 'CHECKING');
     }
 
     /**
@@ -779,19 +846,26 @@ const DEFAULT_HISTORY = [
 
     /**
      * Calculates subtotal for a given titular.
+     * Optional accountType: 'INVESTMENT' | 'CHECKING' | null (all accounts).
      */
-    getTitularSubtotal(person, field = 'newBalance') {
+    getTitularSubtotal(person, field = 'newBalance', accountType = null) {
       if (!person) return 0;
       return this.accounts
-        .filter(acc => (acc.person || 'Outros').trim() === person.trim())
+        .filter(acc => {
+          const matchPerson = (acc.person || 'Outros').trim() === person.trim();
+          if (!matchPerson) return false;
+          if (accountType === 'INVESTMENT') return acc.type !== 'CHECKING';
+          if (accountType === 'CHECKING') return acc.type === 'CHECKING';
+          return true;
+        })
         .reduce((sum, acc) => sum + (Number(acc[field]) || 0), 0);
     }
 
     /**
      * Calculates previous subtotal for a given titular.
      */
-    getTitularPreviousSubtotal(person) {
-      return this.getTitularSubtotal(person, 'previousBalance');
+    getTitularPreviousSubtotal(person, accountType = null) {
+      return this.getTitularSubtotal(person, 'previousBalance', accountType);
     }
 
     /**
@@ -815,6 +889,12 @@ const DEFAULT_HISTORY = [
         const accounts = this.accounts.filter(acc => (acc.person || 'Outros').trim() === person.trim());
         const subtotal = accounts.reduce((sum, a) => sum + (Number(a.newBalance) || 0), 0);
         const previousSubtotal = accounts.reduce((sum, a) => sum + (Number(a.previousBalance) || 0), 0);
+        const investmentSubtotal = accounts
+          .filter(a => a.type !== 'CHECKING')
+          .reduce((sum, a) => sum + (Number(a.newBalance) || 0), 0);
+        const checkingSubtotal = accounts
+          .filter(a => a.type === 'CHECKING')
+          .reduce((sum, a) => sum + (Number(a.newBalance) || 0), 0);
         const nominalVariation = subtotal - previousSubtotal;
         const percentVariation = previousSubtotal > 0 ? (nominalVariation / previousSubtotal) * 100 : 0;
         const sharePct = (wealth > 0 && subtotal > 0) ? Math.round(((subtotal / wealth) * 100) * 100) / 100 : 0;
@@ -827,6 +907,8 @@ const DEFAULT_HISTORY = [
           count: accounts.length,
           subtotal,
           previousSubtotal,
+          investmentSubtotal,
+          checkingSubtotal,
           nominalVariation,
           percentVariation,
           sharePct
@@ -968,10 +1050,11 @@ const DEFAULT_HISTORY = [
     }
 
     /**
-     * Exposure as a percentage of Real Wealth.
+     * Exposure as a percentage of Investment Wealth (Strategy Equity).
+     * Accounts of type 'CHECKING' do not impact exposure.
      */
     getExposurePct() {
-      const wealth = this.getConsolidatedRealWealth();
+      const wealth = this.getInvestmentWealth();
       if (!wealth || wealth <= 0) return 0;
       return (this.getTotalExposure() / wealth) * 100;
     }
@@ -1105,12 +1188,16 @@ const DEFAULT_HISTORY = [
 
     /**
      * Links/flags an open position to a specific account/brokerage.
+     * Prevents linking positions to CHECKING accounts.
      */
     linkPositionToAccount(positionId, accountId) {
       const pos = this.positions.find(p => p.id === positionId);
       if (!pos) return null;
       const oldAccountId = pos.accountId;
       const acc = this.accounts.find(a => a.id === accountId);
+      if (acc && acc.type === 'CHECKING') {
+        return { success: false, error: 'Posições só podem ser vinculadas a contas de investimentos.', position: pos };
+      }
       pos.accountId = acc ? acc.id : null;
       pos.broker = acc ? acc.label : 'Não vinculada';
       pos.accountLabel = acc ? acc.label : null;
@@ -1331,6 +1418,8 @@ const DEFAULT_HISTORY = [
         exceptionReason: options.exceptionReason || null,
         user: options.user || { name: 'Daniel' },
         realWealth: Math.round(realWealth * 100) / 100,
+        investmentWealth: Math.round(this.getInvestmentWealth() * 100) / 100,
+        checkingWealth: Math.round(this.getCheckingWealth() * 100) / 100,
         previousRealWealth: Math.round(prevWealth * 100) / 100,
         dayVariationAmount: Math.round(dayVarNominal * 100) / 100,
         dayVariationPct: Math.round(dayVarPct * 100) / 100,
@@ -1344,6 +1433,9 @@ const DEFAULT_HISTORY = [
             label: a.label,
             broker: a.broker,
             person: a.person,
+            type: a.type || 'INVESTMENT',
+            institution: a.institution || null,
+            subtitle: a.subtitle || null,
             currency: a.currency,
             previousBalance: Number(a.previousBalance || 0),
             newBalance: Number(a.newBalance || 0),
@@ -1693,8 +1785,18 @@ const DEFAULT_HISTORY = [
           appValue: formatBRL(realWealth),
           spreadsheetValue: formatBRL(realWealth),
           status: 'reconciled',
-          description: 'Soma total dos saldos em todas as 6 contas cadastradas (inclui dinheiro em caixa e custódia em cada corretora).',
+          description: `Soma total dos saldos em todas as ${this.accounts.length} contas cadastradas (inclui dinheiro em caixa e custódia em cada corretora).`,
           rule: 'O saldo informado na corretora já contempla as posições custodiadas.'
+        },
+        {
+          key: 'checking_accounts_isolation',
+          category: 'Segregação de Contas',
+          title: 'Contas Correntes vs. Investimentos',
+          appValue: `${formatBRL(this.getCheckingWealth())} (Corrente) | ${formatBRL(this.getInvestmentWealth())} (Investimentos)`,
+          spreadsheetValue: 'Segregados e Auditados',
+          status: 'reconciled',
+          description: 'Contas correntes de despesas pessoais (ex: Bradesco) participam do Patrimônio Total, mas são 100% excluídas da Equity da estratégia.',
+          rule: 'Contas CHECKING não compõem Equity, não impactam drawdown e não recebem custódia de posições.'
         },
         {
           key: 'open_positions_custody',
@@ -1807,6 +1909,9 @@ const DEFAULT_HISTORY = [
 
         for (const a of accs) {
           if (!a) continue;
+          // Must exclude CHECKING accounts from Strategy Equity calculation!
+          if (a.type === 'CHECKING' || a.accountType === 'CHECKING') continue;
+
           const id = String(a.id || '').toLowerCase();
           if (id && seenIds.has(id)) continue; // Deduplicate to avoid double-counting
           if (id) seenIds.add(id);

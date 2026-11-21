@@ -81,6 +81,29 @@
         }
       } catch (_) {}
 
+      // Ensure all loaded accounts have type, subtitle and merge newly introduced official accounts
+      const defAccounts = root.DailyUpdateModel?.DEFAULT_ACCOUNTS || [];
+      this.model.accounts.forEach(acc => {
+        if (!acc.type) {
+          const match = defAccounts.find(d => d.id === acc.id);
+          acc.type = match ? match.type : 'INVESTMENT';
+        }
+        if (!acc.subtitle) {
+          const match = defAccounts.find(d => d.id === acc.id);
+          if (match?.subtitle) acc.subtitle = match.subtitle;
+        }
+        if (!acc.institution) {
+          const match = defAccounts.find(d => d.id === acc.id);
+          if (match?.institution) acc.institution = match.institution;
+        }
+      });
+      defAccounts.forEach(defAcc => {
+        if (!this.model.accounts.some(a => a.id === defAcc.id)) {
+          this.model.accounts.push(JSON.parse(JSON.stringify(defAcc)));
+        }
+      });
+      this.model.updateClosingReadiness();
+
       // 2. Draft in localStorage (discard if it contains obsolete legacy mock balances)
       try {
         const rawDraft = typeof localStorage !== 'undefined' ? localStorage.getItem(root.DailyUpdateModel?.STORAGE_KEY_DRAFT || 'healthy-daily-update-draft-v1') : null;
@@ -280,6 +303,9 @@
                 <span class="daily-update-kpi-sub up">
                   ▲ +0,76% no ano
                 </span>
+                <span class="daily-update-kpi-note" title="Contas correntes de despesas não interferem na estratégia">
+                  ℹ️ Já exclui contas do tipo Corrente (ex: Bradesco)
+                </span>
               </div>
             </article>
 
@@ -343,8 +369,16 @@
                   <span class="card-icon" aria-hidden="true">🪙</span>
                   <div class="card-title-text">
                     <h2>1. Atualizar Contas (Saldos Totais)</h2>
-                    <p>Informe o saldo total de cada corretora (inclui caixa e posições).</p>
+                    <p>Informe o saldo total de cada conta (contas do tipo Corrente não impactam a Equity).</p>
                   </div>
+                </div>
+                <div class="accounts-header-legends">
+                  <span class="account-legend-badge investment" title="Participa da Equity, rentabilidade e métricas da estratégia">
+                    <span class="legend-icon">🏛️</span> Conta de Investimentos <span class="legend-note">(compõe a Equity)</span>
+                  </span>
+                  <span class="account-legend-badge checking" title="Participa do Patrimônio Total, mas não interfere na estratégia">
+                    <span class="legend-icon">🏛️</span> Conta Corrente <span class="legend-note">(não compõe a Equity)</span>
+                  </span>
                 </div>
                 <div class="accounts-header-actions">
                   <button type="button" class="btn-keep-all" onclick="window.DailyUpdateHub.keepAllAccounts()" title="Confirmar que todas as contas permanecem iguais ao último fechamento">
@@ -391,6 +425,7 @@
                             <thead>
                               <tr>
                                 <th class="th-acc-name">Conta</th>
+                                <th class="th-acc-type">Tipo</th>
                                 <th class="th-acc-prev" style="text-align: right;">Saldo Anterior</th>
                                 <th class="th-acc-new" style="text-align: right;">Novo Saldo</th>
                                 <th class="th-acc-var" style="text-align: right;">Variação</th>
@@ -416,7 +451,7 @@
                                   inputValue = fmtUSD(acc.newBalanceUSD || 0);
                                 }
 
-                                const brokerInitial = acc.broker === 'nomad' ? 'N' : acc.broker === 'genial' ? 'g' : acc.broker === 'clear' ? 'C' : acc.broker === 'eqseed' ? 'E' : 'xp';
+                                const brokerInitial = acc.broker === 'nomad' ? 'N' : acc.broker === 'genial' ? 'g' : acc.broker === 'clear' ? 'C' : acc.broker === 'eqseed' ? 'E' : acc.broker === 'bradesco' ? 'B' : 'xp';
 
                                 return `
                                   <tr class="account-row ${isPending ? 'pending' : ''} ${hasError ? 'error' : ''}" data-account-id="${acc.id}">
@@ -425,7 +460,7 @@
                                         <span class="broker-pill ${acc.broker}">${brokerInitial}</span>
                                         <div class="account-labels">
                                           <span class="account-label-title">${acc.label}</span>
-                                          <span class="account-meta-time">${fmtTime(acc.updatedAt)}</span>
+                                          <span class="account-meta-time">${acc.subtitle || fmtTime(acc.updatedAt)}</span>
                                           ${(() => {
                                             const linkedPositions = typeof model.getPositionsByAccount === 'function'
                                               ? model.getPositionsByAccount(acc.id)
@@ -449,6 +484,11 @@
                                           </button>
                                         </div>
                                       ` : ''}
+                                    </td>
+                                    <td class="td-acc-type">
+                                      <span class="acc-type-pill ${acc.type === 'CHECKING' ? 'checking' : 'investment'}" title="${acc.type === 'CHECKING' ? 'Conta Corrente pessoal (não participa da Equity)' : 'Conta de investimentos (participa da Equity)'}">
+                                        <span class="acc-type-icon">🏛️</span> ${acc.type === 'CHECKING' ? 'Conta Corrente' : 'Investimentos'}
+                                      </span>
                                     </td>
                                     <td class="td-acc-prev" style="text-align: right;">
                                       <div class="account-prev-stack">
@@ -659,15 +699,19 @@
                               aria-label="Conta onde ${pos.ticker} está custodiada"
                             >
                               <option value="" ${!pos.accountId ? 'selected' : ''}>— Selecionar conta —</option>
-                              ${groupedAccounts.map(g => `
-                                <optgroup label="${g.person}">
-                                  ${g.accounts.map(a => `
-                                    <option value="${a.id}" ${pos.accountId === a.id ? 'selected' : ''}>
-                                      ${a.label}
-                                    </option>
-                                  `).join('')}
-                                </optgroup>
-                              `).join('')}
+                              ${groupedAccounts.map(g => {
+                                const investAccounts = g.accounts.filter(a => a.type !== 'CHECKING');
+                                if (investAccounts.length === 0) return '';
+                                return `
+                                  <optgroup label="${g.person}">
+                                    ${investAccounts.map(a => `
+                                      <option value="${a.id}" ${pos.accountId === a.id ? 'selected' : ''}>
+                                        ${a.label}
+                                      </option>
+                                    `).join('')}
+                                  </optgroup>
+                                `;
+                              }).join('')}
                             </select>
                           </td>
                           <td style="text-align: right;">
@@ -1333,6 +1377,7 @@
       }
 
       const realWealth = this.model.getConsolidatedRealWealth();
+      const investmentWealth = this.model.getInvestmentWealth();
       const reason = this.model.buildClosingAuditReason();
 
       try {
@@ -1360,9 +1405,9 @@
           }
         }
 
-        // 3. Synchronize operational equity globally
+        // 3. Synchronize operational equity globally (strictly Investment Equity, excluding checking accounts)
         if (typeof root.setOperationalEquity === 'function') {
-          root.setOperationalEquity(realWealth);
+          root.setOperationalEquity(investmentWealth);
         }
 
         // 4. Update cached wealth summary in localStorage
@@ -1372,7 +1417,7 @@
             const parsed = JSON.parse(cached);
             if (parsed.summary) {
               parsed.summary.realWealth = realWealth;
-              parsed.summary.operationalEquity = realWealth;
+              parsed.summary.operationalEquity = investmentWealth;
             }
             localStorage.setItem('healthy-trend-wealth-cache', JSON.stringify(parsed));
           }
@@ -1386,7 +1431,7 @@
 
         // 6. Notify all other screens and models via official custom events
         try {
-          root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: { newEquity: realWealth, accounts: this.model.accounts } }));
+          root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: { newEquity: investmentWealth, realWealth, accounts: this.model.accounts } }));
         } catch (_) {}
         try {
           root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
@@ -1500,9 +1545,10 @@
           } catch (_) {}
         }
 
-        // Sync operational equity
+        // Sync operational equity (strictly Investment Equity, excluding checking accounts)
+        const operationalEquity = snapshot.investmentWealth || this.model.getInvestmentWealth();
         if (typeof root.setOperationalEquity === 'function') {
-          root.setOperationalEquity(snapshot.realWealth);
+          root.setOperationalEquity(operationalEquity);
         }
 
         // Persist history to workspace
@@ -1513,7 +1559,7 @@
 
         // Dispatch events
         try {
-          root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: { newEquity: snapshot.realWealth, accounts: this.model.accounts } }));
+          root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: { newEquity: operationalEquity, realWealth: snapshot.realWealth, accounts: this.model.accounts } }));
         } catch (_) {}
 
         this.closeModal('dailyUpdateExceptionModal');
@@ -2001,6 +2047,18 @@
       this.renderEquityTabContent();
     }
 
+    toggleEquityDiffNotice() {
+      this.equityDiffNoticeCollapsed = !this.equityDiffNoticeCollapsed;
+      const body = document.getElementById('equityDiffBody');
+      const chevron = document.querySelector('.diff-chevron');
+      if (body) {
+        body.style.display = this.equityDiffNoticeCollapsed ? 'none' : 'block';
+      }
+      if (chevron) {
+        chevron.classList.toggle('collapsed', this.equityDiffNoticeCollapsed);
+      }
+    }
+
     renderEquityTabContent() {
       const container = document.getElementById('historyTabEquity');
       if (container) {
@@ -2218,6 +2276,46 @@
       const { series, summary, meta } = data;
       const fmtBRL = root.DailyUpdateModel?.formatBRL || ((v) => `R$ ${Number(v).toFixed(2)}`);
       const fmtPct = root.DailyUpdateModel?.formatPercent || ((v) => `${Number(v).toFixed(2)}%`);
+
+      const investmentWealth = this.model.getInvestmentWealth();
+      const checkingWealth = this.model.getCheckingWealth();
+      const realWealth = this.model.getConsolidatedRealWealth();
+      const hasCheckingDiff = this.model.hasCheckingDifference();
+
+      const diffNoticeHtml = hasCheckingDiff ? `
+        <div class="equity-difference-notice" id="equityDiffNotice">
+          <div class="equity-diff-head" onclick="window.DailyUpdateHub.toggleEquityDiffNotice()" title="Clique para expandir ou recolher a explicação">
+            <div class="equity-diff-title">
+              <span class="equity-diff-icon" aria-hidden="true">ℹ️</span>
+              <strong>Entenda a diferença</strong>
+            </div>
+            <button type="button" class="equity-diff-toggle-btn" aria-label="Expandir ou recolher explicação">
+              <svg class="diff-chevron ${this.equityDiffNoticeCollapsed ? 'collapsed' : ''}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="18 15 12 9 6 15"/>
+              </svg>
+            </button>
+          </div>
+          <div class="equity-diff-body" id="equityDiffBody" style="display: ${this.equityDiffNoticeCollapsed ? 'none' : 'block'};">
+            <p class="equity-diff-text">
+              A Equity considera exclusivamente suas contas de investimentos. Contas correntes, como o Bradesco, são contabilizadas no Patrimônio Total, mas não participam da evolução da Equity.
+            </p>
+            <div class="equity-diff-summary-table">
+              <div class="equity-diff-row">
+                <span class="diff-label">Equity de investimentos</span>
+                <strong class="diff-val">${fmtBRL(investmentWealth)}</strong>
+              </div>
+              <div class="equity-diff-row">
+                <span class="diff-label">Contas correntes</span>
+                <strong class="diff-val">${fmtBRL(checkingWealth)}</strong>
+              </div>
+              <div class="equity-diff-row total">
+                <span class="diff-label">Patrimônio Total</span>
+                <strong class="diff-val">${fmtBRL(realWealth)}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      ` : '';
 
       const periods = [
         { id: '30D', label: '30 Dias' },
@@ -2461,6 +2559,9 @@
               <strong>Variação Patrimonial:</strong> Os gráficos representam a evolução dos saldos consolidados registrados em cada fechamento diário. As variações nominais (R$) e percentuais (%) refletem a alteração de saldo entre fechamentos consecutivos válidos (incluindo caixa, cotações de posições e eventuais aportes/retiradas), distinguindo-se da rentabilidade líquida da estratégia.
             </div>
           </div>
+
+          <!-- Difference Notice (shown only when checking accounts exist) -->
+          ${diffNoticeHtml}
 
           <!-- KPI Summary Cards -->
           ${kpisHtml}

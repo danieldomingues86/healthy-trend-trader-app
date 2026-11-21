@@ -5,7 +5,7 @@ const DailyUpdateModel = require('./daily-update-model.js');
 test('DailyUpdateModel: inicializa com contas e posições padrão homologadas', () => {
   const model = new DailyUpdateModel();
 
-  assert.equal(model.accounts.length, 7);
+  assert.equal(model.accounts.length, 8);
   assert.equal(model.positions.length, 7);
   assert.equal(model.strategyEquity, 1112175.49);
 
@@ -15,8 +15,15 @@ test('DailyUpdateModel: inicializa com contas e posições padrão homologadas',
   assert.ok(accountLabels.includes('Nomad — Daniel'));
   assert.ok(accountLabels.includes('Genial — Daniel'));
   assert.ok(accountLabels.includes('Clear — Daniel'));
+  assert.ok(accountLabels.includes('EqSeed — Daniel (Startup)'));
+  assert.ok(accountLabels.includes('Bradesco — Daniel'));
   assert.ok(accountLabels.includes('XP — Natália'));
   assert.ok(accountLabels.includes('Genial — Natália'));
+
+  // Classificação de contas
+  assert.equal(model.accounts.find(a => a.id === 'bradesco_daniel').type, 'CHECKING');
+  assert.equal(model.accounts.find(a => a.id === 'xp_daniel').type, 'INVESTMENT');
+  assert.equal(model.accounts.find(a => a.id === 'xp_natalia').type, 'INVESTMENT');
 });
 
 test('DailyUpdateModel: cálculo correto do Patrimônio Real Consolidado e Variação', () => {
@@ -24,15 +31,18 @@ test('DailyUpdateModel: cálculo correto do Patrimônio Real Consolidado e Varia
 
   const realWealth = model.getConsolidatedRealWealth();
   const prevWealth = model.getPreviousConsolidatedRealWealth();
+  const investmentWealth = model.getInvestmentWealth();
+  const checkingWealth = model.getCheckingWealth();
   const nominalVar = model.getDayNominalVariation();
   const pctVar = model.getDayPercentVariation();
 
-  // 207521 + 105667.54 + 257418.15 + 3068.91 + 200911.07 + 220709.06 = 1000295.73
-  assert.equal(Math.round(realWealth * 100) / 100, 1000295.73);
+  // Com Bradesco (14.000,00), Patrimônio Real = 1014295.73
+  assert.equal(Math.round(realWealth * 100) / 100, 1014295.73);
   assert.equal(Math.round(prevWealth * 100) / 100, 1000295.73);
-  // Variação nominal = 0.00 (saldos mantidos conforme fechamento V11)
-  assert.equal(Math.round(nominalVar * 100) / 100, 0.00);
-  assert.equal(Math.round(pctVar * 100) / 100, 0.00);
+  assert.equal(Math.round(investmentWealth * 100) / 100, 1000295.73);
+  assert.equal(Math.round(checkingWealth * 100) / 100, 14000.00);
+  assert.equal(Math.round(nominalVar * 100) / 100, 14000.00);
+  assert.equal(Math.round(pctVar * 100) / 100, 1.40);
 });
 
 test('DailyUpdateModel: atualização de saldo de conta com suporte a moeda estrangeira (USD/BRL)', () => {
@@ -58,9 +68,10 @@ test('DailyUpdateModel: cálculo de Exposição Atual e Heat do Portfólio', () 
 
   const exposurePct = model.getExposurePct();
   assert.ok(exposurePct > 0 && exposurePct < 100);
+  assert.equal(Math.round(exposurePct * 100) / 100, 31.42);
 
   const progress = model.getProgress();
-  assert.equal(progress.totalAccounts, 7);
+  assert.equal(progress.totalAccounts, 8);
   assert.equal(progress.totalPositions, 7);
   assert.equal(progress.divergences, 0);
   assert.equal(progress.readyToClose, true);
@@ -340,11 +351,11 @@ test('DailyUpdateModel Card [04]: criação e persistência de Snapshot completo
   assert.equal(snapshot.version, 1);
   assert.equal(snapshot.status, 'closed');
   assert.equal(snapshot.hasException, false);
-  assert.equal(snapshot.realWealth, 1000295.73);
-  assert.equal(snapshot.dayVariationAmount, 0.00);
-  assert.equal(snapshot.dayVariationPct, 0.00);
+  assert.equal(snapshot.realWealth, 1014295.73);
+  assert.equal(snapshot.investmentWealth, 1000295.73);
+  assert.equal(snapshot.checkingWealth, 14000.00);
   assert.equal(snapshot.strategyEquity, 1112175.49);
-  assert.equal(snapshot.accounts.length, 7);
+  assert.equal(snapshot.accounts.length, 8);
   assert.equal(snapshot.positions.length, 7);
   assert.ok(snapshot.auditReason.includes('Fechamento Diário'));
 
@@ -362,7 +373,7 @@ test('DailyUpdateModel Card [04]: criação e persistência de Snapshot completo
 
   const retrieved = model.getSnapshotByDate('2026-11-20', mockStorage);
   assert.equal(retrieved.id, snapshot.id);
-  assert.equal(retrieved.realWealth, 1000295.73);
+  assert.equal(retrieved.realWealth, 1014295.73);
 });
 
 test('DailyUpdateModel Card [04]: conclusão com ressalvas / exceções permitidas', () => {
@@ -423,8 +434,8 @@ test('DailyUpdateModel Card [04]: correção versionada de fechamento (v1 -> v2)
   assert.equal(snapV2.correctionReason, 'Ajuste de saldo após liquidação de dividendo na XP');
   assert.ok(snapV2.corrections.length === 1);
   assert.equal(snapV2.corrections[0].version, 1);
-  assert.equal(snapV2.corrections[0].realWealth, 1000295.73);
-  assert.equal(Math.round(snapV2.realWealth * 100) / 100, 1002774.73);
+  assert.equal(snapV2.corrections[0].realWealth, 1014295.73);
+  assert.equal(Math.round(snapV2.realWealth * 100) / 100, 1016774.73);
   assert.ok(snapV2.auditReason.includes('[CORREÇÃO v2]'));
 });
 
@@ -448,10 +459,11 @@ test('DailyUpdateModel Card [04]: Checklist de Reconciliação com a Planilha Tr
   const recon = model.getSpreadsheetReconciliationData();
 
   assert.equal(recon.isFullyReconciled, true);
-  assert.equal(recon.items.length, 5);
+  assert.equal(recon.items.length, 6);
 
   const keys = recon.items.map(i => i.key);
   assert.ok(keys.includes('accounts_balance'));
+  assert.ok(keys.includes('checking_accounts_isolation'));
   assert.ok(keys.includes('open_positions_custody'));
   assert.ok(keys.includes('cash_flows'));
   assert.ok(keys.includes('strategy_vs_real'));
@@ -529,7 +541,7 @@ test('DailyUpdateModel Card [05]: persistência da participação percentual no 
   const snapshot = model.createSnapshot();
 
   assert.ok(Array.isArray(snapshot.accounts));
-  assert.equal(snapshot.accounts.length, 7);
+  assert.equal(snapshot.accounts.length, 8);
 
   // Cada conta deve conter wealthSharePct gravado
   let snapshotSharesSum = 0;
@@ -642,16 +654,16 @@ test('DailyUpdateModel: Agrupamento de Contas por Titular (getTitulares, getGrou
   const subtotalNatalia = model.getTitularSubtotal('Natália');
   const realWealth = model.getConsolidatedRealWealth();
 
-  assert.equal(subtotalDaniel, 578675.60);
+  assert.equal(subtotalDaniel, 592675.60);
   assert.equal(subtotalNatalia, 421620.13);
-  assert.equal(Math.round((subtotalDaniel + subtotalNatalia) * 100) / 100, 1000295.73);
+  assert.equal(Math.round((subtotalDaniel + subtotalNatalia) * 100) / 100, 1014295.73);
   assert.equal(Math.round((subtotalDaniel + subtotalNatalia) * 100) / 100, Math.round(realWealth * 100) / 100);
 
   // 4. Participações percentuais dos titulares
   const shareDaniel = model.getTitularSharePct('Daniel');
   const shareNatalia = model.getTitularSharePct('Natália');
-  assert.equal(shareDaniel, 57.85);
-  assert.equal(shareNatalia, 42.15);
+  assert.equal(shareDaniel, 58.43);
+  assert.equal(shareNatalia, 41.57);
   assert.equal(Math.round((shareDaniel + shareNatalia) * 100) / 100, 100.00);
 
   // 5. getGroupedAccounts()
@@ -661,17 +673,21 @@ test('DailyUpdateModel: Agrupamento de Contas por Titular (getTitulares, getGrou
   const groupD = grouped[0];
   assert.equal(groupD.person, 'Daniel');
   assert.equal(groupD.theme, 'blue');
-  assert.equal(groupD.count, 5);
-  assert.equal(groupD.subtotal, 578675.60);
-  assert.equal(groupD.sharePct, 57.85);
-  assert.equal(groupD.accounts.length, 5);
+  assert.equal(groupD.count, 6);
+  assert.equal(groupD.subtotal, 592675.60);
+  assert.equal(groupD.investmentSubtotal, 578675.60);
+  assert.equal(groupD.checkingSubtotal, 14000.00);
+  assert.equal(groupD.sharePct, 58.43);
+  assert.equal(groupD.accounts.length, 6);
 
   const groupN = grouped[1];
   assert.equal(groupN.person, 'Natália');
   assert.equal(groupN.theme, 'purple');
   assert.equal(groupN.count, 2);
   assert.equal(groupN.subtotal, 421620.13);
-  assert.equal(groupN.sharePct, 42.15);
+  assert.equal(groupN.investmentSubtotal, 421620.13);
+  assert.equal(groupN.checkingSubtotal, 0.00);
+  assert.equal(groupN.sharePct, 41.57);
   assert.equal(groupN.accounts.length, 2);
 });
 
@@ -683,24 +699,35 @@ test('DailyUpdateModel: Reconciliação e paridade matemática absoluta entre At
   const danielGroup = grouped.find(g => g.person === 'Daniel');
   const nataliaGroup = grouped.find(g => g.person === 'Natália');
   const consolidatedRealWealth = model.getConsolidatedRealWealth();
+  const investmentWealth = model.getInvestmentWealth();
+  const checkingWealth = model.getCheckingWealth();
 
-  assert.equal(danielGroup.subtotal, 578675.60, 'Daniel na Atualização Diária deve ser R$ 578.675,60');
+  assert.equal(danielGroup.subtotal, 592675.60, 'Total Daniel na Atualização Diária deve ser R$ 592.675,60');
+  assert.equal(danielGroup.investmentSubtotal, 578675.60, 'Investimentos Daniel deve ser R$ 578.675,60');
+  assert.equal(danielGroup.checkingSubtotal, 14000.00, 'Conta Corrente Daniel deve ser R$ 14.000,00');
   assert.equal(nataliaGroup.subtotal, 421620.13, 'Natália na Atualização Diária deve ser R$ 421.620,13');
-  assert.equal(consolidatedRealWealth, 1000295.73, 'Consolidado na Atualização Diária deve ser R$ 1.000.295,73');
+  assert.equal(consolidatedRealWealth, 1014295.73, 'Consolidado na Atualização Diária deve ser R$ 1.014.295,73');
+  assert.equal(investmentWealth, 1000295.73, 'Equity de Investimentos deve ser R$ 1.000.295,73');
+  assert.equal(checkingWealth, 14000.00, 'Total de Contas Correntes deve ser R$ 14.000,00');
   assert.equal(Math.round((danielGroup.subtotal + nataliaGroup.subtotal) * 100) / 100, consolidatedRealWealth);
 
   // 2. Valores da aba Evolução da Equity (Modal)
   const equityData = model.getEquityHistorySeries({ period: 'all', owner: 'both' });
   const summary = equityData.summary;
 
-  assert.equal(summary.daniel.current, 578675.60, 'Daniel na Evolução da Equity deve ser R$ 578.675,60');
+  assert.equal(summary.daniel.current, 578675.60, 'Daniel na Evolução da Equity deve ser R$ 578.675,60 (estritamente investimentos)');
   assert.equal(summary.natalia.current, 421620.13, 'Natália na Evolução da Equity deve ser R$ 421.620,13');
   assert.equal(summary.total.current, 1000295.73, 'Consolidado na Evolução da Equity deve ser R$ 1.000.295,73');
 
-  // Paridade exata (diferença zero)
-  assert.equal(danielGroup.subtotal - summary.daniel.current, 0, 'Divergência de Daniel entre as telas deve ser ZERO');
-  assert.equal(nataliaGroup.subtotal - summary.natalia.current, 0, 'Divergência de Natália entre as telas deve ser ZERO');
-  assert.equal(consolidatedRealWealth - summary.total.current, 0, 'Divergência Consolidada entre as telas deve ser ZERO');
+  // Paridade exata nos investimentos (diferença zero)
+  assert.equal(danielGroup.investmentSubtotal - summary.daniel.current, 0, 'Divergência de investimentos de Daniel deve ser ZERO');
+  assert.equal(nataliaGroup.investmentSubtotal - summary.natalia.current, 0, 'Divergência de investimentos de Natália deve ser ZERO');
+  assert.equal(investmentWealth - summary.total.current, 0, 'Divergência de investimentos consolidada deve ser ZERO');
+
+  // Diferença total auditada corresponde exatamente à conta corrente Bradesco
+  assert.equal(danielGroup.subtotal - summary.daniel.current, 14000.00, 'Diferença de Daniel é exatamente os R$ 14.000,00 do Bradesco');
+  assert.equal(nataliaGroup.subtotal - summary.natalia.current, 0.00, 'Natália não possui contas correntes');
+  assert.equal(consolidatedRealWealth - summary.total.current, 14000.00, 'Diferença Consolidada é exatamente os R$ 14.000,00 do Bradesco');
 
   // 3. Regra de ouro: Em todos os pontos da série histórica, Daniel + Natália === Total Consolidado
   equityData.series.forEach(point => {
@@ -787,4 +814,92 @@ test('DailyUpdateModel: Vinculação de posições a contas e reflexo automátic
   const snapAapl = snapshot.positions.find(p => p.id === 'pos_aapl34');
   assert.equal(snapAapl.accountId, 'xp_daniel');
   assert.equal(snapAapl.accountLabel, 'XP — Daniel');
+});
+
+test('DailyUpdateModel: 10 Cenários de Aceitação — Separação entre Patrimônio Total e Equity de Investimentos', () => {
+  // Cenário 1: Adicionar Bradesco com R$ 14.000,00 aumenta o Patrimônio Total em exatamente R$ 14.000,00
+  const modelWithoutBradesco = new DailyUpdateModel({
+    accounts: DailyUpdateModel.DEFAULT_ACCOUNTS.filter(a => a.id !== 'bradesco_daniel')
+  });
+  const modelWithBradesco = new DailyUpdateModel();
+  const diffPatrimonio = modelWithBradesco.getConsolidatedRealWealth() - modelWithoutBradesco.getConsolidatedRealWealth();
+  assert.equal(Math.round(diffPatrimonio * 100) / 100, 14000.00);
+
+  // Cenário 2: O total individual do Daniel aumenta em R$ 14.000,00
+  const danielWithout = modelWithoutBradesco.getTitularSubtotal('Daniel');
+  const danielWith = modelWithBradesco.getTitularSubtotal('Daniel');
+  assert.equal(Math.round((danielWith - danielWithout) * 100) / 100, 14000.00);
+
+  // Cenário 3: A Equity permanece exatamente igual ao valor anterior
+  const equityWithout = modelWithoutBradesco.getInvestmentWealth();
+  const equityWith = modelWithBradesco.getInvestmentWealth();
+  assert.equal(equityWith, equityWithout);
+  assert.equal(equityWith, 1000295.73);
+
+  // Cenário 4: O histórico de Equity permanece inalterado
+  const seriesWithout = modelWithoutBradesco.getEquityHistorySeries({ period: 'all' });
+  const seriesWith = modelWithBradesco.getEquityHistorySeries({ period: 'all' });
+  assert.equal(seriesWith.summary.total.current, seriesWithout.summary.total.current);
+  assert.equal(seriesWith.summary.daniel.current, seriesWithout.summary.daniel.current);
+  assert.equal(seriesWith.summary.natalia.current, seriesWithout.summary.natalia.current);
+
+  // Cenário 5: Uma alteração no saldo do Bradesco modifica o Patrimônio Total, mas não modifica a Equity
+  const modelTest = new DailyUpdateModel();
+  const initialEquity = modelTest.getInvestmentWealth();
+  const initialRealWealth = modelTest.getConsolidatedRealWealth();
+  modelTest.updateAccountBalance('bradesco_daniel', 20000.00); // +6.000
+  assert.equal(modelTest.getConsolidatedRealWealth(), initialRealWealth + 6000.00);
+  assert.equal(modelTest.getInvestmentWealth(), initialEquity); // Equity permanece estritamente idêntica!
+
+  // Cenário 6: Uma alteração no saldo de uma conta de investimentos continua refletindo na Equity conforme as regras atuais
+  const equityBeforeXp = modelTest.getInvestmentWealth();
+  modelTest.updateAccountBalance('xp_daniel', 217521.00); // +10.000
+  assert.equal(modelTest.getInvestmentWealth(), equityBeforeXp + 10000.00);
+
+  // Cenário 7: O aviso explicativo apresenta os valores corretos e atualizados
+  const modelNotice = new DailyUpdateModel();
+  assert.equal(modelNotice.hasCheckingDifference(), true);
+  assert.equal(modelNotice.getInvestmentWealth(), 1000295.73);
+  assert.equal(modelNotice.getCheckingWealth(), 14000.00);
+  assert.equal(modelNotice.getConsolidatedRealWealth(), 1014295.73);
+
+  // Cenário 8: O aviso desaparece quando não existe diferença entre patrimônio e equity
+  const modelOnlyInvestments = new DailyUpdateModel({
+    accounts: DailyUpdateModel.DEFAULT_ACCOUNTS.filter(a => a.type !== 'CHECKING')
+  });
+  assert.equal(modelOnlyInvestments.hasCheckingDifference(), false);
+  assert.equal(modelOnlyInvestments.getCheckingWealth(), 0);
+  assert.equal(modelOnlyInvestments.getConsolidatedRealWealth(), modelOnlyInvestments.getInvestmentWealth());
+
+  // Cenário 9: Todas as contas existentes permanecem classificadas como investimentos
+  const originalAccountIds = ['xp_daniel', 'nomad_daniel', 'genial_daniel', 'clear_daniel', 'eqseed_daniel', 'xp_natalia', 'genial_natalia'];
+  originalAccountIds.forEach(id => {
+    const acc = modelNotice.accounts.find(a => a.id === id);
+    assert.ok(acc, `Conta ${id} deve existir`);
+    assert.equal(acc.type, 'INVESTMENT', `Conta ${id} deve ser classificada como INVESTMENT`);
+  });
+
+  // Cenário 10: A inclusão de futuras contas correntes respeita automaticamente as mesmas regras
+  const modelWithFutureChecking = new DailyUpdateModel();
+  modelWithFutureChecking.accounts.push({
+    id: 'itau_natalia',
+    label: 'Itaú — Natália',
+    broker: 'itau',
+    person: 'Natália',
+    type: 'CHECKING',
+    newBalance: 8500.00,
+    previousBalance: 8500.00,
+    status: 'keep'
+  });
+  // Patrimônio total aumenta em 8.500
+  assert.equal(modelWithFutureChecking.getConsolidatedRealWealth(), 1014295.73 + 8500.00);
+  // Total da Natália aumenta em 8.500
+  assert.equal(modelWithFutureChecking.getTitularSubtotal('Natália'), 421620.13 + 8500.00);
+  // Equity da estratégia permanece rigorosamente a mesma
+  assert.equal(modelWithFutureChecking.getInvestmentWealth(), 1000295.73);
+  // Equity de Natália permanece rigorosamente a mesma
+  assert.equal(modelWithFutureChecking.getTitularSubtotal('Natália', 'newBalance', 'INVESTMENT'), 421620.13);
+  // Conta corrente não pode receber custódia de posições
+  const rejectPos = modelWithFutureChecking.linkPositionToAccount('pos_aapl34', 'itau_natalia');
+  assert.equal(rejectPos.success, false);
 });

@@ -185,10 +185,10 @@ test('DailyUpdateHub Card [02]: DailyUpdateHubController métodos de ação e in
 
   // Valida que chamou /api/wealth/adjustments com os dados consolidados
   assert.ok(adjustmentPayload !== null, 'Deve ter chamado /api/wealth/adjustments');
-  assert.equal(Math.round(adjustmentPayload.newAmount * 100) / 100, 1000295.73);
+  assert.equal(Math.round(adjustmentPayload.newAmount * 100) / 100, 1014295.73);
   assert.ok(adjustmentPayload.reason.includes('Fechamento Diário'));
 
-  // Valida sincronização global do equity operacional
+  // Valida sincronização global do equity operacional (estritamente investimentos)
   assert.equal(Math.round(operationalEquitySet * 100) / 100, 1000295.73);
 
   // Valida disparo dos eventos oficiais
@@ -388,7 +388,9 @@ test('DailyUpdateHub Card [04]: fechamento, snapshots históricos, ressalvas e a
   assert.ok(todaySnap !== null);
   assert.equal(todaySnap.version, 1);
   assert.equal(todaySnap.status, 'closed');
-  assert.equal(todaySnap.realWealth, 1000295.73);
+  assert.equal(todaySnap.realWealth, 1014295.73);
+  assert.equal(todaySnap.investmentWealth, 1000295.73);
+  assert.equal(todaySnap.checkingWealth, 14000.00);
 
   // Verifica sincronização com API de adjustments e workspace
   assert.ok(apiRequests.some(r => r.url === '/api/wealth/adjustments'));
@@ -403,7 +405,7 @@ test('DailyUpdateHub Card [04]: fechamento, snapshots históricos, ressalvas e a
 
   const reconData = controller.model.getSpreadsheetReconciliationData();
   assert.equal(reconData.isFullyReconciled, true);
-  assert.equal(reconData.items.length, 5);
+  assert.equal(reconData.items.length, 6);
 
   // 3. Fechamento com ressalvas / exceção
   controller.model.setAccountPending('xp_daniel');
@@ -654,7 +656,7 @@ test('DailyUpdateHub: renderização dos cards agrupados por titular, subtotais 
   // Testa modelo agrupado
   const model = controller.model;
   const realWealth = model.getConsolidatedRealWealth();
-  assert.equal(realWealth, 1000295.73);
+  assert.equal(realWealth, 1014295.73);
 
   const grouped = model.getGroupedAccounts(realWealth);
   assert.equal(grouped.length, 2);
@@ -662,16 +664,18 @@ test('DailyUpdateHub: renderização dos cards agrupados por titular, subtotais 
   const danielGroup = grouped.find(g => g.person === 'Daniel');
   assert.ok(danielGroup);
   assert.equal(danielGroup.theme, 'blue');
-  assert.equal(danielGroup.count, 5);
-  assert.equal(danielGroup.subtotal, 578675.60);
-  assert.equal(danielGroup.sharePct, 57.85);
+  assert.equal(danielGroup.count, 6);
+  assert.equal(danielGroup.subtotal, 592675.60);
+  assert.equal(danielGroup.investmentSubtotal, 578675.60);
+  assert.equal(danielGroup.checkingSubtotal, 14000.00);
+  assert.equal(danielGroup.sharePct, 58.43);
 
   const nataliaGroup = grouped.find(g => g.person === 'Natália');
   assert.ok(nataliaGroup);
   assert.equal(nataliaGroup.theme, 'purple');
   assert.equal(nataliaGroup.count, 2);
   assert.equal(nataliaGroup.subtotal, 421620.13);
-  assert.equal(nataliaGroup.sharePct, 42.15);
+  assert.equal(nataliaGroup.sharePct, 41.57);
 
   // Testa toggleTitularGroup
   assert.equal(controller.collapsedTitulares.has('Daniel'), false);
@@ -695,11 +699,11 @@ test('DailyUpdateHub: renderização dos cards agrupados por titular, subtotais 
 
   controller.updateTotalsLive();
 
-  assert.equal(mockSubtotalD.textContent, DailyUpdateModel.formatBRL(578675.60));
-  assert.equal(mockShareD.textContent, '57,85% do patrimônio');
-  assert.ok(mockHeaderD.innerHTML.includes(DailyUpdateModel.formatBRL(578675.60)));
-  assert.ok(mockHeaderD.innerHTML.includes('57,85%'));
-  assert.equal(mockBannerWealth.textContent, DailyUpdateModel.formatBRL(1000295.73));
+  assert.equal(mockSubtotalD.textContent, DailyUpdateModel.formatBRL(592675.60));
+  assert.equal(mockShareD.textContent, '58,43% do patrimônio');
+  assert.ok(mockHeaderD.innerHTML.includes(DailyUpdateModel.formatBRL(592675.60)));
+  assert.ok(mockHeaderD.innerHTML.includes('58,43%'));
+  assert.equal(mockBannerWealth.textContent, DailyUpdateModel.formatBRL(1014295.73));
 });
 
 test('DailyUpdateHub: Integridade e Paridade entre Seção 1 e Evolução da Equity no Controller', () => {
