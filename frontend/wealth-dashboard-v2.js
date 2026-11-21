@@ -57,13 +57,18 @@
       deposited: 89500,
       withdrawn: 42382.58,
       netContributions: 47117.42,
-      strategyResult: 8390.12,
+      strategyResult: 23045.70,
       strategyBase: 1086604.57,
-      strategyEquity: 1112309.50,
-      realWealth: 1031309.50,
-      availableCapital: 103145.50,
-      availablePct: 9.88,
-      allocatedCapital: 1029164.00,
+      strategyEquity: 1112175.49,
+      realWealth: 1014295.73,
+      investmentWealth: 1000295.73,
+      availableCash: 685993.73,
+      availableCashPct: 68.58,
+      allocatedCapital: 314302.00,
+      allocatedCapitalPct: 31.42,
+      heat: 2.12,
+      heatLimit: 5.00,
+      remainingRiskCapacityPct: 2.88,
       realVariation: -4.25,
       strategyVariation: 0.76,
       realYtdVariation: 2.35
@@ -89,10 +94,8 @@
       { type: 'real_wealth', amount: 1010000, occurredAt: '2026-09-30' },
       { type: 'strategy_equity', amount: 1110000, occurredAt: '2026-10-31' },
       { type: 'real_wealth', amount: 1025000, occurredAt: '2026-10-31' },
-      { type: 'strategy_equity', amount: 1108000, occurredAt: '2026-11-30' },
-      { type: 'real_wealth', amount: 1028000, occurredAt: '2026-11-30' },
-      { type: 'strategy_equity', amount: 1112309.50, occurredAt: '2026-12-31' },
-      { type: 'real_wealth', amount: 1031309.50, occurredAt: '2026-12-31' }
+      { type: 'strategy_equity', amount: 1112175.49, occurredAt: '2026-11-30' },
+      { type: 'real_wealth', amount: 1014295.73, occurredAt: '2026-11-30' }
     ],
     movements: [
       { id: 'm1', type: 'deposit', amount: 20000, occurredAt: '2026-01-15', note: 'Aporte de capital' },
@@ -172,6 +175,13 @@
         }
       }
     });
+
+    // Synchronize latest active month with canonical consolidated financials from DailyUpdateModel
+    const fin = (typeof window !== 'undefined' && window.healthyTrendFinancials) || (typeof window !== 'undefined' && window.DailyUpdateHub?.model) || null;
+    if (fin && targetYear === 2026 && rows[10] && rows[9] && rows[9].real !== null) {
+      rows[10].real = fin.getConsolidatedRealWealth?.() ?? Number(data?.summary?.realWealth || 1014295.73);
+      rows[10].strategy = fin.getStrategyEquity?.() ?? Number(data?.summary?.strategyEquity || 1112175.49);
+    }
 
     return rows;
   }
@@ -822,13 +832,11 @@
     const strategySeries = historyRows.map(r => r.strategy);
     const realSeries = historyRows.map(r => r.real);
 
-    // KPI & Variation calculations
-    const validReal = realSeries.filter(Number.isFinite);
-    const validStrat = strategySeries.filter(Number.isFinite);
-
-    const baseInit = s.strategyBase || 1086604.57;
-    const currentReal = (typeof window.getOperationalEquity === 'function' ? window.getOperationalEquity() : (s.operationalEquity || s.realWealth || (validReal.at(-1) ?? 1031309.50)));
-    const currentStrat = s.strategyEquity || (validStrat.at(-1) ?? 1112309.50);
+    // Financial Layer canonical consumption
+    const fin = (typeof window !== 'undefined' && window.healthyTrendFinancials) || (typeof window !== 'undefined' && window.DailyUpdateHub?.model) || null;
+    const currentReal = fin?.getConsolidatedRealWealth?.() ?? (s.realWealth || (validReal.at(-1) ?? 1014295.73));
+    const currentStrat = fin?.getStrategyEquity?.() ?? (s.strategyEquity || (validStrat.at(-1) ?? 1112175.49));
+    const investmentWealth = fin?.getInvestmentEquity?.() ?? (s.investmentWealth || (typeof window.getOperationalEquity === 'function' ? window.getOperationalEquity() : 1000295.73));
 
     // Variation in the year vs start of year or base
     const realYearVar = Number.isFinite(Number(s.realVariation)) ? Number(s.realVariation) : -4.25;
@@ -838,15 +846,17 @@
     // Heat & Risk policy
     const risk = state.risk?.policy || {};
     const heatInfo = typeof window.portfolioHeatSnapshot === 'function' ? window.portfolioHeatSnapshot() : null;
-    const heat = Number(heatInfo?.heat ?? 2.62);
-    const limit = Number(heatInfo?.limit ?? risk.portfolioHeatLimitPct ?? 12.50);
+    const heat = fin?.getPortfolioHeat?.() ?? Number(heatInfo?.heat ?? (s.heat || 2.12));
+    const limit = fin?.getHeatLimit?.() ?? Number(heatInfo?.limit ?? (risk.portfolioHeatLimitPct || s.heatLimit || 5.00));
+    const remainingRiskCapacityPct = fin?.getRemainingRiskCapacityPct?.() ?? Math.max(0, Math.round((limit - heat) * 100) / 100);
 
-    // Allocation & Available Capital
-    const allocated = Number(s.allocatedCapital ?? 1029164.00);
-    const availableCapital = Number(s.availableCapital ?? 103145.50);
-    const availablePct = Number(s.availablePct ?? 9.88);
+    // Allocation & Available Cash (distinct concepts)
+    const allocated = fin?.getAllocatedCapital?.() ?? Number(s.allocatedCapital ?? 314302.00);
+    const allocatedPct = fin?.getAllocatedCapitalPct?.() ?? Number(s.allocatedCapitalPct ?? (investmentWealth > 0 ? (allocated / investmentWealth) * 100 : 31.42));
+    const availableCash = fin?.getAvailableCash?.() ?? Number(s.availableCash ?? Math.max(0, investmentWealth - allocated));
+    const availableCashPct = fin?.getAvailableCashPct?.() ?? Number(s.availableCashPct ?? (investmentWealth > 0 ? (availableCash / investmentWealth) * 100 : 68.58));
     const openTrades = (state.trades || []).filter(t => t.status === 'open' && t.metadata?.mode !== 'paper');
-    const openPositionsCount = openTrades.length || 12; // 12 as per reference mockup
+    const openPositionsCount = fin?.getOpenPositionsCount?.() ?? (openTrades.length || 7);
 
     const stormAlertHtml = (typeof window !== 'undefined' && window.StormAlert && typeof window.StormAlert.buildStormAlertHtml === 'function')
       ? window.StormAlert.buildStormAlertHtml({
@@ -927,7 +937,7 @@
           </div>
         </article>
 
-        <!-- CARD 3: CAPITAL DISPONÍVEL -->
+        <!-- CARD 3: CAIXA DISPONÍVEL -->
         <article class="wealth-card wealth-kpi">
           <div class="kpi-icon-badge pie">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -935,9 +945,13 @@
               <path d="M22 12A10 10 0 0 0 12 2v10z"/>
             </svg>
           </div>
-          <small class="kpi-label">CAPITAL DISPONÍVEL</small>
-          <strong class="kpi-value">${pct(availablePct)}</strong>
-          <p class="kpi-desc">Capacidade de risco da conta</p>
+          <small class="kpi-label">CAIXA DISPONÍVEL</small>
+          <strong class="kpi-value">${fmt(availableCash)}</strong>
+          <p class="kpi-desc">${pct(availableCashPct)} da conta de investimentos</p>
+          <div class="kpi-badge-wrap">
+            <span class="kpi-badge-pill good">● Saldo em corretoras</span>
+            <span class="kpi-badge-subtext">• livre para operar</span>
+          </div>
         </article>
 
         <!-- CARD 4: PORTFOLIO HEAT -->
@@ -950,6 +964,10 @@
           <small class="kpi-label">PORTFOLIO HEAT</small>
           <strong class="kpi-value">${pct(heat)}</strong>
           <p class="kpi-desc">Limite atual de ${pct(limit)}</p>
+          <div class="kpi-badge-wrap">
+            <span class="kpi-badge-pill good">Restam ${remainingRiskCapacityPct.toFixed(2).replace('.', ',')}pp</span>
+            <span class="kpi-badge-subtext">• risco disponível</span>
+          </div>
         </article>
       </section>
     `;
@@ -1060,8 +1078,8 @@
               <div class="truth-icon">🏛</div>
               <div class="truth-content">
                 <span class="truth-label">Alocação registrada</span>
-                <strong class="truth-val">${fmt(allocated || 1029164.00)}</strong>
-                <small class="truth-sub">Capital alocado em posições</small>
+                <strong class="truth-val">${fmt(allocated)}</strong>
+                <small class="truth-sub">Capital alocado em posições (${pct(allocatedPct)})</small>
               </div>
             </div>
           </div>
@@ -1087,15 +1105,22 @@
               <div class="exposure-row">
                 <span class="exposure-label">Capital alocado</span>
                 <div class="exposure-val-wrap">
-                  <strong class="exposure-val">${fmt(allocated || 1029164.00)}</strong>
-                  <small class="exposure-hint safe">Dentro da política</small>
+                  <strong class="exposure-val">${fmt(allocated)}</strong>
+                  <small class="exposure-hint safe">Dentro da política (${pct(allocatedPct)})</small>
                 </div>
               </div>
               <div class="exposure-row">
-                <span class="exposure-label">Capital disponível</span>
+                <span class="exposure-label">Caixa disponível</span>
                 <div class="exposure-val-wrap">
-                  <strong class="exposure-val">${fmt(availableCapital || 103145.50)}</strong>
-                  <small class="exposure-hint">${pct(availablePct)} da conta</small>
+                  <strong class="exposure-val">${fmt(availableCash)}</strong>
+                  <small class="exposure-hint">${pct(availableCashPct)} da conta</small>
+                </div>
+              </div>
+              <div class="exposure-row">
+                <span class="exposure-label">Capacidade de risco</span>
+                <div class="exposure-val-wrap">
+                  <strong class="exposure-val">${remainingRiskCapacityPct.toFixed(2).replace('.', ',')}pp</strong>
+                  <small class="exposure-hint safe">Folga de Portfolio Heat</small>
                 </div>
               </div>
             </div>
@@ -1275,11 +1300,23 @@
 
         if (wealthRes) {
           state.wealth = wealthRes;
+          const fin = window.healthyTrendFinancials || (window.DailyUpdateHub?.model);
+          if (fin && typeof fin.getConsolidatedRealWealth === 'function') {
+            if (!state.wealth.summary) state.wealth.summary = {};
+            state.wealth.summary.realWealth = fin.getConsolidatedRealWealth();
+            state.wealth.summary.investmentWealth = fin.getInvestmentEquity();
+            state.wealth.summary.allocatedCapital = fin.getAllocatedCapital();
+            state.wealth.summary.availableCash = fin.getAvailableCash();
+            state.wealth.summary.availableCashPct = fin.getAvailableCashPct();
+            state.wealth.summary.heat = fin.getPortfolioHeat();
+            state.wealth.summary.heatLimit = fin.getHeatLimit();
+            state.wealth.summary.remainingRiskCapacityPct = fin.getRemainingRiskCapacityPct();
+          }
           const opEq = Number(wealthRes.summary?.operationalEquity ?? wealthRes.summary?.realWealth);
           if (Number.isFinite(opEq) && opEq > 0) {
             window.setOperationalEquity?.(opEq);
           }
-          try { localStorage.setItem('healthy-trend-wealth-cache', JSON.stringify(wealthRes)); } catch (_) {}
+          try { localStorage.setItem('healthy-trend-wealth-cache', JSON.stringify(state.wealth)); } catch (_) {}
         }
         if (riskRes) state.risk = riskRes;
         if (tradesRes?.trades) state.trades = tradesRes.trades;
@@ -1309,12 +1346,27 @@
 
   window.addEventListener('healthyTrend:authenticated', loadWealthData);
   window.addEventListener('healthyTrend:equityUpdated', (e) => {
-    if (state.wealth?.summary && e?.detail?.newEquity) {
-      state.wealth.summary.realWealth = e.detail.newEquity;
-      state.wealth.summary.operationalEquity = e.detail.newEquity;
+    if (state.wealth?.summary && e?.detail) {
+      if (e.detail.realWealth) state.wealth.summary.realWealth = e.detail.realWealth;
+      if (e.detail.newEquity) state.wealth.summary.operationalEquity = e.detail.newEquity;
+      if (e.detail.investmentWealth) state.wealth.summary.investmentWealth = e.detail.investmentWealth;
+      if (e.detail.strategyEquity) state.wealth.summary.strategyEquity = e.detail.strategyEquity;
+      if (e.detail.allocatedCapital) state.wealth.summary.allocatedCapital = e.detail.allocatedCapital;
+      if (e.detail.availableCash) state.wealth.summary.availableCash = e.detail.availableCash;
+      if (e.detail.availableCashPct) state.wealth.summary.availableCashPct = e.detail.availableCashPct;
+      if (e.detail.heat) state.wealth.summary.heat = e.detail.heat;
+      if (e.detail.heatLimit) state.wealth.summary.heatLimit = e.detail.heatLimit;
+      if (e.detail.remainingRiskCapacityPct) state.wealth.summary.remainingRiskCapacityPct = e.detail.remainingRiskCapacityPct;
       render();
     }
-    loadWealthData();
+  });
+
+  window.addEventListener('healthyTrend:dailyUpdateClosed', (e) => {
+    if (state.wealth?.summary && e?.detail) {
+      if (e.detail.realWealth) state.wealth.summary.realWealth = e.detail.realWealth;
+      if (e.detail.newEquity) state.wealth.summary.operationalEquity = e.detail.newEquity;
+      render();
+    }
   });
 
   const originalGo = window.go;

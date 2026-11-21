@@ -1089,7 +1089,7 @@ const DEFAULT_HISTORY = [
     getExposurePct() {
       const wealth = this.getInvestmentWealth();
       if (!wealth || wealth <= 0) return 0;
-      return (this.getTotalExposure() / wealth) * 100;
+      return Math.round(((this.getTotalExposure() / wealth) * 100) * 100) / 100;
     }
 
     /**
@@ -1108,6 +1108,12 @@ const DEFAULT_HISTORY = [
       const policy = (typeof riskPolicyState !== 'undefined' && riskPolicyState) || null;
       if (policy) {
         const Rubric = (typeof window !== 'undefined' && window.TradingRubrics) || (typeof TradingRubrics !== 'undefined' && TradingRubrics);
+        if (Rubric && typeof Rubric.getEffectiveRiskPolicy === 'function') {
+          const eff = Rubric.getEffectiveRiskPolicy(policy);
+          if (eff && eff.activeProfile && Number.isFinite(eff.activeProfile.portfolioHeatLimitPct)) {
+            return Number(eff.activeProfile.portfolioHeatLimitPct);
+          }
+        }
         const profile = Rubric?.profileFor ? Rubric.profileFor(policy) : (policy.profiles?.[policy.selectedProfile] || policy.profiles?.standard);
         if (profile?.maximumPortfolioRiskPct) {
           return Math.round(Number(profile.maximumPortfolioRiskPct) * 100 * 100) / 100;
@@ -1117,6 +1123,63 @@ const DEFAULT_HISTORY = [
         return this._heatLimit;
       }
       return 5.00;
+    }
+
+    /**
+     * Calculates Cash Available (Caixa Disponível).
+     * Represents unallocated cash in investment accounts available for new operations.
+     * Formula: Investment Wealth - Allocated Capital in Positions.
+     * Checking accounts do not participate in Investment Wealth or Cash Available.
+     */
+    getAvailableCash() {
+      const investmentWealth = this.getInvestmentWealth();
+      const allocated = this.getTotalExposure();
+      return Math.max(0, Math.round((investmentWealth - allocated) * 100) / 100);
+    }
+
+    /**
+     * Calculates Cash Available as percentage of Investment Wealth.
+     */
+    getAvailableCashPct() {
+      const investmentWealth = this.getInvestmentWealth();
+      if (!investmentWealth || investmentWealth <= 0) return 0;
+      return Math.round((this.getAvailableCash() / investmentWealth) * 100 * 100) / 100;
+    }
+
+    /**
+     * Calculates Allocated Capital (Capital Alocado).
+     * Alias for getTotalExposure(), expressing financial volume committed to open positions.
+     */
+    getAllocatedCapital() {
+      return this.getTotalExposure();
+    }
+
+    /**
+     * Calculates Allocated Capital as percentage of Investment Wealth.
+     * Alias for getExposurePct().
+     */
+    getAllocatedCapitalPct() {
+      return this.getExposurePct();
+    }
+
+    /**
+     * Calculates Remaining Risk Capacity (Capacidade de Risco Restante).
+     * Formula: Heat Limit - Current Portfolio Heat (expressed in percentage points, pp).
+     * Example: 5.00% - 2.12% = 2.88pp.
+     */
+    getRemainingRiskCapacityPct() {
+      const limit = this.getHeatLimit();
+      const heat = this.getPortfolioHeat();
+      return Math.max(0, Math.round((limit - heat) * 100) / 100);
+    }
+
+    /**
+     * Calculates Remaining Risk Capacity in BRL currency terms.
+     * Formula: (Remaining Risk Capacity % / 100) * Investment Wealth.
+     */
+    getRemainingRiskCapacityAmount() {
+      const investmentWealth = this.getInvestmentWealth();
+      return Math.round((this.getRemainingRiskCapacityPct() / 100) * investmentWealth * 100) / 100;
     }
 
     /**
@@ -2244,6 +2307,97 @@ const DEFAULT_HISTORY = [
   DailyUpdateModel.formatPercent = formatPercent;
   DailyUpdateModel.formatCompactBRL = formatCompactBRL;
   DailyUpdateModel.formatRelativeDate = formatRelativeDate;
+
+  /**
+   * CANONICAL FINANCIALS SERVICE:
+   * Single source of truth for all financial screens (Atualização Diária, Meu Desktop, Patrimônio, Topbar).
+   * Eliminates stale mocks, independent calculations, or conflicting values across screens.
+   */
+  DailyUpdateModel.getConsolidatedFinancials = function (storage = null) {
+    const s = storage || (typeof localStorage !== 'undefined' ? localStorage : null);
+
+    // 1. If active DailyUpdateHub instance exists, consume its live state:
+    if (typeof window !== 'undefined' && window.DailyUpdateHub?.model) {
+      const m = window.DailyUpdateHub.model;
+      const realWealth = m.getConsolidatedRealWealth();
+      const investmentWealth = m.getInvestmentWealth();
+      const allocated = m.getAllocatedCapital();
+      const availableCash = m.getAvailableCash();
+      return {
+        realWealth,
+        investmentWealth,
+        checkingWealth: m.getCheckingWealth(),
+        strategyEquity: m.strategyEquity,
+        allocatedCapital: allocated,
+        allocatedCapitalPct: m.getAllocatedCapitalPct(),
+        availableCash,
+        availableCashPct: m.getAvailableCashPct(),
+        heat: m.getPortfolioHeat(),
+        heatLimit: m.getHeatLimit(),
+        remainingRiskCapacityPct: m.getRemainingRiskCapacityPct(),
+        remainingRiskCapacityAmount: m.getRemainingRiskCapacityAmount(),
+        openPositionsCount: m.positions.filter(p => !p.closed && p.status !== 'encerrada').length,
+        accounts: m.accounts,
+        positions: m.positions
+      };
+    }
+
+    // 2. Otherwise instantiate a canonical model, optionally hydrating persisted accounts:
+    const model = new DailyUpdateModel();
+    if (s) {
+      try {
+        const savedAccounts = s.getItem(STORAGE_KEY_ACCOUNTS);
+        if (savedAccounts) {
+          const parsed = JSON.parse(savedAccounts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            model.accounts = parsed;
+          }
+        }
+      } catch (_) {}
+    }
+
+    const realWealth = model.getConsolidatedRealWealth();
+    const investmentWealth = model.getInvestmentWealth();
+    const allocated = model.getAllocatedCapital();
+    const availableCash = model.getAvailableCash();
+
+    return {
+      realWealth,
+      investmentWealth,
+      checkingWealth: model.getCheckingWealth(),
+      strategyEquity: model.strategyEquity,
+      allocatedCapital: allocated,
+      allocatedCapitalPct: model.getAllocatedCapitalPct(),
+      availableCash,
+      availableCashPct: model.getAvailableCashPct(),
+      heat: model.getPortfolioHeat(),
+      heatLimit: model.getHeatLimit(),
+      remainingRiskCapacityPct: model.getRemainingRiskCapacityPct(),
+      remainingRiskCapacityAmount: model.getRemainingRiskCapacityAmount(),
+      openPositionsCount: model.positions.filter(p => !p.closed && p.status !== 'encerrada').length,
+      accounts: model.accounts,
+      positions: model.positions
+    };
+  };
+
+  // Attach global financial helper functions to browser window if available
+  if (typeof window !== 'undefined') {
+    window.healthyTrendFinancials = {
+      get: DailyUpdateModel.getConsolidatedFinancials,
+      getConsolidatedRealWealth: () => DailyUpdateModel.getConsolidatedFinancials().realWealth,
+      getInvestmentEquity: () => DailyUpdateModel.getConsolidatedFinancials().investmentWealth,
+      getStrategyEquity: () => DailyUpdateModel.getConsolidatedFinancials().strategyEquity,
+      getAllocatedCapital: () => DailyUpdateModel.getConsolidatedFinancials().allocatedCapital,
+      getAvailableCash: () => DailyUpdateModel.getConsolidatedFinancials().availableCash,
+      getPortfolioHeat: () => DailyUpdateModel.getConsolidatedFinancials().heat,
+      getHeatLimit: () => DailyUpdateModel.getConsolidatedFinancials().heatLimit,
+      getRemainingRiskCapacityPct: () => DailyUpdateModel.getConsolidatedFinancials().remainingRiskCapacityPct
+    };
+    window.getConsolidatedRealWealth = () => DailyUpdateModel.getConsolidatedFinancials().realWealth;
+    window.getInvestmentEquity = () => DailyUpdateModel.getConsolidatedFinancials().investmentWealth;
+    window.getAvailableCash = () => DailyUpdateModel.getConsolidatedFinancials().availableCash;
+    window.getRemainingRiskCapacityPct = () => DailyUpdateModel.getConsolidatedFinancials().remainingRiskCapacityPct;
+  }
 
   return DailyUpdateModel;
 }));

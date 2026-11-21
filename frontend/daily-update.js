@@ -1142,6 +1142,27 @@
       if (elProvisionalHint) {
         elProvisionalHint.style.display = isProvisional ? 'inline-flex' : 'none';
       }
+
+      // Broadcast centralized financials update to other listening components (Meu Desktop, Patrimônio, Topbar)
+      try {
+        const finDetail = {
+          newEquity: this.model.getInvestmentWealth(),
+          realWealth,
+          investmentWealth: this.model.getInvestmentWealth(),
+          strategyEquity: this.model.strategyEquity,
+          allocatedCapital: this.model.getAllocatedCapital(),
+          allocatedCapitalPct: this.model.getAllocatedCapitalPct(),
+          availableCash: this.model.getAvailableCash(),
+          availableCashPct: this.model.getAvailableCashPct(),
+          heat: this.model.getPortfolioHeat(),
+          heatLimit: this.model.getHeatLimit(),
+          remainingRiskCapacityPct: this.model.getRemainingRiskCapacityPct(),
+          remainingRiskCapacityAmount: this.model.getRemainingRiskCapacityAmount(),
+          accounts: this.model.accounts,
+          positions: this.model.positions
+        };
+        root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: finDetail }));
+      } catch (_) {}
     }
 
     toggleTitularGroup(person) {
@@ -1500,7 +1521,17 @@
             const parsed = JSON.parse(cached);
             if (parsed.summary) {
               parsed.summary.realWealth = realWealth;
+              parsed.summary.consolidatedRealWealth = realWealth;
               parsed.summary.operationalEquity = investmentWealth;
+              parsed.summary.investmentWealth = investmentWealth;
+              parsed.summary.strategyEquity = this.model.strategyEquity;
+              parsed.summary.allocatedCapital = this.model.getAllocatedCapital();
+              parsed.summary.allocatedCapitalPct = this.model.getAllocatedCapitalPct();
+              parsed.summary.availableCash = this.model.getAvailableCash();
+              parsed.summary.availableCashPct = this.model.getAvailableCashPct();
+              parsed.summary.heat = this.model.getPortfolioHeat();
+              parsed.summary.heatLimit = this.model.getHeatLimit();
+              parsed.summary.remainingRiskCapacityPct = this.model.getRemainingRiskCapacityPct();
             }
             localStorage.setItem('healthy-trend-wealth-cache', JSON.stringify(parsed));
           }
@@ -1512,9 +1543,26 @@
           root.healthyTrendWorkspace.save('healthy-daily-update-history', this.model.getHistory());
         }
 
-        // 6. Notify all other screens and models via official custom events
+        // 6. Notify all other screens and models via official custom events with centralized financials
+        const financialDetail = {
+          newEquity: investmentWealth,
+          realWealth,
+          investmentWealth,
+          strategyEquity: this.model.strategyEquity,
+          allocatedCapital: this.model.getAllocatedCapital(),
+          allocatedCapitalPct: this.model.getAllocatedCapitalPct(),
+          availableCash: this.model.getAvailableCash(),
+          availableCashPct: this.model.getAvailableCashPct(),
+          heat: this.model.getPortfolioHeat(),
+          heatLimit: this.model.getHeatLimit(),
+          remainingRiskCapacityPct: this.model.getRemainingRiskCapacityPct(),
+          remainingRiskCapacityAmount: this.model.getRemainingRiskCapacityAmount(),
+          accounts: this.model.accounts,
+          positions: this.model.positions
+        };
         try {
-          root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: { newEquity: investmentWealth, realWealth, accounts: this.model.accounts } }));
+          root.dispatchEvent(new CustomEvent('healthyTrend:equityUpdated', { detail: financialDetail }));
+          root.dispatchEvent(new CustomEvent('healthyTrend:dailyUpdateClosed', { detail: financialDetail }));
         } catch (_) {}
         try {
           root.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'));
