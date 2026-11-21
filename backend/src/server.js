@@ -1257,9 +1257,17 @@ const server = http.createServer(async (request, response) => {
           metadata: marketRegime.REGIME_METADATA
         };
         if (Array.isArray(payload?.benchmark?.history) && Array.isArray(regimeData?.regimes)) {
-          const rMap = new Map(regimeData.regimes.map(r => [r.reference_date, r]));
+          const rMap = new Map();
+          for (const r of regimeData.regimes) {
+            if (r.reference_date) {
+              const isoDate = String(r.reference_date).trim();
+              rMap.set(isoDate, r);
+              rMap.set(isoDate.replace(/-/g, ''), r);
+            }
+          }
           for (const c of payload.benchmark.history) {
-            const reg = rMap.get(c.date);
+            const rawDate = String(c.date || '').trim();
+            const reg = rMap.get(rawDate) || rMap.get(rawDate.replace(/-/g, ''));
             if (reg) {
               c.regime = reg.regime;
               c.direction = reg.direction;

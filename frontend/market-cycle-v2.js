@@ -537,7 +537,7 @@
   /**
    * 5. Card 2: Regime Atual do Mercado (Hero Tile + Orientações Estruturais TF / VT)
    */
-  function renderCurrentRegimeCard(currentRegime) {
+  function renderCurrentRegimeCard(currentRegime, dataDate) {
     const regCode = currentRegime?.regime || 'UP_VOLATILE';
     const meta = REGIME_METADATA[regCode] || REGIME_METADATA.UP_VOLATILE;
     const isUp = (meta.title || '').includes('Up') || (meta.title || '').includes('Alta');
@@ -551,25 +551,38 @@
       ? t('Requer atenção estrita ao filtro estrutural (preço > SMA200 do próprio ativo), operando reações táticas com saída temporal D7.', 'Requires strict structural filter adherence, operating tactical reactions with D7 time stop.')
       : t('Oscilações contidas: reversão à média com stops curtos e saídas ágeis nas bandas.', 'Contained swings: mean reversion with tight stops and swift band exits.');
 
+    const refDate = currentRegime?.reference_date || dataDate;
+    const dirLabel = meta.direction === 'UP' ? t('Alta', 'Up') : (meta.direction === 'DOWN' ? t('Baixa', 'Down') : t('Lateral', 'Sideways'));
+    const volLabel = meta.volatility === 'VOLATILE' ? t('Alta Volatilidade', 'High Volatility') : t('Baixa Volatilidade', 'Low Volatility');
+
     return `<div class="mre-card mre-current-card">
-      <div class="mre-card-header">
+      <div class="mre-card-header mre-current-header">
         <div class="mre-card-title-group">
           <span class="mre-card-header-icon">${svgIcons['target']}</span>
-          <h2 class="mre-card-title">${t('Regime Atual do Mercado', 'Current Market Regime')}</h2>
+          <h2 class="mre-card-title">${t('Regime Atual', 'Current Regime')}</h2>
+        </div>
+        <div class="mre-current-date-badge" title="${t('Data de referência do regime atual', 'Reference date of current regime')}">
+          ${svgIcons.calendar}
+          <span>${dateLabel(refDate)}</span>
         </div>
       </div>
-      <div class="mre-current-content-split">
+      <div class="mre-current-content-vertical">
         <div class="mre-hero-tile ${meta.badgeClass}">
           <div class="mre-hero-circle">
             ${svgIcons[meta.icon] || svgIcons['arrow-up-right']}
           </div>
           <h3 class="mre-hero-title">${esc(meta.title)}</h3>
           <p class="mre-hero-subtitle">${esc(meta.sublabel || meta.name)}</p>
+          <div class="mre-current-dim-chips">
+            <span class="mre-dim-chip">Tendência: <strong>${esc(dirLabel)}</strong></span>
+            <span class="mre-dim-chip">Volatilidade: <strong>${esc(volLabel)}</strong></span>
+          </div>
           <div class="mre-hero-badge">
             ${t('REGIME ATUAL', 'CURRENT REGIME')}
           </div>
         </div>
-        <div class="mre-strategy-guidance-col">
+
+        <div class="mre-strategy-guidance-vertical">
           <div class="mre-guidance-block mre-guidance-tf">
             <div class="mre-guidance-title">
               <span class="mre-guidance-icon">📈</span>
@@ -1195,11 +1208,16 @@
     const regimeByDate = new Map();
     if (Array.isArray(marketRegimeData.regimes)) {
       for (const r of marketRegimeData.regimes) {
-        if (r.reference_date) regimeByDate.set(r.reference_date, r);
+        if (r.reference_date) {
+          const iso = String(r.reference_date).trim();
+          regimeByDate.set(iso, r);
+          regimeByDate.set(iso.replace(/-/g, ''), r);
+        }
       }
     }
     for (const c of historyCandles) {
-      const match = regimeByDate.get(c.date);
+      const rawDate = String(c.date || '').trim();
+      const match = regimeByDate.get(rawDate) || regimeByDate.get(rawDate.replace(/-/g, ''));
       if (match) {
         c.regime = match.regime;
         c.direction = match.direction;
@@ -1226,13 +1244,17 @@
 
         ${renderBenchmarkSelector(benchmarkInfo)}
 
-        <div class="mre-chart-row mre-chart-fullwidth">
-          ${renderHistorySection(benchmarkInfo, historyCandles, periods, distribution, dataDate, currentRegime)}
+        <div class="mre-main-visual-row">
+          <div class="mre-chart-col">
+            ${renderHistorySection(benchmarkInfo, historyCandles, periods, distribution, dataDate, currentRegime)}
+          </div>
+          <div class="mre-side-current-col">
+            ${renderCurrentRegimeCard(currentRegime, dataDate)}
+          </div>
         </div>
 
-        <div class="mre-bottom-grid">
+        <div class="mre-bottom-grid mre-bottom-split">
           ${renderVolatilityMetricsCard(currentRegime, dataDate)}
-          ${renderCurrentRegimeCard(currentRegime)}
           ${renderSixRegimesCard(currentRegime?.regime || 'UP_VOLATILE')}
         </div>
       </div>

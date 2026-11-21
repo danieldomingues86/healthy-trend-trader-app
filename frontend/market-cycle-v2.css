@@ -277,8 +277,37 @@ body:has(#marketcycle.active) {
 }
 
 /* ==========================================================================
-   3. GRÁFICO HISTÓRICO — ELEMENTO CENTRAL DOMINANTE FULL-WIDTH
+   3. LINHA PRINCIPAL: GRÁFICO (ESQUERDA ~78%) + REGIME ATUAL (DIREITA ~22%)
    ========================================================================== */
+.mre-main-visual-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3.55fr) minmax(310px, 1fr);
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+.mre-chart-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mre-chart-col .mre-chart-card {
+  height: 100%;
+}
+
+.mre-side-current-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mre-side-current-col .mre-current-card {
+  height: 100%;
+}
+
 .mre-chart-row {
   width: 100%;
 }
@@ -663,11 +692,11 @@ body:has(#marketcycle.active) {
 }
 
 /* ==========================================================================
-   4. GRID INFERIOR (3 GRANDES CARDS LADO A LADO COM ESPAÇAMENTOS REFINADOS)
+   4. GRID INFERIOR (MÉTRICAS DE VOLATILIDADE + OS 6 REGIMES DE MERCADO)
    ========================================================================== */
 .mre-bottom-grid {
   display: grid;
-  grid-template-columns: 1fr 1.35fr 1.25fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   width: 100%;
   box-sizing: border-box;
@@ -777,7 +806,69 @@ body:has(#marketcycle.active) {
   color: #34d399;
 }
 
-/* 4.2 Card 2: Regime Atual do Mercado (Hero Tile Expandido + Orientações Claras) */
+/* 4.2 Card 2: Regime Atual do Mercado (Verticalizado na Coluna Lateral Direita) */
+.mre-current-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.mre-current-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.mre-current-content-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.mre-current-dim-chips {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.mre-dim-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: #cbd5e1;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.mre-dim-chip strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.mre-strategy-guidance-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .mre-current-content-split {
   display: grid;
   grid-template-columns: 210px 1fr;
@@ -1044,12 +1135,9 @@ body:has(#marketcycle.active) {
   }
 }
 
-@media (max-width: 1300px) {
-  .mre-bottom-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .mre-bottom-grid > .mre-card:first-child {
-    grid-column: span 2;
+@media (max-width: 1200px) {
+  .mre-main-visual-row {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1064,9 +1152,6 @@ body:has(#marketcycle.active) {
   }
   .mre-bottom-grid {
     grid-template-columns: 1fr;
-  }
-  .mre-bottom-grid > .mre-card:first-child {
-    grid-column: span 1;
   }
   .mre-current-content-split {
     grid-template-columns: 1fr !important;

@@ -257,3 +257,130 @@ test('Ajustes V3: Benchmarks US (S&P 500 e Nasdaq) possuem série histórica est
   const nasdaqRegimeTypes = new Set(nasdaqRegimes.map(r => r.regime));
   assert.ok(nasdaqRegimeTypes.size >= 3, 'NASDAQ deve cobrir múltiplos regimes na série histórica');
 });
+
+test('Ajustes V4: Tooltip, Linha do Tempo e Card Regime Atual utilizam fonte única e datas iguais coincidem rigorosamente', async () => {
+  const env = createMockEnvironment();
+
+  // Histórico com formato de data B3/COTAHIST (YYYYMMDD sem hífen)
+  const testHistory = [
+    { date: '20261117', close: 169816.64, ema10: 171759.04, ema72: 181763.27 },
+    { date: '20261118', close: 167537.95, ema10: 170991.57, ema72: 181373.53 },
+    { date: '20261119', close: 166376.43, ema10: 170152.45, ema72: 180962.66 } // Último candle diário válido
+  ];
+
+  const testRegimes = [
+    { reference_date: '2026-11-17', regime: 'DOWN_VOLATILE', direction: 'DOWN', volatility: 'VOLATILE' },
+    { reference_date: '2026-11-18', regime: 'DOWN_VOLATILE', direction: 'DOWN', volatility: 'VOLATILE' },
+    { reference_date: '2026-11-19', regime: 'DOWN_VOLATILE', direction: 'DOWN', volatility: 'VOLATILE' }
+  ];
+
+  const currentRegime = {
+    reference_date: '2026-11-19',
+    regime: 'DOWN_VOLATILE',
+    direction: 'DOWN',
+    volatility: 'VOLATILE',
+    close_price: 166376.43,
+    ema_10: 170152.45,
+    ema_72: 180962.66,
+    atr_21: 2379.32,
+    atr_percentage: 1.43,
+    atr_percentage_sma_252: 0.91,
+    volatility_deviation: 57.7
+  };
+
+  const originalFetch = global.fetch;
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      updatedAt: '2026-11-19T20:00:00Z',
+      market: 'stock_b3',
+      cycle: { state: 'defensive', score: 25, price: 166376.43, ema10: 170152.45, ema72: 180962.66, date: '20261119' },
+      benchmark: {
+        symbol: 'IBOV',
+        name: 'Índice Bovespa',
+        history: testHistory
+      },
+      marketRegime: {
+        current: currentRegime,
+        regimes: testRegimes,
+        periods: [],
+        distribution: null
+      }
+    })
+  });
+
+  const code = fs.readFileSync(path.join(__dirname, 'market-cycle-v2.js'), 'utf8');
+  const runCode = new Function('document', 'window', 'localStorage', 'MutationObserver', 'fetch', code);
+  runCode(env.mockDocument, env.mockWindow, env.mockLocalStorage, env.mockWindow.MutationObserver, global.fetch);
+
+  await env.mockWindow.loadMarketCycleV2('stock_b3');
+
+  const html = env.rootElement.innerHTML;
+
+  // 1. O card Regime Atual deve apresentar o regime e a data correspondentes ao último candle (19/11/2026)
+  assert.ok(html.includes('Down – Volatile') || html.includes('Down — Volatile'), 'Card Regime Atual apresenta Down — Volatile');
+  assert.ok(html.includes('19/11/2026'), 'Data de referência 19/11/2026 está claramente visível no card');
+  assert.ok(html.includes('mre-current-date-badge'), 'Badge com data de referência existe no card');
+
+  // 2. O card dos seis regimes destaca o regime atual correto
+  assert.ok(html.includes('data-regime-id="DOWN_VOLATILE"'), 'Bloco DOWN_VOLATILE presente nos 6 regimes');
+  assert.ok(html.includes('regime-down-volatile is-active') || html.includes('is-active" data-regime-id="DOWN_VOLATILE"'), 'DOWN_VOLATILE está ativado com destaque');
+
+  // 3. A linha do tempo coloriu a data 20261119 como vermelho (#ef4444) e não cinza/verde
+  assert.ok(html.includes('fill="#ef4444"'), 'Linha do tempo contém o retângulo vermelho (#ef4444) correspondente a Down - Volatile');
+
+  // 4. No hover do candle 19/11/2026 (index 2), o regime no tooltip é Down — Volatile
+  const lastCandle = testHistory[2];
+  assert.equal(lastCandle.regime, 'DOWN_VOLATILE', 'Candle 19/11/2026 recebe regime DOWN_VOLATILE via normalização');
+  assert.equal(lastCandle.direction, 'DOWN');
+  assert.equal(lastCandle.volatility, 'VOLATILE');
+
+  global.fetch = originalFetch;
+});
+
+test('Ajustes V4: Novo Layout — Gráfico à esquerda (~78%) e Card Regime Atual à direita (~22%), com métricas e 6 regimes abaixo', async () => {
+  const env = createMockEnvironment();
+
+  const originalFetch = global.fetch;
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      updatedAt: '2026-11-19T20:00:00Z',
+      market: 'stock_b3',
+      cycle: { state: 'defensive', score: 30, price: 100, ema10: 95, ema72: 90, date: '20261119' },
+      benchmark: {
+        symbol: 'IBOV',
+        name: 'Índice Bovespa',
+        history: [{ date: '20261119', close: 100, ema10: 95, ema72: 90, regime: 'DOWN_VOLATILE' }]
+      },
+      marketRegime: {
+        current: { reference_date: '2026-11-19', regime: 'DOWN_VOLATILE', direction: 'DOWN', volatility: 'VOLATILE' },
+        regimes: [{ reference_date: '2026-11-19', regime: 'DOWN_VOLATILE', direction: 'DOWN', volatility: 'VOLATILE' }]
+      }
+    })
+  });
+
+  const code = fs.readFileSync(path.join(__dirname, 'market-cycle-v2.js'), 'utf8');
+  const runCode = new Function('document', 'window', 'localStorage', 'MutationObserver', 'fetch', code);
+  runCode(env.mockDocument, env.mockWindow, env.mockLocalStorage, env.mockWindow.MutationObserver, global.fetch);
+
+  await env.mockWindow.loadMarketCycleV2('stock_b3');
+
+  const html = env.rootElement.innerHTML;
+
+  // 1. Estrutura da linha principal com gráfico e regime atual lado a lado
+  assert.ok(html.includes('mre-main-visual-row'), 'Linha visual principal contendo gráfico e card atual lado a lado');
+  assert.ok(html.includes('mre-chart-col'), 'Coluna esquerda do gráfico');
+  assert.ok(html.includes('mre-side-current-col'), 'Coluna direita do card de regime atual');
+
+  // 2. Estrutura inferior contendo apenas Métricas de Volatilidade e os 6 Regimes (sem duplicação do Regime Atual)
+  assert.ok(html.includes('mre-bottom-grid'), 'Grid inferior presente');
+  assert.ok(html.includes('mre-vol-card') || html.includes('Principais Métricas de Volatilidade'), 'Card de Métricas de Volatilidade no grid inferior');
+  assert.ok(html.includes('mre-six-card') || html.includes('Os 6 Regimes de Mercado'), 'Card dos 6 Regimes no grid inferior');
+
+  // 3. Contagem de cards Regime Atual deve ser estritamente 1
+  const matches = html.match(/class="[^"]*mre-current-card[^"]*"/g) || [];
+  assert.equal(matches.length, 1, 'Card Regime Atual existe exatamente uma única vez na tela');
+
+  global.fetch = originalFetch;
+});
