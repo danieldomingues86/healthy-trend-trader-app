@@ -166,7 +166,6 @@
         '<div class="desktop-stat-head">',
           '<svg class="stat-icon-shield" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
           '<span class="desktop-stat-label">Patrimônio Total</span>',
-          '<button type="button" class="equity-adjust-trigger-btn" onclick="window.openEquityAdjustModal()" title="Atualizar Equity Total" aria-label="Atualizar Equity Total"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>',
         '</div>',
         '<div class="desktop-stat-value-row">',
           '<strong class="desktop-stat-value">' + patrimonioStr + '</strong>',

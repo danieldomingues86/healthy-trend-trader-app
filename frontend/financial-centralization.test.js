@@ -151,3 +151,20 @@ test('Financial Centralization: 10. Não existem divergências entre os indicado
   assert.equal(fin.heatLimit, 5.00);
   assert.equal(fin.openPositionsCount, 7);
 });
+
+test('Financial Centralization: 11. Patrimônio Total é somente leitura em Meu Desktop e Patrimônio (editável apenas na Atualização Diária)', () => {
+  const todayCockpitCode = fs.readFileSync(path.join(__dirname, 'today-cockpit.js'), 'utf8');
+  const wealthDashboardCode = fs.readFileSync(path.join(__dirname, 'wealth-dashboard-v2.js'), 'utf8');
+  const dailyUpdateCode = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+
+  // Meu Desktop não pode ter botão de edição ou modal trigger de ajuste de equity
+  assert.ok(!todayCockpitCode.includes('equity-adjust-trigger-btn'), 'Meu Desktop não deve conter botão de ajuste de equity');
+  assert.ok(!todayCockpitCode.includes('openEquityAdjustModal'), 'Meu Desktop não deve acionar modal de edição');
+
+  // Tela Patrimônio não pode ter botões de edição ou modal trigger de ajuste de equity
+  assert.ok(!wealthDashboardCode.includes('equity-adjust-trigger-btn'), 'Patrimônio não deve conter botão de ajuste de equity');
+  assert.ok(!wealthDashboardCode.includes('openEquityAdjustModal'), 'Patrimônio não deve acionar modal de edição direta');
+
+  // Apenas Atualização Diária é a interface com inputs de saldo editáveis
+  assert.ok(dailyUpdateCode.includes('data-account-input'), 'Atualização Diária é o local oficial com inputs de edição de saldo');
+});

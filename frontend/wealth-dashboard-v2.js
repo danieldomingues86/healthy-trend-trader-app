@@ -733,7 +733,6 @@
             </div>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
               <button type="button" class="btn-daily-update-shortcut" onclick="go('dailyupdate')"><span>📅</span> Fechamento Diário →</button>
-              <button type="button" class="primary btn-compact" onclick="window.openEquityAdjustModal()">+ Atualizar Equity Total</button>
             </div>
           </header>
           ${adjustments.length ? `
@@ -895,23 +894,15 @@
       <section class="wealth-kpis" aria-label="Indicadores principais">
         <!-- CARD 1: PATRIMÔNIO REAL -->
         <article class="wealth-card wealth-kpi">
-          <div class="kpi-icon-badge coins" style="cursor:pointer;" onclick="window.openEquityAdjustModal()" title="Atualizar Equity Total (Patrimônio Real)" role="button" aria-label="Atualizar Equity Total">
+          <div class="kpi-icon-badge coins">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <ellipse cx="12" cy="6" rx="8" ry="3"/>
               <path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
               <path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/>
             </svg>
           </div>
-          <div class="kpi-label-row" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;">
-            <small class="kpi-label" style="margin-bottom:0;">PATRIMÔNIO REAL</small>
-            <button type="button" class="equity-adjust-trigger-btn" onclick="window.openEquityAdjustModal()" title="Atualizar Equity Total" aria-label="Atualizar Equity Total">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"/>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-            </button>
-          </div>
-          <strong class="kpi-value" style="cursor:pointer;" onclick="window.openEquityAdjustModal()" title="Clique para atualizar o Patrimônio Real">${fmt(currentReal)}</strong>
+          <small class="kpi-label">PATRIMÔNIO REAL</small>
+          <strong class="kpi-value">${fmt(currentReal)}</strong>
           <p class="kpi-desc">Saldos reais registrados nas contas</p>
           <div class="kpi-badge-wrap">
             <span class="kpi-badge-pill ${realYtdVar >= 0 ? 'good' : 'bad'}">${realYtdVar >= 0 ? '▲' : '▼'} ${pct(realYtdVar, true)}</span>
