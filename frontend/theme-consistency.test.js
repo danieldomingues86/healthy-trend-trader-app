@@ -310,15 +310,15 @@ test('Pigeon Light (Refinamento Final): Grade C contraste em index.html, Remoç�
   assert.ok(pigeonCss.includes("background: url('../assets/about-pigeon-hero.png') right center / cover no-repeat !important;"), 'theme-pigeon-light.css deve posicionar imagem sem distorção');
 });
 
-test('Ciclo de Mercado: Paleta Light Theme consistente com fundo #FFFFFF, títulos #172B24 e verde #16A879', () => {
+test('Ciclo de Mercado: Paleta Dark Premium consistente com fundo #06130D, cards em verde profundo e verde luminoso #10B981', () => {
   const css = fs.readFileSync(path.join(root, 'frontend', 'market-cycle-v2.css'), 'utf8');
-  assert.ok(css.includes('#marketcycle {') && css.includes('background: #ffffff !important;'), 'Ciclo de Mercado deve ter fundo branco puro #FFFFFF');
-  assert.ok(css.includes('color: #172b24 !important;'), 'Título Ciclo de Mercado deve usar cor #172B24 com alto contraste');
-  assert.ok(css.includes('--surface-card: #ffffff;'), 'Tokens padrão devem definir cards com fundo branco');
-  assert.ok(css.includes('--surface-subtle: #f4f7f5;'), 'Áreas secundárias devem usar #F4F7F5');
-  assert.ok(css.includes('--color-pos: #16a879;'), 'Verde positivo deve ser #16A879');
-  assert.ok(css.includes('--color-neg: #dc4545;'), 'Vermelho negativo deve ser #DC4545');
-  assert.ok(!css.includes('--surface-card: #0c2016;'), 'Não deve conter painéis escuros hardcoded #0c2016 no tema padrão');
+  assert.ok(css.includes('#marketcycle {') && css.includes('background: #06130d !important;'), 'Ciclo de Mercado deve ter fundo escuro #06130D');
+  assert.ok(css.includes('color: #ecfdf5 !important;'), 'Título Ciclo de Mercado deve usar cor clara #ECFDF5');
+  assert.ok(css.includes('--surface-card: #091a13;'), 'Tokens padrão devem definir cards com fundo verde profundo');
+  assert.ok(css.includes('--color-pos: #10b981;'), 'Verde positivo luminoso deve ser #10B981');
+  assert.ok(css.includes('--color-neg: #ef4444;'), 'Vermelho negativo deve ser #EF4444');
+  assert.ok(css.includes('.mre-hero-banner'), 'Deve conter hero banner com arte visual do touro');
+  assert.ok(css.includes('.mre-benchmarks-row'), 'Deve conter os dois blocos de benchmarks (Brasil e EUA)');
 });
 
 test('System Quality Analytics (SQN): Legibilidade e Contraste em Healthy Green, Premium Gold e Pigeon Light', () => {
