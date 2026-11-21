@@ -404,11 +404,6 @@
                     <span class="legend-icon">🏛️</span> Conta Corrente <span class="legend-note">(não compõe a Equity)</span>
                   </span>
                 </div>
-                <div class="accounts-header-actions">
-                  <button type="button" class="btn-keep-all" onclick="window.DailyUpdateHub.keepAllAccounts()" title="Confirmar que todas as contas permanecem iguais ao último fechamento">
-                    ⚡ Manter Todos os Saldos
-                  </button>
-                </div>
               </header>
 
               <!-- Titular Groups Container -->
@@ -454,16 +449,12 @@
                                 <th class="th-acc-new" style="text-align: right;">Novo Saldo</th>
                                 <th class="th-acc-var" style="text-align: right;">Variação</th>
                                 <th class="th-acc-share" style="text-align: right;">% do Total</th>
-                                <th class="th-acc-actions" style="text-align: center;">Ações</th>
                               </tr>
                             </thead>
                             <tbody>
                               ${group.accounts.map((acc) => {
                                 const varPct = model.getAccountVariationPct(acc);
                                 const sharePct = model.getAccountWealthSharePct(acc, realWealth);
-                                const isPending = acc.status === 'pending';
-                                const isUpdated = acc.status === 'updated';
-                                const isKeep = acc.status === 'keep';
                                 const hasError = Boolean(acc.error);
                                 const isProvisional = model.isWealthDistributionProvisional();
                                 const varClass = varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral';
@@ -478,7 +469,7 @@
                                 const brokerInitial = acc.broker === 'nomad' ? 'N' : acc.broker === 'genial' ? 'g' : acc.broker === 'clear' ? 'C' : acc.broker === 'eqseed' ? 'E' : acc.broker === 'bradesco' ? 'B' : 'xp';
 
                                 return `
-                                  <tr class="account-row ${isPending ? 'pending' : ''} ${hasError ? 'error' : ''}" data-account-id="${acc.id}">
+                                  <tr class="account-row ${hasError ? 'error' : ''}" data-account-id="${acc.id}">
                                     <td class="td-acc-name">
                                       <div class="account-name-cell">
                                         <span class="broker-pill ${acc.broker}">${brokerInitial}</span>
@@ -500,7 +491,7 @@
                                       </div>
                                       ${isNomad ? `
                                         <div class="nomad-fx-strip">
-                                          <span class="nomad-fx-badge" title="Cotação cambial de referência para conversão em BRL">
+                                          <span class="nomad-fx-badge font-numeric" title="Cotação cambial de referência para conversão em BRL">
                                             ${fmtUSD(acc.newBalanceUSD || 0)} @ R$ ${(acc.fxRate || 5.73).toFixed(2).replace('.', ',')}
                                           </span>
                                           <button type="button" class="btn-currency-toggle" onclick="window.DailyUpdateHub.toggleNomadCurrency('${acc.id}')" title="Alternar digitação entre Real (BRL) e Dólar (USD)">
@@ -516,15 +507,15 @@
                                     </td>
                                     <td class="td-acc-prev" style="text-align: right;">
                                       <div class="account-prev-stack">
-                                        <span class="prev-amount">${fmtBRL(acc.previousBalance)}</span>
-                                        ${isNomad ? `<small class="prev-usd-hint">${fmtUSD(acc.previousBalanceUSD || 0)}</small>` : ''}
+                                        <span class="prev-amount font-numeric">${fmtBRL(acc.previousBalance)}</span>
+                                        ${isNomad ? `<small class="prev-usd-hint font-numeric">${fmtUSD(acc.previousBalanceUSD || 0)}</small>` : ''}
                                       </div>
                                     </td>
                                     <td class="td-acc-new" style="text-align: right;">
                                       <div class="account-input-stack">
                                         <input 
                                           type="text" 
-                                          class="balance-input ${hasError ? 'input-error' : ''}" 
+                                          class="balance-input font-numeric ${hasError ? 'input-error' : ''}" 
                                           data-account-input="${acc.id}" 
                                           value="${inputValue}" 
                                           aria-label="Novo saldo para ${acc.label}"
@@ -535,11 +526,11 @@
                                     </td>
                                     <td class="td-acc-var" style="text-align: right;">
                                       <div class="variation-stack">
-                                        <span class="variation-tag ${varClass}" data-account-var-for="${acc.id}">
+                                        <span class="variation-tag font-numeric ${varClass}" data-account-var-for="${acc.id}">
                                           ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
                                         </span>
                                         ${isNomad ? `
-                                          <small class="usd-var-hint ${model.getAccountUsdVariationPct(acc) >= 0 ? 'positive' : 'negative'}">
+                                          <small class="usd-var-hint font-numeric ${model.getAccountUsdVariationPct(acc) >= 0 ? 'positive' : 'negative'}">
                                             ${model.getAccountUsdVariationPct(acc) >= 0 ? '+' : ''}${model.getAccountUsdVariationPct(acc).toFixed(2).replace('.', ',')}% USD
                                           </small>
                                         ` : ''}
@@ -547,32 +538,12 @@
                                     </td>
                                     <td class="td-acc-share" style="text-align: right;">
                                       <span 
-                                        class="wealth-share-pill ${isProvisional ? 'provisional' : ''}" 
+                                        class="wealth-share-pill font-numeric ${isProvisional ? 'provisional' : ''}" 
                                         data-wealth-share-for="${acc.id}"
-                                        title="${isProvisional ? 'Participação provisória (contas pendentes de conferência)' : `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`}"
+                                        title="${isProvisional ? 'Participação provisória (contas com pendências)' : `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`}"
                                       >
                                         ${sharePct.toFixed(2).replace('.', ',')}%
                                       </span>
-                                    </td>
-                                    <td class="td-acc-actions" style="text-align: center;">
-                                      <div class="account-quick-actions">
-                                        <button 
-                                          type="button" 
-                                          class="btn-action-chip keep ${isKeep ? 'active' : ''}" 
-                                          onclick="window.DailyUpdateHub.keepAccount('${acc.id}')"
-                                          title="Manter saldo anterior inalterado"
-                                        >
-                                          ✓ Manter
-                                        </button>
-                                        <button 
-                                          type="button" 
-                                          class="btn-action-chip pending ${isPending ? 'active' : ''}" 
-                                          onclick="window.DailyUpdateHub.setPending('${acc.id}')"
-                                          title="Marcar como pendente de conferência"
-                                        >
-                                          ⏳ Pendente
-                                        </button>
-                                      </div>
                                     </td>
                                   </tr>
                                 `;

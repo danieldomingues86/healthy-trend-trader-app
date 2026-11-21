@@ -1005,3 +1005,93 @@ test('DailyUpdateHub: Volume Financeiro, Totalizador Sincronizado e Heat Oficial
   assert.equal(stopRes.success, true);
   assert.equal(controller.model.positions.find(p => p.id === 'pos_brav3').trailingStop, 12.50);
 });
+
+test('DailyUpdateHub: Interface Financeira de Contas (Sem coluna Ações, foco em dados e distribuição horizontal)', () => {
+  let renderedHtml = '';
+  const fakeElement = {
+    set innerHTML(val) { renderedHtml = val; },
+    get innerHTML() { return renderedHtml; },
+    classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+    style: {},
+    appendChild: () => {},
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {}
+  };
+
+  const storageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v)),
+    removeItem: (k) => storageMap.delete(k)
+  };
+
+  const mockRoot = {
+    localStorage: mockStorage,
+    sessionStorage: mockStorage,
+    DailyUpdateModel,
+    dispatchEvent: () => {},
+    operationalState: { positions: [] }
+  };
+
+  const mockDoc = {
+    getElementById: (id) => {
+      if (id === 'dailyUpdateRoot') return fakeElement;
+      return null;
+    },
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    createElement: () => ({ setAttribute: () => {}, appendChild: () => {}, style: {} }),
+    body: { appendChild: () => {}, removeChild: () => {} }
+  };
+
+  class MockCustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  }
+
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  runFn.call(mockRoot, mockRoot, mockDoc, mockStorage, MockCustomEvent, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  controller.render();
+
+  // 1. Coluna "Ações" completamente removida
+  assert.ok(!renderedHtml.includes('th-acc-actions'), 'Coluna th-acc-actions NÃO deve existir no thead');
+  assert.ok(!renderedHtml.includes('td-acc-actions'), 'Célula td-acc-actions NÃO deve existir nas linhas');
+  assert.ok(!renderedHtml.includes('Ações</th>'), 'Texto Ações NÃO deve estar no cabeçalho das contas');
+
+  // 2. Botões "Manter" e "Pendente" excluídos da interface
+  assert.ok(!renderedHtml.includes('btn-action-chip'), 'Chips de ação Manter e Pendente NÃO devem estar presentes');
+  assert.ok(!renderedHtml.includes('btn-keep-all'), 'Botão Manter Todos os Saldos NÃO deve estar presente');
+
+  // 3. As 6 colunas canônicas estão perfeitamente distribuídas
+  assert.ok(renderedHtml.includes('th-acc-name'), 'Coluna Conta presente');
+  assert.ok(renderedHtml.includes('th-acc-type'), 'Coluna Tipo presente');
+  assert.ok(renderedHtml.includes('th-acc-prev'), 'Coluna Saldo Anterior presente');
+  assert.ok(renderedHtml.includes('th-acc-new'), 'Coluna Novo Saldo presente');
+  assert.ok(renderedHtml.includes('th-acc-var'), 'Coluna Variação presente');
+  assert.ok(renderedHtml.includes('th-acc-share'), 'Coluna % do Total presente');
+
+  // 4. Identificação visual de titulares e subtotais intactos
+  assert.ok(renderedHtml.includes('DANIEL'), 'Titular DANIEL em destaque');
+  assert.ok(renderedHtml.includes('NATÁLIA'), 'Titular NATÁLIA em destaque');
+  assert.ok(renderedHtml.includes('TOTAL DANIEL'), 'Subtotal de Daniel presente');
+  assert.ok(renderedHtml.includes('TOTAL NATÁLIA'), 'Subtotal de Natália presente');
+  assert.ok(renderedHtml.includes('PATRIMÔNIO TOTAL CONSOLIDADO'), 'Faixa consolidada presente');
+
+  // 5. Campos de saldo permanecem editáveis diretamente
+  assert.ok(renderedHtml.includes('data-account-input="xp_daniel"'), 'Input de XP Daniel editável');
+  assert.ok(renderedHtml.includes('data-account-input="bradesco_daniel"'), 'Input de Bradesco Daniel editável');
+  assert.ok(renderedHtml.includes('data-account-input="xp_natalia"'), 'Input de XP Natália editável');
+
+  // 6. Atualização direta via modelo funciona sem exigir confirmação individual
+  const updated = controller.model.updateAccountBalance('xp_daniel', 215000.00);
+  assert.equal(updated.success, true);
+  assert.equal(controller.model.accounts.find(a => a.id === 'xp_daniel').newBalance, 215000.00);
+  assert.equal(controller.model.getProgress().accountsComplete, true);
+});
