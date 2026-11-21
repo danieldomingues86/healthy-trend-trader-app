@@ -54,6 +54,7 @@
     ['fundamentals','Fundamentalista','Score em 6 dimensões com CVM e SEC.',null,'Pesquise ações B3 ou BDRs internacionais. Score ponderado de 0 a 10 com régua de 5 patamares e Cobertura dos Dados (dado ausente não é zero).'],
     ['markettreemap','Setores','Treemap interativo de todo o mercado acionário da B3.',null,'Visualize o mercado brasileiro por setor com o tamanho das empresas proporcional ao seu Market Cap, variação diária e navegação direta para análise gráfica.'],
     ['dashboard','Patrimônio','Visão patrimonial e alocações.',null,'Acompanhe a curva de capital da estratégia, separe o rendimento real dos aportes e gerencie as alocações da sua carteira.'],
+    ['dailyupdate','Atualização Diária','Rotina de fechamento diário.',null,'Atualize rapidamente o patrimônio total das contas, confira posições abertas e consolide o fechamento diário sem planilhas externas.'],
     ['positions','Posições','Acompanhe e gerencie.','manual-positions','Abra a posição para consultar a linha do tempo, atualizar o stop e registrar reduções ou encerramento.'],
     ['closedpositions','Posições Encerradas','Histórico e revisão de trades.','manual-closedpositions','Consulte o histórico completo de trades finalizados com auditoria de eventos, R-múltiplo real alcançado, duração e diário vinculado.'],
     ['portfolioheat','Portfolio Heat','Controle o risco da carteira.','manual-risk','Confira o risco agregado das posições e compare com o limite definido na sua Política de Risco.'],
@@ -117,6 +118,12 @@
       'O Diário do Merecimento é uma área de reflexão psicológica em Treinamento do Trader dedicada a registrar a experiência de embolsar lucros com tranquilidade e naturalidade.',
       'Aprenda a Receber: registre emoções, intensidade de 0 a 10, pensamentos no momento da realização, reconhecimento de comportamento profissional e aprendizados para os próximos pregões.',
       'Minha Evolução: acompanhe o gráfico e as métricas reais de ansiedade vs tranquilidade derivadas exclusivamente dos seus registros, fortalecendo sua identidade como trader consistente.'
+    ],
+    dailyupdate: [
+      'A Atualização Diária é o hub central de fechamento do pregão no Healthy Trend Trader, permitindo atualizar saldos de contas, conferir posições abertas e registrar o fechamento diário em 2 a 3 minutos.',
+      'Saldos das Contas: informe o saldo total consolidado de cada corretora (caixa + posições), com suporte a moedas estrangeiras (USD/BRL) e conversão automática.',
+      'Conferência de Posições: revise rapidamente quantidades, preços de entrada, cotações atuais, variações e trailing stops de todas as operações ativas.',
+      'Fechamento Consolidado: acompanhe a evolução do Patrimônio Real, Equity da Estratégia, Exposição Atual e Heat do Portfólio sem criar fontes paralelas de verdade.'
     ],
     dailyroutine: [
       'A Rotina Diária estrutura a jornada do trader em três fases sagradas: Pré-Mercado (checagem de ciclo, revisão de posições, trailing stops e atualização da watchlist), Intra-Mercado (disciplina de execução e paciência) e Pós-Mercado (diário, registro de métricas e reflexão).',

@@ -186,17 +186,17 @@ test('Menu em Blocos (Tiles Hub): layout de viewport única (100vh), grid 3x6 co
 
   // 3. Os 18 cards devem conter os IDs e títulos oficiais na ordem aprovada
   const expectedCards = [
-    { id: 'today', title: 'Meu Desktop' },
+    { id: 'today', title: 'Dashboard' },
+    { id: 'dailyupdate', title: 'Atualização Diária' },
     { id: 'newtrade', title: 'Novo Trade' },
     { id: 'journal', title: 'Diário de Trader' },
     { id: 'watchlist', title: 'Watchlist' },
     { id: 'charts', title: 'Gráficos' },
-    { id: 'dashboard', title: 'Patrimônio' },
     { id: 'marketcentral', title: 'Análise de Mercado' },
     { id: 'opportunityradar', title: 'Radar de Oportunidades' },
     { id: 'relativestrength', title: 'Força Relativa' },
     { id: 'marketcycle', title: 'Ciclo de Mercado' },
-    { id: 'marketcentral', title: 'Central de Mercado' },
+    { id: 'dashboard', title: 'Patrimônio' },
     { id: 'fundamentals', title: 'Análise Fundamentalista' },
     { id: 'markettreemap', title: 'Setores' },
     { id: 'positions', title: 'Operação Diária' },

@@ -44,7 +44,7 @@ test('NavigationSystemModel: PREDEFINIÇÃO FAST preserva 100% dos módulos', ()
 
   assert.equal(integrity.isValid, true);
   assert.equal(tree.preset, 'fast');
-  assert.deepEqual(tree.quickAccess.map(i => i.id), ['today', 'newtrade', 'journal', 'watchlist', 'charts']);
+  assert.deepEqual(tree.quickAccess.map(i => i.id), ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts']);
   assert.equal(integrity.totalModules, integrity.representedCount);
 });
 
@@ -56,7 +56,7 @@ test('NavigationSystemModel: PREDEFINIÇÃO TRADER_FOCUS preserva 100% dos módu
 
   assert.equal(integrity.isValid, true);
   assert.equal(tree.preset, 'trader_focus');
-  assert.deepEqual(tree.quickAccess.map(i => i.id), ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
+  assert.deepEqual(tree.quickAccess.map(i => i.id), ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
   assert.equal(integrity.totalModules, integrity.representedCount);
 });
 
@@ -77,7 +77,7 @@ test('NavigationSystemModel: Predefinições governam exclusivamente o Acesso R�
   
   // 1. Inicia com preset 'fast'
   assert.equal(model.state.preset, 'fast');
-  assert.deepEqual(model.state.quickAccess, ['today', 'newtrade', 'journal', 'watchlist', 'charts']);
+  assert.deepEqual(model.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts']);
 
   // 2. Módulos pertencem estritamente às suas categorias oficiais (ex: portfolioheat em 'portfolio-risk')
   const treeFast = model.getNavigationTree();
@@ -97,7 +97,7 @@ test('NavigationSystemModel: Predefinições governam exclusivamente o Acesso R�
   // 3. Ao aplicar a predefinição 'trader_focus', Acesso Rápido e ordenação atualizam automaticamente
   model.applyPreset('trader_focus');
   assert.equal(model.state.preset, 'trader_focus');
-  assert.deepEqual(model.state.quickAccess, ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
+  assert.deepEqual(model.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
 
   // REGRA DE NÃO DUPLICAÇÃO em trader_focus
   const treeFocus = model.getNavigationTree();
@@ -130,7 +130,7 @@ test('NavigationSystemModel: persistência em mock storage e restauração de es
 
   assert.equal(model2.state.style, 'tiles');
   assert.equal(model2.state.preset, 'full');
-  assert.deepEqual(model2.state.quickAccess, ['today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard']);
+  assert.deepEqual(model2.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts']);
   assert.ok(model2.isCategoryCollapsed('mindset'));
 });
 
@@ -237,6 +237,7 @@ test('NavigationSystemModel: Categoria Dados & Performance inclui Registro de Ev
 
   const pageOrder = dataCat.items.map(i => i.page);
   assert.deepEqual(pageOrder, [
+    'dashboard',
     'analytics',
     'systemquality',
     'tradeanatomy',
@@ -244,7 +245,7 @@ test('NavigationSystemModel: Categoria Dados & Performance inclui Registro de Ev
     'platformaccess',
     'review',
     'eventplaybook'
-  ], 'Dados & Performance deve conter Registro de Eventos');
+  ], 'Dados & Performance deve conter Patrimônio e Registro de Eventos');
 
   const events = dataCat.items.find(i => i.page === 'eventplaybook');
   assert.ok(events, 'Registro de Eventos deve existir em Dados & Performance');
@@ -306,4 +307,25 @@ test('NavigationSystemModel: Categoria Simuladores inclui Simulador de Trades e 
   const lab = simCat.items.find(i => i.page === 'researchlab');
   assert.equal(lab.label, 'Laboratório de Pesquisa');
   assert.equal(lab.desc, 'Modo Aberto — Descobertas e regras candidatas.');
+});
+
+test('NavigationSystemModel: Patrimônio pertence a Dados & Performance e nunca ao Acesso Rápido', () => {
+  const model = new NavigationSystemModel();
+  
+  ['fast', 'trader_focus', 'full'].forEach(presetKey => {
+    model.applyPreset(presetKey);
+    const tree = model.getNavigationTree();
+    
+    // 1. Patrimônio (dashboard) NÃO está no Acesso Rápido
+    assert.ok(!tree.quickAccess.some(i => i.id === 'dashboard'), `Patrimônio não deve estar em quickAccess no preset ${presetKey}`);
+    
+    // 2. Atualização Diária (dailyupdate) ESTÁ no Acesso Rápido
+    assert.ok(tree.quickAccess.some(i => i.id === 'dailyupdate'), `Atualização Diária deve estar em quickAccess no preset ${presetKey}`);
+    
+    // 3. Patrimônio está dentro de Dados & Performance
+    const dataCat = tree.categories.find(c => c.id === 'data-performance');
+    assert.ok(dataCat, `Dados & Performance deve existir no preset ${presetKey}`);
+    assert.ok(dataCat.items.some(i => i.id === 'dashboard'), `Patrimônio deve estar dentro de Dados & Performance no preset ${presetKey}`);
+    assert.equal(dataCat.items[0].id, 'dashboard', 'Patrimônio deve ser o primeiro item de Dados & Performance');
+  });
 });

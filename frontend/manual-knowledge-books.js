@@ -238,7 +238,8 @@
                     "color": "#10b981",
                     "description": "O centro de comando do pregão: cockpit geral, planejamento de novos trades com Trading Rubric, rotinas diárias e monitor de hábitos.",
                     "modules": [
-                      "Meu Desktop",
+                      "Atualização Diária",
+                      "Dashboard",
                       "Novo Trade",
                       "Rotina Diária",
                       "Watchlist",
@@ -357,7 +358,7 @@
                 "subtitle": "Atividade Prática Inicial",
                 "text": "Antes de planejar qualquer operação, realize a checagem dos três primeiros pilares na plataforma:",
                 "steps": [
-                  "1. Acesse Meu Desktop e confira o sinal de Market Permission (Permissão de Mercado) do dia.",
+                  "1. Acesse o Dashboard e confira o sinal de Market Permission (Permissão de Mercado) do dia.",
                   "2. Abra Carteira & Risco → Portfolio Heat e verifique a capacidade de risco restante da conta.",
                   "3. Vá para Mentalidade & Zen e registre seu Check-in Emocional antes da abertura do pregão."
                 ]
@@ -501,13 +502,17 @@
           {
             "id": "fases",
             "title": "4.1 As Três Fases do Pregão",
-            "content": "O sucesso no trading é 80% preparação e 20% execução:\n- **Fase 1 — Pré-Mercado (15 a 30 min):** Checar o regime do Ciclo de Mercado, verificar eventos do calendário econômico no Playbook de Eventos e revisar os ativos da Watchlist prontos para gatilho.\n- **Fase 2 — Intra-Mercado (Execução Cirúrgica):** Entrar apenas nos rompimentos autorizados, ajustar stops conforme a regra e evitar olhar as cotações a cada minuto.\n- **Fase 3 — Pós-Mercado (15 min):** Atualizar o Diário do Trader, registrar o estado mental e revisar o Portfolio Heat."
+            "content": "O sucesso no trading é 80% preparação e 20% execução:\n- **Fase 1 — Pré-Mercado (15 a 30 min):** Checar o regime do Ciclo de Mercado, verificar eventos do calendário econômico no Playbook de Eventos e revisar os ativos da Watchlist prontos para gatilho.\n- **Fase 2 — Intra-Mercado (Execução Cirúrgica):** Entrar apenas nos rompimentos autorizados, ajustar stops conforme a regra e evitar olhar as cotações a cada minuto.\n- **Fase 3 — Pós-Mercado (15 min):** Realizar a **Atualização Diária** (fechamento de saldos de contas e conferência de posições), registrar o Diário do Trader, avaliar o estado mental e revisar o Portfolio Heat."
           }
         ],
         "tip": "Limite seu tempo de tela durante o pregão. Se suas ordens de entrada e stop já estão programadas, ficar olhando o tick-a-tick só gera ansiedade e decisões impulsivas.",
         "toolRoute": "dailyroutine",
         "toolLabel": "Abrir Rotina Diária →",
         "relatedLinks": [
+          {
+            "label": "Atualização Diária (Ferramenta)",
+            "route": "dailyupdate"
+          },
           {
             "label": "Rotina Diária (Ferramenta)",
             "route": "dailyroutine"
@@ -534,7 +539,7 @@
           {
             "id": "primeiros-ajustes",
             "title": "5.1 Primeiros Passos de Configuração",
-            "content": "Antes de planejar o seu primeiro trade, execute este checklist:\n1. Acesse **Patrimônio** e informe o capital operacional total dedicado à estratégia.\n2. Acesse **Política de Risco** e confira os percentuais nominais autorizados (ex: 1,00% para Grade A e 0,50% para Grade B).\n3. Verifique o limite máximo de risco por operação e o teto total de Portfolio Heat da carteira (ex: 6%).\n4. Defina seus hábitos essenciais no **Monitor de Hábitos**."
+            "content": "Antes de planejar o seu primeiro trade, execute este checklist:\n1. Acesse **Atualização Diária** e confira os saldos das suas contas e o patrimônio inicial consolidado.\n2. Acesse **Política de Risco** e confira os percentuais nominais autorizados (ex: 1,00% para Grade A e 0,50% para Grade B).\n3. Verifique o limite máximo de risco por operação e o teto total de Portfolio Heat da carteira (ex: 6%).\n4. Defina seus hábitos essenciais no **Monitor de Hábitos**."
           }
         ],
         "tip": "Se você está começando agora ou vindo de uma sequência ruim, ative o perfil Risk Ramp-Up, que limita a 3 posições simultâneas para proteger seu foco.",

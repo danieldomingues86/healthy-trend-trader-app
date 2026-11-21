@@ -19,8 +19,18 @@
   const pct = (value) => Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
   const freshness = () => window.TodayCockpitModel.marketDataState({ source: market.cycle?.source || market.scans?.source, updatedAt: market.cycle?.updatedAt || market.scans?.updatedAt });
   const realPositions = () => (operationalState?.positions || []).filter((position) => position.mode === 'real' && !operationMetrics(position).closed);
-  const heatLimit = () => typeof window.portfolioHeatLimitPct === 'function' ? window.portfolioHeatLimitPct() : 3;
-  const heat = () => realPositions().reduce((total, position) => total + operationMetrics(position).riskPct, 0);
+  const heatLimit = () => {
+    const fin = typeof window !== 'undefined' && (window.healthyTrendFinancials || window.DailyUpdateHub?.model);
+    if (fin && typeof fin.getHeatLimit === 'function') return fin.getHeatLimit();
+    return typeof window.portfolioHeatLimitPct === 'function' ? window.portfolioHeatLimitPct() : 5;
+  };
+  const heat = () => {
+    const fin = typeof window !== 'undefined' && (window.healthyTrendFinancials || window.DailyUpdateHub?.model);
+    if (fin && typeof fin.getPortfolioHeat === 'function') return fin.getPortfolioHeat();
+    const snap = typeof window.portfolioHeatSnapshot === 'function' ? window.portfolioHeatSnapshot() : null;
+    if (snap && Number.isFinite(snap.heat)) return snap.heat;
+    return realPositions().reduce((total, position) => total + operationMetrics(position).riskPct, 0);
+  };
   const healthy = () => Boolean(market.cycle?.cycle && Number(market.cycle.cycle.price) > Number(market.cycle.cycle.ema20) && Number(market.cycle.cycle.price) > Number(market.cycle.cycle.ema200));
   const updateText = (value) => value ? new Date(value).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'sem atualização disponível';
   const firstName = () => String(profileState?.name || 'Trader').trim().split(/\s+/)[0] || 'Trader';
@@ -86,10 +96,25 @@
     const tradesCount = closedReal.length;
     const currentHeatVal = heat();
     const currentLimit = heatLimit();
-    const patrimonio = (typeof window.getOperationalEquity === 'function' ? window.getOperationalEquity() : (window.OPERATIONAL_EQUITY || snap?.equity || snap?.patrimonio || 1029500));
+    const fin = (typeof window !== 'undefined' && window.healthyTrendFinancials) || (typeof window !== 'undefined' && window.DailyUpdateHub?.model) || null;
+    const patrimonio = (fin && typeof fin.getConsolidatedRealWealth === 'function')
+      ? fin.getConsolidatedRealWealth()
+      : (typeof window.getConsolidatedRealWealth === 'function'
+          ? window.getConsolidatedRealWealth()
+          : (() => {
+              try {
+                const cached = localStorage.getItem('healthy-trend-wealth-cache');
+                if (cached) {
+                  const p = JSON.parse(cached);
+                  const w = Number(p.summary?.realWealth ?? p.summary?.consolidatedRealWealth);
+                  if (Number.isFinite(w) && w > 0) return w;
+                }
+              } catch (_) {}
+              return 1014295.73;
+            })());
     const patrimonioStr = patrimonio != null
       ? patrimonio.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
-      : 'R$ 1.029.500';
+      : 'R$ 1.014.296';
     const bestR = closedReal.length
       ? Math.max(...closedReal.map((p) => { const m = operationMetrics(p); return m.rMultiple ?? 0; }))
       : null;
@@ -141,7 +166,6 @@
         '<div class="desktop-stat-head">',
           '<svg class="stat-icon-shield" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
           '<span class="desktop-stat-label">Patrimônio Total</span>',
-          '<button type="button" class="equity-adjust-trigger-btn" onclick="window.openEquityAdjustModal()" title="Atualizar Equity Total" aria-label="Atualizar Equity Total"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>',
         '</div>',
         '<div class="desktop-stat-value-row">',
           '<strong class="desktop-stat-value">' + patrimonioStr + '</strong>',

@@ -81,9 +81,9 @@ test('Premium Gold: settings toggle switches to gold accent in gold mode', () =>
   assert.match(auditCss, /body:not\(\[data-theme="healthy"\]\)[^{]*#settings\s+\.toggle\.on\s*\{[^}]*#c99e3d/);
 });
 
-test('Breadcrumb: index.html default markup shows "The Healthy Trend Trader / Meu Desktop"', () => {
+test('Breadcrumb: index.html default markup shows "The Healthy Trend Trader / Dashboard"', () => {
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.ok(html.includes('<div class="crumb">The Healthy Trend Trader / <b id="crumb">Meu Desktop</b></div>'));
+  assert.ok(html.includes('<div class="crumb">The Healthy Trend Trader / <b id="crumb">Dashboard</b></div>'));
 });
 
 test('Breadcrumb: sidebar-navigation.js updates title dynamically per page', () => {

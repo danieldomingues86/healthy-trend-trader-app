@@ -88,8 +88,8 @@
     {
       id: 'today',
       page: 'today',
-      label: 'Meu Desktop',
-      labelEn: 'My Desktop',
+      label: 'Dashboard',
+      labelEn: 'Dashboard',
       category: 'daily',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
       desc: 'Seu ponto de partida e foco do dia.',
@@ -290,11 +290,22 @@
 
     // Carteira & Risco
     {
+      id: 'dailyupdate',
+      page: 'dailyupdate',
+      label: 'Atualização Diária',
+      labelEn: 'Daily Update',
+      category: 'portfolio-risk',
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`,
+      desc: 'Rotina de fechamento diário, saldos e posições.',
+      descEn: 'Daily close routine, balances and positions.',
+      proOnly: false
+    },
+    {
       id: 'dashboard',
       page: 'dashboard',
       label: 'Patrimônio',
       labelEn: 'Wealth & Equity',
-      category: 'portfolio-risk',
+      category: 'data-performance',
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
       desc: 'Visão patrimonial, alocações e aportes.',
       descEn: 'Wealth overview, allocations and contributions.',
@@ -613,11 +624,11 @@
       id: 'fast',
       label: 'Fast',
       labelEn: 'Fast',
-      desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Desktop, Novo Trade, Diário, Watchlist, Gráficos), com categorias organizadas para fluxo ágil.',
+      desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Atualização Diária, Dashboard, Novo Trade, Diário, Watchlist, Gráficos), com categorias organizadas para fluxo ágil.',
       descEn: 'Lightning-fast access to most frequent tools with streamlined categories.',
-      quickAccess: ['today', 'newtrade', 'journal', 'watchlist', 'charts'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts'],
       categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'simulators', 'data-performance', 'mindset', 'resources'],
-      collapsedCategories: ['simulators', 'data-performance', 'mindset', 'resources']
+      collapsedCategories: ['simulators', 'mindset', 'resources']
     },
     trader_focus: {
       id: 'trader_focus',
@@ -625,9 +636,9 @@
       labelEn: 'Trader Focus',
       desc: 'Organização estritamente orientada à execução do pregão, enfatizando Operação, Risco, Mercado e Treinamento.',
       descEn: 'Strict execution-focused hierarchy emphasizing Daily Trading, Risk, Market and Training.',
-      quickAccess: ['today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal'],
       categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'data-performance', 'simulators', 'mindset', 'resources'],
-      collapsedCategories: ['data-performance', 'simulators', 'mindset', 'resources']
+      collapsedCategories: ['simulators', 'mindset', 'resources']
     },
     full: {
       id: 'full',
@@ -635,7 +646,7 @@
       labelEn: 'Professional / Full',
       desc: 'Visão integral de todas as dimensões da plataforma: Operação, Treinamento, Mercado, Simuladores, Risco, Performance e Mindset.',
       descEn: 'Complete structured view of all platform pillars.',
-      quickAccess: ['today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts'],
       categoryOrder: ['market-analysis', 'daily', 'training-recovery', 'simulators', 'portfolio-risk', 'data-performance', 'mindset', 'resources'],
       collapsedCategories: []
     }
@@ -672,10 +683,19 @@
      * Resolves the navigation tree based on current state.
      * GUARANTEE: Every registered module is present in its official category, and quick access reflects the active preset.
      */
-    getNavigationTree(overrideState = null) {
+    getNavigationTree(overrideState = null, options = {}) {
       const state = overrideState || this.state;
       const lang = typeof root.appLanguage !== 'undefined' ? root.appLanguage : 'pt-BR';
       const isEn = lang === 'en-US';
+
+      // Migration guard: ensure 'dashboard' (Patrimônio) is NEVER in quickAccess (belongs in data-performance)
+      // and ensure 'dailyupdate' is present in quickAccess
+      if (state && Array.isArray(state.quickAccess)) {
+        state.quickAccess = state.quickAccess.filter(id => id !== 'dashboard');
+        if (!state.quickAccess.includes('dailyupdate')) {
+          state.quickAccess.unshift('dailyupdate');
+        }
+      }
 
       // Map modules by ID
       const moduleMap = new Map();
@@ -704,10 +724,10 @@
         });
       });
 
-      // Group modules by their official assigned category (excluding items already in quickAccess to eliminate duplicates)
+      // Group modules by their official assigned category (excluding items already in quickAccess to eliminate duplicates unless includeAllInCategories is requested)
       const quickAccessSet = new Set(state.quickAccess);
       this.modules.forEach(m => {
-        if (quickAccessSet.has(m.id)) return; // Se está no Acesso Rápido, não repete na categoria abaixo
+        if (!options.includeAllInCategories && quickAccessSet.has(m.id)) return; // Se está no Acesso Rápido, não repete na categoria abaixo
         const cat = categoriesById.get(m.category);
         if (cat) {
           cat.items.push(moduleMap.get(m.id));
@@ -830,6 +850,18 @@
 
         if (storedLayout && ['sidebar', 'top', 'tiles'].includes(storedLayout)) {
           this.state.style = storedLayout;
+        }
+
+        // Migration guard: ensure 'dashboard' is NEVER in quickAccess (belongs in data-performance)
+        // and ensure 'dailyupdate' is present in quickAccess
+        if (this.state && Array.isArray(this.state.quickAccess)) {
+          this.state.quickAccess = this.state.quickAccess.filter(id => id !== 'dashboard');
+          if (!this.state.quickAccess.includes('dailyupdate')) {
+            this.state.quickAccess.unshift('dailyupdate');
+          }
+        }
+        if (this.state && Array.isArray(this.state.collapsedCategories)) {
+          this.state.collapsedCategories = this.state.collapsedCategories.filter(id => id !== 'data-performance');
         }
       } catch (e) {
         console.warn('[NavigationSystemModel] Failed to load state from storage:', e);
