@@ -1256,6 +1256,17 @@ const server = http.createServer(async (request, response) => {
           regimes: regimeData.regimes,
           metadata: marketRegime.REGIME_METADATA
         };
+        if (Array.isArray(payload?.benchmark?.history) && Array.isArray(regimeData?.regimes)) {
+          const rMap = new Map(regimeData.regimes.map(r => [r.reference_date, r]));
+          for (const c of payload.benchmark.history) {
+            const reg = rMap.get(c.date);
+            if (reg) {
+              c.regime = reg.regime;
+              c.direction = reg.direction;
+              c.volatility = reg.volatility;
+            }
+          }
+        }
       } catch (_) {}
       return send(response, 200, payload);
     }

@@ -296,8 +296,8 @@
       name: 'Tendência de alta com baixa volatilidade',
       direction: 'UP',
       volatility: 'QUIET',
-      color: '#16a879',
-      hex: '#16a879',
+      color: '#10b981',
+      hex: '#10b981',
       badgeClass: 'regime-up-quiet',
       description: 'Tendência de alta com baixa volatilidade',
       summary: 'Ambiente ideal para operações direcionais de tendência com menor ruído e paradas estáveis.'
@@ -335,8 +335,8 @@
       name: 'Lateral + alta volatilidade',
       direction: 'SIDEWAYS',
       volatility: 'VOLATILE',
-      color: '#b45309',
-      hex: '#b45309',
+      color: '#f97316',
+      hex: '#f97316',
       badgeClass: 'regime-sideways-volatile',
       description: 'Lateral + alta volatilidade',
       summary: 'Mercado errático e turbulento sem tendência; alto risco de violinadas e ruído operacional.'
@@ -348,8 +348,8 @@
       name: 'Baixa + baixa volatilidade',
       direction: 'DOWN',
       volatility: 'QUIET',
-      color: '#64748b',
-      hex: '#64748b',
+      color: '#6b7280',
+      hex: '#6b7280',
       badgeClass: 'regime-down-quiet',
       description: 'Baixa + baixa volatilidade',
       summary: 'Tendência de baixa ordenada e contínua; preservação mandatória de capital em compras.'
@@ -361,8 +361,8 @@
       name: 'Baixa + alta volatilidade',
       direction: 'DOWN',
       volatility: 'VOLATILE',
-      color: '#dc4545',
-      hex: '#dc4545',
+      color: '#ef4444',
+      hex: '#ef4444',
       badgeClass: 'regime-down-volatile',
       description: 'Baixa + alta volatilidade',
       summary: 'Pânico ou forte correção com amplitude desmedida; capital deve permanecer 100% protegido.'

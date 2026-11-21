@@ -120,7 +120,7 @@
       sublabel: 'Alta + baixa volatilidade',
       direction: 'Up',
       volatility: 'Quiet',
-      color: '#16a879',
+      color: '#10b981',
       badgeClass: 'regime-up-quiet',
       icon: 'arrow-up'
     },
@@ -156,7 +156,7 @@
       sublabel: 'Lateral + alta volatilidade',
       direction: 'Sideways',
       volatility: 'Volatile',
-      color: '#b45309',
+      color: '#f97316',
       badgeClass: 'regime-sideways-volatile',
       icon: 'zigzag'
     },
@@ -168,7 +168,7 @@
       sublabel: 'Baixa + baixa volatilidade',
       direction: 'Down',
       volatility: 'Quiet',
-      color: '#64748b',
+      color: '#6b7280',
       badgeClass: 'regime-down-quiet',
       icon: 'arrow-down-right'
     },
@@ -180,7 +180,7 @@
       sublabel: 'Baixa + alta volatilidade',
       direction: 'Down',
       volatility: 'Volatile',
-      color: '#dc4545',
+      color: '#ef4444',
       badgeClass: 'regime-down-volatile',
       icon: 'arrow-down'
     }
@@ -279,14 +279,69 @@
     'calendar': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
   };
 
+  function calculateEmaSeries(values, period) {
+    if (!Array.isArray(values) || values.length < period) return [];
+    const k = 2 / (period + 1);
+    const result = new Array(values.length).fill(null);
+    let sum = 0;
+    for (let i = 0; i < period; i++) sum += Number(values[i]);
+    let currentEma = sum / period;
+    result[period - 1] = Number(currentEma.toFixed(2));
+    for (let i = period; i < values.length; i++) {
+      currentEma = Number(values[i]) * k + currentEma * (1 - k);
+      result[i] = Number(currentEma.toFixed(2));
+    }
+    return result;
+  }
+
+  function loadSavedEmaPrefs() {
+    try {
+      const raw = localStorage.getItem('mcv2_emas');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          showEma10: parsed.showEma10 !== undefined ? Boolean(parsed.showEma10) : true,
+          showEma20: Boolean(parsed.showEma20),
+          showEma50: Boolean(parsed.showEma50),
+          showEma72: parsed.showEma72 !== undefined ? Boolean(parsed.showEma72) : true,
+          showEma200: Boolean(parsed.showEma200)
+        };
+      }
+    } catch (_) {}
+    return {
+      showEma10: true,
+      showEma20: false,
+      showEma50: false,
+      showEma72: true,
+      showEma200: false
+    };
+  }
+
+  function saveEmaPrefs() {
+    try {
+      localStorage.setItem('mcv2_emas', JSON.stringify({
+        showEma10: state.showEma10,
+        showEma20: state.showEma20,
+        showEma50: state.showEma50,
+        showEma72: state.showEma72,
+        showEma200: state.showEma200
+      }));
+    } catch (_) {}
+  }
+
+  const initialEmaPrefs = loadSavedEmaPrefs();
+
   let state = {
     currentBenchmark: 'IBOV',
     data: {},
     performance: null,
     loading: false,
     error: null,
-    showEma10: true,
-    showEma72: true,
+    showEma10: initialEmaPrefs.showEma10,
+    showEma20: initialEmaPrefs.showEma20,
+    showEma50: initialEmaPrefs.showEma50,
+    showEma72: initialEmaPrefs.showEma72,
+    showEma200: initialEmaPrefs.showEma200,
     period: '1_ano',
     hoverCandle: null
   };
@@ -582,8 +637,11 @@
     
     const displayCandle = state.hoverCandle || lastCandle;
     const price = hasNumber(displayCandle.close) ? Number(displayCandle.close) : Number(currentRegime?.close_price || 0);
-    const ema10Val = hasNumber(displayCandle.ema10) ? Number(displayCandle.ema10) : Number(currentRegime?.ema_10 || 0);
-    const ema72Val = hasNumber(displayCandle.ema72) ? Number(displayCandle.ema72) : Number(currentRegime?.ema_72 || 0);
+    const ema10Val = hasNumber(displayCandle.ema10) ? Number(displayCandle.ema10) : (state.showEma10 ? Number(currentRegime?.ema_10 || 0) : null);
+    const ema20Val = hasNumber(displayCandle.ema20) ? Number(displayCandle.ema20) : null;
+    const ema50Val = hasNumber(displayCandle.ema50) ? Number(displayCandle.ema50) : null;
+    const ema72Val = hasNumber(displayCandle.ema72) ? Number(displayCandle.ema72) : (state.showEma72 ? Number(currentRegime?.ema_72 || 0) : null);
+    const ema200Val = hasNumber(displayCandle.ema200) ? Number(displayCandle.ema200) : null;
     
     let varPct = 0;
     if (prevCandle && hasNumber(lastCandle.close) && hasNumber(prevCandle.close) && prevCandle.close > 0) {
@@ -605,22 +663,43 @@
             </span>
           </div>
           <div class="mre-chart-emas-inline">
-            <span class="mre-stat-ema mre-stat-ema10">EMA 10 <strong>${number(ema10Val, 2)}</strong></span>
-            <span class="mre-stat-ema mre-stat-ema72">EMA 72 <strong>${number(ema72Val, 2)}</strong></span>
+            ${state.showEma10 && hasNumber(ema10Val) ? `<span class="mre-stat-ema mre-stat-ema10">EMA 10 <strong>${number(ema10Val, 2)}</strong></span>` : ''}
+            ${state.showEma20 && hasNumber(ema20Val) ? `<span class="mre-stat-ema mre-stat-ema20">EMA 20 <strong>${number(ema20Val, 2)}</strong></span>` : ''}
+            ${state.showEma50 && hasNumber(ema50Val) ? `<span class="mre-stat-ema mre-stat-ema50">EMA 50 <strong>${number(ema50Val, 2)}</strong></span>` : ''}
+            ${state.showEma72 && hasNumber(ema72Val) ? `<span class="mre-stat-ema mre-stat-ema72">EMA 72 <strong>${number(ema72Val, 2)}</strong></span>` : ''}
+            ${state.showEma200 && hasNumber(ema200Val) ? `<span class="mre-stat-ema mre-stat-ema200">EMA 200 <strong>${number(ema200Val, 2)}</strong></span>` : ''}
           </div>
         </div>
 
         <div class="mre-chart-toolbar">
-          <label class="mre-toggle-pill mre-toggle-ema10 ${state.showEma10 ? 'is-checked' : ''}">
+          <label class="mre-toggle-pill mre-toggle-ema10 ${state.showEma10 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 10', 'Toggle EMA 10')}">
             <input type="checkbox" data-toggle-ema="10" ${state.showEma10 ? 'checked' : ''} style="display:none;">
             <span class="mre-toggle-check">${svgIcons.check}</span>
             <span class="mre-toggle-text">EMA 10</span>
           </label>
 
-          <label class="mre-toggle-pill mre-toggle-ema72 ${state.showEma72 ? 'is-checked' : ''}">
+          <label class="mre-toggle-pill mre-toggle-ema20 ${state.showEma20 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 20', 'Toggle EMA 20')}">
+            <input type="checkbox" data-toggle-ema="20" ${state.showEma20 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
+            <span class="mre-toggle-text">EMA 20</span>
+          </label>
+
+          <label class="mre-toggle-pill mre-toggle-ema50 ${state.showEma50 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 50', 'Toggle EMA 50')}">
+            <input type="checkbox" data-toggle-ema="50" ${state.showEma50 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
+            <span class="mre-toggle-text">EMA 50</span>
+          </label>
+
+          <label class="mre-toggle-pill mre-toggle-ema72 ${state.showEma72 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 72', 'Toggle EMA 72')}">
             <input type="checkbox" data-toggle-ema="72" ${state.showEma72 ? 'checked' : ''} style="display:none;">
             <span class="mre-toggle-check">${svgIcons.check}</span>
             <span class="mre-toggle-text">EMA 72</span>
+          </label>
+
+          <label class="mre-toggle-pill mre-toggle-ema200 ${state.showEma200 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 200', 'Toggle EMA 200')}">
+            <input type="checkbox" data-toggle-ema="200" ${state.showEma200 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
+            <span class="mre-toggle-text">EMA 200</span>
           </label>
 
           <div class="mre-badge-candles">
@@ -650,7 +729,7 @@
           <span class="mre-card-info-icon" title="${t('Mapeamento cronológico das transições de regime de mercado.', 'Chronological mapping of market regime transitions.')}">${svgIcons.info}</span>
         </div>
         <div class="mre-ribbon-bar">
-          ${renderRibbonSegments(filteredCandles)}
+          ${renderRibbonSvg(filteredCandles)}
         </div>
         <div class="mre-timeline-legend">
           <span class="mre-legend-title">${t('Legenda dos Regimes:', 'Regime Legend:')}</span>
@@ -659,7 +738,7 @@
             <span class="mre-legend-item"><span class="mre-dot" style="background:#f59e0b;"></span> Up – Volatile</span>
             <span class="mre-legend-item"><span class="mre-dot" style="background:#3b82f6;"></span> Sideways – Quiet</span>
             <span class="mre-legend-item"><span class="mre-dot" style="background:#f97316;"></span> Sideways – Volatile</span>
-            <span class="mre-legend-item"><span class="mre-dot" style="background:#64748b;"></span> Down – Quiet</span>
+            <span class="mre-legend-item"><span class="mre-dot" style="background:#6b7280;"></span> Down – Quiet</span>
             <span class="mre-legend-item"><span class="mre-dot" style="background:#ef4444;"></span> Down – Volatile</span>
           </div>
         </div>
@@ -667,34 +746,73 @@
     </div>`;
   }
 
-  function renderRibbonSegments(candles) {
+  function renderRibbonSvg(candles) {
     if (!candles || !candles.length) return '';
+    const W = 1200;
+    const padLeft = 15;
+    const padRight = 75;
+    const plotW = W - padLeft - padRight;
+    const total = candles.length;
+    const stepX = plotW / Math.max(1, total - 1);
+
     const segments = [];
     let currentReg = null;
-    let currentCount = 0;
+    let startIdx = 0;
+    let count = 0;
 
-    for (const c of candles) {
-      const isUp = c.close >= (c.ema10 || c.close) && c.close >= (c.ema72 || c.close);
-      const isDown = c.close < (c.ema10 || c.close) && c.close < (c.ema72 || c.close);
-      const dir = isUp ? 'UP' : (isDown ? 'DOWN' : 'SIDEWAYS');
-      const reg = c.regime || (dir === 'UP' ? 'UP_QUIET' : (dir === 'DOWN' ? 'DOWN_VOLATILE' : 'SIDEWAYS_QUIET'));
-
+    for (let i = 0; i < total; i++) {
+      const reg = candles[i].regime || 'UP_QUIET';
       if (reg === currentReg) {
-        currentCount++;
+        count++;
       } else {
-        if (currentReg) segments.push({ regime: currentReg, count: currentCount });
+        if (currentReg) {
+          segments.push({
+            regime: currentReg,
+            startIdx,
+            endIdx: i - 1,
+            count,
+            startDate: candles[startIdx]?.date,
+            endDate: candles[i - 1]?.date
+          });
+        }
         currentReg = reg;
-        currentCount = 1;
+        startIdx = i;
+        count = 1;
       }
     }
-    if (currentReg) segments.push({ regime: currentReg, count: currentCount });
+    if (currentReg) {
+      segments.push({
+        regime: currentReg,
+        startIdx,
+        endIdx: total - 1,
+        count,
+        startDate: candles[startIdx]?.date,
+        endDate: candles[total - 1]?.date
+      });
+    }
 
-    const total = candles.length || 1;
-    return segments.map(seg => {
-      const pct = (seg.count / total) * 100;
+    const rects = segments.map(seg => {
+      const x1 = Math.max(padLeft, padLeft + seg.startIdx * stepX - (stepX / 2));
+      const x2 = Math.min(padLeft + plotW, padLeft + seg.endIdx * stepX + (stepX / 2));
+      const w = Math.max(1.5, x2 - x1);
       const meta = REGIME_METADATA[seg.regime] || REGIME_METADATA.UP_QUIET;
-      return `<span class="mre-ribbon-seg" style="width: ${pct.toFixed(2)}%; background-color: ${meta.color};" title="${esc(meta.label)}: ${seg.count} pregões"></span>`;
-    }).join('');
+      return `<rect x="${x1.toFixed(1)}" y="0" width="${w.toFixed(1)}" height="14" fill="${meta.color}">
+        <title>${esc(meta.label)}: ${seg.count} pregões (${dateLabel(seg.startDate)} a ${dateLabel(seg.endDate)})</title>
+      </rect>`;
+    });
+
+    let hoverMarker = '';
+    if (state.hoverCandle && state.hoverCandle.index >= 0 && state.hoverCandle.index < total) {
+      const hx = padLeft + state.hoverCandle.index * stepX;
+      hoverMarker = `<line x1="${hx.toFixed(1)}" y1="0" x2="${hx.toFixed(1)}" y2="14" stroke="#ffffff" stroke-width="2" />
+        <circle cx="${hx.toFixed(1)}" cy="7" r="3.5" fill="#ffffff" />`;
+    }
+
+    return `<svg viewBox="0 0 ${W} 14" class="mre-ribbon-svg" preserveAspectRatio="none">
+      <rect x="0" y="0" width="${W}" height="14" fill="#061a12" rx="6"/>
+      <g class="mre-ribbon-segments">${rects.join('')}</g>
+      ${hoverMarker}
+    </svg>`;
   }
 
   function renderCandlestickSvg(candles, benchmarkId) {
@@ -711,7 +829,7 @@
     const plotW = W - padLeft - padRight;
     const plotH = H - padTop - padBottom;
 
-    // Calcular limites de preço
+    // Calcular limites de preço considerando apenas as EMAs ativas
     let minPrice = Infinity;
     let maxPrice = -Infinity;
 
@@ -724,9 +842,21 @@
         if (c.ema10 < minPrice) minPrice = c.ema10;
         if (c.ema10 > maxPrice) maxPrice = c.ema10;
       }
+      if (state.showEma20 && hasNumber(c.ema20)) {
+        if (c.ema20 < minPrice) minPrice = c.ema20;
+        if (c.ema20 > maxPrice) maxPrice = c.ema20;
+      }
+      if (state.showEma50 && hasNumber(c.ema50)) {
+        if (c.ema50 < minPrice) minPrice = c.ema50;
+        if (c.ema50 > maxPrice) maxPrice = c.ema50;
+      }
       if (state.showEma72 && hasNumber(c.ema72)) {
         if (c.ema72 < minPrice) minPrice = c.ema72;
         if (c.ema72 > maxPrice) maxPrice = c.ema72;
+      }
+      if (state.showEma200 && hasNumber(c.ema200)) {
+        if (c.ema200 < minPrice) minPrice = c.ema200;
+        if (c.ema200 > maxPrice) maxPrice = c.ema200;
       }
     }
 
@@ -761,11 +891,14 @@
       dateLabels.push(`<text x="${x.toFixed(1)}" y="${H - 10}" fill="#64748b" font-size="11" font-weight="500" text-anchor="middle" font-family="Inter,sans-serif">${esc(monthStr)}</text>`);
     }
 
-    // Candlesticks (Wicks e Bodies)
+    // Candlesticks (Wicks e Bodies) e séries de EMAs ativas
     const candleW = Math.max(2.0, Math.min(6.0, (plotW / candles.length) * 0.75));
     const candleElements = [];
     const ema10Points = [];
+    const ema20Points = [];
+    const ema50Points = [];
     const ema72Points = [];
+    const ema200Points = [];
 
     for (let i = 0; i < candles.length; i++) {
       const c = candles[i];
@@ -792,12 +925,11 @@
         </g>
       `);
 
-      if (hasNumber(c.ema10)) {
-        ema10Points.push(`${x.toFixed(1)},${getY(c.ema10).toFixed(1)}`);
-      }
-      if (hasNumber(c.ema72)) {
-        ema72Points.push(`${x.toFixed(1)},${getY(c.ema72).toFixed(1)}`);
-      }
+      if (hasNumber(c.ema10)) ema10Points.push(`${x.toFixed(1)},${getY(c.ema10).toFixed(1)}`);
+      if (hasNumber(c.ema20)) ema20Points.push(`${x.toFixed(1)},${getY(c.ema20).toFixed(1)}`);
+      if (hasNumber(c.ema50)) ema50Points.push(`${x.toFixed(1)},${getY(c.ema50).toFixed(1)}`);
+      if (hasNumber(c.ema72)) ema72Points.push(`${x.toFixed(1)},${getY(c.ema72).toFixed(1)}`);
+      if (hasNumber(c.ema200)) ema200Points.push(`${x.toFixed(1)},${getY(c.ema200).toFixed(1)}`);
     }
 
     // Tooltip interativo / Crosshair
@@ -814,19 +946,50 @@
           <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="4.5" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
         `;
 
-        // Regime na data
-        const isUp = hc.close >= (hc.ema10 || hc.close) && hc.close >= (hc.ema72 || hc.close);
-        const isDown = hc.close < (hc.ema10 || hc.close) && hc.close < (hc.ema72 || hc.close);
-        const dir = isUp ? 'UP' : (isDown ? 'DOWN' : 'SIDEWAYS');
-        const regCode = hc.regime || (dir === 'UP' ? 'UP_QUIET' : (dir === 'DOWN' ? 'DOWN_VOLATILE' : 'SIDEWAYS_QUIET'));
+        // Regime da data - usa rigorosamente a mesma classificação canônica da linha do tempo
+        const regCode = hc.regime || (hc.direction === 'UP' ? 'UP_QUIET' : (hc.direction === 'DOWN' ? 'DOWN_VOLATILE' : 'SIDEWAYS_QUIET'));
         const regMeta = REGIME_METADATA[regCode] || REGIME_METADATA.UP_QUIET;
 
-        // Posição da Tooltip (evitar corte à direita)
-        const tipX = hx > (W - 240) ? (hx - 185) : (hx + 15);
-        const tipY = Math.max(padTop + 10, Math.min(hy - 40, padTop + plotH - 120));
+        // Linhas de médias ativas no tooltip
+        const tipEmaRows = [];
+        if (state.showEma10 && hasNumber(hc.ema10)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema10" style="color:#10b981;">— EMA 10</span>
+            <strong>${number(hc.ema10, 2)}</strong>
+          </div>`);
+        }
+        if (state.showEma20 && hasNumber(hc.ema20)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema20" style="color:#f59e0b;">— EMA 20</span>
+            <strong>${number(hc.ema20, 2)}</strong>
+          </div>`);
+        }
+        if (state.showEma50 && hasNumber(hc.ema50)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema50" style="color:#a855f7;">— EMA 50</span>
+            <strong>${number(hc.ema50, 2)}</strong>
+          </div>`);
+        }
+        if (state.showEma72 && hasNumber(hc.ema72)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema72" style="color:#3b82f6;">— EMA 72</span>
+            <strong>${number(hc.ema72, 2)}</strong>
+          </div>`);
+        }
+        if (state.showEma200 && hasNumber(hc.ema200)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema200" style="color:#f97316;">— EMA 200</span>
+            <strong>${number(hc.ema200, 2)}</strong>
+          </div>`);
+        }
+
+        const tipWidth = 180;
+        const tipHeight = 85 + tipEmaRows.length * 20;
+        const tipX = hx > (W - 220) ? (hx - tipWidth - 15) : (hx + 15);
+        const tipY = Math.max(padTop + 5, Math.min(hy - 40, padTop + plotH - tipHeight));
 
         tooltipHtml = `
-          <foreignObject x="${tipX.toFixed(1)}" y="${tipY.toFixed(1)}" width="175" height="135" class="mre-tooltip-object">
+          <foreignObject x="${tipX.toFixed(1)}" y="${tipY.toFixed(1)}" width="${tipWidth}" height="${tipHeight}" class="mre-tooltip-object">
             <div class="mre-floating-tooltip">
               <div class="mre-tip-header">${dateLabel(hc.date)} (Diário)</div>
               <div class="mre-tip-body">
@@ -834,14 +997,7 @@
                   <span class="mre-tip-symbol">■ ${esc(benchmarkId)}</span>
                   <strong>${number(hc.close, 2)}</strong>
                 </div>
-                <div class="mre-tip-row">
-                  <span class="mre-tip-ema10">— EMA 10</span>
-                  <strong>${number(hc.ema10, 2)}</strong>
-                </div>
-                <div class="mre-tip-row">
-                  <span class="mre-tip-ema72">— EMA 72</span>
-                  <strong>${number(hc.ema72, 2)}</strong>
-                </div>
+                ${tipEmaRows.join('')}
                 <div class="mre-tip-row mre-tip-regime-row">
                   <span>Regime</span>
                   <span class="mre-tip-reg-badge" style="background:${regMeta.color}25; color:${regMeta.color}; border: 1px solid ${regMeta.color}50;">
@@ -859,14 +1015,18 @@
       <svg viewBox="0 0 ${W} ${H}" class="mre-candlestick-svg" preserveAspectRatio="none" data-chart-svg>
         <g class="mre-grid-lines">${gridLines.join('')}</g>
         <g class="mre-candles-group">${candleElements.join('')}</g>
-        ${state.showEma72 && ema72Points.length ? `<polyline points="${ema72Points.join(' ')}" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
-        ${state.showEma10 && ema10Points.length ? `<polyline points="${ema10Points.join(' ')}" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+        ${state.showEma200 && ema200Points.length > 1 ? `<polyline points="${ema200Points.join(' ')}" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma72 && ema72Points.length > 1 ? `<polyline points="${ema72Points.join(' ')}" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma50 && ema50Points.length > 1 ? `<polyline points="${ema50Points.join(' ')}" fill="none" stroke="#a855f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma20 && ema20Points.length > 1 ? `<polyline points="${ema20Points.join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma10 && ema10Points.length > 1 ? `<polyline points="${ema10Points.join(' ')}" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
         <g class="mre-crosshair-group">${crosshairHtml}</g>
         ${tooltipHtml}
         <g class="mre-dates-axis">${dateLabels.join('')}</g>
       </svg>
     </div>`;
   }
+
   function renderPerformanceSection(perfData, dataDate) {
     const rows = Array.isArray(perfData?.rows) && perfData.rows.length ? perfData.rows : [
       { regime: 'UP_QUIET', label: 'Up – Quiet', color: '#16a879', hasData: false },
@@ -1012,6 +1172,47 @@
     };
 
     const historyCandles = dataEntry?.benchmark?.history || [];
+
+    // 1. Garantir que todas as 5 EMAs estejam calculadas para cada candle
+    if (historyCandles.length > 0) {
+      const closes = historyCandles.map(c => Number(c.close));
+      const e10 = calculateEmaSeries(closes, 10);
+      const e20 = calculateEmaSeries(closes, 20);
+      const e50 = calculateEmaSeries(closes, 50);
+      const e72 = calculateEmaSeries(closes, Math.min(72, closes.length));
+      const e200 = closes.length >= 200 ? calculateEmaSeries(closes, 200) : [];
+      for (let i = 0; i < historyCandles.length; i++) {
+        const c = historyCandles[i];
+        if (!hasNumber(c.ema10) && hasNumber(e10[i])) c.ema10 = e10[i];
+        if (!hasNumber(c.ema20) && hasNumber(e20[i])) c.ema20 = e20[i];
+        if (!hasNumber(c.ema50) && hasNumber(e50[i])) c.ema50 = e50[i];
+        if (!hasNumber(c.ema72) && hasNumber(e72[i])) c.ema72 = e72[i];
+        if (!hasNumber(c.ema200) && hasNumber(e200[i])) c.ema200 = e200[i];
+      }
+    }
+
+    // 2. Anexar rigorosamente a classificação canônica do Market Regime Engine a cada candle
+    const regimeByDate = new Map();
+    if (Array.isArray(marketRegimeData.regimes)) {
+      for (const r of marketRegimeData.regimes) {
+        if (r.reference_date) regimeByDate.set(r.reference_date, r);
+      }
+    }
+    for (const c of historyCandles) {
+      const match = regimeByDate.get(c.date);
+      if (match) {
+        c.regime = match.regime;
+        c.direction = match.direction;
+        c.volatility = match.volatility;
+      } else if (!c.regime) {
+        const isUp = c.close >= (c.ema10 || c.close) && c.close >= (c.ema72 || c.close);
+        const isDown = c.close < (c.ema10 || c.close) && c.close < (c.ema72 || c.close);
+        const dir = isUp ? 'UP' : (isDown ? 'DOWN' : 'SIDEWAYS');
+        c.direction = dir;
+        c.volatility = 'QUIET';
+        c.regime = dir === 'UP' ? 'UP_QUIET' : (dir === 'DOWN' ? 'DOWN_QUIET' : 'SIDEWAYS_QUIET');
+      }
+    }
     const periods = marketRegimeData.periods || [];
     const distribution = marketRegimeData.distribution || null;
     const dataDate = cycle.date || historyCandles.at(-1)?.date || currentRegime?.reference_date;
@@ -1047,6 +1248,13 @@
   }
 
   async function load(benchmarkInput = state.currentBenchmark, force = false) {
+    const prefs = loadSavedEmaPrefs();
+    state.showEma10 = prefs.showEma10;
+    state.showEma20 = prefs.showEma20;
+    state.showEma50 = prefs.showEma50;
+    state.showEma72 = prefs.showEma72;
+    state.showEma200 = prefs.showEma200;
+
     const benchmarkId = normalizeMarketId(benchmarkInput);
     const valid = BENCHMARKS.find(b => b.id === benchmarkId) || BENCHMARKS[0];
     state.currentBenchmark = valid.id;
@@ -1116,12 +1324,16 @@
   });
 
   root.addEventListener('change', event => {
-    // Toggle de EMA 10 e EMA 72
+    // Toggle de EMAs (10, 20, 50, 72, 200)
     const emaToggle = event.target.closest('[data-toggle-ema]');
     if (emaToggle) {
       const type = emaToggle.getAttribute('data-toggle-ema');
       if (type === '10') state.showEma10 = emaToggle.checked;
+      if (type === '20') state.showEma20 = emaToggle.checked;
+      if (type === '50') state.showEma50 = emaToggle.checked;
       if (type === '72') state.showEma72 = emaToggle.checked;
+      if (type === '200') state.showEma200 = emaToggle.checked;
+      saveEmaPrefs();
       render();
       return;
     }

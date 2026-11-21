@@ -378,7 +378,7 @@ body:has(#marketcycle.active) {
 }
 
 .mre-stat-ema10 {
-  color: #34d399;
+  color: #10b981;
 }
 
 .mre-stat-ema10 strong {
@@ -386,11 +386,38 @@ body:has(#marketcycle.active) {
   margin-left: 3px;
 }
 
+.mre-stat-ema20 {
+  color: #f59e0b;
+}
+
+.mre-stat-ema20 strong {
+  font-weight: 700;
+  margin-left: 3px;
+}
+
+.mre-stat-ema50 {
+  color: #a855f7;
+}
+
+.mre-stat-ema50 strong {
+  font-weight: 700;
+  margin-left: 3px;
+}
+
 .mre-stat-ema72 {
-  color: #60a5fa;
+  color: #3b82f6;
 }
 
 .mre-stat-ema72 strong {
+  font-weight: 700;
+  margin-left: 3px;
+}
+
+.mre-stat-ema200 {
+  color: #f97316;
+}
+
+.mre-stat-ema200 strong {
   font-weight: 700;
   margin-left: 3px;
 }
@@ -424,10 +451,28 @@ body:has(#marketcycle.active) {
   color: #ecfdf5;
 }
 
+.mre-toggle-pill.is-checked.mre-toggle-ema20 {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: #f59e0b;
+  color: #fffbeb;
+}
+
+.mre-toggle-pill.is-checked.mre-toggle-ema50 {
+  background: rgba(168, 85, 247, 0.18);
+  border-color: #a855f7;
+  color: #faf5ff;
+}
+
 .mre-toggle-pill.is-checked.mre-toggle-ema72 {
   background: rgba(59, 130, 246, 0.18);
   border-color: #3b82f6;
   color: #eff6ff;
+}
+
+.mre-toggle-pill.is-checked.mre-toggle-ema200 {
+  background: rgba(249, 115, 22, 0.18);
+  border-color: #f97316;
+  color: #fff7ed;
 }
 
 .mre-toggle-check {
@@ -510,6 +555,14 @@ body:has(#marketcycle.active) {
   overflow: hidden;
   background: #0d2018;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.mre-ribbon-svg {
+  display: block;
+  width: 100%;
+  height: 14px;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .mre-ribbon-seg {

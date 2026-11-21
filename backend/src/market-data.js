@@ -264,6 +264,13 @@ function scoreCycle(history) {
   };
 }
 function marketCycleSeries(history) {
+  const closes = history.map((item) => Number(item.adjustedClose ?? item.close)).filter(Number.isFinite);
+  const ema10All = calculateEmaSeries(closes, 10);
+  const ema20All = calculateEmaSeries(closes, 20);
+  const ema50All = calculateEmaSeries(closes, 50);
+  const ema72All = calculateEmaSeries(closes, 72);
+  const ema200All = closes.length >= 200 ? calculateEmaSeries(closes, 200) : [];
+
   return history.map((candle, index) => {
     if (index < 29) return null;
     const reading = scoreCycle(history.slice(0, index + 1));
@@ -285,17 +292,18 @@ function marketCycleSeries(history) {
       high,
       low,
       close,
-      ema10: reading.ema10,
-      ema72: reading.ema72,
+      ema10: reading.ema10 ?? ema10All[index] ?? null,
+      ema20: ema20All[index] ?? null,
+      ema50: ema50All[index] ?? null,
+      ema72: reading.ema72 ?? ema72All[index] ?? null,
+      ema200: ema200All[index] ?? reading.ema200 ?? null,
       atr21: reading.atr21,
       atrPct: reading.atrPct,
       score: reading.score,
       state: reading.state,
       // Compatibilidade legada
       ema9: reading.ema10,
-      ema30: reading.ema72,
-      ema20: reading.ema72,
-      ema200: reading.ema200
+      ema30: reading.ema72
     };
   }).filter(Boolean);
 }
