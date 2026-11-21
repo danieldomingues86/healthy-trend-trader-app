@@ -971,9 +971,11 @@ test('DailyUpdateHub: Volume Financeiro, Totalizador Sincronizado e Heat Oficial
   assert.ok(renderedHtml.includes('TOTAL EXPOSTO:'), 'Rótulo TOTAL EXPOSTO: deve estar presente');
   assert.ok(renderedHtml.includes('314.302,00'), 'Valor consolidado de 314.302,00 deve estar no rodapé da tabela');
 
-  // 4. Barra totalizadora com destaque visual moderado abaixo da tabela
-  assert.ok(renderedHtml.includes('positions-table-totalizer'), 'Barra positions-table-totalizer deve ser renderizada');
-  assert.ok(renderedHtml.includes('totalizer-amount'), 'Classe totalizer-amount deve estar presente');
+  // 4. Menu inferior colado à tabela sem barra duplicada de totalizador
+  assert.ok(!renderedHtml.includes('positions-table-totalizer'), 'Barra duplicada positions-table-totalizer NÃO deve ser renderizada');
+  assert.ok(renderedHtml.includes('positions-footer'), 'Menu inferior positions-footer deve estar presente');
+  assert.ok(renderedHtml.includes('Atualizar Preços em Lote'), 'Botão Atualizar Preços em Lote deve estar no footer');
+  assert.ok(renderedHtml.includes('Ir para Posições Abertas'), 'Link Ir para Posições Abertas deve estar no footer');
 
   // 5. Sincronização exata com o KPI 3 (Exposição Atual)
   assert.ok(renderedHtml.includes('id="kpiTotalExposure"'), 'ID kpiTotalExposure deve estar presente no KPI 3');

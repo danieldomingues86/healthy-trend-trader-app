@@ -822,32 +822,14 @@
                       <td class="td-total-amount" style="text-align: right;">
                         <strong class="pos-total-exposed-val font-numeric">${fmtBRL(exposure)}</strong>
                       </td>
-                      <td colspan="2"></td>
+                      <td colspan="2" class="td-total-share" style="text-align: left; padding-left: 8px;">
+                        <span class="pos-total-share-badge font-numeric" title="${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio em investimentos">
+                          ${exposurePct.toFixed(2).replace('.', ',')}%
+                        </span>
+                      </td>
                     </tr>
                   </tfoot>
                 </table>
-              </div>
-
-              <!-- Totalizador em destaque moderado no rodapé da tabela -->
-              <div class="positions-table-totalizer" id="positionsTableTotalizer">
-                <div class="positions-totalizer-left">
-                  <div class="totalizer-icon-badge">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <line x1="2" y1="12" x2="22" y2="12"/>
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
-                  </div>
-                  <div class="totalizer-info">
-                    <span class="totalizer-label">TOTAL EXPOSTO</span>
-                    <span class="totalizer-count">(${model.positions.filter(p => !p.closed && p.status !== 'encerrada').length} posições abertas)</span>
-                  </div>
-                </div>
-                <div class="positions-totalizer-right">
-                  <span class="totalizer-legend">Volume financeiro total alocado:</span>
-                  <strong class="totalizer-amount font-numeric" id="positionsTotalizerAmount">${fmtBRL(exposure)}</strong>
-                  <span class="totalizer-share-tag" id="positionsTotalizerShare">${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio</span>
-                </div>
               </div>
 
               <footer class="daily-update-card-footer positions-footer">
