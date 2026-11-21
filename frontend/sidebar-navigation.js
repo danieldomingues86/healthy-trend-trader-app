@@ -204,13 +204,6 @@
           page: 'dailyupdate'
         },
         {
-          id: 'dashboard',
-          title: 'Patrimônio',
-          desc: 'Visão patrimonial e alocações.',
-          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-          page: 'dashboard'
-        },
-        {
           id: 'positions',
           title: 'Posições Abertas',
           desc: 'Gestão de stops e trailing.',
@@ -254,6 +247,13 @@
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
       header: 'DADOS & PERFORMANCE',
       items: [
+        {
+          id: 'dashboard',
+          title: 'Patrimônio',
+          desc: 'Visão patrimonial e alocações.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+          page: 'dashboard'
+        },
         {
           id: 'analytics',
           title: 'Painel da Verdade',
@@ -1067,7 +1067,7 @@
           } else {
             const titleMap = {
               mindset: 'Mentalidade',
-              today: 'Meu Desktop',
+              today: 'Dashboard',
               newtrade: 'Novo Trade',
               positions: 'Posições Abertas',
               closedpositions: 'Posições Encerradas',
@@ -1087,7 +1087,7 @@
               researchlab: 'Laboratório de Pesquisa',
               forecast: 'Simulador de Equity'
             };
-            const t = titleMap[pageId] || (typeof titles !== 'undefined' && titles[pageId]) || 'Meu Desktop';
+            const t = titleMap[pageId] || (typeof titles !== 'undefined' && titles[pageId]) || 'Dashboard';
             crumb.innerHTML = `The Healthy Trend Trader / <b>${t}</b>`;
           }
         }
@@ -1158,13 +1158,28 @@
         sidebar.appendChild(controls);
       }
 
-      const tree = this.getTree();
+      const tree = (this.model && typeof this.model.getNavigationTree === 'function') 
+        ? this.model.getNavigationTree(null, { includeAllInCategories: true }) 
+        : this.getTree();
       const activePage = this.activePageId || 'today';
       const isPro = typeof root.isProfessional === 'function' ? root.isProfessional() : false;
       const proPages = root.professionalPages || new Set();
 
       if (tree) {
         let menuHtml = '';
+
+        // Ensure dailyupdate is prominently available in quickAccess if not present
+        if (tree.quickAccess && !tree.quickAccess.some(it => it.page === 'dailyupdate')) {
+          const dailyMod = this.model?.modules?.find(m => m.id === 'dailyupdate');
+          if (dailyMod) {
+            tree.quickAccess.unshift({
+              ...dailyMod,
+              currentLabel: root.appLanguage === 'en-US' ? (dailyMod.labelEn || dailyMod.label) : dailyMod.label,
+              currentDesc: root.appLanguage === 'en-US' ? (dailyMod.descEn || dailyMod.desc) : dailyMod.desc,
+              isQuickAccess: true
+            });
+          }
+        }
 
         // 1. QUICK ACCESS DIRECT PILLS
         if (tree.quickAccess && tree.quickAccess.length > 0) {
@@ -1326,7 +1341,7 @@
         // Linha 1
         {
           id: 'today',
-          title: isEn ? 'My Desktop' : 'Meu Desktop',
+          title: isEn ? 'Dashboard' : 'Dashboard',
           desc: isEn ? 'Your starting point<br>and daily focus.' : 'Seu ponto de partida<br>e foco do dia.',
           icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
         },
@@ -1387,10 +1402,10 @@
           icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a9.5 9.5 0 1 1-.57-8.38l6.73-1.19"/></svg>`
         },
         {
-          id: 'marketcentral',
-          title: isEn ? 'Market Central' : 'Central de Mercado',
-          desc: isEn ? 'Environment overview<br>& macro context.' : 'Contexto e visão geral<br>do ambiente.',
-          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2.5 2 7.5 12 12.5 22 7.5 12 2.5"/><polyline points="2 12 12 17 22 12"/><polyline points="2 16.5 12 21.5 22 16.5"/></svg>`
+          id: 'dailyupdate',
+          title: isEn ? 'Daily Update' : 'Atualização Diária',
+          desc: isEn ? 'Daily close routine,<br>balances & positions.' : 'Fechamento diário,<br>saldos e posições.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2.5"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`
         },
         {
           id: 'fundamentals',

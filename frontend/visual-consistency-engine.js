@@ -153,7 +153,7 @@
   // 3. COMPLETE SCREEN INVENTORY (47 MODULES)
   const SCREEN_REGISTRY = [
     // Operação Diária (6)
-    { id: 'today', page: 'today', name: 'Meu Desktop', category: 'Operação Diária' },
+    { id: 'today', page: 'today', name: 'Dashboard', category: 'Operação Diária' },
     { id: 'newtrade', page: 'newtrade', name: 'Novo Trade', category: 'Operação Diária' },
     { id: 'journal', page: 'journal', name: 'Diário de Trader', category: 'Operação Diária' },
     { id: 'dailyroutine', page: 'dailyroutine', name: 'Rotina Diária', category: 'Operação Diária' },
@@ -176,8 +176,7 @@
     { id: 'charts', page: 'charts', name: 'Gráficos', category: 'Análise de Mercado' },
     { id: 'markettreemap', page: 'markettreemap', name: 'Setores', category: 'Análise de Mercado' },
 
-    // Carteira & Risco (7)
-    { id: 'dashboard', page: 'dashboard', name: 'Patrimônio', category: 'Carteira & Risco' },
+    // Carteira & Risco (6)
     { id: 'dailyupdate', page: 'dailyupdate', name: 'Atualização Diária', category: 'Carteira & Risco' },
     { id: 'positions', page: 'positions', name: 'Posições Abertas', category: 'Carteira & Risco' },
     { id: 'closedpositions', page: 'closedpositions', name: 'Posições Encerradas', category: 'Carteira & Risco' },
@@ -191,7 +190,8 @@
     { id: 'forecast', page: 'forecast', name: 'Simulador de Equity', category: 'Simuladores' },
     { id: 'riskofruin', page: 'riskofruin', name: 'Risco de Ruína', category: 'Simuladores' },
 
-    // Dados & Performance (7)
+    // Dados & Performance (8)
+    { id: 'dashboard', page: 'dashboard', name: 'Patrimônio', category: 'Dados & Performance' },
     { id: 'analytics', page: 'analytics', name: 'Painel da Verdade', category: 'Dados & Performance' },
     { id: 'systemquality', page: 'systemquality', name: 'Qualidade Estatística do Sistema', category: 'Dados & Performance' },
     { id: 'tradeanatomy', page: 'tradeanatomy', name: 'Anatomia dos Trades', category: 'Dados & Performance' },

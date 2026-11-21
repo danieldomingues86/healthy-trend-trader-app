@@ -88,8 +88,8 @@
     {
       id: 'today',
       page: 'today',
-      label: 'Meu Desktop',
-      labelEn: 'My Desktop',
+      label: 'Dashboard',
+      labelEn: 'Dashboard',
       category: 'daily',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`,
       desc: 'Seu ponto de partida e foco do dia.',
@@ -305,7 +305,7 @@
       page: 'dashboard',
       label: 'Patrimônio',
       labelEn: 'Wealth & Equity',
-      category: 'portfolio-risk',
+      category: 'data-performance',
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
       desc: 'Visão patrimonial, alocações e aportes.',
       descEn: 'Wealth overview, allocations and contributions.',
@@ -683,7 +683,7 @@
      * Resolves the navigation tree based on current state.
      * GUARANTEE: Every registered module is present in its official category, and quick access reflects the active preset.
      */
-    getNavigationTree(overrideState = null) {
+    getNavigationTree(overrideState = null, options = {}) {
       const state = overrideState || this.state;
       const lang = typeof root.appLanguage !== 'undefined' ? root.appLanguage : 'pt-BR';
       const isEn = lang === 'en-US';
@@ -715,10 +715,10 @@
         });
       });
 
-      // Group modules by their official assigned category (excluding items already in quickAccess to eliminate duplicates)
+      // Group modules by their official assigned category (excluding items already in quickAccess to eliminate duplicates unless includeAllInCategories is requested)
       const quickAccessSet = new Set(state.quickAccess);
       this.modules.forEach(m => {
-        if (quickAccessSet.has(m.id)) return; // Se está no Acesso Rápido, não repete na categoria abaixo
+        if (!options.includeAllInCategories && quickAccessSet.has(m.id)) return; // Se está no Acesso Rápido, não repete na categoria abaixo
         const cat = categoriesById.get(m.category);
         if (cat) {
           cat.items.push(moduleMap.get(m.id));
