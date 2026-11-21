@@ -624,11 +624,11 @@
       id: 'fast',
       label: 'Fast',
       labelEn: 'Fast',
-      desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Atualização Diária, Desktop, Novo Trade, Diário, Watchlist, Gráficos), com categorias organizadas para fluxo ágil.',
+      desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Atualização Diária, Dashboard, Novo Trade, Diário, Watchlist, Gráficos), com categorias organizadas para fluxo ágil.',
       descEn: 'Lightning-fast access to most frequent tools with streamlined categories.',
       quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts'],
       categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'simulators', 'data-performance', 'mindset', 'resources'],
-      collapsedCategories: ['simulators', 'data-performance', 'mindset', 'resources']
+      collapsedCategories: ['simulators', 'mindset', 'resources']
     },
     trader_focus: {
       id: 'trader_focus',
@@ -638,7 +638,7 @@
       descEn: 'Strict execution-focused hierarchy emphasizing Daily Trading, Risk, Market and Training.',
       quickAccess: ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal'],
       categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'data-performance', 'simulators', 'mindset', 'resources'],
-      collapsedCategories: ['data-performance', 'simulators', 'mindset', 'resources']
+      collapsedCategories: ['simulators', 'mindset', 'resources']
     },
     full: {
       id: 'full',
@@ -646,7 +646,7 @@
       labelEn: 'Professional / Full',
       desc: 'Visão integral de todas as dimensões da plataforma: Operação, Treinamento, Mercado, Simuladores, Risco, Performance e Mindset.',
       descEn: 'Complete structured view of all platform pillars.',
-      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts', 'dashboard'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts'],
       categoryOrder: ['market-analysis', 'daily', 'training-recovery', 'simulators', 'portfolio-risk', 'data-performance', 'mindset', 'resources'],
       collapsedCategories: []
     }
@@ -687,6 +687,15 @@
       const state = overrideState || this.state;
       const lang = typeof root.appLanguage !== 'undefined' ? root.appLanguage : 'pt-BR';
       const isEn = lang === 'en-US';
+
+      // Migration guard: ensure 'dashboard' (Patrimônio) is NEVER in quickAccess (belongs in data-performance)
+      // and ensure 'dailyupdate' is present in quickAccess
+      if (state && Array.isArray(state.quickAccess)) {
+        state.quickAccess = state.quickAccess.filter(id => id !== 'dashboard');
+        if (!state.quickAccess.includes('dailyupdate')) {
+          state.quickAccess.unshift('dailyupdate');
+        }
+      }
 
       // Map modules by ID
       const moduleMap = new Map();
@@ -841,6 +850,18 @@
 
         if (storedLayout && ['sidebar', 'top', 'tiles'].includes(storedLayout)) {
           this.state.style = storedLayout;
+        }
+
+        // Migration guard: ensure 'dashboard' is NEVER in quickAccess (belongs in data-performance)
+        // and ensure 'dailyupdate' is present in quickAccess
+        if (this.state && Array.isArray(this.state.quickAccess)) {
+          this.state.quickAccess = this.state.quickAccess.filter(id => id !== 'dashboard');
+          if (!this.state.quickAccess.includes('dailyupdate')) {
+            this.state.quickAccess.unshift('dailyupdate');
+          }
+        }
+        if (this.state && Array.isArray(this.state.collapsedCategories)) {
+          this.state.collapsedCategories = this.state.collapsedCategories.filter(id => id !== 'data-performance');
         }
       } catch (e) {
         console.warn('[NavigationSystemModel] Failed to load state from storage:', e);

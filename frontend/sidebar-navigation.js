@@ -1323,7 +1323,6 @@
      * Single viewport 3x6 unified grid (18 cards) with zero vertical scroll
      */
     renderNavigationHub() {
-      if (document.body.dataset.navigationLayout !== 'tiles') return;
       let hub = document.getElementById('navigationHub');
       if (!hub) {
         hub = document.createElement('section');
@@ -1338,12 +1337,18 @@
       const activePage = (typeof document !== 'undefined' && document.querySelector('.page.active')?.id) || 'today';
 
       const tiles = [
-        // Linha 1
+        // Linha 1: Operação e Dia a Dia
         {
           id: 'today',
           title: isEn ? 'Dashboard' : 'Dashboard',
           desc: isEn ? 'Your starting point<br>and daily focus.' : 'Seu ponto de partida<br>e foco do dia.',
           icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
+        },
+        {
+          id: 'dailyupdate',
+          title: isEn ? 'Daily Update' : 'Atualização Diária',
+          desc: isEn ? 'Daily close routine,<br>balances & positions.' : 'Fechamento diário,<br>saldos e posições.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2.5"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`
         },
         {
           id: 'newtrade',
@@ -1369,14 +1374,8 @@
           desc: isEn ? 'Ticker analysis central<br>with guardrails.' : 'Central de análise do<br>ticker com guardrails.',
           icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="21" x2="21" y2="21"/></svg>`
         },
-        {
-          id: 'dashboard',
-          title: isEn ? 'Wealth' : 'Patrimônio',
-          desc: isEn ? 'Equity overview,<br>allocations & cash.' : 'Visão patrimonial,<br>alocações e aportes.',
-          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v5.5c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 10.5V16c0 1.66 3.58 3 8 3s8-1.34 8-3v-5.5"/></svg>`
-        },
 
-        // Linha 2
+        // Linha 2: Análise de Mercado & Dados Patrimoniais
         {
           id: 'marketcentral',
           title: isEn ? 'Market Analysis' : 'Análise de Mercado',
@@ -1402,10 +1401,10 @@
           icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a9.5 9.5 0 1 1-.57-8.38l6.73-1.19"/></svg>`
         },
         {
-          id: 'dailyupdate',
-          title: isEn ? 'Daily Update' : 'Atualização Diária',
-          desc: isEn ? 'Daily close routine,<br>balances & positions.' : 'Fechamento diário,<br>saldos e posições.',
-          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2.5"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>`
+          id: 'dashboard',
+          title: isEn ? 'Wealth' : 'Patrimônio',
+          desc: isEn ? 'Equity overview,<br>allocations & cash.' : 'Visão patrimonial,<br>alocações e aportes.',
+          icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v5.5c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 10.5V16c0 1.66 3.58 3 8 3s8-1.34 8-3v-5.5"/></svg>`
         },
         {
           id: 'fundamentals',
@@ -1414,7 +1413,7 @@
           icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="16"/><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="3" y1="21" x2="21" y2="21"/></svg>`
         },
 
-        // Linha 3
+        // Linha 3: Operação, Treinamento & Evolução
         {
           id: 'markettreemap',
           title: isEn ? 'Sectors' : 'Setores',
