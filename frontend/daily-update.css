@@ -4441,3 +4441,385 @@ body[data-theme="pigeon"] .pos-total-share-badge {
 body[data-theme="pigeon"] .positions-card .positions-footer {
   border-top-color: rgba(2, 132, 199, 0.15);
 }
+
+/* --------------------------------------------------------------------------
+   AGRUPAMENTO DE POSIÇÕES ABERTAS POR MERCADO & COLUNA RESULTADO ATUAL
+   -------------------------------------------------------------------------- */
+.positions-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.positions-header-kpis {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pos-header-kpi-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.pos-header-kpi-pill.exposure-pill {
+  background: #eaf6ee;
+  border: 1px solid #bce4cc;
+  color: #1e3a2a;
+}
+
+.pos-header-kpi-pill.exposure-pill .pos-header-kpi-label {
+  font-weight: 600;
+  color: #334e3e;
+}
+
+.pos-header-kpi-pill.exposure-pill .pos-header-kpi-val {
+  font-weight: 800;
+  font-size: 13px;
+  color: #15803d;
+}
+
+.pos-header-kpi-pill.exposure-pill .pos-header-kpi-pct {
+  font-weight: 700;
+  font-size: 11.5px;
+  color: #166534;
+}
+
+.pos-header-kpi-pill.result-pill.negative {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.pos-header-kpi-pill.result-pill.negative .pos-header-kpi-label {
+  font-weight: 600;
+  color: #7f1d1d;
+}
+
+.pos-header-kpi-pill.result-pill.negative .pos-header-kpi-val,
+.pos-header-kpi-pill.result-pill.negative .pos-header-kpi-pct {
+  font-weight: 800;
+  color: #dc2626;
+}
+
+.pos-header-kpi-pill.result-pill.positive {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.pos-header-kpi-pill.result-pill.positive .pos-header-kpi-label {
+  font-weight: 600;
+  color: #14532d;
+}
+
+.pos-header-kpi-pill.result-pill.positive .pos-header-kpi-val,
+.pos-header-kpi-pill.result-pill.positive .pos-header-kpi-pct {
+  font-weight: 800;
+  color: #15803d;
+}
+
+.pos-header-kpi-pill.result-pill.neutral {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.pos-header-kpi-pill.result-pill.neutral .pos-header-kpi-label {
+  font-weight: 600;
+  color: #475569;
+}
+
+.pos-header-kpi-pill.result-pill.neutral .pos-header-kpi-val,
+.pos-header-kpi-pill.result-pill.neutral .pos-header-kpi-pct {
+  font-weight: 800;
+  color: #475569;
+}
+
+.position-groups-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.position-group-card {
+  border-radius: 13px;
+  border: 1px solid var(--pos-group-border, #cfe2d6);
+  background: var(--pos-group-bg, #ffffff);
+  overflow: hidden;
+  box-shadow: 0 2px 7px rgba(18, 52, 34, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.position-group--futures {
+  --pos-group-border: #fcd34d;
+  --pos-group-bg: #fffdf9;
+  --pos-group-header-bg: #fef3c7;
+  --pos-group-header-border: #fde68a;
+  --pos-group-title: #78350f;
+}
+
+.position-group--stock {
+  --pos-group-border: #b7e4c7;
+  --pos-group-bg: #fbfefb;
+  --pos-group-header-bg: #e8f7ee;
+  --pos-group-header-border: #ccebd8;
+  --pos-group-title: #123424;
+}
+
+.position-group--bdr {
+  --pos-group-border: #bfdbfe;
+  --pos-group-bg: #fafdff;
+  --pos-group-header-bg: #e6f0fd;
+  --pos-group-header-border: #cce0fb;
+  --pos-group-title: #1e3a8a;
+}
+
+.position-group--fii {
+  --pos-group-border: #ddd6fe;
+  --pos-group-bg: #fdfcff;
+  --pos-group-header-bg: #f3e8ff;
+  --pos-group-header-border: #e9d5ff;
+  --pos-group-title: #581c87;
+}
+
+.position-group--etf {
+  --pos-group-border: #a5f3fc;
+  --pos-group-bg: #f9feff;
+  --pos-group-header-bg: #e0f2fe;
+  --pos-group-header-border: #bae6fd;
+  --pos-group-title: #0c4a6e;
+}
+
+.position-group--other {
+  --pos-group-border: #cbd5e1;
+  --pos-group-bg: #fcfdfe;
+  --pos-group-header-bg: #f1f5f9;
+  --pos-group-header-border: #e2e8f0;
+  --pos-group-title: #334155;
+}
+
+.position-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  background: var(--pos-group-header-bg, #eaf6ee);
+  border-bottom: 1px solid var(--pos-group-header-border, #ccebd8);
+  cursor: pointer;
+  user-select: none;
+  transition: filter 0.15s ease;
+  gap: 10px;
+}
+
+.position-group-header:hover {
+  filter: brightness(0.98);
+}
+
+.pos-group-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pos-group-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.pos-group-name {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  color: var(--pos-group-title, #123424);
+}
+
+.pos-group-count-inline {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--pos-group-title, #123424);
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.pos-group-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pos-group-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--pos-group-title, #123424);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border-radius: 4px;
+}
+
+.pos-group-chevron {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pos-group-chevron.collapsed {
+  transform: rotate(180deg);
+}
+
+/* Coluna C/V (Compra e Venda) */
+.th-pos-cv,
+.td-pos-cv {
+  text-align: center;
+  width: 44px;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
+
+.pos-cv-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+.pos-cv-badge.buy {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.pos-cv-badge.sell {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Coluna Resultado Atual */
+.th-pos-result,
+.td-pos-result {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pos-result-amount {
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.pos-result-amount.positive {
+  color: #15803d;
+}
+
+.pos-result-amount.negative {
+  color: #dc2626;
+}
+
+.pos-result-amount.neutral {
+  color: var(--muted, #63786c);
+}
+
+/* Gold / Dark Theme Overrides for Market Position Groups */
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.exposure-pill {
+  background: rgba(22, 101, 52, 0.22);
+  border-color: rgba(74, 222, 128, 0.35);
+  color: #e2f1e8;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.exposure-pill .pos-header-kpi-label {
+  color: #cbd5e1;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.exposure-pill .pos-header-kpi-val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.exposure-pill .pos-header-kpi-pct {
+  color: #4ade80;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.result-pill.negative {
+  background: rgba(127, 29, 29, 0.28);
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.result-pill.negative .pos-header-kpi-label {
+  color: #e2e8f0;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.result-pill.negative .pos-header-kpi-val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.result-pill.negative .pos-header-kpi-pct {
+  color: #f87171;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.result-pill.positive {
+  background: rgba(22, 101, 52, 0.28);
+  border-color: rgba(74, 222, 128, 0.35);
+  color: #bbf7d0;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.result-pill.positive .pos-header-kpi-label {
+  color: #e2e8f0;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.result-pill.positive .pos-header-kpi-val,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-header-kpi-pill.result-pill.positive .pos-header-kpi-pct {
+  color: #4ade80;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .position-group-card {
+  background: rgba(16, 26, 20, 0.75);
+  border-color: rgba(208, 165, 66, 0.24);
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .position-group-header {
+  background: rgba(24, 38, 30, 0.92);
+  border-bottom-color: rgba(208, 165, 66, 0.2);
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-group-name,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-group-count-inline,
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-group-toggle-btn {
+  color: #f3d58d;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-result-amount.positive {
+  color: #4ade80;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-result-amount.negative {
+  color: #f87171;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-cv-badge.buy {
+  background: rgba(37, 99, 235, 0.22);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-cv-badge.sell {
+  background: rgba(220, 38, 38, 0.22);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.35);
+}
