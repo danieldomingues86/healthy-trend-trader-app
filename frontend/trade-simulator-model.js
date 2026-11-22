@@ -451,8 +451,11 @@
    * Calcula a Força Relativa (RS 0–99) histórica estritamente na data do sinal (sem look-ahead bias).
    * Usa apenas candles fechados até o candle avaliado (slice causal).
    */
+  const _benchmarkIndexCache = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
+
   function calculateHistoricalRsScore(assetCandles, benchmarkCandles = null, options = {}) {
-    const targetEvalDate = options && options.evalDate ? String(options.evalDate).slice(0, 10) : null;
+    const hasEndIndex = options && Number.isInteger(options.endIndex) && options.endIndex >= 0;
+    const targetEvalDate = (!hasEndIndex && options && options.evalDate) ? String(options.evalDate).slice(0, 10) : null;
     const causalAssetCandles = (Array.isArray(assetCandles) && targetEvalDate)
       ? assetCandles.filter(c => {
           const d = String(c?.time || c?.date || '').slice(0, 10);
@@ -460,7 +463,11 @@
         })
       : assetCandles;
 
-    if (!Array.isArray(causalAssetCandles) || causalAssetCandles.length < 15) {
+    const effectiveLen = hasEndIndex && Array.isArray(causalAssetCandles)
+      ? Math.min(options.endIndex + 1, causalAssetCandles.length)
+      : (Array.isArray(causalAssetCandles) ? causalAssetCandles.length : 0);
+
+    if (!Array.isArray(causalAssetCandles) || effectiveLen < 15) {
       return {
         rsScore: null,
         score: null,
@@ -471,9 +478,12 @@
       };
     }
 
-    const lastIdx = causalAssetCandles.length - 1;
+    const lastIdx = effectiveLen - 1;
     const lastCandle = causalAssetCandles[lastIdx];
-    const evalDate = lastCandle ? String(lastCandle.time || lastCandle.date || '').slice(0, 10) : targetEvalDate;
+    const rawEvalDate = lastCandle ? (lastCandle.time || lastCandle.date || '') : targetEvalDate;
+    const evalDate = typeof rawEvalDate === 'string' && rawEvalDate.length === 10
+      ? rawEvalDate
+      : (rawEvalDate ? String(rawEvalDate).slice(0, 10) : targetEvalDate);
     const closeNow = Number(lastCandle?.close);
     if (!Number.isFinite(closeNow) || closeNow <= 0) {
       return {
@@ -499,11 +509,28 @@
     if (Array.isArray(benchmarkCandles) && benchmarkCandles.length >= 10) {
       let bIdx = benchmarkCandles.length - 1;
       if (evalDate) {
-        for (let i = benchmarkCandles.length - 1; i >= 0; i--) {
-          const bd = String(benchmarkCandles[i].time || benchmarkCandles[i].date || '').slice(0, 10);
-          if (bd && bd <= evalDate) {
-            bIdx = i;
-            break;
+        let bInfo = _benchmarkIndexCache ? _benchmarkIndexCache.get(benchmarkCandles) : null;
+        if (!bInfo || bInfo.length !== benchmarkCandles.length) {
+          const dates = new Array(benchmarkCandles.length);
+          const exactMap = new Map();
+          for (let i = 0; i < benchmarkCandles.length; i++) {
+            const bd = String(benchmarkCandles[i].time || benchmarkCandles[i].date || '').slice(0, 10);
+            dates[i] = bd;
+            if (bd) exactMap.set(bd, i);
+          }
+          bInfo = { length: benchmarkCandles.length, dates, exactMap };
+          if (_benchmarkIndexCache) _benchmarkIndexCache.set(benchmarkCandles, bInfo);
+        }
+        const exactIdx = bInfo.exactMap.get(evalDate);
+        if (exactIdx !== undefined) {
+          bIdx = exactIdx;
+        } else {
+          for (let i = benchmarkCandles.length - 1; i >= 0; i--) {
+            const bd = bInfo.dates[i];
+            if (bd && bd <= evalDate) {
+              bIdx = i;
+              break;
+            }
           }
         }
       }
@@ -518,11 +545,22 @@
     const alpha3m = m3Asset - m3Bench;
     const compositeAlpha = (alpha1m * 0.45) + (alpha3m * 0.55);
 
-    const closes = causalAssetCandles.map(c => Number(c.close));
-    const e10Series = calculateEmaSeriesRaw(closes, 10);
-    const e72Series = calculateEmaSeriesRaw(closes, 72);
-    const e10 = e10Series.length ? e10Series[e10Series.length - 1] : closeNow;
-    const e72 = e72Series.length ? e72Series[e72Series.length - 1] : closeNow;
+    const preEma10 = (options && options.precomputedEma10) || causalAssetCandles._precomputedEma10;
+    const preEma72 = (options && options.precomputedEma72) || causalAssetCandles._precomputedEma72;
+
+    let e10;
+    let e72;
+    if (Array.isArray(preEma10) && preEma10.length > lastIdx && Array.isArray(preEma72) && preEma72.length > lastIdx) {
+      e10 = preEma10[lastIdx] != null ? preEma10[lastIdx] : closeNow;
+      e72 = preEma72[lastIdx] != null ? preEma72[lastIdx] : closeNow;
+    } else {
+      const closes = new Array(effectiveLen);
+      for (let i = 0; i < effectiveLen; i++) closes[i] = Number(causalAssetCandles[i].close);
+      const e10Series = calculateEmaSeriesRaw(closes, 10);
+      const e72Series = calculateEmaSeriesRaw(closes, 72);
+      e10 = e10Series.length ? e10Series[e10Series.length - 1] : closeNow;
+      e72 = e72Series.length ? e72Series[e72Series.length - 1] : closeNow;
+    }
     const spreadPct = e72 > 0 ? ((e10 - e72) / e72) * 100 : 0;
     const structureBonus = (closeNow >= e10 && e10 > e72) ? Math.min(12, Math.max(4, spreadPct * 1.8 + 5)) : -8;
 
@@ -1511,6 +1549,29 @@
    * - Evento na segunda-feira 2026-10-05 -> Último pregão anterior (advance = 1): sexta-feira 2026-10-02.
    * - Com advance = 2 para domingo 2026-10-04 -> quinta-feira 2026-10-01.
    */
+  const _cutoffDateCache = new Map();
+
+  function computeCalendarCutoffAndDefaultReopen(evt, advanceSessions, validSessionSet) {
+    const firstRiskDate = evt.riskStartDate || evt.eventDate;
+    const canCache = !validSessionSet;
+    const cacheKey = canCache ? `${firstRiskDate}|${evt.riskEndDate}|${advanceSessions}` : null;
+    if (cacheKey && _cutoffDateCache.has(cacheKey)) {
+      return _cutoffDateCache.get(cacheKey);
+    }
+
+    const dayBeforeEvent = new Date(Date.parse(firstRiskDate) - 86400000).toISOString().slice(0, 10);
+    const lastSessionBeforeEvent = snapToTradingDay(dayBeforeEvent, -1, validSessionSet);
+    const calendarCutoffDate = advanceSessions > 1
+      ? addTradingDays(lastSessionBeforeEvent, -(advanceSessions - 1), validSessionSet)
+      : lastSessionBeforeEvent;
+    const dayAfterEvent = new Date(Date.parse(evt.riskEndDate) + 86400000).toISOString().slice(0, 10);
+    const defaultReopenDate = snapToTradingDay(dayAfterEvent, 1, validSessionSet);
+
+    const res = { firstRiskDate, calendarCutoffDate, defaultReopenDate };
+    if (cacheKey) _cutoffDateCache.set(cacheKey, res);
+    return res;
+  }
+
   function resolveExtremeEventCutoffSession(eventInput, options = {}) {
     const evt = normalizeExtremeEventRecord(eventInput);
     if (!evt) return null;
@@ -1522,21 +1583,17 @@
     // Nunca permite antecedência menor que 1 pregão antes do evento
     const advanceSessions = Math.max(1, Math.round(rawAdvance || 1));
     const validSessionSet = options.validSessionSet instanceof Set ? options.validSessionSet : null;
-
-    const firstRiskDate = evt.riskStartDate || evt.eventDate;
     const candles = Array.isArray(options.candles) ? options.candles : null;
 
-    // 1. Determina o pregão oficial de encerramento pelo calendário de negociação do mercado
-    const dayBeforeEvent = new Date(new Date(firstRiskDate + 'T12:00:00Z').getTime() - 86400000).toISOString().slice(0, 10);
-    const lastSessionBeforeEvent = snapToTradingDay(dayBeforeEvent, -1, validSessionSet);
-    const calendarCutoffDate = advanceSessions > 1
-      ? addTradingDays(lastSessionBeforeEvent, -(advanceSessions - 1), validSessionSet)
-      : lastSessionBeforeEvent;
-    const dayAfterEvent = new Date(new Date(evt.riskEndDate + 'T12:00:00Z').getTime() + 86400000).toISOString().slice(0, 10);
-    let reopenDate = snapToTradingDay(dayAfterEvent, 1, validSessionSet);
+    const { firstRiskDate, calendarCutoffDate, defaultReopenDate } = computeCalendarCutoffAndDefaultReopen(
+      evt,
+      advanceSessions,
+      validSessionSet
+    );
+    let reopenDate = defaultReopenDate;
     let reopenOpenPrice = null;
 
-    if (candles && candles.length > 0) {
+    if (candles && candles.length > 0 && !options._skipReopenScan) {
       for (let i = 0; i < candles.length; i++) {
         const d = String(candles[i].time || candles[i].date || '').slice(0, 10);
         if (d > evt.riskEndDate && isTradingDay(d, validSessionSet)) {
@@ -1585,6 +1642,7 @@
       // Eventos inesperados não conhecidos antecipadamente não podem gerar encerramento preventivo retroativo.
       if (!evt.isPreScheduled || evt.isUnexpected) continue;
       if (evt.knownSinceDate && evt.knownSinceDate > candleDate) continue;
+      if (candleDate > evt.riskEndDate) continue;
 
       if (evt.market && evt.market !== 'ALL' && market && evt.market !== String(market).toUpperCase()) {
         continue;
@@ -1595,16 +1653,18 @@
         continue;
       }
 
-      const resolution = resolveExtremeEventCutoffSession(evt, {
-        candles,
+      const fastRes = resolveExtremeEventCutoffSession(evt, {
         validSessionSet,
-        advanceSessions
+        advanceSessions,
+        _skipReopenScan: true
       });
-      if (!resolution || !resolution.cutoffDate) continue;
+      if (!fastRes || !fastRes.cutoffDate) continue;
 
       // Caso 1: O pregão atual é exatamente o pregão limite (ou já atingiu/ultrapassou o cutoff antes do término do evento)
-      // Ex: entrada na sexta-feira ou antes, e sexta-feira é o último pregão antes da eleição de domingo.
-      if (candleDate >= resolution.cutoffDate && candleDate <= evt.riskEndDate) {
+      if (candleDate >= fastRes.cutoffDate && candleDate <= evt.riskEndDate) {
+        const resolution = candles && candles.length > 0
+          ? resolveExtremeEventCutoffSession(evt, { candles, validSessionSet, advanceSessions })
+          : fastRes;
         return {
           event: evt,
           resolution
@@ -1613,7 +1673,10 @@
 
       // Caso 2: Caso haja buraco de liquidez na série de candles do ativo e o próximo candle disponível
       // já salte direto para durante ou após o período de risco do evento.
-      if (candleDate < resolution.cutoffDate && nextCandleDate && nextCandleDate >= resolution.firstRiskDate) {
+      if (candleDate < fastRes.cutoffDate && nextCandleDate && nextCandleDate >= fastRes.firstRiskDate) {
+        const resolution = candles && candles.length > 0
+          ? resolveExtremeEventCutoffSession(evt, { candles, validSessionSet, advanceSessions })
+          : fastRes;
         return {
           event: evt,
           resolution: {
@@ -1647,21 +1710,25 @@
       const evt = calendar[i];
       if (!evt.isPreScheduled || evt.isUnexpected) continue;
       if (evt.knownSinceDate && evt.knownSinceDate > candleDate) continue;
+      if (candleDate > evt.riskEndDate) continue;
       if (evt.market && evt.market !== 'ALL' && market && evt.market !== String(market).toUpperCase()) {
         continue;
       }
-      const resolution = resolveExtremeEventCutoffSession(evt, {
-        candles,
+      const fastRes = resolveExtremeEventCutoffSession(evt, {
         validSessionSet,
-        advanceSessions
+        advanceSessions,
+        _skipReopenScan: true
       });
-      const firstBlockedAfterCutoff = resolution && resolution.cutoffDate ? resolution.cutoffDate : evt.riskStartDate;
+      const firstBlockedAfterCutoff = fastRes && fastRes.cutoffDate ? fastRes.cutoffDate : evt.riskStartDate;
       // Se a sessão atual está dentro do período de risco [riskStartDate, riskEndDate]
       // ou entre o cutoff (quando advanceSessions > 1) e o fim do evento:
-      if (candleDate >= evt.riskStartDate && candleDate <= evt.riskEndDate) {
-        return { event: evt, resolution };
-      }
-      if (resolution && resolution.advanceSessions > 1 && candleDate > firstBlockedAfterCutoff && candleDate <= evt.riskEndDate) {
+      if (
+        (candleDate >= evt.riskStartDate && candleDate <= evt.riskEndDate) ||
+        (fastRes && fastRes.advanceSessions > 1 && candleDate > firstBlockedAfterCutoff && candleDate <= evt.riskEndDate)
+      ) {
+        const resolution = candles && candles.length > 0
+          ? resolveExtremeEventCutoffSession(evt, { candles, validSessionSet, advanceSessions })
+          : fastRes;
         return { event: evt, resolution };
       }
     }
@@ -1723,9 +1790,7 @@
       timeline: Array.isArray(simulation.timeline) ? [...simulation.timeline] : []
     };
 
-    const closes = validCandles.map(c => Number(c.close));
-    const ema10Series = calculateEmaSeries(closes, 10);
-    const ema9Series = ema10Series;
+    let ema9Series = null;
 
     const entryPlanned = Number(sim.entryPrice);
     const stopInitial = Number(sim.stopLoss);
@@ -2215,6 +2280,15 @@
           // Fase 2: se a parcial já foi executada em pregão anterior, monitora fechamento sob a MM10.
           // Regra 4: A decisão só é tomada após o fechamento de D0, e a execução ocorre na abertura de D1.
           if (sim.partialExit?.executed && !partialExecutedOnThisBar) {
+            if (!ema9Series) {
+              if (Array.isArray(validCandles._ema10Series) && validCandles._ema10Series.length === validCandles.length) {
+                ema9Series = validCandles._ema10Series;
+              } else {
+                const closes = validCandles.map(c => Number(c.close));
+                ema9Series = calculateEmaSeries(closes, 10);
+                Object.defineProperty(validCandles, '_ema10Series', { value: ema9Series, enumerable: false });
+              }
+            }
             const cEma10 = ema9Series[i] || targetExitPrice;
             if (cClose < cEma10) {
               pendingCloseExit = {
@@ -4950,6 +5024,19 @@
       : ((Array.isArray(sim._evalCandles) && sim._evalCandles.length > 0) ? sim._evalCandles : null);
 
     if (candleSeries) {
+      if (sim._evalCandles === candleSeries && !Array.isArray(sim.candles)) {
+        if (sim.managementScenario === scenario && sim.status !== STATUS.WAITING_ENTRY) {
+          return sim;
+        }
+        if (sim.status === STATUS.NOT_TRIGGERED) {
+          return {
+            ...sim,
+            managementScenario: scenario,
+            scaleIn: null,
+            partialExit: null
+          };
+        }
+      }
       const baseSim = {
         ...sim,
         managementScenario: scenario,
@@ -4981,7 +5068,9 @@
         timeline: []
       };
       const reEvaluated = evaluateSimulationOnCandles(baseSim, candleSeries, scenario);
-      reEvaluated.visionAtivo = getTradeVisionAtivo(reEvaluated);
+      reEvaluated.visionAtivo = (sim.visionAtivo && sim.visionAtivo.liquidity && sim.status !== STATUS.CLOSED_LOSS && reEvaluated.status !== STATUS.CLOSED_LOSS)
+        ? sim.visionAtivo
+        : getTradeVisionAtivo(reEvaluated);
       return reEvaluated;
     }
 
@@ -6857,10 +6946,15 @@
     const k = 2 / (period + 1);
     const result = new Array(values.length);
     let prev = Number(values[0]);
+    let allFinite = Number.isFinite(prev);
     result[0] = Number(prev.toFixed(4));
     for (let i = 1; i < values.length; i++) {
       prev = Number(values[i]) * k + prev * (1 - k);
+      if (!Number.isFinite(prev)) allFinite = false;
       result[i] = Number(prev.toFixed(4));
+    }
+    if (allFinite) {
+      Object.defineProperty(result, '_isDenseNumeric', { value: true, enumerable: false });
     }
     return result;
   }
@@ -6992,12 +7086,16 @@
    *    - EMA 72 ascendente no momento do sinal (EMA72[t] > EMA72[t-1] e, quando disponíveis candles prévios da janela,
    *      EMA72[t] > EMA72[t-2] e EMA72[t] > EMA72[t-3]).
    */
-  function validateDailyEmaAlignment(candles, ema10Values = [], ema72Values = []) {
+  function validateDailyEmaAlignment(candles, ema10Values = [], ema72Values = [], endIndex = null) {
     if (typeof TickerChartModel !== 'undefined' && typeof TickerChartModel.validateDailyEmaAlignment === 'function') {
-      return TickerChartModel.validateDailyEmaAlignment(candles, ema10Values, ema72Values);
+      return TickerChartModel.validateDailyEmaAlignment(candles, ema10Values, ema72Values, endIndex);
     }
 
-    if (!Array.isArray(candles) || candles.length < 2) {
+    const len = (endIndex !== null && Number.isInteger(endIndex) && Array.isArray(candles))
+      ? Math.min(endIndex + 1, candles.length)
+      : (Array.isArray(candles) ? candles.length : 0);
+
+    if (!Array.isArray(candles) || len < 2) {
       const msg = 'Rejeitado: Histórico diário insuficiente para validar alinhamento das EMAs 10 e 72';
       return {
         isValid: false,
@@ -7016,65 +7114,89 @@
       };
     }
 
-    const len = candles.length;
     const lastCandle = candles[len - 1];
     const latestClose = Number(lastCandle.close);
     const signalDate = lastCandle.time || lastCandle.date || null;
-    const closes = candles.map(c => Number(c.close));
 
-    let e10Series = [];
-    if (Array.isArray(ema10Values) && ema10Values.some(v => v != null && Number.isFinite(Number(v)))) {
-      e10Series = ema10Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
-    } else if (candles.some(c => c && (c.ema10 != null || c.ema9 != null))) {
-      e10Series = candles
-        .map(c => (c.ema10 != null ? Number(c.ema10) : (c.ema9 != null ? Number(c.ema9) : null)))
-        .filter(v => v != null && Number.isFinite(v));
+    let e10_0;
+    let e10_1;
+    let e72_0;
+    let e72_1;
+
+    const fastEma10 = (Array.isArray(ema10Values) && ema10Values._isDenseNumeric && ema10Values.length >= len)
+      ? ema10Values
+      : ((!Array.isArray(ema10Values) || ema10Values.length === 0) && candles._precomputedEma10 && candles._precomputedEma10._isDenseNumeric && candles._precomputedEma10.length >= len
+        ? candles._precomputedEma10
+        : null);
+    const fastEma72 = (Array.isArray(ema72Values) && ema72Values._isDenseNumeric && ema72Values.length >= len)
+      ? ema72Values
+      : ((!Array.isArray(ema72Values) || ema72Values.length === 0) && candles._precomputedEma72 && candles._precomputedEma72._isDenseNumeric && candles._precomputedEma72.length >= len
+        ? candles._precomputedEma72
+        : null);
+
+    if (fastEma10 && fastEma72) {
+      e10_0 = fastEma10[len - 1];
+      e10_1 = fastEma10[len - 2];
+      e72_0 = fastEma72[len - 1];
+      e72_1 = fastEma72[len - 2];
     } else {
-      e10Series = calculateEmaSeriesRaw(closes, 10);
-    }
+      const sliceCandles = len === candles.length ? candles : candles.slice(0, len);
+      const closes = sliceCandles.map(c => Number(c.close));
 
-    let e72Series = [];
-    if (Array.isArray(ema72Values) && ema72Values.some(v => v != null && Number.isFinite(Number(v)))) {
-      e72Series = ema72Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
-    } else if (candles.some(c => c && (c.ema72 != null || c.ema30 != null))) {
-      e72Series = candles
-        .map(c => (c.ema72 != null ? Number(c.ema72) : (c.ema30 != null ? Number(c.ema30) : null)))
-        .filter(v => v != null && Number.isFinite(v));
-    } else {
-      e72Series = calculateEmaSeriesRaw(closes, 72);
-    }
+      let e10Series = [];
+      if (Array.isArray(ema10Values) && ema10Values.some(v => v != null && Number.isFinite(Number(v)))) {
+        e10Series = ema10Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+      } else if (sliceCandles.some(c => c && (c.ema10 != null || c.ema9 != null))) {
+        e10Series = sliceCandles
+          .map(c => (c.ema10 != null ? Number(c.ema10) : (c.ema9 != null ? Number(c.ema9) : null)))
+          .filter(v => v != null && Number.isFinite(v));
+      } else {
+        e10Series = calculateEmaSeriesRaw(closes, 10);
+      }
 
-    if (e10Series.length < 2) {
-      e10Series = calculateEmaSeriesRaw(closes, 10);
-    }
-    if (e72Series.length < 2) {
-      e72Series = calculateEmaSeriesRaw(closes, 72);
-    }
+      let e72Series = [];
+      if (Array.isArray(ema72Values) && ema72Values.some(v => v != null && Number.isFinite(Number(v)))) {
+        e72Series = ema72Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+      } else if (sliceCandles.some(c => c && (c.ema72 != null || c.ema30 != null))) {
+        e72Series = sliceCandles
+          .map(c => (c.ema72 != null ? Number(c.ema72) : (c.ema30 != null ? Number(c.ema30) : null)))
+          .filter(v => v != null && Number.isFinite(v));
+      } else {
+        e72Series = calculateEmaSeriesRaw(closes, 72);
+      }
 
-    if (e10Series.length < 2 || e72Series.length < 2) {
-      const msg = 'Rejeitado: Série de EMAs insuficiente para confirmar inclinação no Diário';
-      return {
-        isValid: false,
-        reason: msg,
-        reasons: [msg],
-        timeframe: '1D',
-        checks: {
-          priceAboveEma10: false,
-          priceAboveEma72: false,
-          ema10AboveEma72: false,
-          ema10Ascending: false,
-          ema72Ascending: false,
-          bothAscending: false
-        },
-        values: null
-      };
+      if (e10Series.length < 2) {
+        e10Series = calculateEmaSeriesRaw(closes, 10);
+      }
+      if (e72Series.length < 2) {
+        e72Series = calculateEmaSeriesRaw(closes, 72);
+      }
+
+      if (e10Series.length < 2 || e72Series.length < 2) {
+        const msg = 'Rejeitado: Série de EMAs insuficiente para confirmar inclinação no Diário';
+        return {
+          isValid: false,
+          reason: msg,
+          reasons: [msg],
+          timeframe: '1D',
+          checks: {
+            priceAboveEma10: false,
+            priceAboveEma72: false,
+            ema10AboveEma72: false,
+            ema10Ascending: false,
+            ema72Ascending: false,
+            bothAscending: false
+          },
+          values: null
+        };
+      }
+
+      e10_0 = e10Series[e10Series.length - 1];
+      e10_1 = e10Series[e10Series.length - 2];
+
+      e72_0 = e72Series[e72Series.length - 1];
+      e72_1 = e72Series[e72Series.length - 2];
     }
-
-    const e10_0 = e10Series[e10Series.length - 1];
-    const e10_1 = e10Series[e10Series.length - 2];
-
-    const e72_0 = e72Series[e72Series.length - 1];
-    const e72_1 = e72Series[e72Series.length - 2];
 
     const priceAboveEma10 = Number.isFinite(latestClose) && latestClose >= e10_0;
     const priceAboveEma72 = Number.isFinite(latestClose) && latestClose >= e72_0;
@@ -7397,8 +7519,11 @@
   }
 
   function detectAllSetupTriggers(candles, options = {}) {
-    if (!Array.isArray(candles) || candles.length < 2) return [];
-    const len = candles.length;
+    if (!Array.isArray(candles)) return [];
+    const len = (options && Number.isInteger(options.endIndex) && options.endIndex >= 0)
+      ? Math.min(options.endIndex + 1, candles.length)
+      : candles.length;
+    if (len < 2) return [];
     const c1 = candles[len - 1];
     const c2 = candles[len - 2];
     const c3 = len >= 3 ? candles[len - 3] : null;
@@ -7413,8 +7538,10 @@
       return riskPct >= 0.5 && riskPct <= 16.0;
     }
 
-// Validação independente de tendência no Diário: EMA 10 e EMA 72 alinhadas e ambas ascendentes
-    const emaAlignment = validateDailyEmaAlignment(candles, options.ema10Values, options.ema72Values);
+    // Validação independente de tendência no Diário: EMA 10 e EMA 72 alinhadas e ambas ascendentes
+    const emaAlignment = (options && options.precomputedEmaAlignment)
+      ? options.precomputedEmaAlignment
+      : validateDailyEmaAlignment(candles, options.ema10Values, options.ema72Values, len - 1);
     const latestEma10 = emaAlignment.values ? emaAlignment.values.ema10 : null;
     const prevEma10 = emaAlignment.values ? emaAlignment.values.prevEma10 : null;
     const latestEma72 = emaAlignment.values ? emaAlignment.values.ema72 : null;
@@ -7550,10 +7677,10 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         return;
       }
       let atrVal = null;
-      if (Array.isArray(candles) && candles.length >= 2) {
-        const lookback = Math.min(21, candles.length);
+      if (Array.isArray(candles) && len >= 2) {
+        const lookback = Math.min(21, len);
         let trSum = 0;
-        for (let i = candles.length - lookback + 1; i < candles.length; i++) {
+        for (let i = len - lookback + 1; i < len; i++) {
           const high = Number(candles[i].high);
           const low = Number(candles[i].low);
           const prevC = Number(candles[i - 1].close);
@@ -8429,15 +8556,17 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     }
 
     const candleSeries = Array.isArray(rawSeries) && rawSeries.length > 0
-      ? rawSeries.map(c => ({
-          ...c,
-          time: String(c.time || c.date || '').slice(0, 10),
-          open: Number(c.open != null ? c.open : c.close),
-          high: Number(c.high),
-          low: Number(c.low),
-          close: Number(c.close),
-          volume: Number(c.volume || 0)
-        })).filter(c => c.time && Number.isFinite(c.high) && Number.isFinite(c.low) && Number.isFinite(c.close))
+      ? (rawSeries._isNormalizedAuditSeries
+        ? rawSeries
+        : rawSeries.map(c => ({
+            ...c,
+            time: String(c.time || c.date || '').slice(0, 10),
+            open: Number(c.open != null ? c.open : c.close),
+            high: Number(c.high),
+            low: Number(c.low),
+            close: Number(c.close),
+            volume: Number(c.volume || 0)
+          })).filter(c => c.time && Number.isFinite(c.high) && Number.isFinite(c.low) && Number.isFinite(c.close)))
       : null;
 
     const errors = [];
@@ -8501,8 +8630,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       }
     }
 
+    let causalLen = 0;
     if (candleSeries && signalDate) {
-      signalIdx = candleSeries.findIndex(c => c.time === signalDate);
+      signalIdx = candleSeries._dateMap
+        ? (candleSeries._dateMap.has(signalDate) ? candleSeries._dateMap.get(signalDate) : -1)
+        : candleSeries.findIndex(c => c.time === signalDate);
       if (signalIdx < 0) {
         pushError(
           'SIGNAL_DATE_NOT_FOUND',
@@ -8517,7 +8649,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           `Sinal de ${sim.triggerName} em ${signalDate} não pode ser reproduzido pois a data não existe no histórico.`
         );
       } else {
-        causalSlice = candleSeries.slice(0, signalIdx + 1);
+        causalLen = signalIdx + 1;
+        causalSlice = candleSeries._isChronological ? candleSeries : candleSeries.slice(0, causalLen);
       }
     }
 
@@ -8534,10 +8667,10 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     }
 
     // Verifica se temos contexto prévio suficiente no causalSlice para revalidar EMAs e padrão geométrico
-    const hasPreSignalContext = Boolean(causalSlice && causalSlice.length >= 2 && (opts.requirePatternVerification === true || causalSlice.length >= 15 || rawSeries === candles || rawSeries === opts.candles || Boolean(opts.candlesMap)));
+    const hasPreSignalContext = Boolean(causalSlice && causalLen >= 2 && (opts.requirePatternVerification === true || causalLen >= 15 || rawSeries === candles || rawSeries === opts.candles || Boolean(opts.candlesMap)));
 
-    if (causalSlice && causalSlice.length >= 1) {
-      const sigCandle = causalSlice[causalSlice.length - 1];
+    if (causalSlice && causalLen >= 1) {
+      const sigCandle = causalSlice[causalLen - 1];
       // Checagem de consistência de escala de preços / eventos corporativos na data do sinal
       if (Number.isFinite(entryPrice) && entryPrice > 0 && Number.isFinite(sigCandle.high) && sigCandle.high > 0) {
         const ratio = entryPrice / sigCandle.high;
@@ -8563,8 +8696,13 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
     if (hasPreSignalContext) {
       // 2.1. Revalidação causal das EMAs 10 e 72 e detecção de contaminação por dados futuros
-      if (causalSlice.length >= 5) {
-        const causalEma = validateDailyEmaAlignment(causalSlice);
+      if (causalLen >= 5) {
+        const causalEma = validateDailyEmaAlignment(
+          causalSlice,
+          candleSeries._precomputedEma10,
+          candleSeries._precomputedEma72,
+          causalLen - 1
+        );
         if (!causalEma.isValid && !allowTrendMisalignment) {
           pushError(
             'TREND_MISALIGNMENT',
@@ -8580,7 +8718,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           : (sim.trendAlignment && sim.trendAlignment.values && sim.trendAlignment.values.ema10 != null
             ? Number(sim.trendAlignment.values.ema10)
             : null);
-        if (recordedEma10 != null && causalEma.values && causalEma.values.ema10 != null && candleSeries.length > causalSlice.length) {
+        if (recordedEma10 != null && causalEma.values && causalEma.values.ema10 != null && candleSeries.length > causalLen) {
           if (Math.abs(recordedEma10 - causalEma.values.ema10) > 0.05) {
             pushError(
               'LOOKAHEAD_CONTAMINATION',
@@ -8594,9 +8732,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
       // 2.2. Reprodução estrita do padrão geométrico do gatilho nos candles históricos
       if (!opts.customDetector && !opts.skipPatternRedetection) {
-        const c1 = causalSlice[causalSlice.length - 1];
-        const c2 = causalSlice.length >= 2 ? causalSlice[causalSlice.length - 2] : null;
-        const c3 = causalSlice.length >= 3 ? causalSlice[causalSlice.length - 3] : null;
+        const c1 = causalSlice[causalLen - 1];
+        const c2 = causalLen >= 2 ? causalSlice[causalLen - 2] : null;
+        const c3 = causalLen >= 3 ? causalSlice[causalLen - 3] : null;
         const trigName = String(sim.triggerName || '').trim();
 
         if (trigName === 'Inside Bar' || trigName === 'INSIDE_BAR') {
@@ -8751,10 +8889,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           'liquidity',
           sim.liquidity.reason || 'Ativo reprovado pelo filtro obrigatório de liquidez (Liquidity Gate).'
         );
-      } else if (causalSlice && causalSlice.length >= 20 && LiquidityGateModel) {
+      } else if (!(opts._trustedInternalLiquidity && sim.liquidity && sim.liquidity.isEligible === true) && causalSlice && causalLen >= 20 && LiquidityGateModel) {
         const liqEval = LiquidityGateModel.evaluateLiquidity({
           candles: causalSlice,
           targetDate: signalDate,
+          targetIndex: causalSlice._isChronological ? signalIdx : undefined,
           symbol: sym,
           policy: opts.policy
         });
@@ -8789,7 +8928,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       }
 
       if (candleSeries && eDate) {
-        const entryIdx = candleSeries.findIndex(c => c.time === eDate);
+        const entryIdx = candleSeries._dateMap
+          ? (candleSeries._dateMap.has(eDate) ? candleSeries._dateMap.get(eDate) : -1)
+          : candleSeries.findIndex(c => c.time === eDate);
         if (entryIdx < 0) {
           pushError(
             'ENTRY_DATE_NOT_FOUND',
@@ -8879,7 +9020,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
           // Validação da saída nos candles históricos
           if (isClosed && xDate) {
-            const exitIdx = candleSeries.findIndex(c => c.time === xDate);
+            const exitIdx = candleSeries._dateMap
+              ? (candleSeries._dateMap.has(xDate) ? candleSeries._dateMap.get(xDate) : -1)
+              : candleSeries.findIndex(c => c.time === xDate);
             if (exitIdx < 0) {
               pushError(
                 'EXIT_DATE_NOT_FOUND',
@@ -9472,21 +9615,52 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       const rawCandles = candlesMap.get(sym);
       if (!Array.isArray(rawCandles) || rawCandles.length < 20) continue;
       // Filtra apenas candles em pregões válidos B3
-      const candles = rawCandles.filter(c => {
-        const d = String(c.time || c.date || '').slice(0, 10);
-        return d && isTradingDay(d);
-      });
-      if (candles.length < 20) continue;
-
+      const candles = [];
+      const closes = [];
+      let hasCustomEmaProps = false;
+      let isChrono = true;
+      let prevD = '';
       const dateMap = new Map();
-      candles.forEach((c, idx) => {
+
+      for (let i = 0; i < rawCandles.length; i++) {
+        const c = rawCandles[i];
+        if (!c) continue;
         const d = String(c.time || c.date || '').slice(0, 10);
+        if (!d || !isTradingDay(d)) continue;
+        const closeVal = Number(c.close);
+        if (!Number.isFinite(closeVal)) hasCustomEmaProps = true;
+        if (c.ema10 != null || c.ema9 != null || c.ema72 != null || c.ema30 != null || c.ema20 != null) {
+          hasCustomEmaProps = true;
+        }
+        if (c.time !== d) c.time = d;
+        const idx = candles.length;
+        candles.push(c);
+        closes.push(closeVal);
+        if (prevD && d <= prevD) isChrono = false;
+        prevD = d;
         dateMap.set(d, idx);
         if ((!minDate || d >= minDate) && (!maxDate || d <= maxDate)) {
           datesSet.add(d);
         }
-      });
-      tickerIndexMap.set(sym, { candles, dateMap });
+      }
+      if (candles.length < 20) continue;
+
+      const ema10Series = !hasCustomEmaProps ? calculateEmaSeriesRaw(closes, 10) : null;
+      const ema72Series = !hasCustomEmaProps ? calculateEmaSeriesRaw(closes, 72) : null;
+
+      try {
+        Object.defineProperty(candles, '_isChronological', { value: isChrono, enumerable: false, configurable: true });
+        Object.defineProperty(candles, '_isNormalizedAuditSeries', { value: true, enumerable: false, configurable: true });
+        Object.defineProperty(candles, '_dateMap', { value: dateMap, enumerable: false, configurable: true });
+        if (ema10Series && ema72Series) {
+          Object.defineProperty(candles, '_precomputedEma10', { value: ema10Series, enumerable: false, configurable: true });
+          Object.defineProperty(candles, '_precomputedEma72', { value: ema72Series, enumerable: false, configurable: true });
+        }
+      } catch {
+        // Ignora caso congelado
+      }
+
+      tickerIndexMap.set(sym, { candles, dateMap, ema10Series, ema72Series });
     }
 
     const sortedDates = Array.from(datesSet).sort();
@@ -9507,11 +9681,14 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         : new Map(Object.entries(options.benchmarkCandlesMap || {}));
       for (const [bSym, bCandles] of bMap.entries()) {
         if (Array.isArray(bCandles) && bCandles.length >= 30) {
+          const bReadings = typeof MarketCycleModel.buildMarketCycleReadingsSeries === 'function'
+            ? MarketCycleModel.buildMarketCycleReadingsSeries(bCandles)
+            : null;
           for (let i = 29; i < bCandles.length; i++) {
             const rawD = bCandles[i].date || bCandles[i].time;
             const s = String(rawD).trim();
             const dIso = /^\d{8}$/.test(s) ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}` : s.slice(0, 10);
-            const reading = MarketCycleModel.scoreMarketCycleFromCandles(bCandles.slice(0, i + 1));
+            const reading = bReadings ? bReadings[i] : MarketCycleModel.scoreMarketCycleFromCandles(bCandles.slice(0, i + 1));
             const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: bSym });
             benchmarkCycleMap.set(`${bSym}:${dIso}`, perm);
           }
@@ -9519,12 +9696,42 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       }
     }
 
-    for (const d of sortedDates) {
+    const hasCustomGetRs = typeof options.getRsScore === 'function';
+    const hasCustomDetectTrigger = typeof options.detectTrigger === 'function';
+    const hasCustomSignalFilter = typeof options.signalFilter === 'function';
+    const needsSliceForCustomCallbacks = hasCustomGetRs || hasCustomDetectTrigger || hasCustomSignalFilter;
+    const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null;
+    const perfStart = typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now();
+    const totalSessionsToScan = sortedDates.length;
+
+    for (let dateIdx = 0; dateIdx < totalSessionsToScan; dateIdx++) {
+      const d = sortedDates[dateIdx];
+      if (onProgress && (dateIdx === 0 || dateIdx === totalSessionsToScan - 1 || dateIdx % 50 === 0)) {
+        try {
+          const nowMs = typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now();
+          onProgress({
+            phase: 'SIMULATE_TRADES',
+            sessionsProcessed: dateIdx + 1,
+            totalSessions: totalSessionsToScan,
+            assetsCount: tickerIndexMap.size,
+            candidatesEvaluated: blockedBreakdown.totalCandidatesEvaluated,
+            signalsFound: totalSignalsFound,
+            executedCount,
+            elapsedMs: round2(nowMs - perfStart),
+            progressPct: totalSessionsToScan > 0 ? Math.round(((dateIdx + 1) / totalSessionsToScan) * 100) : 100
+          });
+        } catch {
+          // Não interrompe simulação caso callback de progresso falhe
+        }
+      }
+
       for (const sym of symbols) {
         const busyUntil = symbolBusyUntil.get(sym);
         if (busyUntil && d <= busyUntil) {
           continue;
         }
+
+        try {
 
         const meta = metadataMap[sym] || {};
         const benchmarkInfo = (MarketCycleModel && typeof MarketCycleModel.getBenchmarkForAsset === 'function')
@@ -9558,21 +9765,23 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
         const tickerData = tickerIndexMap.get(sym);
         if (!tickerData) continue;
-        const { candles, dateMap } = tickerData;
+        const { candles, dateMap, ema10Series, ema72Series } = tickerData;
         const candleIdx = dateMap.get(d);
         if (candleIdx == null || candleIdx < 15) continue;
 
         blockedBreakdown.totalCandidatesEvaluated++;
 
-        // Slice estrito sem look-ahead
-        const slice = candles.slice(0, candleIdx + 1);
+        // Slice estrito sem look-ahead (alocado somente quando callbacks customizados exigem array fatiado)
+        let slice = needsSliceForCustomCallbacks ? candles.slice(0, candleIdx + 1) : null;
 
         // REGRA MANDATÓRIA (P0): Avaliação estrita do Liquidity Gate
         const allowIlliquid = isResearchMode && options.allowIlliquid === true;
+        let liqEval = null;
         if (!allowIlliquid && LiquidityGateModel) {
-          const liqEval = LiquidityGateModel.evaluateLiquidity({
-            candles: slice,
+          liqEval = LiquidityGateModel.evaluateLiquidity({
+            candles: candles._isChronological ? candles : (slice || (slice = candles.slice(0, candleIdx + 1))),
             targetDate: d,
+            targetIndex: candles._isChronological ? candleIdx : undefined,
             symbol: sym,
             market: options.universe === 'NASDAQ' ? 'US' : 'B3',
             policy: options.policy
@@ -9586,7 +9795,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
         // Avaliação causal da Força Relativa (RS) na data do sinal (sem look-ahead bias)
         let rsEval = null;
-        if (typeof options.getRsScore === 'function') {
+        if (hasCustomGetRs) {
           const customRs = options.getRsScore(sym, d, slice);
           if (customRs === null || customRs === 'N/D' || (customRs && customRs.isAvailable === false)) {
             rsEval = { rsScore: null, isAvailable: false, isEligible: false };
@@ -9620,7 +9829,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
               ? options.benchmarkCandlesMap.get(benchmarkInfo.symbol)
               : options.benchmarkCandlesMap[benchmarkInfo.symbol];
           }
-          rsEval = calculateHistoricalRsScore(slice, bCandles);
+          rsEval = calculateHistoricalRsScore(candles, bCandles, {
+            endIndex: candleIdx,
+            precomputedEma10: ema10Series,
+            precomputedEma72: ema72Series
+          });
         }
 
         if (!rsEval || !rsEval.isAvailable || rsEval.rsScore === null) {
@@ -9638,6 +9851,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           }
         }
 
+        const emaCheck = validateDailyEmaAlignment(candles, ema10Series, ema72Series, candleIdx);
+
         const triggerOpts = {
           symbol: sym,
           date: d,
@@ -9649,15 +9864,18 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           minRsScore: minRsRequired,
           maxRsScore: maxRsAllowed,
           rsScore: rsEval ? rsEval.rsScore : null,
-          includeExperimental: options.includeExperimental === true
+          includeExperimental: options.includeExperimental === true,
+          endIndex: candleIdx,
+          ema10Values: ema10Series,
+          ema72Values: ema72Series,
+          precomputedEmaAlignment: emaCheck
         };
 
-        const trigger = typeof options.detectTrigger === 'function'
+        const trigger = hasCustomDetectTrigger
           ? options.detectTrigger(slice, triggerOpts)
-          : detectSetupTrigger(slice, triggerOpts);
+          : detectSetupTrigger(candles, triggerOpts);
 
         if (!trigger || !trigger.hasTrigger) {
-          const emaCheck = validateDailyEmaAlignment(slice);
           if (!emaCheck.isValid && !allowTrendMisalignment) {
             blockedBreakdown.blockedByTrendAlignment++;
           } else {
@@ -9696,7 +9914,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           continue;
         }
 
-        if (typeof options.signalFilter === 'function' && !options.signalFilter({ symbol: sym, date: d, trigger, slice, marketPermission: marketPerm, rsScore: rsEval ? rsEval.rsScore : null })) {
+        if (hasCustomSignalFilter && !options.signalFilter({ symbol: sym, date: d, trigger, slice, marketPermission: marketPerm, rsScore: rsEval ? rsEval.rsScore : null })) {
           blockedBreakdown.blockedByTriggerOrGrade++;
           continue;
         }
@@ -9720,6 +9938,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           structure: trigger.structure || null,
           trendAlignment: trigger.trendAudit || null,
           marketPermission: marketPerm,
+          liquidity: liqEval || undefined,
           rsScore: rsEval && rsEval.isAvailable ? rsEval.rsScore : null,
           simulationMode,
           ruleVersion,
@@ -9729,6 +9948,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         const evaluated = evaluateSimulationOnCandles(rawSim, candles.slice(Math.max(0, candleIdx - 40)), scenario);
         evaluated.visionAtivo = getTradeVisionAtivo(evaluated);
         evaluated.rsScore = rawSim.rsScore;
+        if (liqEval) evaluated.liquidity = liqEval;
         evaluated.simulationMode = simulationMode;
         evaluated.ruleVersion = ruleVersion;
 
@@ -9742,8 +9962,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           allowIlliquid,
           allowMissingRs: options.allowMissingRs === true,
           minRsScore: minRsRequired,
-          customDetector: typeof options.detectTrigger === 'function',
-          includeExperimental: options.includeExperimental === true
+          customDetector: hasCustomDetectTrigger,
+          includeExperimental: options.includeExperimental === true,
+          _trustedInternalLiquidity: Boolean(liqEval && liqEval.isEligible)
         });
         if (!integralAudit.approved) {
           blockedBreakdown.blockedByValidation++;
@@ -9765,8 +9986,15 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         }
 
         simulations.push(evaluated);
+        } catch {
+          // Isola eventual erro inesperado de ativo/data sem abortar todo o lote de simulação
+          blockedBreakdown.blockedByValidation++;
+          rejectedSignalsCount++;
+        }
       }
     }
+
+    const totalElapsedMs = round2((typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now()) - perfStart);
 
     // Se o usuário selecionou uma meta de volume (ex: 100, 250, 500, 1000) e encontramos mais do que a meta:
     // Fazemos uma amostragem cronológica uniforme cobrindo TODO o horizonte temporal solicitado (do início ao fim)
@@ -9852,6 +10080,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         blockedBreakdown,
         executedCount,
         assetsCount: symbols.length,
+        assetsProcessedCount: tickerIndexMap.size,
+        elapsedMs: totalElapsedMs,
         targetVolume: rawTargetVolume || 'MAX',
         targetReached: executedCount >= (isTargetMax ? 1 : targetVolume),
         period: {

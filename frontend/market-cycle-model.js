@@ -738,6 +738,75 @@
     };
   }
 
+  /**
+   * Pré-calcula as leituras causais do Ciclo de Mercado para toda a série histórica em O(N)
+   * (com fallback exato para o aquecimento de 30 a 71 candles), garantindo 100% de equivalência
+   * matemática com chamadas repetidas a scoreMarketCycleFromCandles(candles.slice(0, i + 1)).
+   */
+  function buildMarketCycleReadingsSeries(candles) {
+    if (!Array.isArray(candles) || candles.length < 30) return [];
+    const len = candles.length;
+    const readings = new Array(len).fill(null);
+
+    const closes = new Array(len);
+    let allValidCloses = true;
+    for (let i = 0; i < len; i++) {
+      const c = candles[i];
+      const val = Number(c && (c.adjustedClose != null ? c.adjustedClose : c.close));
+      closes[i] = val;
+      if (!Number.isFinite(val)) allValidCloses = false;
+    }
+
+    if (!allValidCloses) {
+      for (let i = 29; i < len; i++) {
+        readings[i] = scoreMarketCycleFromCandles(candles.slice(0, i + 1));
+      }
+      return readings;
+    }
+
+    const warmupLimit = Math.min(len, OFFICIAL_EMA_SLOW - 1);
+    for (let i = 29; i < warmupLimit; i++) {
+      readings[i] = scoreMarketCycleFromCandles(candles.slice(0, i + 1));
+    }
+
+    if (len >= OFFICIAL_EMA_SLOW) {
+      const ema10Arr = calculateEmaSeries(closes, OFFICIAL_EMA_FAST);
+      const ema72Arr = calculateEmaSeries(closes, OFFICIAL_EMA_SLOW);
+      for (let i = OFFICIAL_EMA_SLOW - 1; i < len; i++) {
+        const price = closes[i];
+        const ema10 = ema10Arr[i];
+        const ema72 = ema72Arr[i];
+        if (!Number.isFinite(ema10) || !Number.isFinite(ema72) || !Number.isFinite(price)) {
+          readings[i] = null;
+          continue;
+        }
+        const prevEma10 = i > 0 ? ema10Arr[i - 1] : ema10;
+        const prevEma72 = i > 0 ? ema72Arr[i - 1] : ema72;
+        const ema10Slope = ema10 - prevEma10;
+        const ema72Slope = ema72 - prevEma72;
+        const above10 = price > ema10;
+        const above72 = price > ema72;
+        const structure = ema10 > ema72;
+        const isExpansion = above10 && above72;
+        const state = isExpansion ? 'healthy' : 'defensive';
+        readings[i] = {
+          state,
+          price,
+          ema10,
+          ema72,
+          above10,
+          above72,
+          structure,
+          ema10Slope,
+          ema72Slope,
+          isFavorable: isExpansion
+        };
+      }
+    }
+
+    return readings;
+  }
+
   return {
     REGIMES,
     REGIME_METADATA,
@@ -759,6 +828,7 @@
     getBenchmarkForAsset,
     calculateEmaSeries,
     scoreMarketCycleFromCandles,
+    buildMarketCycleReadingsSeries,
     validateMarketPermissionForBuy
   };
 });

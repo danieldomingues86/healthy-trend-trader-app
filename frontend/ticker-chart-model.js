@@ -865,10 +865,15 @@
     const k = 2 / (period + 1);
     const result = new Array(values.length);
     let prev = Number(values[0]);
+    let allFinite = Number.isFinite(prev);
     result[0] = Number(prev.toFixed(4));
     for (let i = 1; i < values.length; i++) {
       prev = Number(values[i]) * k + prev * (1 - k);
+      if (!Number.isFinite(prev)) allFinite = false;
       result[i] = Number(prev.toFixed(4));
+    }
+    if (allFinite) {
+      Object.defineProperty(result, '_isDenseNumeric', { value: true, enumerable: false });
     }
     return result;
   }
@@ -887,8 +892,12 @@
    *
    * Se qualquer condição falhar, bloqueia o sinal de compra e retorna motivo explícito para auditoria.
    */
-  function validateDailyEmaAlignment(candles, ema10Values = [], ema72Values = []) {
-    if (!Array.isArray(candles) || candles.length < 2) {
+  function validateDailyEmaAlignment(candles, ema10Values = [], ema72Values = [], endIndex = null) {
+    const len = (endIndex !== null && Number.isInteger(endIndex) && Array.isArray(candles))
+      ? Math.min(endIndex + 1, candles.length)
+      : (Array.isArray(candles) ? candles.length : 0);
+
+    if (!Array.isArray(candles) || len < 2) {
       const msg = 'Rejeitado: Histórico diário insuficiente para validar alinhamento das EMAs 10 e 72';
       return {
         isValid: false,
@@ -907,65 +916,89 @@
       };
     }
 
-    const len = candles.length;
     const lastCandle = candles[len - 1];
     const latestClose = Number(lastCandle.close);
     const signalDate = lastCandle.time || lastCandle.date || null;
-    const closes = candles.map(c => Number(c.close));
 
-    let e10Series = [];
-    if (Array.isArray(ema10Values) && ema10Values.some(v => v != null && Number.isFinite(Number(v)))) {
-      e10Series = ema10Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
-    } else if (candles.some(c => c && (c.ema10 != null || c.ema9 != null))) {
-      e10Series = candles
-        .map(c => (c.ema10 != null ? Number(c.ema10) : (c.ema9 != null ? Number(c.ema9) : null)))
-        .filter(v => v != null && Number.isFinite(v));
+    let e10_0;
+    let e10_1;
+    let e72_0;
+    let e72_1;
+
+    const fastEma10 = (Array.isArray(ema10Values) && ema10Values._isDenseNumeric && ema10Values.length >= len)
+      ? ema10Values
+      : ((!Array.isArray(ema10Values) || ema10Values.length === 0) && candles._precomputedEma10 && candles._precomputedEma10._isDenseNumeric && candles._precomputedEma10.length >= len
+        ? candles._precomputedEma10
+        : null);
+    const fastEma72 = (Array.isArray(ema72Values) && ema72Values._isDenseNumeric && ema72Values.length >= len)
+      ? ema72Values
+      : ((!Array.isArray(ema72Values) || ema72Values.length === 0) && candles._precomputedEma72 && candles._precomputedEma72._isDenseNumeric && candles._precomputedEma72.length >= len
+        ? candles._precomputedEma72
+        : null);
+
+    if (fastEma10 && fastEma72) {
+      e10_0 = fastEma10[len - 1];
+      e10_1 = fastEma10[len - 2];
+      e72_0 = fastEma72[len - 1];
+      e72_1 = fastEma72[len - 2];
     } else {
-      e10Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_FAST);
-    }
+      const sliceCandles = len === candles.length ? candles : candles.slice(0, len);
+      const closes = sliceCandles.map(c => Number(c.close));
 
-    let e72Series = [];
-    if (Array.isArray(ema72Values) && ema72Values.some(v => v != null && Number.isFinite(Number(v)))) {
-      e72Series = ema72Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
-    } else if (candles.some(c => c && (c.ema72 != null || c.ema30 != null))) {
-      e72Series = candles
-        .map(c => (c.ema72 != null ? Number(c.ema72) : (c.ema30 != null ? Number(c.ema30) : null)))
-        .filter(v => v != null && Number.isFinite(v));
-    } else {
-      e72Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_SLOW);
-    }
+      let e10Series = [];
+      if (Array.isArray(ema10Values) && ema10Values.some(v => v != null && Number.isFinite(Number(v)))) {
+        e10Series = ema10Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+      } else if (sliceCandles.some(c => c && (c.ema10 != null || c.ema9 != null))) {
+        e10Series = sliceCandles
+          .map(c => (c.ema10 != null ? Number(c.ema10) : (c.ema9 != null ? Number(c.ema9) : null)))
+          .filter(v => v != null && Number.isFinite(v));
+      } else {
+        e10Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_FAST);
+      }
 
-    if (e10Series.length < 2) {
-      e10Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_FAST);
-    }
-    if (e72Series.length < 2) {
-      e72Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_SLOW);
-    }
+      let e72Series = [];
+      if (Array.isArray(ema72Values) && ema72Values.some(v => v != null && Number.isFinite(Number(v)))) {
+        e72Series = ema72Values.slice(0, len).filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+      } else if (sliceCandles.some(c => c && (c.ema72 != null || c.ema30 != null))) {
+        e72Series = sliceCandles
+          .map(c => (c.ema72 != null ? Number(c.ema72) : (c.ema30 != null ? Number(c.ema30) : null)))
+          .filter(v => v != null && Number.isFinite(v));
+      } else {
+        e72Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_SLOW);
+      }
 
-    if (e10Series.length < 2 || e72Series.length < 2) {
-      const msg = 'Rejeitado: Série de EMAs insuficiente para confirmar inclinação no Diário';
-      return {
-        isValid: false,
-        reason: msg,
-        reasons: [msg],
-        timeframe: '1D',
-        checks: {
-          priceAboveEma10: false,
-          priceAboveEma72: false,
-          ema10AboveEma72: false,
-          ema10Ascending: false,
-          ema72Ascending: false,
-          bothAscending: false
-        },
-        values: null
-      };
+      if (e10Series.length < 2) {
+        e10Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_FAST);
+      }
+      if (e72Series.length < 2) {
+        e72Series = calculateCausalEmaSeries(closes, OFFICIAL_EMA_SLOW);
+      }
+
+      if (e10Series.length < 2 || e72Series.length < 2) {
+        const msg = 'Rejeitado: Série de EMAs insuficiente para confirmar inclinação no Diário';
+        return {
+          isValid: false,
+          reason: msg,
+          reasons: [msg],
+          timeframe: '1D',
+          checks: {
+            priceAboveEma10: false,
+            priceAboveEma72: false,
+            ema10AboveEma72: false,
+            ema10Ascending: false,
+            ema72Ascending: false,
+            bothAscending: false
+          },
+          values: null
+        };
+      }
+
+      e10_0 = e10Series[e10Series.length - 1];
+      e10_1 = e10Series[e10Series.length - 2];
+
+      e72_0 = e72Series[e72Series.length - 1];
+      e72_1 = e72Series[e72Series.length - 2];
     }
-
-    const e10_0 = e10Series[e10Series.length - 1];
-    const e10_1 = e10Series[e10Series.length - 2];
-
-    const e72_0 = e72Series[e72Series.length - 1];
-    const e72_1 = e72Series[e72Series.length - 2];
 
     const priceAboveEma10 = Number.isFinite(latestClose) && latestClose >= e10_0;
     const priceAboveEma72 = Number.isFinite(latestClose) && latestClose >= e72_0;
