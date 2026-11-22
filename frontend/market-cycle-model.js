@@ -81,8 +81,11 @@
     if (cls === 'bdr' || cls === 'bdrs' || (!cls && isBdrSymbol(sym))) {
       return { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', assetClass: 'bdr' };
     }
-    if (cls === 'nasdaq' || cls === 'us' || (!cls && isNasdaqSymbol(sym))) {
+    if (cls === 'nasdaq' || sym === 'QQQ' || sym === 'NDX' || (!cls && isNasdaqSymbol(sym))) {
       return { symbol: 'QQQ', name: 'Invesco QQQ Trust (QQQ)', assetClass: 'nasdaq' };
+    }
+    if (cls === 'sp500' || cls === 'us' || sym === 'SPY' || sym === 'SPX' || sym === 'SP500' || sym === 'IVVB11') {
+      return { symbol: 'SPY', name: 'S&P 500 (SPY)', assetClass: 'sp500' };
     }
     return { symbol: 'IBOV', name: 'Índice Bovespa (IBOV)', assetClass: 'stock' };
   }
@@ -293,8 +296,8 @@
       name: 'Tendência de alta com baixa volatilidade',
       direction: 'UP',
       volatility: 'QUIET',
-      color: '#16a879',
-      hex: '#16a879',
+      color: '#10b981',
+      hex: '#10b981',
       badgeClass: 'regime-up-quiet',
       description: 'Tendência de alta com baixa volatilidade',
       summary: 'Ambiente ideal para operações direcionais de tendência com menor ruído e paradas estáveis.'
@@ -332,8 +335,8 @@
       name: 'Lateral + alta volatilidade',
       direction: 'SIDEWAYS',
       volatility: 'VOLATILE',
-      color: '#b45309',
-      hex: '#b45309',
+      color: '#f97316',
+      hex: '#f97316',
       badgeClass: 'regime-sideways-volatile',
       description: 'Lateral + alta volatilidade',
       summary: 'Mercado errático e turbulento sem tendência; alto risco de violinadas e ruído operacional.'
@@ -345,8 +348,8 @@
       name: 'Baixa + baixa volatilidade',
       direction: 'DOWN',
       volatility: 'QUIET',
-      color: '#64748b',
-      hex: '#64748b',
+      color: '#6b7280',
+      hex: '#6b7280',
       badgeClass: 'regime-down-quiet',
       description: 'Baixa + baixa volatilidade',
       summary: 'Tendência de baixa ordenada e contínua; preservação mandatória de capital em compras.'
@@ -358,8 +361,8 @@
       name: 'Baixa + alta volatilidade',
       direction: 'DOWN',
       volatility: 'VOLATILE',
-      color: '#dc4545',
-      hex: '#dc4545',
+      color: '#ef4444',
+      hex: '#ef4444',
       badgeClass: 'regime-down-volatile',
       description: 'Baixa + alta volatilidade',
       summary: 'Pânico ou forte correção com amplitude desmedida; capital deve permanecer 100% protegido.'
@@ -735,6 +738,75 @@
     };
   }
 
+  /**
+   * Pré-calcula as leituras causais do Ciclo de Mercado para toda a série histórica em O(N)
+   * (com fallback exato para o aquecimento de 30 a 71 candles), garantindo 100% de equivalência
+   * matemática com chamadas repetidas a scoreMarketCycleFromCandles(candles.slice(0, i + 1)).
+   */
+  function buildMarketCycleReadingsSeries(candles) {
+    if (!Array.isArray(candles) || candles.length < 30) return [];
+    const len = candles.length;
+    const readings = new Array(len).fill(null);
+
+    const closes = new Array(len);
+    let allValidCloses = true;
+    for (let i = 0; i < len; i++) {
+      const c = candles[i];
+      const val = Number(c && (c.adjustedClose != null ? c.adjustedClose : c.close));
+      closes[i] = val;
+      if (!Number.isFinite(val)) allValidCloses = false;
+    }
+
+    if (!allValidCloses) {
+      for (let i = 29; i < len; i++) {
+        readings[i] = scoreMarketCycleFromCandles(candles.slice(0, i + 1));
+      }
+      return readings;
+    }
+
+    const warmupLimit = Math.min(len, OFFICIAL_EMA_SLOW - 1);
+    for (let i = 29; i < warmupLimit; i++) {
+      readings[i] = scoreMarketCycleFromCandles(candles.slice(0, i + 1));
+    }
+
+    if (len >= OFFICIAL_EMA_SLOW) {
+      const ema10Arr = calculateEmaSeries(closes, OFFICIAL_EMA_FAST);
+      const ema72Arr = calculateEmaSeries(closes, OFFICIAL_EMA_SLOW);
+      for (let i = OFFICIAL_EMA_SLOW - 1; i < len; i++) {
+        const price = closes[i];
+        const ema10 = ema10Arr[i];
+        const ema72 = ema72Arr[i];
+        if (!Number.isFinite(ema10) || !Number.isFinite(ema72) || !Number.isFinite(price)) {
+          readings[i] = null;
+          continue;
+        }
+        const prevEma10 = i > 0 ? ema10Arr[i - 1] : ema10;
+        const prevEma72 = i > 0 ? ema72Arr[i - 1] : ema72;
+        const ema10Slope = ema10 - prevEma10;
+        const ema72Slope = ema72 - prevEma72;
+        const above10 = price > ema10;
+        const above72 = price > ema72;
+        const structure = ema10 > ema72;
+        const isExpansion = above10 && above72;
+        const state = isExpansion ? 'healthy' : 'defensive';
+        readings[i] = {
+          state,
+          price,
+          ema10,
+          ema72,
+          above10,
+          above72,
+          structure,
+          ema10Slope,
+          ema72Slope,
+          isFavorable: isExpansion
+        };
+      }
+    }
+
+    return readings;
+  }
+
   return {
     REGIMES,
     REGIME_METADATA,
@@ -756,6 +828,7 @@
     getBenchmarkForAsset,
     calculateEmaSeries,
     scoreMarketCycleFromCandles,
+    buildMarketCycleReadingsSeries,
     validateMarketPermissionForBuy
   };
 });

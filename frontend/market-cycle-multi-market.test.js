@@ -156,6 +156,18 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
         json: async () => mockFetchHistory('IFIX', 3421.50, 48, 'defensive', false)
       };
     }
+    if (market === 'sp500') {
+      return {
+        ok: true,
+        json: async () => mockFetchHistory('SP500', 5864.67, 88, 'healthy', true)
+      };
+    }
+    if (market === 'nasdaq') {
+      return {
+        ok: true,
+        json: async () => mockFetchHistory('NASDAQ', 20625.30, 91, 'healthy', true)
+      };
+    }
     return {
       ok: true,
       json: async () => mockFetchHistory('IBOV', 183965.91, 73, 'healthy', false)
@@ -176,6 +188,11 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.equal(env.mockWindow.MARKET_REGISTRY.stock_b3.benchmarkSymbol, 'IBOV');
   assert.equal(env.mockWindow.MARKET_REGISTRY.bdr.benchmarkSymbol, 'BDRX');
   assert.equal(env.mockWindow.MARKET_REGISTRY.fii.benchmarkSymbol, 'IFIX');
+  assert.equal(env.mockWindow.MARKET_REGISTRY.sp500.benchmarkSymbol, 'SP500');
+  assert.equal(env.mockWindow.MARKET_REGISTRY.nasdaq.benchmarkSymbol, 'NASDAQ');
+  assert.ok(env.rootElement.innerHTML.includes('mre-benchmark-center-panel'), 'Seletor centralizado de benchmarks deve ser renderizado');
+  assert.ok(env.rootElement.innerHTML.includes('data-benchmark-pill="SP500"'), 'Pill de S&P 500 presente');
+  assert.ok(env.rootElement.innerHTML.includes('data-benchmark-pill="NASDAQ"'), 'Pill de Nasdaq presente');
 
   // 2. Estado padrão: Ações B3 (IBOV)
   assert.ok(env.rootElement.innerHTML.includes('IBOV (Brasil)') || env.rootElement.innerHTML.includes('IBOV'), 'Deve renderizar IBOV');
@@ -224,6 +241,24 @@ test('Ciclo de Mercado Multi-Mercado registra IBOV e BDRX e isola estados e snap
   assert.equal(savedSnapshots3.fii.benchmarkSymbol, 'IFIX');
   assert.equal(savedSnapshots3.fii.score, 48);
   assert.equal(savedSnapshots3.fii.classification, 'defensive');
+
+  // 4b. Alternar para S&P 500 (EUA)
+  await env.mockWindow.loadMarketCycleV2('sp500');
+  assert.ok(env.rootElement.innerHTML.includes('S&P 500') || env.rootElement.innerHTML.includes('SP500'), 'Deve renderizar título de S&P 500');
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="healthy"'), 'S&P 500 com estado saudável');
+  const savedSnapshots4 = JSON.parse(env.storage.get('healthy-trend-market-cycle-snapshots-v1') || '{}');
+  assert.ok(savedSnapshots4.sp500, 'Snapshot de sp500 criado');
+  assert.equal(savedSnapshots4.sp500.benchmarkSymbol, 'SP500');
+  assert.equal(savedSnapshots4.sp500.score, 88);
+
+  // 4c. Alternar para Nasdaq (EUA)
+  await env.mockWindow.loadMarketCycleV2('nasdaq');
+  assert.ok(env.rootElement.innerHTML.includes('Nasdaq') || env.rootElement.innerHTML.includes('NASDAQ'), 'Deve renderizar título de Nasdaq');
+  assert.ok(env.rootElement.innerHTML.includes('data-market-regime="healthy"'), 'Nasdaq com estado saudável');
+  const savedSnapshots5 = JSON.parse(env.storage.get('healthy-trend-market-cycle-snapshots-v1') || '{}');
+  assert.ok(savedSnapshots5.nasdaq, 'Snapshot de nasdaq criado');
+  assert.equal(savedSnapshots5.nasdaq.benchmarkSymbol, 'NASDAQ');
+  assert.equal(savedSnapshots5.nasdaq.score, 91);
 
   // 5. Alternar de volta para Ações B3
   await env.mockWindow.loadMarketCycleV2('stock_b3');

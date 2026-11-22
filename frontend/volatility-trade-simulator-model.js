@@ -353,36 +353,43 @@
     const requestedPeriod = options.period || '120';
     const startDate = options.startDate ? toIsoDate(options.startDate) : null;
     const endDate = options.endDate ? toIsoDate(options.endDate) : null;
+    const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null;
+    const perfStart = typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now();
 
     // Prepara séries pré-calculadas com indicadores para cada ativo elegível
     const precomputed = new Map();
     let minDatasetDate = null;
     let maxDatasetDate = null;
+    let skippedAssetsCount = 0;
 
     for (const sym of symbols) {
-      const symKey = String(sym).toUpperCase().trim();
-      const rawCandles = rawMap.get(symKey);
-      if (!Array.isArray(rawCandles) || rawCandles.length < longMaPeriod) continue;
+      try {
+        const symKey = String(sym).toUpperCase().trim();
+        const rawCandles = rawMap.get(symKey);
+        if (!Array.isArray(rawCandles) || rawCandles.length < longMaPeriod) continue;
 
-      const series = VolatilityTradingEngineModel.computeIndicators(rawCandles, {
-        shortMaPeriod,
-        longMaPeriod,
-        rsiPeriod,
-        rsiMethod: options.rsiMethod || 'WILDER'
-      });
+        const series = VolatilityTradingEngineModel.computeIndicators(rawCandles, {
+          shortMaPeriod,
+          longMaPeriod,
+          rsiPeriod,
+          rsiMethod: options.rsiMethod || 'WILDER'
+        });
 
-      if (series.length < longMaPeriod) continue;
+        if (series.length < longMaPeriod) continue;
 
-      precomputed.set(symKey, {
-        symbol: symKey,
-        meta: metadataMap[symKey] || {},
-        series
-      });
+        precomputed.set(symKey, {
+          symbol: symKey,
+          meta: metadataMap[symKey] || {},
+          series
+        });
 
-      const firstDate = series[0]?.time;
-      const lastDate = series[series.length - 1]?.time;
-      if (firstDate && (!minDatasetDate || firstDate < minDatasetDate)) minDatasetDate = firstDate;
-      if (lastDate && (!maxDatasetDate || lastDate > maxDatasetDate)) maxDatasetDate = lastDate;
+        const firstDate = series[0]?.time;
+        const lastDate = series[series.length - 1]?.time;
+        if (firstDate && (!minDatasetDate || firstDate < minDatasetDate)) minDatasetDate = firstDate;
+        if (lastDate && (!maxDatasetDate || lastDate > maxDatasetDate)) maxDatasetDate = lastDate;
+      } catch {
+        skippedAssetsCount++;
+      }
     }
 
     // Coleta todas as datas de negociação ordenadas globalmente
@@ -448,12 +455,16 @@
       }
     ];
 
-    // Mapa auxiliar: { symbol -> { date -> index } } para busca ultra-rápida
+    // Mapa auxiliar: { symbol -> { date -> index } } para busca ultra-rápida (reutiliza índice pré-calculado na série)
     const indexByDateMap = new Map();
     for (const [sym, item] of precomputed) {
-      const dateMap = new Map();
-      for (let idx = 0; idx < item.series.length; idx++) {
-        dateMap.set(item.series[idx].time, idx);
+      let dateMap = item.series._dateIndexMap;
+      if (!dateMap) {
+        dateMap = new Map();
+        for (let idx = 0; idx < item.series.length; idx++) {
+          dateMap.set(item.series[idx].time, idx);
+        }
+        Object.defineProperty(item.series, '_dateIndexMap', { value: dateMap, enumerable: false });
       }
       indexByDateMap.set(sym, dateMap);
     }
@@ -576,9 +587,27 @@
       });
     }
 
+    const totalSessionsToScan = allTradingDates.length;
+
     // Execução dia a dia ao longo das datas de negociação
-    for (let dayIdx = 0; dayIdx < allTradingDates.length; dayIdx++) {
+    for (let dayIdx = 0; dayIdx < totalSessionsToScan; dayIdx++) {
       const currentDate = allTradingDates[dayIdx];
+      if (onProgress && (dayIdx === 0 || dayIdx === totalSessionsToScan - 1 || dayIdx % 50 === 0)) {
+        try {
+          const nowMs = typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now();
+          onProgress({
+            phase: 'SIMULATE_TRADES',
+            sessionsProcessed: dayIdx + 1,
+            totalSessions: totalSessionsToScan,
+            assetsCount: precomputed.size,
+            executedCount: closedTrades.length + openPositionsBySymbol.size,
+            elapsedMs: round2(nowMs - perfStart),
+            progressPct: totalSessionsToScan > 0 ? Math.round(((dayIdx + 1) / totalSessionsToScan) * 100) : 100
+          });
+        } catch {
+          // Não interrompe simulação caso callback de progresso falhe
+        }
+      }
       const extremeEventForToday = preEventMap.get(currentDate) || null;
 
       // 1. Processa saídas de posições em aberto no pregão atual
@@ -718,6 +747,20 @@
           const dateMap = indexByDateMap.get(sym);
           const barIdx = dateMap.get(currentDate);
           if (barIdx === undefined || barIdx < longMaPeriod - 1) continue;
+
+          // Pré-filtro O(1) sobre indicadores já calculados da barra (evita chamar evaluateLiquidity nas 99% barras sem sinal)
+          const sigBar = assetInfo.series[barIdx];
+          if (
+            !sigBar ||
+            sigBar.smaLong === null ||
+            sigBar.smaShort === null ||
+            sigBar.ifr === null ||
+            !(sigBar.close > sigBar.smaLong) ||
+            !(sigBar.close < sigBar.smaShort) ||
+            !(sigBar.ifr <= oversoldLevel)
+          ) {
+            continue;
+          }
 
           const evalResult = VolatilityTradingEngineModel.evaluateSignal(assetInfo.series, barIdx, {
             shortMaPeriod,
@@ -1273,6 +1316,8 @@
       ? StrategyConfigurationModel.computeParametersHash(configSnapshot)
       : null;
 
+    const totalElapsedMs = round2((typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now()) - perfStart);
+
     return {
       strategyType: STRATEGY_TYPE,
       simulatorVersion: SIMULATOR_VERSION,
@@ -1281,6 +1326,9 @@
         experimentName: options.name || `IFR(2) ≤ ${oversoldLevel} (${universeName})`,
         universe: universeName,
         market,
+        assetsProcessedCount: precomputed.size,
+        skippedAssetsCount,
+        elapsedMs: totalElapsedMs,
         period: {
           label: requestedPeriod,
           startDate: effectiveStartDate,

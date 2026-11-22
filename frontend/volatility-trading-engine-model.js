@@ -283,18 +283,32 @@
     return result;
   }
 
+  const indicatorSeriesWeakCache = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
+
   /**
    * Constrói a série cronológica enriquecida com todos os indicadores do motor.
    * Calcula também indicadores causais opcionais de Força Relativa (RS) para experimentos (Seção 4.9),
    * utilizando exclusivamente barras fechadas até o índice i (zero look-ahead bias).
    */
   function computeIndicators(rawCandles, options = {}) {
-    const candles = normalizeCandles(rawCandles);
     const shortMaPeriod = Number(options.shortMaPeriod || DEFAULT_PARAMETERS.shortMaPeriod);
     const longMaPeriod = Number(options.longMaPeriod || DEFAULT_PARAMETERS.longMaPeriod);
     const rsiPeriod = Number(options.rsiPeriod || DEFAULT_PARAMETERS.rsiPeriod);
     const rsiMethod = options.rsiMethod || DEFAULT_PARAMETERS.rsiMethod;
 
+    let cacheByParams = null;
+    let cacheKey = null;
+    if (indicatorSeriesWeakCache && Array.isArray(rawCandles) && rawCandles.length > 0) {
+      const firstC = rawCandles[0];
+      const lastC = rawCandles[rawCandles.length - 1];
+      cacheKey = `${shortMaPeriod}:${longMaPeriod}:${rsiPeriod}:${rsiMethod}:${rawCandles.length}:${firstC?.time || firstC?.date || ''}:${lastC?.time || lastC?.date || ''}:${lastC?.close || ''}`;
+      cacheByParams = indicatorSeriesWeakCache.get(rawCandles);
+      if (cacheByParams && cacheByParams.has(cacheKey)) {
+        return cacheByParams.get(cacheKey);
+      }
+    }
+
+    const candles = normalizeCandles(rawCandles);
     const closes = candles.map(c => c.close);
     const smaShortArr = calculateSMA(closes, shortMaPeriod);
     const smaLongArr = calculateSMA(closes, longMaPeriod);
@@ -315,7 +329,7 @@
       rsScoreArr[i] = Math.max(1, Math.min(99, rawRs));
     }
 
-    return candles.map((c, i) => {
+    const enriched = candles.map((c, i) => {
       const rsNow = rsScoreArr[i];
       const rsPrev5 = i >= 5 ? rsScoreArr[i - 5] : rsNow;
       const idx63 = Math.max(0, i - 63);
@@ -334,6 +348,18 @@
         rsRising
       };
     });
+
+    Object.defineProperty(enriched, '_isChronological', { value: true, enumerable: false });
+
+    if (indicatorSeriesWeakCache && Array.isArray(rawCandles) && rawCandles.length > 0 && cacheKey) {
+      if (!cacheByParams) {
+        cacheByParams = new Map();
+        indicatorSeriesWeakCache.set(rawCandles, cacheByParams);
+      }
+      cacheByParams.set(cacheKey, enriched);
+    }
+
+    return enriched;
   }
 
   /**
@@ -446,7 +472,7 @@
     let liquidityResult = null;
     if (options.checkLiquidity !== false && LiquidityGateModel && typeof LiquidityGateModel.evaluateLiquidity === 'function') {
       // Regra anti look-ahead: envia candles estritamente até o sinal idx
-      const subCandles = series.slice(0, idx + 1);
+      const subCandles = series._isChronological ? series : series.slice(0, idx + 1);
       const symbol = options.symbol || 'ATIVO';
       const market = options.market || 'B3';
 
@@ -467,6 +493,7 @@
       liquidityResult = LiquidityGateModel.evaluateLiquidity({
         candles: subCandles,
         targetDate: bar.time,
+        targetIndex: series._isChronological ? idx : undefined,
         symbol,
         market,
         policy

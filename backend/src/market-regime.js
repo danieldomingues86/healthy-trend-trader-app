@@ -40,8 +40,8 @@ const REGIME_METADATA = {
     name: 'Tendência de alta com baixa volatilidade',
     direction: 'UP',
     volatility: 'QUIET',
-    color: '#16a879',
-    hex: '#16a879',
+    color: '#10b981',
+    hex: '#10b981',
     badgeClass: 'regime-up-quiet',
     description: 'Tendência de alta com baixa volatilidade',
     summary: 'Ambiente ideal para operações direcionais de tendência com menor ruído e paradas estáveis.'
@@ -79,8 +79,8 @@ const REGIME_METADATA = {
     name: 'Lateral + alta volatilidade',
     direction: 'SIDEWAYS',
     volatility: 'VOLATILE',
-    color: '#b45309',
-    hex: '#b45309',
+    color: '#f97316',
+    hex: '#f97316',
     badgeClass: 'regime-sideways-volatile',
     description: 'Lateral + alta volatilidade',
     summary: 'Mercado errático e turbulento sem tendência; alto risco de violinadas e ruído operacional.'
@@ -92,8 +92,8 @@ const REGIME_METADATA = {
     name: 'Baixa + baixa volatilidade',
     direction: 'DOWN',
     volatility: 'QUIET',
-    color: '#64748b',
-    hex: '#64748b',
+    color: '#6b7280',
+    hex: '#6b7280',
     badgeClass: 'regime-down-quiet',
     description: 'Baixa + baixa volatilidade',
     summary: 'Tendência de baixa ordenada e contínua; preservação mandatória de capital em compras.'
@@ -105,8 +105,8 @@ const REGIME_METADATA = {
     name: 'Baixa + alta volatilidade',
     direction: 'DOWN',
     volatility: 'VOLATILE',
-    color: '#dc4545',
-    hex: '#dc4545',
+    color: '#ef4444',
+    hex: '#ef4444',
     badgeClass: 'regime-down-volatile',
     description: 'Baixa + alta volatilidade',
     summary: 'Pânico ou forte correção com amplitude desmedida; capital deve permanecer 100% protegido.'
@@ -116,10 +116,13 @@ const REGIME_METADATA = {
 const DEFAULT_BENCHMARKS = [
   { id: 'IBOV', name: 'Índice Bovespa (IBOV)', symbol: '^BVSP', market: 'BR', provider: 'b3', is_default: true, active: true },
   { id: 'IFIX', name: 'Índice de FIIs (IFIX)', symbol: 'IFIX', market: 'BR', provider: 'b3', is_default: false, active: true },
-  { id: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', symbol: 'BDRX', market: 'BR', provider: 'b3', is_default: false, active: true }
+  { id: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', symbol: 'BDRX', market: 'BR', provider: 'b3', is_default: false, active: true },
+  { id: 'SP500', name: 'S&P 500 (SPY)', symbol: 'SPY', market: 'US', provider: 'twelve_data', is_default: false, active: true },
+  { id: 'NASDAQ', name: 'Nasdaq-100 (QQQ)', symbol: 'QQQ', market: 'US', provider: 'twelve_data', is_default: false, active: true }
 ];
 
 const CACHE_FILE_PATH = path.join(__dirname, '..', 'data', 'market-regimes-cache.json');
+const US_BENCHMARKS_CACHE_PATH = path.join(__dirname, '..', 'data', 'us-benchmarks-cache.json');
 const B3_INDEX_HISTORY_CACHE = process.env.B3_INDEX_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-index-history-cache');
 
 function formatDateIso(value) {
@@ -631,7 +634,10 @@ function resolveBenchmarkForAsset(symbol, assetClass = null, market = 'BR') {
   if (cls === 'bdr' || cls === 'bdrs' || /(31|32|33|34|35|39)$/.test(sym)) {
     return 'BDRX';
   }
-  if (mkt === 'US' || mkt === 'NASDAQ' || cls === 'nasdaq' || cls === 'us') {
+  if (mkt === 'NASDAQ' || cls === 'nasdaq' || sym === 'QQQ' || sym === 'NDX') {
+    return 'NASDAQ';
+  }
+  if (mkt === 'US' || cls === 'us' || sym === 'SPY' || sym === 'SPX' || sym === 'SP500') {
     return 'SP500';
   }
   return 'IBOV';
@@ -662,26 +668,77 @@ async function writeDiskCache(cache) {
 }
 
 /**
+ * Carrega histórico diário de benchmark americano (SP500 / NASDAQ) com fallback determinístico de disco.
+ */
+async function loadUsBenchmarkCandles(benchmarkId) {
+  const norm = String(benchmarkId || '').toUpperCase();
+  const isSp500 = norm === 'SP500' || norm === 'SPX' || norm === 'SPY';
+  const targetKey = isSp500 ? 'SP500' : 'NASDAQ';
+  const targetSymbol = isSp500 ? 'SPY' : 'QQQ';
+  let candles = [];
+
+  // 1. Tentar ler do cache em disco dedicado
+  try {
+    const raw = await fs.readFile(US_BENCHMARKS_CACHE_PATH, 'utf8');
+    const parsed = JSON.parse(raw);
+    const entry = parsed?.benchmarks?.[targetKey] || parsed?.benchmarks?.[targetSymbol];
+    if (Array.isArray(entry?.candles) && entry.candles.length >= 30) {
+      candles = entry.candles;
+    }
+  } catch (_) {}
+
+  // 2. Se vazio e tiver TwelveData configurada, tenta buscar
+  if (!candles.length && process.env.TWELVE_DATA_API_KEY) {
+    try {
+      const { TwelveDataMarketDataProvider } = require('./twelve-data-provider');
+      const provider = new TwelveDataMarketDataProvider();
+      candles = await provider.getHistoricalDailyPrices(targetSymbol, { outputsize: 300 });
+    } catch (err) {
+      console.warn(`[market-regime] Falha Twelve Data para ${targetSymbol}:`, err.message);
+    }
+  }
+
+  return candles.map(c => ({
+    date: formatDateIso(c.date || c.datetime),
+    open: Number(c.open) || Number(c.close),
+    high: Number(c.high) || Number(c.close),
+    low: Number(c.low) || Number(c.close),
+    close: Number(c.close),
+    volume: Number(c.volume) || 0
+  })).filter(c => c.date && Number.isFinite(c.close));
+}
+
+/**
  * Busca histórico de benchmark e sincroniza registros de regimes.
  */
 async function syncBenchmarkRegimes(benchmarkId = 'IBOV') {
-  const years = [new Date().getFullYear() - 2, new Date().getFullYear() - 1, new Date().getFullYear()];
+  const normId = (benchmarkId === 'SPX' || benchmarkId === 'SPY') ? 'SP500' : ((benchmarkId === 'NDX' || benchmarkId === 'QQQ') ? 'NASDAQ' : benchmarkId);
+  const isUs = normId === 'SP500' || normId === 'NASDAQ';
   let candles = [];
 
-  try {
-    candles = await b3IndexHistory.fetchIndexHistory(benchmarkId, {
-      years,
-      cacheDirectory: B3_INDEX_HISTORY_CACHE
-    });
-  } catch (err) {
-    console.warn(`[market-regime] Falha ao carregar histórico B3 para ${benchmarkId}:`, err.message);
+  if (isUs) {
+    try {
+      candles = await loadUsBenchmarkCandles(normId);
+    } catch (err) {
+      console.warn(`[market-regime] Falha ao carregar histórico US para ${normId}:`, err.message);
+    }
+  } else {
+    const years = [new Date().getFullYear() - 2, new Date().getFullYear() - 1, new Date().getFullYear()];
+    try {
+      candles = await b3IndexHistory.fetchIndexHistory(normId, {
+        years,
+        cacheDirectory: B3_INDEX_HISTORY_CACHE
+      });
+    } catch (err) {
+      console.warn(`[market-regime] Falha ao carregar histórico B3 para ${normId}:`, err.message);
+    }
   }
 
   if (!candles || candles.length < 30) {
-    return { benchmarkId, count: 0, regimes: [] };
+    return { benchmarkId: normId, count: 0, regimes: [] };
   }
 
-  const regimes = calculateBenchmarkRegimes(candles, benchmarkId);
+  const regimes = calculateBenchmarkRegimes(candles, normId);
   const periods = derivePeriods(regimes);
   const distribution = calculateDistribution(regimes);
 
@@ -689,18 +746,23 @@ async function syncBenchmarkRegimes(benchmarkId = 'IBOV') {
   if (database.configured() && regimes.length) {
     try {
       await database.transaction(async (client) => {
-        // Garantir benchmark registrado
+        const meta = DEFAULT_BENCHMARKS.find(b => b.id === normId) || {
+          name: normId,
+          symbol: normId,
+          market: isUs ? 'US' : 'BR',
+          provider: isUs ? 'twelve_data' : 'b3'
+        };
         await client.query(
           `INSERT INTO app.market_benchmarks (id, name, symbol, market, provider, is_default, active)
            VALUES ($1, $2, $3, $4, $5, $6, $7)
            ON CONFLICT (id) DO UPDATE SET updated_at = now()`,
           [
-            benchmarkId,
-            DEFAULT_BENCHMARKS.find(b => b.id === benchmarkId)?.name || benchmarkId,
-            DEFAULT_BENCHMARKS.find(b => b.id === benchmarkId)?.symbol || benchmarkId,
-            DEFAULT_BENCHMARKS.find(b => b.id === benchmarkId)?.market || 'BR',
-            'b3',
-            benchmarkId === 'IBOV',
+            normId,
+            meta.name,
+            meta.symbol,
+            meta.market,
+            meta.provider,
+            normId === 'IBOV',
             true
           ]
         );
@@ -740,7 +802,7 @@ async function syncBenchmarkRegimes(benchmarkId = 'IBOV') {
   // Atualizar cache em disco
   const diskCache = await readDiskCache();
   diskCache.benchmarks = diskCache.benchmarks || {};
-  diskCache.benchmarks[benchmarkId] = {
+  diskCache.benchmarks[normId] = {
     updatedAt: new Date().toISOString(),
     current: regimes.at(-1) || null,
     regimes: regimes.slice(-260), // últimos 260 pregões (1 ano)
@@ -750,7 +812,7 @@ async function syncBenchmarkRegimes(benchmarkId = 'IBOV') {
   await writeDiskCache(diskCache);
 
   return {
-    benchmarkId,
+    benchmarkId: normId,
     count: regimes.length,
     current: regimes.at(-1) || null,
     regimes,
@@ -763,11 +825,12 @@ async function syncBenchmarkRegimes(benchmarkId = 'IBOV') {
  * Obtém o regime atual para um benchmark.
  */
 async function getCurrentRegime(benchmarkId = 'IBOV') {
+  const normId = (benchmarkId === 'SPX' || benchmarkId === 'SPY') ? 'SP500' : ((benchmarkId === 'NDX' || benchmarkId === 'QQQ') ? 'NASDAQ' : (benchmarkId || 'IBOV'));
   const diskCache = await readDiskCache();
-  if (diskCache.benchmarks?.[benchmarkId]?.current) {
-    return diskCache.benchmarks[benchmarkId].current;
+  if (diskCache.benchmarks?.[normId]?.current) {
+    return diskCache.benchmarks[normId].current;
   }
-  const syncResult = await syncBenchmarkRegimes(benchmarkId);
+  const syncResult = await syncBenchmarkRegimes(normId);
   return syncResult.current;
 }
 
@@ -775,11 +838,12 @@ async function getCurrentRegime(benchmarkId = 'IBOV') {
  * Obtém o histórico completo de regimes e períodos de um benchmark.
  */
 async function getRegimeHistory(benchmarkId = 'IBOV', options = {}) {
+  const normId = (benchmarkId === 'SPX' || benchmarkId === 'SPY') ? 'SP500' : ((benchmarkId === 'NDX' || benchmarkId === 'QQQ') ? 'NASDAQ' : (benchmarkId || 'IBOV'));
   const diskCache = await readDiskCache();
-  let cached = diskCache.benchmarks?.[benchmarkId];
+  let cached = diskCache.benchmarks?.[normId];
 
   if (!cached || !cached.regimes?.length) {
-    const syncResult = await syncBenchmarkRegimes(benchmarkId);
+    const syncResult = await syncBenchmarkRegimes(normId);
     cached = {
       current: syncResult.current,
       regimes: syncResult.regimes,
@@ -797,7 +861,7 @@ async function getRegimeHistory(benchmarkId = 'IBOV', options = {}) {
   }
 
   return {
-    benchmarkId,
+    benchmarkId: normId,
     current: cached.current,
     regimes,
     periods: cached.periods || [],

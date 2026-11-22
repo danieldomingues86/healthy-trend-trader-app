@@ -72,17 +72,23 @@ function getPrecomputedBenchmarkCycleMap() {
           close: Number(c.close),
           volume: Number(c.volume || 0)
         }));
+        const etfReadings = typeof MarketCycleModel.buildMarketCycleReadingsSeries === 'function'
+          ? MarketCycleModel.buildMarketCycleReadingsSeries(normalizedEtf)
+          : null;
         for (let i = 29; i < normalizedEtf.length; i++) {
           const d = normalizedEtf[i].date;
           if (d && !seenDates.has(d)) {
-            const reading = MarketCycleModel.scoreMarketCycleFromCandles(normalizedEtf.slice(0, i + 1));
+            const reading = etfReadings ? etfReadings[i] : MarketCycleModel.scoreMarketCycleFromCandles(normalizedEtf.slice(0, i + 1));
             const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: bSym });
             map.set(`${bSym}:${d}`, perm);
           }
         }
       }
+      const seriesReadings = typeof MarketCycleModel.buildMarketCycleReadingsSeries === 'function'
+        ? MarketCycleModel.buildMarketCycleReadingsSeries(series)
+        : null;
       for (let i = 29; i < series.length; i++) {
-        const reading = MarketCycleModel.scoreMarketCycleFromCandles(series.slice(0, i + 1));
+        const reading = seriesReadings ? seriesReadings[i] : MarketCycleModel.scoreMarketCycleFromCandles(series.slice(0, i + 1));
         const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: bSym });
         map.set(`${bSym}:${series[i].date}`, perm);
       }
@@ -96,9 +102,12 @@ function getPrecomputedBenchmarkCycleMap() {
       const nasdaq = typeof tickerChart.loadNasdaqHistory === 'function' ? tickerChart.loadNasdaqHistory() : null;
       if (nasdaq && nasdaq.has('QQQ')) {
         const qqq = nasdaq.get('QQQ');
+        const qqqReadings = typeof MarketCycleModel.buildMarketCycleReadingsSeries === 'function'
+          ? MarketCycleModel.buildMarketCycleReadingsSeries(qqq)
+          : null;
         for (let i = 29; i < qqq.length; i++) {
           const d = qqq[i].time || qqq[i].date;
-          const reading = MarketCycleModel.scoreMarketCycleFromCandles(qqq.slice(0, i + 1));
+          const reading = qqqReadings ? qqqReadings[i] : MarketCycleModel.scoreMarketCycleFromCandles(qqq.slice(0, i + 1));
           const perm = MarketCycleModel.validateMarketPermissionForBuy({ ...reading, benchmarkSymbol: 'QQQ' });
           map.set(`QQQ:${d}`, perm);
         }

@@ -47,7 +47,7 @@ test('marketCycleFor retorna dados independentes para stock_b3, bdr e fii sem mi
   assert.equal(stockResult.cycle.state, 'healthy');
   assert.equal(stockResult.cycle.score, 82);
   assert.equal(stockResult.breadth.leader, 15);
-  assert.deepEqual(stockResult.supportedMarkets, ['stock_b3', 'bdr', 'fii']);
+  assert.deepEqual(stockResult.supportedMarkets, ['stock_b3', 'bdr', 'fii', 'sp500', 'nasdaq']);
 
   // bdr
   const bdrResult = marketCycleFor(mockCache, 'bdr');
@@ -127,3 +127,26 @@ test('scoreCycle calcula ciclos de IBOV, BDRX e IFIX de forma independente', asy
   assert.ok(['healthy', 'defensive'].includes(ifixCycle.state), 'Estado do IFIX deve ser válido');
 });
 
+test('resolveMarketCycle carrega histórico do S&P 500 (SP500/SPY) de forma independente', async () => {
+  const cache = {};
+  const sp500Payload = await resolveMarketCycle(cache, 'sp500');
+  assert.equal(sp500Payload.market, 'sp500');
+  assert.equal(sp500Payload.benchmark.symbol, 'SPY');
+  assert.ok(sp500Payload.cycle, 'Ciclo do S&P 500 deve ser calculado');
+  assert.ok(Number.isFinite(sp500Payload.cycle.price), 'Preço do SPY deve ser numérico');
+  assert.ok(Number.isFinite(sp500Payload.cycle.score), 'Score do SPY deve ser numérico');
+  assert.ok(Array.isArray(sp500Payload.benchmark.history), 'Histórico de candles do SPY');
+  assert.ok(sp500Payload.benchmark.history.length > 200, 'Deve ter histórico amplo para o gráfico e regimes');
+});
+
+test('resolveMarketCycle carrega histórico da Nasdaq-100 (NASDAQ/QQQ) de forma independente', async () => {
+  const cache = {};
+  const nasdaqPayload = await resolveMarketCycle(cache, 'nasdaq');
+  assert.equal(nasdaqPayload.market, 'nasdaq');
+  assert.equal(nasdaqPayload.benchmark.symbol, 'QQQ');
+  assert.ok(nasdaqPayload.cycle, 'Ciclo da Nasdaq deve ser calculado');
+  assert.ok(Number.isFinite(nasdaqPayload.cycle.price), 'Preço do QQQ deve ser numérico');
+  assert.ok(Number.isFinite(nasdaqPayload.cycle.score), 'Score do QQQ deve ser numérico');
+  assert.ok(Array.isArray(nasdaqPayload.benchmark.history), 'Histórico de candles do QQQ');
+  assert.ok(nasdaqPayload.benchmark.history.length > 200, 'Deve ter histórico amplo para o gráfico e regimes');
+});

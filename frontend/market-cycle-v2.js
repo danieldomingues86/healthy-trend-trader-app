@@ -4,9 +4,11 @@
   if (!root) return;
 
   const BENCHMARKS = [
-    { id: 'IBOV', name: 'IBOV (Brasil)', symbol: '^BVSP', market: 'BR', flag: '🇧🇷' },
-    { id: 'IFIX', name: 'IFIX (FIIs)', symbol: 'IFIX', market: 'BR', flag: '🏢' },
-    { id: 'BDRX', name: 'BDRX (BDRs)', symbol: 'BDRX', market: 'BR', flag: '🌐' }
+    { id: 'IBOV', name: 'IBOV (Brasil)', symbol: '^BVSP', market: 'BR', flag: '🇧🇷', label: 'IBOV', sub: 'Brasil' },
+    { id: 'IFIX', name: 'IFIX (FIIs)', symbol: 'IFIX', market: 'BR', flag: '🏢', label: 'IFIX', sub: 'FIIs' },
+    { id: 'BDRX', name: 'BDRX (BDRs)', symbol: 'BDRX', market: 'BR', flag: '🌐', label: 'BDRX', sub: 'BDRs' },
+    { id: 'SP500', name: 'S&P 500 (SPY)', symbol: 'SPY', market: 'US', flag: '🇺🇸', label: 'S&P 500', sub: 'EUA' },
+    { id: 'NASDAQ', name: 'Nasdaq-100 (QQQ)', symbol: 'QQQ', market: 'US', flag: '🇺🇸', label: 'Nasdaq', sub: 'EUA' }
   ];
 
   const MARKET_REGISTRY = {
@@ -32,6 +34,22 @@
       benchmarkSymbol: 'IFIX',
       benchmarkName: 'Índice de Fundos de Investimentos Imobiliários (IFIX)',
       badge: 'IFIX',
+      hasBreadth: false
+    },
+    sp500: {
+      id: 'sp500',
+      name: 'S&P 500',
+      benchmarkSymbol: 'SP500',
+      benchmarkName: 'S&P 500 (SPY)',
+      badge: 'SP500',
+      hasBreadth: false
+    },
+    nasdaq: {
+      id: 'nasdaq',
+      name: 'Nasdaq-100',
+      benchmarkSymbol: 'NASDAQ',
+      benchmarkName: 'Nasdaq-100 (QQQ)',
+      badge: 'NASDAQ',
       hasBreadth: false
     }
   };
@@ -102,7 +120,7 @@
       sublabel: 'Alta + baixa volatilidade',
       direction: 'Up',
       volatility: 'Quiet',
-      color: '#16a879',
+      color: '#10b981',
       badgeClass: 'regime-up-quiet',
       icon: 'arrow-up'
     },
@@ -138,7 +156,7 @@
       sublabel: 'Lateral + alta volatilidade',
       direction: 'Sideways',
       volatility: 'Volatile',
-      color: '#b45309',
+      color: '#f97316',
       badgeClass: 'regime-sideways-volatile',
       icon: 'zigzag'
     },
@@ -150,7 +168,7 @@
       sublabel: 'Baixa + baixa volatilidade',
       direction: 'Down',
       volatility: 'Quiet',
-      color: '#64748b',
+      color: '#6b7280',
       badgeClass: 'regime-down-quiet',
       icon: 'arrow-down-right'
     },
@@ -162,7 +180,7 @@
       sublabel: 'Baixa + alta volatilidade',
       direction: 'Down',
       volatility: 'Volatile',
-      color: '#dc4545',
+      color: '#ef4444',
       badgeClass: 'regime-down-volatile',
       icon: 'arrow-down'
     }
@@ -203,30 +221,115 @@
     return `${day}/${month}/${year} (${weekday})`;
   }
 
+  const svgFlags = {
+    br: `<svg class="mre-flag-circle" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <clipPath id="mre-br-clip"><circle cx="16" cy="16" r="16"/></clipPath>
+      <g clip-path="url(#mre-br-clip)">
+        <rect width="32" height="32" fill="#009b3a"/>
+        <polygon points="16,3.5 28.5,16 16,28.5 3.5,16" fill="#fedf00"/>
+        <circle cx="16" cy="16" r="7.5" fill="#002776"/>
+        <path d="M8.8 17.2 C12 14.5 19 14.5 23.2 17.5" stroke="#ffffff" stroke-width="1.3" fill="none"/>
+      </g>
+    </svg>`,
+    us: `<svg class="mre-flag-circle" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+      <clipPath id="mre-us-clip"><circle cx="16" cy="16" r="16"/></clipPath>
+      <g clip-path="url(#mre-us-clip)">
+        <rect width="32" height="32" fill="#bf0a30"/>
+        <rect y="2.46" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="7.38" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="12.31" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="17.23" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="22.15" width="32" height="2.46" fill="#ffffff"/>
+        <rect y="27.08" width="32" height="2.46" fill="#ffffff"/>
+        <rect width="14" height="15" fill="#002868"/>
+        <circle cx="3.5" cy="3.5" r="0.9" fill="#ffffff"/>
+        <circle cx="7" cy="3.5" r="0.9" fill="#ffffff"/>
+        <circle cx="10.5" cy="3.5" r="0.9" fill="#ffffff"/>
+        <circle cx="5.25" cy="7.5" r="0.9" fill="#ffffff"/>
+        <circle cx="8.75" cy="7.5" r="0.9" fill="#ffffff"/>
+        <circle cx="3.5" cy="11.5" r="0.9" fill="#ffffff"/>
+        <circle cx="7" cy="11.5" r="0.9" fill="#ffffff"/>
+        <circle cx="10.5" cy="11.5" r="0.9" fill="#ffffff"/>
+      </g>
+    </svg>`
+  };
+
   const svgIcons = {
-    'chart-title': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a879" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>',
-    'chart-section': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a879" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M17 7h4v4"/></svg>',
-    'stack-section': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a879" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
-    'arrow-up': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M17 17V7H7"/></svg>',
-    'arrow-up-right': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M17 17V7H7"/></svg>',
+    'chart-title': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>',
+    'chart-section': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M17 7h4v4"/></svg>',
+    'target': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+    'waveform': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h3l3-7 4 14 3-7 3 4h4"/></svg>',
+    'layers': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
+    'arrow-up': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M17 17V7H7"/></svg>',
+    'arrow-up-right': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l10-10M17 17V7H7"/></svg>',
     'arrow-left-right': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8L22 12L18 16M6 16L2 12L6 8M2 12H22"/></svg>',
     'zigzag': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M17 7h4v4"/></svg>',
     'arrow-down-right': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10M17 7v10H7"/></svg>',
     'arrow-down': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7l10 10M17 7v10H7"/></svg>',
-    'percent': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a879" stroke-width="2.5"><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M20 4L4 20"/></svg>',
-    'bars': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a879" stroke-width="2.2"><path d="M12 20V10M18 20V4M6 20v-6"/></svg>',
-    'bars-signal': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a879" stroke-width="2.2"><path d="M2 20h20M5 16v4M11 12v8M17 8v12"/></svg>',
-    'delta': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>',
+    'percent': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2"><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/><path d="M20 4L4 20"/></svg>',
+    'bars': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2"><path d="M12 20V10M18 20V4M6 20v-6"/></svg>',
+    'bars-signal': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M2 20h20M5 16v4M11 11v9M17 6v14"/></svg>',
+    'grid-fii': '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>',
+    'delta': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>',
+    'alert-triangle': '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
     'candles': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v3M6 18v3M4 6h4v12H4zM18 6v3M18 15v3M16 9h4v6h-4z"/></svg>',
     'trophy': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M4 22h16M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34M6 3h12v7a6 6 0 0 1-12 0V3z"/></svg>',
-    'alert': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    'chart': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>',
     'check': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
     'info': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
-    'calendar': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-    'clipboard-empty': '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#16a879" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>',
-    'link': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
+    'calendar': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
   };
+
+  function calculateEmaSeries(values, period) {
+    if (!Array.isArray(values) || values.length < period) return [];
+    const k = 2 / (period + 1);
+    const result = new Array(values.length).fill(null);
+    let sum = 0;
+    for (let i = 0; i < period; i++) sum += Number(values[i]);
+    let currentEma = sum / period;
+    result[period - 1] = Number(currentEma.toFixed(2));
+    for (let i = period; i < values.length; i++) {
+      currentEma = Number(values[i]) * k + currentEma * (1 - k);
+      result[i] = Number(currentEma.toFixed(2));
+    }
+    return result;
+  }
+
+  function loadSavedEmaPrefs() {
+    try {
+      const raw = localStorage.getItem('mcv2_emas');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          showEma10: parsed.showEma10 !== undefined ? Boolean(parsed.showEma10) : true,
+          showEma20: Boolean(parsed.showEma20),
+          showEma50: Boolean(parsed.showEma50),
+          showEma72: parsed.showEma72 !== undefined ? Boolean(parsed.showEma72) : true,
+          showEma200: Boolean(parsed.showEma200)
+        };
+      }
+    } catch (_) {}
+    return {
+      showEma10: true,
+      showEma20: false,
+      showEma50: false,
+      showEma72: true,
+      showEma200: false
+    };
+  }
+
+  function saveEmaPrefs() {
+    try {
+      localStorage.setItem('mcv2_emas', JSON.stringify({
+        showEma10: state.showEma10,
+        showEma20: state.showEma20,
+        showEma50: state.showEma50,
+        showEma72: state.showEma72,
+        showEma200: state.showEma200
+      }));
+    } catch (_) {}
+  }
+
+  const initialEmaPrefs = loadSavedEmaPrefs();
 
   let state = {
     currentBenchmark: 'IBOV',
@@ -234,9 +337,12 @@
     performance: null,
     loading: false,
     error: null,
-    showEma10: true,
-    showEma72: true,
-    period: '6_meses',
+    showEma10: initialEmaPrefs.showEma10,
+    showEma20: initialEmaPrefs.showEma20,
+    showEma50: initialEmaPrefs.showEma50,
+    showEma72: initialEmaPrefs.showEma72,
+    showEma200: initialEmaPrefs.showEma200,
+    period: '1_ano',
     hoverCandle: null
   };
 
@@ -248,83 +354,138 @@
   syncActiveLayout();
   new MutationObserver(syncActiveLayout).observe(root, { attributes: true, attributeFilter: ['class'] });
 
+  function getMarketOperatingStatus(market) {
+    const isUs = market === 'US';
+    try {
+      const timeZone = isUs ? 'America/New_York' : 'America/Sao_Paulo';
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone,
+        weekday: 'short',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      });
+      const parts = formatter.formatToParts(now);
+      const getVal = type => parts.find(p => p.type === type)?.value;
+      const weekday = getVal('weekday');
+      const hour = parseInt(getVal('hour'), 10);
+      const minute = parseInt(getVal('minute'), 10);
+      const totalMinutes = hour * 60 + minute;
+
+      const isWeekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(weekday);
+
+      if (!isWeekday) {
+        return {
+          isOpen: false,
+          label: t('Mercado fechado', 'Market closed'),
+          marketBadge: isUs ? 'EUA (NYSE/NASDAQ)' : 'B3 (Brasil)'
+        };
+      }
+
+      const openMinutes = isUs ? (9 * 60 + 30) : (10 * 60);
+      const closeMinutes = isUs ? (16 * 60) : (17 * 60 + 55);
+
+      const isOpen = totalMinutes >= openMinutes && totalMinutes < closeMinutes;
+      return {
+        isOpen,
+        label: isOpen ? t('Mercado aberto', 'Market open') : t('Mercado fechado', 'Market closed'),
+        marketBadge: isUs ? 'EUA (NYSE/NASDAQ)' : 'B3 (Brasil)'
+      };
+    } catch {
+      return {
+        isOpen: false,
+        label: t('Mercado fechado', 'Market closed'),
+        marketBadge: isUs ? 'EUA' : 'B3'
+      };
+    }
+  }
+
   /**
-   * Top Header com título, status de mercado, data formatada e seletor em pills dos benchmarks brasileiros
+   * Top Header com título, seletor centralizado e destacado de benchmarks (Brasil & EUA),
+   * e badges contextuais de status do mercado e data de referência.
    */
-  function renderHeader(benchmarkInfo, dataDate) {
-    return `<div class="mre-header">
-      <div class="mre-title-block">
+  /**
+   * 1. Hero Banner Superior com Identificação, Arte Celestial e Status do Mercado
+   */
+  function renderHeroBanner(benchmarkInfo, dataDate) {
+    const marketStatus = getMarketOperatingStatus(benchmarkInfo.market);
+
+    return `<div class="mre-hero-banner" role="banner">
+      <div class="mre-hero-content">
         <div class="mre-title-row">
           <span class="mre-header-icon">${svgIcons['chart-title']}</span>
           <h1 class="mre-title">${t('Ciclo de Mercado', 'Market Cycle')}</h1>
         </div>
         <p class="mre-subtitle">${t('Regime de mercado atual, histórico e performance do seu sistema', 'Current market regime, history and performance of your system')}</p>
       </div>
+
       <div class="mre-header-controls">
-        <div class="mre-badge-closed">
-          <span class="mre-closed-dot"></span>
-          <span>${t('Mercado fechado', 'Market closed')}</span>
+        <div class="mre-badge-closed ${marketStatus.isOpen ? 'is-open' : 'is-closed'}">
+          <span class="mre-closed-dot ${marketStatus.isOpen ? 'is-open' : ''}"></span>
+          <span>${esc(marketStatus.label)}</span>
         </div>
-        <div class="mre-badge-date">
+        <div class="mre-badge-date" title="${t('Data do último pregão registrado', 'Last recorded session date')}">
           ${svgIcons.calendar}
           <span>${t('Dados de:', 'Data from:')} ${esc(formatDateWithWeekday(dataDate))}</span>
         </div>
-        <div class="mre-benchmark-group">
-          <span class="mre-benchmark-label">${t('Benchmark:', 'Benchmark:')}</span>
-          <div class="mre-benchmark-pills" role="radiogroup">
-            ${BENCHMARKS.map(b => `
-              <button type="button" class="mre-pill-btn ${b.id === benchmarkInfo.id ? 'active' : ''}" data-benchmark-pill="${esc(b.id)}">
-                ${esc(b.id)}
-              </button>
-            `).join('')}
-          </div>
+        <div class="mre-badge-market-origin" title="${t('Praça de negociação', 'Trading venue')}">
+          <span class="mre-origin-flag">${benchmarkInfo.flag}</span>
+          <span>${esc(marketStatus.marketBadge)}</span>
         </div>
       </div>
     </div>`;
   }
 
   /**
-   * Card 1: Regime Atual do Mercado (Hero Tile Gradient)
+   * 2. Seletor de Benchmarks Brasil e Estados Unidos em 2 Blocos Elegantes
    */
-  function renderCurrentRegimeCard(currentRegime) {
-    const regCode = currentRegime?.regime || 'UP_VOLATILE';
-    const meta = REGIME_METADATA[regCode] || REGIME_METADATA.UP_VOLATILE;
+  function renderBenchmarkSelector(benchmarkInfo) {
+    return `<div class="mre-benchmarks-row mre-benchmark-center-panel" role="region" aria-label="${t('Seletor de Benchmarks', 'Benchmark Selector')}">
+      <!-- Bloco BRASIL -->
+      <div class="mre-benchmark-card mre-card-br">
+        <div class="mre-benchmark-country-group">
+          <span class="mre-flag-wrapper">${svgFlags.br}</span>
+          <span class="mre-country-name">BRASIL</span>
+        </div>
+        <div class="mre-benchmark-btn-group" role="radiogroup" aria-label="${t('Mercado Brasileiro', 'Brazilian Market')}">
+          ${BENCHMARKS.filter(b => b.market === 'BR').map(b => `
+            <button type="button" 
+                    class="mre-pill-btn ${b.id === benchmarkInfo.id ? 'active' : ''}" 
+                    data-benchmark-pill="${esc(b.id)}"
+                    aria-checked="${b.id === benchmarkInfo.id}"
+                    role="radio"
+                    title="${esc(b.name)}">
+              <span class="mre-pill-icon">${b.id === 'IBOV' ? svgIcons['bars-signal'] : (b.id === 'IFIX' ? svgIcons['grid-fii'] : svgIcons['layers'])}</span>
+              <span class="mre-pill-text">${esc(b.label || b.id)}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
 
-    return `<div class="mre-card mre-current-card">
-      <div class="mre-card-header">
-        <h2 class="mre-card-title">
-          ${t('Regime Atual do Mercado', 'Current Market Regime')}
-          <span class="mre-card-info-icon" title="${t('Classificação diária consolidada combinando direção tendencial e patamar de volatilidade.', 'Consolidated daily classification combining trend direction and volatility level.')}">
-            ${svgIcons.info}
-          </span>
-        </h2>
-      </div>
-      <div class="mre-hero-tile ${meta.badgeClass}">
-        <div class="mre-hero-circle">
-          ${svgIcons[meta.icon] || svgIcons['arrow-up-right']}
+      <!-- Bloco ESTADOS UNIDOS -->
+      <div class="mre-benchmark-card mre-card-us">
+        <div class="mre-benchmark-country-group">
+          <span class="mre-flag-wrapper">${svgFlags.us}</span>
+          <span class="mre-country-name">ESTADOS UNIDOS</span>
         </div>
-        <h3 class="mre-hero-title">${esc(meta.title)}</h3>
-        <p class="mre-hero-subtitle">${esc(meta.name)}</p>
-        <div class="mre-hero-badge">
-          ${t('REGIME ATUAL', 'CURRENT REGIME')}
+        <div class="mre-benchmark-btn-group" role="radiogroup" aria-label="${t('Mercado Norte-Americano', 'US Market')}">
+          ${BENCHMARKS.filter(b => b.market === 'US').map(b => `
+            <button type="button" 
+                    class="mre-pill-btn ${b.id === benchmarkInfo.id ? 'active' : ''}" 
+                    data-benchmark-pill="${esc(b.id)}"
+                    aria-checked="${b.id === benchmarkInfo.id}"
+                    role="radio"
+                    title="${esc(b.name)}">
+              <span class="mre-pill-icon">${svgIcons['bars']}</span>
+              <span class="mre-pill-text">${b.id === 'NASDAQ' ? 'Nasdaq-100 (QQQ)' : esc(b.label || b.id)}</span>
+            </button>
+          `).join('')}
         </div>
-      </div>
-      <div class="mre-strategy-guidance-box" style="margin-top: 14px; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); font-size: 11.5px; line-height: 1.45;">
-        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; font-weight:700; color:#34d399;">
-          <span>📈</span> <span>Trend Following:</span>
-        </div>
-        <div style="color:#cbd5e1; margin-bottom:8px;">${(meta.title || '').includes('ALTA') ? 'Ambiente favorável para condução, expansão e novos setups de continuação.' : 'Proteção de capital: não abrir novas compras em tendência sem confirmação de reversão.'}</div>
-        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; font-weight:700; color:#38bdf8;">
-          <span>⚡</span> <span>Volatility Trading (IFR2):</span>
-        </div>
-        <div style="color:#cbd5e1;">${(meta.title || '').includes('ALTA') ? 'Correções e sobrevendidos acima da SMA200 geram excelentes repiques de reversão à média curta.' : 'Requer atenção estrita ao filtro estrutural (preço > SMA200 do próprio ativo), operando repiques táticos com saída temporal D7.'}</div>
       </div>
     </div>`;
   }
 
-  /**
-   * Card 2: Principais Métricas de Volatilidade
-   */
   function renderVolatilityMetricsCard(currentRegime, dataDate) {
     const atr21 = hasNumber(currentRegime?.atr_21) ? number(currentRegime.atr_21, 2) : '—';
     const atrPct = hasNumber(currentRegime?.atr_percentage) ? `${number(currentRegime.atr_percentage, 2)}%` : '—';
@@ -335,73 +496,134 @@
 
     return `<div class="mre-card mre-volatility-card">
       <div class="mre-card-header">
-        <h2 class="mre-card-title">
-          ${t('Principais Métricas de Volatilidade', 'Key Volatility Metrics')}
-          <span class="mre-card-info-icon" title="${t('Parâmetros quantitativos do modelo: ATR(21) de Wilder, ATR% normalizado e Média Móvel de 252 pregões.', 'Quantitative model parameters: Wilder ATR(21), normalized ATR% and 252-session Moving Average.')}">
-            ${svgIcons.info}
-          </span>
-        </h2>
-        <span class="mre-card-date-sub">
-          ${t('Última atualização:', 'Last update:')} ${dateLabel(dataDate || currentRegime?.reference_date)}
-        </span>
+        <div class="mre-card-title-group">
+          <span class="mre-card-header-icon">${svgIcons['chart-section']}</span>
+          <h2 class="mre-card-title">${t('Principais Métricas de Volatilidade', 'Key Volatility Metrics')}</h2>
+        </div>
       </div>
-      <div class="mre-metrics-list">
-        <div class="mre-metric-row">
-          <span class="mre-metric-label">
-            <span class="mre-metric-icon">${svgIcons.percent}</span>
-            ATR (21)
-          </span>
-          <strong class="mre-metric-val">${esc(atr21)}</strong>
+      <div class="mre-vol-grid">
+        <div class="mre-vol-tile">
+          <div class="mre-vol-tile-head">
+            <span class="mre-vol-icon-box mre-icon-waveform">${svgIcons['waveform']}</span>
+            <span class="mre-vol-tile-label">ATR (21)</span>
+          </div>
+          <div class="mre-vol-tile-value">${esc(atr21)}</div>
         </div>
-        <div class="mre-metric-row">
-          <span class="mre-metric-label">
-            <span class="mre-metric-icon">${svgIcons.bars}</span>
-            ${t('ATR % (atual)', 'ATR % (current)')}
-          </span>
-          <strong class="mre-metric-val">${esc(atrPct)}</strong>
+        <div class="mre-vol-tile">
+          <div class="mre-vol-tile-head">
+            <span class="mre-vol-icon-box mre-icon-percent">${svgIcons['percent']}</span>
+            <span class="mre-vol-tile-label">${t('ATR % (atual)', 'ATR % (current)')}</span>
+          </div>
+          <div class="mre-vol-tile-value">${esc(atrPct)}</div>
         </div>
-        <div class="mre-metric-row">
-          <span class="mre-metric-label">
-            <span class="mre-metric-icon">${svgIcons['bars-signal']}</span>
-            ${t('ATR % – MM (252)', 'ATR % – SMA (252)')}
-          </span>
-          <strong class="mre-metric-val">${esc(atrSma252)}</strong>
+        <div class="mre-vol-tile">
+          <div class="mre-vol-tile-head">
+            <span class="mre-vol-icon-box mre-icon-bars">${svgIcons['bars']}</span>
+            <span class="mre-vol-tile-label">${t('ATR % — MM (252)', 'ATR % — SMA (252)')}</span>
+          </div>
+          <div class="mre-vol-tile-value">${esc(atrSma252)}</div>
         </div>
-        <div class="mre-metric-row">
-          <span class="mre-metric-label">
-            <span class="mre-metric-icon ${devClass}">${svgIcons.delta}</span>
-            ${t('Desvio da Volatilidade', 'Volatility Deviation')}
-          </span>
-          <strong class="mre-metric-val ${devClass}">${esc(devFormatted)}</strong>
+        <div class="mre-vol-tile ${devClass}">
+          <div class="mre-vol-tile-head">
+            <span class="mre-vol-icon-box mre-icon-alert ${devClass}">${svgIcons['alert-triangle']}</span>
+            <span class="mre-vol-tile-label">${t('Desvio da Volatilidade', 'Volatility Deviation')}</span>
+          </div>
+          <div class="mre-vol-tile-value ${devClass}">${esc(devFormatted)}</div>
         </div>
       </div>
     </div>`;
   }
 
   /**
-   * Card 3: Os 6 Regimes de Mercado (Grid 2x3 Pastel com Regime Ativo destacado)
+   * 5. Card 2: Regime Atual do Mercado (Hero Tile + Orientações Estruturais TF / VT)
+   */
+  function renderCurrentRegimeCard(currentRegime, dataDate) {
+    const regCode = currentRegime?.regime || 'UP_VOLATILE';
+    const meta = REGIME_METADATA[regCode] || REGIME_METADATA.UP_VOLATILE;
+    const isUp = (meta.title || '').includes('Up') || (meta.title || '').includes('Alta');
+    const isVolatile = (meta.title || '').includes('Volatile') || (meta.title || '').includes('alta volatilidade');
+
+    const tfGuidance = isUp 
+      ? t('Ambiente favorável para condução, expansão e novos setups em confluência.', 'Favorable environment for trend continuation and quality setups.')
+      : t('Proteção de capital: não abrir novas compras em tendência sem confirmação.', 'Capital protection: do not open new trend buys without confirmation.');
+
+    const vtGuidance = isVolatile
+      ? t('Requer atenção estrita ao filtro estrutural (preço > SMA200 do próprio ativo), operando reações táticas com saída temporal D7.', 'Requires strict structural filter adherence, operating tactical reactions with D7 time stop.')
+      : t('Oscilações contidas: reversão à média com stops curtos e saídas ágeis nas bandas.', 'Contained swings: mean reversion with tight stops and swift band exits.');
+
+    const refDate = currentRegime?.reference_date || dataDate;
+    const dirLabel = meta.direction === 'UP' ? t('Alta', 'Up') : (meta.direction === 'DOWN' ? t('Baixa', 'Down') : t('Lateral', 'Sideways'));
+    const volLabel = meta.volatility === 'VOLATILE' ? t('Alta Volatilidade', 'High Volatility') : t('Baixa Volatilidade', 'Low Volatility');
+
+    return `<div class="mre-card mre-current-card">
+      <div class="mre-card-header mre-current-header">
+        <div class="mre-card-title-group">
+          <span class="mre-card-header-icon">${svgIcons['target']}</span>
+          <h2 class="mre-card-title">${t('Regime Atual', 'Current Regime')}</h2>
+        </div>
+        <div class="mre-current-date-badge" title="${t('Data de referência do regime atual', 'Reference date of current regime')}">
+          ${svgIcons.calendar}
+          <span>${dateLabel(refDate)}</span>
+        </div>
+      </div>
+      <div class="mre-current-content-vertical">
+        <div class="mre-hero-tile ${meta.badgeClass}">
+          <div class="mre-hero-circle">
+            ${svgIcons[meta.icon] || svgIcons['arrow-up-right']}
+          </div>
+          <h3 class="mre-hero-title">${esc(meta.title)}</h3>
+          <p class="mre-hero-subtitle">${esc(meta.sublabel || meta.name)}</p>
+          <div class="mre-current-dim-chips">
+            <span class="mre-dim-chip">Tendência: <strong>${esc(dirLabel)}</strong></span>
+            <span class="mre-dim-chip">Volatilidade: <strong>${esc(volLabel)}</strong></span>
+          </div>
+          <div class="mre-hero-badge">
+            ${t('REGIME ATUAL', 'CURRENT REGIME')}
+          </div>
+        </div>
+
+        <div class="mre-strategy-guidance-vertical">
+          <div class="mre-guidance-block mre-guidance-tf">
+            <div class="mre-guidance-title">
+              <span class="mre-guidance-icon">📈</span>
+              <strong>Trend Following (TF)</strong>
+            </div>
+            <p class="mre-guidance-text">${tfGuidance}</p>
+          </div>
+          <div class="mre-guidance-block mre-guidance-vt">
+            <div class="mre-guidance-title">
+              <span class="mre-guidance-icon">⚡</span>
+              <strong>Volatility Trading (VT)</strong>
+            </div>
+            <p class="mre-guidance-text">${vtGuidance}</p>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  /**
+   * 6. Card 3: Os 6 Regimes de Mercado (Grid 2x3 com Realce Luminoso no Regime Ativo)
    */
   function renderSixRegimesCard(activeRegimeId) {
     const list = Object.values(REGIME_METADATA);
     return `<div class="mre-card mre-six-card">
       <div class="mre-card-header">
-        <h2 class="mre-card-title">
-          ${t('Os 6 Regimes de Mercado', 'The 6 Market Regimes')}
-          <span class="mre-card-info-icon" title="${t('Espaço amostral completo dos 6 estados possíveis gerados pelo motor.', 'Complete state space of the 6 possible regimes generated by the engine.')}">
-            ${svgIcons.info}
-          </span>
-        </h2>
+        <div class="mre-card-title-group">
+          <span class="mre-card-header-icon">${svgIcons['layers']}</span>
+          <h2 class="mre-card-title">${t('Os 6 Regimes de Mercado', 'The 6 Market Regimes')}</h2>
+        </div>
       </div>
       <div class="mre-six-grid">
         ${list.map(r => {
           const isActive = r.id === activeRegimeId;
-          return `<div class="mre-regime-box ${r.badgeClass} ${isActive ? 'is-active' : ''}">
+          return `<div class="mre-regime-box ${r.badgeClass} ${isActive ? 'is-active' : ''}" data-regime-id="${esc(r.id)}">
             <div class="mre-box-icon">
-              ${svgIcons[r.icon]}
+              ${svgIcons[r.icon] || svgIcons['arrow-up-right']}
             </div>
             <div class="mre-box-texts">
               <strong class="mre-box-title">${esc(r.title)}</strong>
-              <span class="mre-box-sub">${esc(r.sublabel)}</span>
+              <span class="mre-box-sub">${esc(r.sublabel || r.name)}</span>
             </div>
           </div>`;
         }).join('')}
@@ -410,14 +632,15 @@
   }
 
   /**
-   * Seção B: Histórico de Regimes e Preço do Índice (Candlesticks com EMAs)
+   * 3. Gráfico Histórico do Mercado (Full Width Dominante)
    */
   function renderHistorySection(benchmarkInfo, historyCandles, periods, distribution, dataDate, currentRegime) {
     const candles = Array.isArray(historyCandles) ? historyCandles : [];
     
     // Período de filtragem
-    let count = 126; // 6 meses padrão
-    if (state.period === '1_ano') count = 252;
+    let count = 252; // 1 ano padrão
+    if (state.period === '6_meses') count = 126;
+    else if (state.period === '1_ano') count = 252;
     else if (state.period === '2_anos') count = 504;
     else if (state.period === 'max') count = candles.length;
 
@@ -427,8 +650,11 @@
     
     const displayCandle = state.hoverCandle || lastCandle;
     const price = hasNumber(displayCandle.close) ? Number(displayCandle.close) : Number(currentRegime?.close_price || 0);
-    const ema10Val = hasNumber(displayCandle.ema10) ? Number(displayCandle.ema10) : Number(currentRegime?.ema_10 || 0);
-    const ema72Val = hasNumber(displayCandle.ema72) ? Number(displayCandle.ema72) : Number(currentRegime?.ema_72 || 0);
+    const ema10Val = hasNumber(displayCandle.ema10) ? Number(displayCandle.ema10) : (state.showEma10 ? Number(currentRegime?.ema_10 || 0) : null);
+    const ema20Val = hasNumber(displayCandle.ema20) ? Number(displayCandle.ema20) : null;
+    const ema50Val = hasNumber(displayCandle.ema50) ? Number(displayCandle.ema50) : null;
+    const ema72Val = hasNumber(displayCandle.ema72) ? Number(displayCandle.ema72) : (state.showEma72 ? Number(currentRegime?.ema_72 || 0) : null);
+    const ema200Val = hasNumber(displayCandle.ema200) ? Number(displayCandle.ema200) : null;
     
     let varPct = 0;
     if (prevCandle && hasNumber(lastCandle.close) && hasNumber(prevCandle.close) && prevCandle.close > 0) {
@@ -436,30 +662,57 @@
     }
 
     const chartSvg = renderCandlestickSvg(filteredCandles, benchmarkInfo.id);
+    const logoChar = benchmarkInfo.id.startsWith('NAS') ? 'N' : (benchmarkInfo.id.startsWith('SP') ? 'S' : (benchmarkInfo.id === 'IFIX' ? 'F' : 'B'));
 
     return `<div class="mre-card mre-chart-card">
       <div class="mre-card-header mre-chart-header">
-        <div class="mre-chart-title-group">
-          <span class="mre-chart-icon">${svgIcons['chart-section']}</span>
-          <h2 class="mre-card-title">
-            ${t(`Histórico de Regimes e Preço do Índice (${benchmarkInfo.id})`, `Regime History and Index Price (${benchmarkInfo.id})`)}
-            <span class="mre-card-info-icon" title="${t('Série histórica oficial de candles diários com as médias móveis operacionais exponenciais EMA 10 e EMA 72.', 'Official historical daily candle series with operational exponential moving averages EMA 10 and EMA 72.')}">
-              ${svgIcons.info}
+        <div class="mre-chart-head-left">
+          <div class="mre-chart-logo-badge mre-logo-${benchmarkInfo.id.toLowerCase()}" title="${esc(benchmarkInfo.name)}">${logoChar}</div>
+          <div class="mre-chart-ticker-group">
+            <span class="mre-stat-ticker">${esc(benchmarkInfo.id)} (Diário)</span>
+            <strong class="mre-stat-price">${number(price, 2)}</strong>
+            <span class="mre-stat-var ${varPct >= 0 ? 'is-pos' : 'is-neg'}">
+              ${varPct >= 0 ? '+' : ''}${number(varPct, 2)}%
             </span>
-          </h2>
+          </div>
+          <div class="mre-chart-emas-inline">
+            ${state.showEma10 && hasNumber(ema10Val) ? `<span class="mre-stat-ema mre-stat-ema10">EMA 10 <strong>${number(ema10Val, 2)}</strong></span>` : ''}
+            ${state.showEma20 && hasNumber(ema20Val) ? `<span class="mre-stat-ema mre-stat-ema20">EMA 20 <strong>${number(ema20Val, 2)}</strong></span>` : ''}
+            ${state.showEma50 && hasNumber(ema50Val) ? `<span class="mre-stat-ema mre-stat-ema50">EMA 50 <strong>${number(ema50Val, 2)}</strong></span>` : ''}
+            ${state.showEma72 && hasNumber(ema72Val) ? `<span class="mre-stat-ema mre-stat-ema72">EMA 72 <strong>${number(ema72Val, 2)}</strong></span>` : ''}
+            ${state.showEma200 && hasNumber(ema200Val) ? `<span class="mre-stat-ema mre-stat-ema200">EMA 200 <strong>${number(ema200Val, 2)}</strong></span>` : ''}
+          </div>
         </div>
 
         <div class="mre-chart-toolbar">
-          <label class="mre-toggle-label mre-toggle-ema10">
-            <input type="checkbox" data-toggle-ema="10" ${state.showEma10 ? 'checked' : ''}>
-            <span class="mre-custom-box mre-box-ema10"></span>
+          <label class="mre-toggle-pill mre-toggle-ema10 ${state.showEma10 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 10', 'Toggle EMA 10')}">
+            <input type="checkbox" data-toggle-ema="10" ${state.showEma10 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
             <span class="mre-toggle-text">EMA 10</span>
           </label>
 
-          <label class="mre-toggle-label mre-toggle-ema72">
-            <input type="checkbox" data-toggle-ema="72" ${state.showEma72 ? 'checked' : ''}>
-            <span class="mre-custom-box mre-box-ema72"></span>
+          <label class="mre-toggle-pill mre-toggle-ema20 ${state.showEma20 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 20', 'Toggle EMA 20')}">
+            <input type="checkbox" data-toggle-ema="20" ${state.showEma20 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
+            <span class="mre-toggle-text">EMA 20</span>
+          </label>
+
+          <label class="mre-toggle-pill mre-toggle-ema50 ${state.showEma50 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 50', 'Toggle EMA 50')}">
+            <input type="checkbox" data-toggle-ema="50" ${state.showEma50 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
+            <span class="mre-toggle-text">EMA 50</span>
+          </label>
+
+          <label class="mre-toggle-pill mre-toggle-ema72 ${state.showEma72 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 72', 'Toggle EMA 72')}">
+            <input type="checkbox" data-toggle-ema="72" ${state.showEma72 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
             <span class="mre-toggle-text">EMA 72</span>
+          </label>
+
+          <label class="mre-toggle-pill mre-toggle-ema200 ${state.showEma200 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 200', 'Toggle EMA 200')}">
+            <input type="checkbox" data-toggle-ema="200" ${state.showEma200 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
+            <span class="mre-toggle-text">EMA 200</span>
           </label>
 
           <div class="mre-badge-candles">
@@ -479,18 +732,6 @@
         </div>
       </div>
 
-      <div class="mre-stat-line">
-        <span class="mre-stat-ticker">${esc(benchmarkInfo.id)} (Diário)</span>
-        <strong class="mre-stat-price">${number(price, 2)}</strong>
-        <span class="mre-stat-var ${varPct >= 0 ? 'is-pos' : 'is-neg'}">
-          ${varPct >= 0 ? '+' : ''}${number(varPct, 2)}%
-        </span>
-        <span class="mre-stat-divider">—</span>
-        <span class="mre-stat-ema mre-stat-ema10">EMA 10 <strong>${number(ema10Val, 2)}</strong></span>
-        <span class="mre-stat-divider">—</span>
-        <span class="mre-stat-ema mre-stat-ema72">EMA 72 <strong>${number(ema72Val, 2)}</strong></span>
-      </div>
-
       <div class="mre-chart-area-wrapper">
         ${chartSvg}
       </div>
@@ -501,67 +742,99 @@
           <span class="mre-card-info-icon" title="${t('Mapeamento cronológico das transições de regime de mercado.', 'Chronological mapping of market regime transitions.')}">${svgIcons.info}</span>
         </div>
         <div class="mre-ribbon-bar">
-          ${renderRibbonSegments(filteredCandles)}
+          ${renderRibbonSvg(filteredCandles)}
         </div>
         <div class="mre-timeline-legend">
           <span class="mre-legend-title">${t('Legenda dos Regimes:', 'Regime Legend:')}</span>
           <div class="mre-legend-items-row">
-            <span class="mre-legend-item"><span class="mre-dot" style="background:#16a879;"></span> Up – Quiet</span>
+            <span class="mre-legend-item"><span class="mre-dot" style="background:#10b981;"></span> Up – Quiet</span>
             <span class="mre-legend-item"><span class="mre-dot" style="background:#f59e0b;"></span> Up – Volatile</span>
             <span class="mre-legend-item"><span class="mre-dot" style="background:#3b82f6;"></span> Sideways – Quiet</span>
-            <span class="mre-legend-item"><span class="mre-dot" style="background:#b45309;"></span> Sideways – Volatile</span>
-            <span class="mre-legend-item"><span class="mre-dot" style="background:#64748b;"></span> Down – Quiet</span>
-            <span class="mre-legend-item"><span class="mre-dot" style="background:#dc4545;"></span> Down – Volatile</span>
+            <span class="mre-legend-item"><span class="mre-dot" style="background:#f97316;"></span> Sideways – Volatile</span>
+            <span class="mre-legend-item"><span class="mre-dot" style="background:#6b7280;"></span> Down – Quiet</span>
+            <span class="mre-legend-item"><span class="mre-dot" style="background:#ef4444;"></span> Down – Volatile</span>
           </div>
         </div>
       </div>
     </div>`;
   }
 
-  /**
-   * Renderiza a Ribbon contínua dos regimes alinhada à escala temporal do gráfico
-   */
-  function renderRibbonSegments(candles) {
+  function renderRibbonSvg(candles) {
     if (!candles || !candles.length) return '';
+    const W = 1200;
+    const padLeft = 15;
+    const padRight = 75;
+    const plotW = W - padLeft - padRight;
     const total = candles.length;
+    const stepX = plotW / Math.max(1, total - 1);
+
     const segments = [];
-    let curRegime = null;
-    let curCount = 0;
+    let currentReg = null;
+    let startIdx = 0;
+    let count = 0;
 
     for (let i = 0; i < total; i++) {
-      const c = candles[i];
-      const isUp = c.close >= (c.ema10 || c.close) && c.close >= (c.ema72 || c.close);
-      const isDown = c.close < (c.ema10 || c.close) && c.close < (c.ema72 || c.close);
-      const dir = isUp ? 'UP' : (isDown ? 'DOWN' : 'SIDEWAYS');
-      const reg = c.regime || (dir === 'UP' ? 'UP_QUIET' : (dir === 'DOWN' ? 'DOWN_VOLATILE' : 'SIDEWAYS_QUIET'));
-
-      if (reg !== curRegime) {
-        if (curRegime) segments.push({ regime: curRegime, count: curCount });
-        curRegime = reg;
-        curCount = 1;
+      const reg = candles[i].regime || 'UP_QUIET';
+      if (reg === currentReg) {
+        count++;
       } else {
-        curCount++;
+        if (currentReg) {
+          segments.push({
+            regime: currentReg,
+            startIdx,
+            endIdx: i - 1,
+            count,
+            startDate: candles[startIdx]?.date,
+            endDate: candles[i - 1]?.date
+          });
+        }
+        currentReg = reg;
+        startIdx = i;
+        count = 1;
       }
     }
-    if (curRegime) segments.push({ regime: curRegime, count: curCount });
+    if (currentReg) {
+      segments.push({
+        regime: currentReg,
+        startIdx,
+        endIdx: total - 1,
+        count,
+        startDate: candles[startIdx]?.date,
+        endDate: candles[total - 1]?.date
+      });
+    }
 
-    return segments.map(seg => {
-      const pct = (seg.count / total) * 100;
+    const rects = segments.map(seg => {
+      const x1 = Math.max(padLeft, padLeft + seg.startIdx * stepX - (stepX / 2));
+      const x2 = Math.min(padLeft + plotW, padLeft + seg.endIdx * stepX + (stepX / 2));
+      const w = Math.max(1.5, x2 - x1);
       const meta = REGIME_METADATA[seg.regime] || REGIME_METADATA.UP_QUIET;
-      return `<span class="mre-ribbon-seg" style="width: ${pct.toFixed(2)}%; background-color: ${meta.color};" title="${esc(meta.label)}: ${seg.count} pregões"></span>`;
-    }).join('');
+      return `<rect x="${x1.toFixed(1)}" y="0" width="${w.toFixed(1)}" height="14" fill="${meta.color}">
+        <title>${esc(meta.label)}: ${seg.count} pregões (${dateLabel(seg.startDate)} a ${dateLabel(seg.endDate)})</title>
+      </rect>`;
+    });
+
+    let hoverMarker = '';
+    if (state.hoverCandle && state.hoverCandle.index >= 0 && state.hoverCandle.index < total) {
+      const hx = padLeft + state.hoverCandle.index * stepX;
+      hoverMarker = `<line x1="${hx.toFixed(1)}" y1="0" x2="${hx.toFixed(1)}" y2="14" stroke="#ffffff" stroke-width="2" />
+        <circle cx="${hx.toFixed(1)}" cy="7" r="3.5" fill="#ffffff" />`;
+    }
+
+    return `<svg viewBox="0 0 ${W} 14" class="mre-ribbon-svg" preserveAspectRatio="none">
+      <rect x="0" y="0" width="${W}" height="14" fill="#061a12" rx="6"/>
+      <g class="mre-ribbon-segments">${rects.join('')}</g>
+      ${hoverMarker}
+    </svg>`;
   }
 
-  /**
-   * Renderiza os Candlesticks reais e curvas de EMA 10 / EMA 72 em SVG
-   */
   function renderCandlestickSvg(candles, benchmarkId) {
     if (!candles || !candles.length) {
       return `<div class="mre-chart-empty">${t('Sem histórico disponível para este benchmark.', 'No history available for this benchmark.')}</div>`;
     }
 
     const W = 1200;
-    const H = 340;
+    const H = 380;
     const padTop = 15;
     const padBottom = 35;
     const padLeft = 15;
@@ -569,7 +842,7 @@
     const plotW = W - padLeft - padRight;
     const plotH = H - padTop - padBottom;
 
-    // Calcular limites de preço
+    // Calcular limites de preço considerando apenas as EMAs ativas
     let minPrice = Infinity;
     let maxPrice = -Infinity;
 
@@ -582,9 +855,21 @@
         if (c.ema10 < minPrice) minPrice = c.ema10;
         if (c.ema10 > maxPrice) maxPrice = c.ema10;
       }
+      if (state.showEma20 && hasNumber(c.ema20)) {
+        if (c.ema20 < minPrice) minPrice = c.ema20;
+        if (c.ema20 > maxPrice) maxPrice = c.ema20;
+      }
+      if (state.showEma50 && hasNumber(c.ema50)) {
+        if (c.ema50 < minPrice) minPrice = c.ema50;
+        if (c.ema50 > maxPrice) maxPrice = c.ema50;
+      }
       if (state.showEma72 && hasNumber(c.ema72)) {
         if (c.ema72 < minPrice) minPrice = c.ema72;
         if (c.ema72 > maxPrice) maxPrice = c.ema72;
+      }
+      if (state.showEma200 && hasNumber(c.ema200)) {
+        if (c.ema200 < minPrice) minPrice = c.ema200;
+        if (c.ema200 > maxPrice) maxPrice = c.ema200;
       }
     }
 
@@ -604,8 +889,8 @@
       const p = pMin + s * stepVal;
       const y = getY(p);
       gridLines.push(`
-        <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${padLeft + plotW}" y2="${y.toFixed(1)}" stroke="#e5ece8" stroke-dasharray="3 3"/>
-        <text x="${padLeft + plotW + 10}" y="${(y + 4).toFixed(1)}" fill="#84978f" font-size="11.5" font-weight="500" font-family="Inter,sans-serif">${number(p, 0)}</text>
+        <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${padLeft + plotW}" y2="${y.toFixed(1)}" stroke="rgba(255, 255, 255, 0.06)" stroke-dasharray="3 3"/>
+        <text x="${padLeft + plotW + 12}" y="${(y + 4).toFixed(1)}" fill="#64748b" font-size="11.5" font-weight="600" font-family="Inter,sans-serif">${number(p, 0)}</text>
       `);
     }
 
@@ -616,14 +901,17 @@
       const x = getX(i);
       const d = parseDate(candles[i]?.date);
       const monthStr = d ? d.toLocaleDateString(window.appLanguage === 'en-US' ? 'en-US' : 'pt-BR', { month: 'short', year: '2-digit' }) : '';
-      dateLabels.push(`<text x="${x.toFixed(1)}" y="${H - 10}" fill="#84978f" font-size="11" font-weight="500" text-anchor="middle" font-family="Inter,sans-serif">${esc(monthStr)}</text>`);
+      dateLabels.push(`<text x="${x.toFixed(1)}" y="${H - 10}" fill="#64748b" font-size="11" font-weight="500" text-anchor="middle" font-family="Inter,sans-serif">${esc(monthStr)}</text>`);
     }
 
-    // Candlesticks (Wicks e Bodies)
-    const candleW = Math.max(1.8, Math.min(5.5, (plotW / candles.length) * 0.75));
+    // Candlesticks (Wicks e Bodies) e séries de EMAs ativas
+    const candleW = Math.max(2.0, Math.min(6.0, (plotW / candles.length) * 0.75));
     const candleElements = [];
     const ema10Points = [];
+    const ema20Points = [];
+    const ema50Points = [];
     const ema72Points = [];
+    const ema200Points = [];
 
     for (let i = 0; i < candles.length; i++) {
       const c = candles[i];
@@ -639,7 +927,7 @@
       const yClose = getY(close);
 
       const isBull = close >= open;
-      const color = isBull ? '#16a879' : '#dc4545';
+      const color = isBull ? '#10b981' : '#ef4444';
       const bodyY = Math.min(yOpen, yClose);
       const bodyH = Math.max(1.5, Math.abs(yClose - yOpen));
 
@@ -650,12 +938,11 @@
         </g>
       `);
 
-      if (hasNumber(c.ema10)) {
-        ema10Points.push(`${x.toFixed(1)},${getY(c.ema10).toFixed(1)}`);
-      }
-      if (hasNumber(c.ema72)) {
-        ema72Points.push(`${x.toFixed(1)},${getY(c.ema72).toFixed(1)}`);
-      }
+      if (hasNumber(c.ema10)) ema10Points.push(`${x.toFixed(1)},${getY(c.ema10).toFixed(1)}`);
+      if (hasNumber(c.ema20)) ema20Points.push(`${x.toFixed(1)},${getY(c.ema20).toFixed(1)}`);
+      if (hasNumber(c.ema50)) ema50Points.push(`${x.toFixed(1)},${getY(c.ema50).toFixed(1)}`);
+      if (hasNumber(c.ema72)) ema72Points.push(`${x.toFixed(1)},${getY(c.ema72).toFixed(1)}`);
+      if (hasNumber(c.ema200)) ema200Points.push(`${x.toFixed(1)},${getY(c.ema200).toFixed(1)}`);
     }
 
     // Tooltip interativo / Crosshair
@@ -668,23 +955,54 @@
         const hx = getX(hIdx);
         const hy = getY(hc.close);
         crosshairHtml = `
-          <line x1="${hx.toFixed(1)}" y1="${padTop}" x2="${hx.toFixed(1)}" y2="${padTop + plotH}" stroke="#84978f" stroke-dasharray="3 3" stroke-width="1.2" />
-          <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="4.5" fill="#16a879" stroke="#ffffff" stroke-width="2"/>
+          <line x1="${hx.toFixed(1)}" y1="${padTop}" x2="${hx.toFixed(1)}" y2="${padTop + plotH}" stroke="#64748b" stroke-dasharray="3 3" stroke-width="1.2" />
+          <circle cx="${hx.toFixed(1)}" cy="${hy.toFixed(1)}" r="4.5" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
         `;
 
-        // Regime na data
-        const isUp = hc.close >= (hc.ema10 || hc.close) && hc.close >= (hc.ema72 || hc.close);
-        const isDown = hc.close < (hc.ema10 || hc.close) && hc.close < (hc.ema72 || hc.close);
-        const dir = isUp ? 'UP' : (isDown ? 'DOWN' : 'SIDEWAYS');
-        const regCode = hc.regime || (dir === 'UP' ? 'UP_QUIET' : (dir === 'DOWN' ? 'DOWN_VOLATILE' : 'SIDEWAYS_QUIET'));
+        // Regime da data - usa rigorosamente a mesma classificação canônica da linha do tempo
+        const regCode = hc.regime || (hc.direction === 'UP' ? 'UP_QUIET' : (hc.direction === 'DOWN' ? 'DOWN_VOLATILE' : 'SIDEWAYS_QUIET'));
         const regMeta = REGIME_METADATA[regCode] || REGIME_METADATA.UP_QUIET;
 
-        // Posição da Tooltip (evitar corte à direita)
-        const tipX = hx > (W - 240) ? (hx - 185) : (hx + 15);
-        const tipY = Math.max(padTop + 10, Math.min(hy - 40, padTop + plotH - 120));
+        // Linhas de médias ativas no tooltip
+        const tipEmaRows = [];
+        if (state.showEma10 && hasNumber(hc.ema10)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema10" style="color:#10b981;">— EMA 10</span>
+            <strong>${number(hc.ema10, 2)}</strong>
+          </div>`);
+        }
+        if (state.showEma20 && hasNumber(hc.ema20)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema20" style="color:#f59e0b;">— EMA 20</span>
+            <strong>${number(hc.ema20, 2)}</strong>
+          </div>`);
+        }
+        if (state.showEma50 && hasNumber(hc.ema50)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema50" style="color:#a855f7;">— EMA 50</span>
+            <strong>${number(hc.ema50, 2)}</strong>
+          </div>`);
+        }
+        if (state.showEma72 && hasNumber(hc.ema72)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema72" style="color:#3b82f6;">— EMA 72</span>
+            <strong>${number(hc.ema72, 2)}</strong>
+          </div>`);
+        }
+        if (state.showEma200 && hasNumber(hc.ema200)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema200" style="color:#f97316;">— EMA 200</span>
+            <strong>${number(hc.ema200, 2)}</strong>
+          </div>`);
+        }
+
+        const tipWidth = 180;
+        const tipHeight = 85 + tipEmaRows.length * 20;
+        const tipX = hx > (W - 220) ? (hx - tipWidth - 15) : (hx + 15);
+        const tipY = Math.max(padTop + 5, Math.min(hy - 40, padTop + plotH - tipHeight));
 
         tooltipHtml = `
-          <foreignObject x="${tipX.toFixed(1)}" y="${tipY.toFixed(1)}" width="175" height="135" class="mre-tooltip-object">
+          <foreignObject x="${tipX.toFixed(1)}" y="${tipY.toFixed(1)}" width="${tipWidth}" height="${tipHeight}" class="mre-tooltip-object">
             <div class="mre-floating-tooltip">
               <div class="mre-tip-header">${dateLabel(hc.date)} (Diário)</div>
               <div class="mre-tip-body">
@@ -692,17 +1010,10 @@
                   <span class="mre-tip-symbol">■ ${esc(benchmarkId)}</span>
                   <strong>${number(hc.close, 2)}</strong>
                 </div>
-                <div class="mre-tip-row">
-                  <span class="mre-tip-ema10">— EMA 10</span>
-                  <strong>${number(hc.ema10, 2)}</strong>
-                </div>
-                <div class="mre-tip-row">
-                  <span class="mre-tip-ema72">— EMA 72</span>
-                  <strong>${number(hc.ema72, 2)}</strong>
-                </div>
+                ${tipEmaRows.join('')}
                 <div class="mre-tip-row mre-tip-regime-row">
                   <span>Regime</span>
-                  <span class="mre-tip-reg-badge" style="background:${regMeta.color}20; color:${regMeta.color}; border: 1px solid ${regMeta.color}40;">
+                  <span class="mre-tip-reg-badge" style="background:${regMeta.color}25; color:${regMeta.color}; border: 1px solid ${regMeta.color}50;">
                     ${esc(regMeta.label)}
                   </span>
                 </div>
@@ -717,8 +1028,11 @@
       <svg viewBox="0 0 ${W} ${H}" class="mre-candlestick-svg" preserveAspectRatio="none" data-chart-svg>
         <g class="mre-grid-lines">${gridLines.join('')}</g>
         <g class="mre-candles-group">${candleElements.join('')}</g>
-        ${state.showEma72 && ema72Points.length ? `<polyline points="${ema72Points.join(' ')}" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
-        ${state.showEma10 && ema10Points.length ? `<polyline points="${ema10Points.join(' ')}" fill="none" stroke="#16a879" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+        ${state.showEma200 && ema200Points.length > 1 ? `<polyline points="${ema200Points.join(' ')}" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma72 && ema72Points.length > 1 ? `<polyline points="${ema72Points.join(' ')}" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma50 && ema50Points.length > 1 ? `<polyline points="${ema50Points.join(' ')}" fill="none" stroke="#a855f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma20 && ema20Points.length > 1 ? `<polyline points="${ema20Points.join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma10 && ema10Points.length > 1 ? `<polyline points="${ema10Points.join(' ')}" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
         <g class="mre-crosshair-group">${crosshairHtml}</g>
         ${tooltipHtml}
         <g class="mre-dates-axis">${dateLabels.join('')}</g>
@@ -726,9 +1040,6 @@
     </div>`;
   }
 
-  /**
-   * Seção C: Performance do Meu Sistema por Regime (Tabela + Card Lateral)
-   */
   function renderPerformanceSection(perfData, dataDate) {
     const rows = Array.isArray(perfData?.rows) && perfData.rows.length ? perfData.rows : [
       { regime: 'UP_QUIET', label: 'Up – Quiet', color: '#16a879', hasData: false },
@@ -857,7 +1168,7 @@
    */
   function render() {
     syncActiveLayout();
-    const benchmarkInfo = BENCHMARKS.find(b => b.id === state.currentBenchmark) || BENCHMARKS[2] || BENCHMARKS[0];
+    const benchmarkInfo = BENCHMARKS.find(b => b.id === state.currentBenchmark) || BENCHMARKS[0];
     const dataEntry = state.data[benchmarkInfo.id];
     const marketRegimeData = dataEntry?.marketRegime || {};
     const cycle = dataEntry?.cycle || {};
@@ -874,6 +1185,52 @@
     };
 
     const historyCandles = dataEntry?.benchmark?.history || [];
+
+    // 1. Garantir que todas as 5 EMAs estejam calculadas para cada candle
+    if (historyCandles.length > 0) {
+      const closes = historyCandles.map(c => Number(c.close));
+      const e10 = calculateEmaSeries(closes, 10);
+      const e20 = calculateEmaSeries(closes, 20);
+      const e50 = calculateEmaSeries(closes, 50);
+      const e72 = calculateEmaSeries(closes, Math.min(72, closes.length));
+      const e200 = closes.length >= 200 ? calculateEmaSeries(closes, 200) : [];
+      for (let i = 0; i < historyCandles.length; i++) {
+        const c = historyCandles[i];
+        if (!hasNumber(c.ema10) && hasNumber(e10[i])) c.ema10 = e10[i];
+        if (!hasNumber(c.ema20) && hasNumber(e20[i])) c.ema20 = e20[i];
+        if (!hasNumber(c.ema50) && hasNumber(e50[i])) c.ema50 = e50[i];
+        if (!hasNumber(c.ema72) && hasNumber(e72[i])) c.ema72 = e72[i];
+        if (!hasNumber(c.ema200) && hasNumber(e200[i])) c.ema200 = e200[i];
+      }
+    }
+
+    // 2. Anexar rigorosamente a classificação canônica do Market Regime Engine a cada candle
+    const regimeByDate = new Map();
+    if (Array.isArray(marketRegimeData.regimes)) {
+      for (const r of marketRegimeData.regimes) {
+        if (r.reference_date) {
+          const iso = String(r.reference_date).trim();
+          regimeByDate.set(iso, r);
+          regimeByDate.set(iso.replace(/-/g, ''), r);
+        }
+      }
+    }
+    for (const c of historyCandles) {
+      const rawDate = String(c.date || '').trim();
+      const match = regimeByDate.get(rawDate) || regimeByDate.get(rawDate.replace(/-/g, ''));
+      if (match) {
+        c.regime = match.regime;
+        c.direction = match.direction;
+        c.volatility = match.volatility;
+      } else if (!c.regime) {
+        const isUp = c.close >= (c.ema10 || c.close) && c.close >= (c.ema72 || c.close);
+        const isDown = c.close < (c.ema10 || c.close) && c.close < (c.ema72 || c.close);
+        const dir = isUp ? 'UP' : (isDown ? 'DOWN' : 'SIDEWAYS');
+        c.direction = dir;
+        c.volatility = 'QUIET';
+        c.regime = dir === 'UP' ? 'UP_QUIET' : (dir === 'DOWN' ? 'DOWN_QUIET' : 'SIDEWAYS_QUIET');
+      }
+    }
     const periods = marketRegimeData.periods || [];
     const distribution = marketRegimeData.distribution || null;
     const dataDate = cycle.date || historyCandles.at(-1)?.date || currentRegime?.reference_date;
@@ -883,33 +1240,43 @@
 
     root.innerHTML = `<div class="mre-workspace mcv2-page regime-${activeRegime}" data-current-benchmark="${esc(benchmarkInfo.id)}" data-market-regime="${activeRegime}">
       <div class="mre-shell">
-        ${renderHeader(benchmarkInfo, dataDate)}
+        ${renderHeroBanner(benchmarkInfo, dataDate)}
 
-        <div class="mre-top-grid">
-          ${renderCurrentRegimeCard(currentRegime)}
+        ${renderBenchmarkSelector(benchmarkInfo)}
+
+        <div class="mre-main-visual-row">
+          <div class="mre-chart-col">
+            ${renderHistorySection(benchmarkInfo, historyCandles, periods, distribution, dataDate, currentRegime)}
+          </div>
+          <div class="mre-side-current-col">
+            ${renderCurrentRegimeCard(currentRegime, dataDate)}
+          </div>
+        </div>
+
+        <div class="mre-bottom-grid mre-bottom-split">
           ${renderVolatilityMetricsCard(currentRegime, dataDate)}
           ${renderSixRegimesCard(currentRegime?.regime || 'UP_VOLATILE')}
-        </div>
-
-        <div class="mre-middle-row">
-          ${renderHistorySection(benchmarkInfo, historyCandles, periods, distribution, dataDate, currentRegime)}
-        </div>
-
-        <div class="mre-bottom-row">
-          ${renderPerformanceSection(state.performance, dataDate)}
         </div>
       </div>
     </div>`;
   }
-
   function normalizeMarketId(marketId) {
     const s = String(marketId || '').trim().toUpperCase();
+    if (s === 'SP500' || s === 'SPX' || s === 'SPY' || s.includes('S&P') || s.includes('SP500')) return 'SP500';
+    if (s === 'NASDAQ' || s === 'NDX' || s === 'QQQ' || s.includes('NASD')) return 'NASDAQ';
     if (s.includes('BDR') || s === 'BDRX') return 'BDRX';
     if (s.includes('FII') || s === 'IFIX') return 'IFIX';
     return 'IBOV';
   }
 
   async function load(benchmarkInput = state.currentBenchmark, force = false) {
+    const prefs = loadSavedEmaPrefs();
+    state.showEma10 = prefs.showEma10;
+    state.showEma20 = prefs.showEma20;
+    state.showEma50 = prefs.showEma50;
+    state.showEma72 = prefs.showEma72;
+    state.showEma200 = prefs.showEma200;
+
     const benchmarkId = normalizeMarketId(benchmarkInput);
     const valid = BENCHMARKS.find(b => b.id === benchmarkId) || BENCHMARKS[0];
     state.currentBenchmark = valid.id;
@@ -923,7 +1290,12 @@
     render();
 
     try {
-      const marketParam = valid.id === 'IFIX' ? 'fii' : (valid.id === 'BDRX' ? 'bdr' : 'stock_b3');
+      let marketParam = 'stock_b3';
+      if (valid.id === 'IFIX') marketParam = 'fii';
+      else if (valid.id === 'BDRX') marketParam = 'bdr';
+      else if (valid.id === 'SP500') marketParam = 'sp500';
+      else if (valid.id === 'NASDAQ') marketParam = 'nasdaq';
+
       const [cycleRes, perfRes] = await Promise.all([
         fetch(`${(window.MARKET_DATA_API_URL || 'http://localhost:8787/api')}/market-cycle?market=${marketParam}&benchmark=${valid.id}`),
         fetch(`${(window.MARKET_DATA_API_URL || 'http://localhost:8787/api')}/trading-analytics/performance-by-regime?benchmark=${valid.id}`)
@@ -974,12 +1346,16 @@
   });
 
   root.addEventListener('change', event => {
-    // Toggle de EMA 10 e EMA 72
+    // Toggle de EMAs (10, 20, 50, 72, 200)
     const emaToggle = event.target.closest('[data-toggle-ema]');
     if (emaToggle) {
       const type = emaToggle.getAttribute('data-toggle-ema');
       if (type === '10') state.showEma10 = emaToggle.checked;
+      if (type === '20') state.showEma20 = emaToggle.checked;
+      if (type === '50') state.showEma50 = emaToggle.checked;
       if (type === '72') state.showEma72 = emaToggle.checked;
+      if (type === '200') state.showEma200 = emaToggle.checked;
+      saveEmaPrefs();
       render();
       return;
     }

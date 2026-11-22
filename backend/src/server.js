@@ -1233,13 +1233,20 @@ const server = http.createServer(async (request, response) => {
     if (url.pathname === '/api/market-cycle') {
       const benchmarkQuery = (url.searchParams.get('benchmark') || '').toUpperCase();
       let marketParam = url.searchParams.get('market') || 'stock_b3';
-      if (benchmarkQuery === 'BDRX') marketParam = 'bdr';
-      else if (benchmarkQuery === 'IFIX') marketParam = 'fii';
-      else if (benchmarkQuery === 'IBOV') marketParam = 'stock_b3';
+      if (benchmarkQuery === 'BDRX' || marketParam === 'bdr') marketParam = 'bdr';
+      else if (benchmarkQuery === 'IFIX' || marketParam === 'fii') marketParam = 'fii';
+      else if (['SP500', 'SPX', 'SPY'].includes(benchmarkQuery) || ['sp500', 'spx', 'spy'].includes(marketParam.toLowerCase())) marketParam = 'sp500';
+      else if (['NASDAQ', 'NDX', 'QQQ'].includes(benchmarkQuery) || ['nasdaq', 'ndx', 'qqq'].includes(marketParam.toLowerCase())) marketParam = 'nasdaq';
+      else if (benchmarkQuery === 'IBOV' || marketParam === 'stock_b3') marketParam = 'stock_b3';
 
       const payload = await resolveMarketCycle(cache, marketParam);
       try {
-        const benchmarkId = (marketParam === 'fii' || marketParam === 'ifix' || benchmarkQuery === 'IFIX') ? 'IFIX' : ((marketParam === 'bdr' || marketParam === 'bdrx' || benchmarkQuery === 'BDRX') ? 'BDRX' : 'IBOV');
+        let benchmarkId = 'IBOV';
+        if (marketParam === 'fii') benchmarkId = 'IFIX';
+        else if (marketParam === 'bdr') benchmarkId = 'BDRX';
+        else if (marketParam === 'sp500') benchmarkId = 'SP500';
+        else if (marketParam === 'nasdaq') benchmarkId = 'NASDAQ';
+
         const regimeData = await marketRegime.getRegimeHistory(benchmarkId);
         payload.marketRegime = {
           benchmarkId,
@@ -1249,6 +1256,25 @@ const server = http.createServer(async (request, response) => {
           regimes: regimeData.regimes,
           metadata: marketRegime.REGIME_METADATA
         };
+        if (Array.isArray(payload?.benchmark?.history) && Array.isArray(regimeData?.regimes)) {
+          const rMap = new Map();
+          for (const r of regimeData.regimes) {
+            if (r.reference_date) {
+              const isoDate = String(r.reference_date).trim();
+              rMap.set(isoDate, r);
+              rMap.set(isoDate.replace(/-/g, ''), r);
+            }
+          }
+          for (const c of payload.benchmark.history) {
+            const rawDate = String(c.date || '').trim();
+            const reg = rMap.get(rawDate) || rMap.get(rawDate.replace(/-/g, ''));
+            if (reg) {
+              c.regime = reg.regime;
+              c.direction = reg.direction;
+              c.volatility = reg.volatility;
+            }
+          }
+        }
       } catch (_) {}
       return send(response, 200, payload);
     }

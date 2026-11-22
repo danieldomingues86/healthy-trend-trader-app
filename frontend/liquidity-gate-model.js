@@ -39,8 +39,21 @@
     GATE_DISABLED: 'GATE_DESATIVADO'
   });
 
+  const NUMBER_FORMAT_2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const NUMBER_FORMAT_1 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
   function toIsoDate(value) {
     if (!value) return null;
+    if (typeof value === 'string') {
+      if (value.length === 10 && value.charCodeAt(4) === 45 && value.charCodeAt(7) === 45) {
+        return value;
+      }
+      const s = value.trim();
+      if (s.length === 8 && /^\d{8}$/.test(s)) {
+        return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`;
+      }
+      return s.slice(0, 10);
+    }
     if (value instanceof Date) {
       if (Number.isNaN(value.getTime())) return null;
       return value.toISOString().slice(0, 10);
@@ -54,21 +67,25 @@
 
   function getCandleDate(candle) {
     if (!candle) return null;
-    return toIsoDate(candle.time || candle.date || candle.datetime);
+    const raw = candle.time || candle.date || candle.datetime;
+    if (typeof raw === 'string' && raw.length === 10 && raw.charCodeAt(4) === 45 && raw.charCodeAt(7) === 45) {
+      return raw;
+    }
+    return toIsoDate(raw);
   }
 
   function formatMoney(value, currency = 'R$') {
     const num = Number(value);
     if (!Number.isFinite(num)) return '—';
-    return `${currency} ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `${currency} ${NUMBER_FORMAT_2.format(num)}`;
   }
 
   function formatCompactMoney(value, currency = 'R$') {
     const num = Number(value);
     if (!Number.isFinite(num) || num <= 0) return '—';
-    if (num >= 1e9) return `${currency} ${(num / 1e9).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} bi`;
-    if (num >= 1e6) return `${currency} ${(num / 1e6).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mi`;
-    if (num >= 1e3) return `${currency} ${(num / 1e3).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mil`;
+    if (num >= 1e9) return `${currency} ${NUMBER_FORMAT_1.format(num / 1e9)} bi`;
+    if (num >= 1e6) return `${currency} ${NUMBER_FORMAT_1.format(num / 1e6)} mi`;
+    if (num >= 1e3) return `${currency} ${NUMBER_FORMAT_1.format(num / 1e3)} mil`;
     return `${currency} ${num.toFixed(2).replace('.', ',')}`;
   }
 
@@ -111,7 +128,7 @@
    * @param {Object} [params.policy] Política de risco contendo liquidityGate
    * @returns {Object} Resultado detalhado da avaliação de liquidez
    */
-  function evaluateLiquidity({ candles, targetDate, symbol, market, policy } = {}) {
+  function evaluateLiquidity({ candles, targetDate, targetIndex, symbol, market, policy } = {}) {
     const config = normalizeLiquidityConfig(policy);
     const sym = String(symbol || '').trim().toUpperCase();
     const isUs = isUsMarket(sym, market);
@@ -162,17 +179,30 @@
     const targetDateIso = targetDate ? toIsoDate(targetDate) : null;
 
     // Regra anti look-ahead bias: avalia estritamente candles anteriores à data do sinal/entrada
-    let priorCandles = candles;
-    if (targetDateIso) {
-      priorCandles = candles.filter(c => {
+    let priorArray = candles;
+    let priorCount = candles.length;
+
+    if (Number.isInteger(targetIndex) && targetIndex >= 0 && targetIndex <= candles.length && candles._isChronological) {
+      priorCount = targetIndex;
+    } else if (targetDateIso && candles._isChronological) {
+      let cutoff = candles.length;
+      while (cutoff > 0) {
+        const d = getCandleDate(candles[cutoff - 1]);
+        if (d && d < targetDateIso) break;
+        cutoff--;
+      }
+      priorCount = cutoff;
+    } else if (targetDateIso) {
+      priorArray = candles.filter(c => {
         const d = getCandleDate(c);
         return d && d < targetDateIso;
       });
+      priorCount = priorArray.length;
     }
 
     // Histórico insuficiente (< windowSessions pregões prévios)
-    if (priorCandles.length < config.windowSessions) {
-      const avail = priorCandles.length;
+    if (priorCount < config.windowSessions) {
+      const avail = priorCount;
       return {
         isEligible: false,
         status: STATUS_CODES.INSUFFICIENT_HISTORY,
@@ -197,15 +227,16 @@
     }
 
     // Recorta exatamente os últimos windowSessions (21) pregões
-    const windowCandles = priorCandles.slice(-config.windowSessions);
-    const startDate = getCandleDate(windowCandles[0]);
-    const endDate = getCandleDate(windowCandles[windowCandles.length - 1]);
+    const winStart = priorCount - config.windowSessions;
+    const winEnd = priorCount - 1;
+    const startDate = getCandleDate(priorArray[winStart]);
+    const endDate = getCandleDate(priorArray[winEnd]);
 
     let calendarDaysSpan = 0;
     if (startDate && endDate) {
-      const startMs = new Date(startDate + 'T12:00:00Z').getTime();
-      const endMs = new Date(endDate + 'T12:00:00Z').getTime();
-      calendarDaysSpan = Math.max(1, Math.round((endMs - startMs) / (1000 * 3600 * 24)) + 1);
+      const startMs = Date.parse(startDate);
+      const endMs = Date.parse(endDate);
+      calendarDaysSpan = Math.max(1, Math.round((endMs - startMs) / 86400000) + 1);
     }
 
     // Continuidade temporal: 21 pregões não podem demorar meses (ativos zumbis ou esporádicos)
@@ -216,7 +247,7 @@
         code: 'SPARSE_TRADING',
         reason: `Negociação esparsa / descontinuidade: os últimos ${config.windowSessions} pregões do ativo levaram ${calendarDaysSpan} dias corridos (limite máximo permitido: ${config.maxCalendarDaysSpan} dias corridos). Ativo sem liquidez contínua.`,
         metrics: {
-          evaluatedSessions: windowCandles.length,
+          evaluatedSessions: config.windowSessions,
           windowSessions: config.windowSessions,
           averageDailyVolume: 0,
           minDailyVolume: minVolume,
@@ -236,25 +267,41 @@
       };
     }
 
-    // Volume financeiro diário
-    const sumVolume = windowCandles.reduce((acc, c) => acc + (Number(c.volume) || 0), 0);
+    // Volume financeiro diário e quantidade de negócios em uma única passagem pela janela
+    let sumVolume = 0;
+    let hasVolumeData = false;
+    let sumTrades = 0;
+    let hasTradesData = false;
+    for (let i = winStart; i <= winEnd; i++) {
+      const c = priorArray[i];
+      const vol = Number(c.volume) || 0;
+      if (vol > 0) {
+        sumVolume += vol;
+        hasVolumeData = true;
+      }
+      const trd = Number(c.trades || c.negocios) || 0;
+      if (trd > 0) {
+        sumTrades += trd;
+        hasTradesData = true;
+      }
+    }
     const avgDailyVolume = sumVolume / config.windowSessions;
-    const hasVolumeData = windowCandles.some(c => Number(c.volume) > 0);
-
-    // Quantidade de negócios
-    const sumTrades = windowCandles.reduce((acc, c) => acc + (Number(c.trades || c.negocios) || 0), 0);
     const avgDailyTrades = sumTrades / config.windowSessions;
-    const hasTradesData = windowCandles.some(c => Number(c.trades || c.negocios) > 0);
+
+    const avgVolFormatted = formatMoney(avgDailyVolume, currency);
+    const avgVolCompact = formatCompactMoney(avgDailyVolume, currency);
+    const minVolFormatted = formatMoney(minVolume, currency);
+    const minVolCompact = formatCompactMoney(minVolume, currency);
 
     const baseMetrics = {
-      evaluatedSessions: windowCandles.length,
+      evaluatedSessions: config.windowSessions,
       windowSessions: config.windowSessions,
       averageDailyVolume: round2(avgDailyVolume),
-      averageDailyVolumeFormatted: formatMoney(avgDailyVolume, currency),
-      averageDailyVolumeCompact: formatCompactMoney(avgDailyVolume, currency),
+      averageDailyVolumeFormatted: avgVolFormatted,
+      averageDailyVolumeCompact: avgVolCompact,
       minDailyVolume: minVolume,
-      minDailyVolumeFormatted: formatMoney(minVolume, currency),
-      minDailyVolumeCompact: formatCompactMoney(minVolume, currency),
+      minDailyVolumeFormatted: minVolFormatted,
+      minDailyVolumeCompact: minVolCompact,
       averageDailyTrades: Math.round(avgDailyTrades),
       minDailyTrades: config.minDailyTrades,
       calendarDaysSpan,
@@ -273,11 +320,11 @@
           isEligible: false,
           status: STATUS_CODES.VOLUME_BELOW_MINIMUM,
           code: 'VOLUME_BELOW_MINIMUM',
-          reason: `Volume financeiro médio diário de ${formatMoney(avgDailyVolume, currency)} nos últimos ${config.windowSessions} pregões está abaixo do mínimo exigido de ${formatMoney(minVolume, currency)}.`,
+          reason: `Volume financeiro médio diário de ${avgVolFormatted} nos últimos ${config.windowSessions} pregões está abaixo do mínimo exigido de ${minVolFormatted}.`,
           metrics: baseMetrics,
           badge: {
             text: 'BLOQUEADO POR LIQUIDEZ',
-            shortText: `${formatCompactMoney(avgDailyVolume, currency)}/dia`,
+            shortText: `${avgVolCompact}/dia`,
             class: 'badge-liquidity-blocked',
             color: '#b91c1c'
           }
@@ -288,11 +335,11 @@
         isEligible: true,
         status: STATUS_CODES.APPROVED,
         code: 'APPROVED',
-        reason: `Liquidez aprovada: volume financeiro médio diário de ${formatMoney(avgDailyVolume, currency)} nos últimos ${config.windowSessions} pregões (mínimo: ${formatMoney(minVolume, currency)}).`,
+        reason: `Liquidez aprovada: volume financeiro médio diário de ${avgVolFormatted} nos últimos ${config.windowSessions} pregões (mínimo: ${minVolFormatted}).`,
         metrics: baseMetrics,
         badge: {
           text: 'LIQUIDEZ APROVADA',
-          shortText: `${formatCompactMoney(avgDailyVolume, currency)}/dia`,
+          shortText: `${avgVolCompact}/dia`,
           class: 'badge-liquidity-approved',
           color: '#15803d'
         }
