@@ -605,9 +605,9 @@
               </div>
             </section>
 
-            <!-- Right: Conferir Posições Abertas -->
+            <!-- Right: Posições em Aberto -->
             <section class="daily-update-card positions-card">
-              <header class="daily-update-card-header">
+              <header class="daily-update-card-header positions-card-header">
                 <div class="card-title-group">
                   <span class="card-icon" aria-hidden="true">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -617,13 +617,34 @@
                     </svg>
                   </span>
                   <div class="card-title-text">
-                    <h2>2. Conferir Posições Abertas</h2>
-                    <p>Atualize preços, quantidades e trailing stops conforme sua corretora.</p>
+                    <h2>Posições em Aberto</h2>
                   </div>
                 </div>
-                <div class="card-header-badge-wrap">
-                  <span class="pos-badge-solid" id="badgePositionsChecked">${model.positions.filter(p => !p.closed && p.status !== 'encerrada').length} posições abertas</span>
-                </div>
+                ${(() => {
+                  const totalUnrealized = typeof model.getTotalUnrealizedResult === 'function'
+                    ? model.getTotalUnrealizedResult()
+                    : 0;
+                  const totalUnrealizedPct = typeof model.getTotalUnrealizedPct === 'function'
+                    ? model.getTotalUnrealizedPct()
+                    : 0;
+                  const totResClass = totalUnrealized > 0.005 ? 'positive' : totalUnrealized < -0.005 ? 'negative' : 'neutral';
+                  const totResSign = totalUnrealized > 0.005 ? '+' : '';
+
+                  return `
+                    <div class="positions-header-kpis">
+                      <div class="pos-header-kpi-pill exposure-pill" title="Exposição Total: soma financeira de todas as posições abertas">
+                        <span class="pos-header-kpi-label">Exposição Total:</span>
+                        <strong class="pos-header-kpi-val font-numeric" id="headerTotalExposure">${fmtBRL(exposure)}</strong>
+                        <span class="pos-header-kpi-pct font-numeric" id="headerTotalExposurePct">(${exposurePct.toFixed(2).replace('.', ',')}%)</span>
+                      </div>
+                      <div class="pos-header-kpi-pill result-pill ${totResClass}" id="headerTotalUnrealizedPill" title="Resultado Aberto consolidado de todas as posições abertas">
+                        <span class="pos-header-kpi-label">Resultado:</span>
+                        <strong class="pos-header-kpi-val font-numeric ${totResClass}" id="headerTotalUnrealizedVal">${totResSign}${fmtBRL(totalUnrealized)}</strong>
+                        <span class="pos-header-kpi-pct font-numeric ${totResClass}" id="headerTotalUnrealizedPct">(${fmtPct(totalUnrealizedPct)})</span>
+                      </div>
+                    </div>
+                  `;
+                })()}
               </header>
 
               <div class="position-groups-container">
@@ -636,20 +657,13 @@
                         label: 'Posições',
                         icon: '📊',
                         positions: model.positions,
-                        count: model.positions.length,
-                        totalVolume: exposure,
-                        totalUnrealizedResult: model.positions.reduce((s, p) => s + (model.getPositionUnrealizedResult ? model.getPositionUnrealizedResult(p) : 0), 0),
-                        totalUnrealizedPct: 0
+                        count: model.positions.length
                       }];
 
                   let globalPosIdx = 0;
 
                   return groupedPositions.map(group => {
                     const isGroupCollapsed = this.collapsedPositionGroups.has(group.key);
-                    const grpRes = Number(group.totalUnrealizedResult || 0);
-                    const grpPct = Number(group.totalUnrealizedPct || 0);
-                    const grpResClass = grpRes > 0.005 ? 'positive' : grpRes < -0.005 ? 'negative' : 'neutral';
-                    const grpResSign = grpRes > 0.005 ? '+' : '';
 
                     return `
                       <div class="position-group-card position-group--${group.key.toLowerCase()}" data-position-group="${group.key}">
@@ -657,20 +671,11 @@
                           <div class="pos-group-header-left">
                             <span class="pos-group-icon" aria-hidden="true">${group.icon}</span>
                             <span class="pos-group-name">${group.label}</span>
-                            <span class="pos-group-count-badge" data-pos-group-count="${group.key}">${group.count} ${group.count === 1 ? 'posição' : 'posições'}</span>
+                            <span class="pos-group-count-inline" data-pos-group-count="${group.key}">(${group.count})</span>
                           </div>
                           <div class="pos-group-header-right">
-                            <div class="pos-group-header-metrics">
-                              <span class="pos-group-result-label">Resultado:</span>
-                              <strong class="pos-group-result-amount font-numeric ${grpResClass}" data-pos-group-header-result="${group.key}">
-                                ${grpResSign}${fmtBRL(grpRes)}
-                              </strong>
-                              <span class="pos-group-result-pct font-numeric ${grpResClass}" data-pos-group-header-pct="${group.key}">
-                                (${fmtPct(grpPct)})
-                              </span>
-                            </div>
                             <button type="button" class="pos-group-toggle-btn" aria-label="Recolher ou expandir grupo ${group.label}">
-                              <svg class="pos-group-chevron ${isGroupCollapsed ? 'collapsed' : ''}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <svg class="pos-group-chevron ${isGroupCollapsed ? 'collapsed' : ''}" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
                                 <polyline points="18 15 12 9 6 15"/>
                               </svg>
                             </button>
@@ -682,15 +687,13 @@
                             <table class="daily-update-table positions-table" aria-label="Tabela de Posições Abertas — ${group.label}">
                               <thead>
                                 <tr>
-                                  <th class="th-pos-ticker" style="width: 11%;">Ativo</th>
-                                  <th class="th-pos-account" style="width: 15%;">Conta / Corretora</th>
-                                  <th class="th-pos-qty" style="text-align: right; width: 8%;">Quantidade</th>
-                                  <th class="th-pos-entry" style="text-align: right; width: 10%;">Preço Entrada</th>
-                                  <th class="th-pos-price" style="text-align: right; width: 11%;">Preço Atual</th>
-                                  <th class="th-pos-var" style="text-align: right; width: 8%;">Variação</th>
-                                  <th class="th-pos-volume" style="text-align: right; width: 13%;">Volume Financeiro</th>
-                                  <th class="th-pos-stop" style="text-align: right; width: 11%;">Stop / Trailing</th>
-                                  <th class="th-pos-result" style="text-align: right; width: 13%;">Resultado Atual</th>
+                                  <th class="th-pos-ticker" style="width: 13%;">Ativo</th>
+                                  <th class="th-pos-account" style="width: 22%;">Conta / Corretora</th>
+                                  <th class="th-pos-qty" style="text-align: right; width: 10%;">Quantidade</th>
+                                  <th class="th-pos-entry" style="text-align: right; width: 14%;">Preço de Entrada</th>
+                                  <th class="th-pos-price" style="text-align: right; width: 15%;">Preço Atual</th>
+                                  <th class="th-pos-var" style="text-align: right; width: 11%;">Variação %</th>
+                                  <th class="th-pos-result" style="text-align: right; width: 15%;">Resultado Atual</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -707,9 +710,6 @@
                                   const unrealizedVal = typeof model.getPositionUnrealizedResult === 'function'
                                     ? model.getPositionUnrealizedResult(pos)
                                     : (curr - entry) * (pos.direction === 'short' ? -1 : 1) * Number(pos.quantity || 0) * Number(pos.contractMult || pos.mult || 1);
-                                  const unrealizedPct = typeof model.getPositionUnrealizedPct === 'function'
-                                    ? model.getPositionUnrealizedPct(pos)
-                                    : varPct * (pos.direction === 'short' ? -1 : 1);
                                   const resClass = unrealizedVal > 0.005 ? 'positive' : unrealizedVal < -0.005 ? 'negative' : 'neutral';
                                   const resSign = unrealizedVal > 0.005 ? '+' : '';
                                   const isShort = (typeof model.getPositionDirectionSign === 'function' ? model.getPositionDirectionSign(pos) : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1)) === -1;
@@ -753,7 +753,7 @@
                                       </td>
                                       <td style="text-align: right;">
                                         <div class="pos-qty-cell">
-                                          <span class="pos-qty-number">${pos.quantity}</span>
+                                          <span class="pos-qty-number font-numeric">${pos.quantity}</span>
                                           ${pos.isPartial ? `<span class="pos-partial-pill" title="Posição com saída parcial realizada">parcial</span>` : ''}
                                           ${isDivergent ? `<span class="divergence-tag" title="${pos.divergence?.note || ''}">⚠️ ${pos.divergence?.reported || ''} na corr.</span>` : ''}
                                         </div>
@@ -764,7 +764,7 @@
                                       <td style="text-align: right;">
                                         <input 
                                           type="text" 
-                                          class="pos-price-clean-input ${pos.error ? 'input-error' : ''}" 
+                                          class="pos-price-clean-input font-numeric ${pos.error ? 'input-error' : ''}" 
                                           data-position-id="${pos.id}"
                                           data-index="${pIdx}"
                                           value="${fmtBRL(curr)}"
@@ -775,29 +775,14 @@
                                         ${pos.error ? `<span class="account-error-msg">${pos.error}</span>` : ''}
                                       </td>
                                       <td style="text-align: right;">
-                                        <span class="variation-tag position-var-tag ${varClass}" data-pos-var-for="${pos.id}">
+                                        <span class="variation-tag position-var-tag font-numeric ${varClass}" data-pos-var-for="${pos.id}">
                                           ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
                                         </span>
                                       </td>
-                                      <td class="td-pos-volume" style="text-align: right;">
-                                        <span class="pos-volume-val font-numeric" data-pos-vol-for="${pos.id}">
-                                          ${fmtBRL(model.getPositionFinancialVolume(pos))}
-                                        </span>
-                                      </td>
-                                      <td style="text-align: right;">
-                                        <span class="pos-stop-val font-numeric" title="Stop inicial: ${fmtBRL(pos.stopPrice)} | Trailing stop: ${fmtBRL(pos.trailingStop || pos.stopPrice)}">
-                                          ${fmtBRL(pos.trailingStop || pos.stopPrice)}
-                                        </span>
-                                      </td>
                                       <td class="td-pos-result" style="text-align: right;">
-                                        <div class="pos-result-stack ${resClass}" data-pos-result-stack="${pos.id}">
-                                          <strong class="pos-result-amount font-numeric ${resClass}" data-pos-result-amount="${pos.id}">
-                                            ${resSign}${fmtBRL(unrealizedVal)}
-                                          </strong>
-                                          <span class="pos-result-pct font-numeric ${resClass}" data-pos-result-pct="${pos.id}">
-                                            ${fmtPct(unrealizedPct)}
-                                          </span>
-                                        </div>
+                                        <strong class="pos-result-amount font-numeric ${resClass}" data-pos-result-amount="${pos.id}">
+                                          ${resSign}${fmtBRL(unrealizedVal)}
+                                        </strong>
                                       </td>
                                     </tr>
                                   `;
@@ -806,74 +791,10 @@
                             </table>
                           </div>
                         </div>
-
-                        <!-- Subtotal Informativo da Categoria (não gera dupla contagem no Total Exposto) -->
-                        <div class="position-group-subtotal">
-                          <div class="pos-subtotal-left">
-                            <span class="pos-subtotal-label">SUBTOTAL ${group.label.toUpperCase()}</span>
-                            <span class="pos-subtotal-vol font-numeric" data-pos-group-volume="${group.key}" title="Volume financeiro alocado em ${group.label}">
-                              Exposição: ${fmtBRL(group.totalVolume)}
-                            </span>
-                          </div>
-                          <div class="pos-subtotal-right">
-                            <span class="pos-subtotal-res-caption">Resultado do grupo:</span>
-                            <strong class="pos-subtotal-res-amount font-numeric ${grpResClass}" data-pos-group-subtotal-result="${group.key}">
-                              ${grpResSign}${fmtBRL(grpRes)}
-                            </strong>
-                            <span class="pos-subtotal-res-pct font-numeric ${grpResClass}" data-pos-group-subtotal-pct="${group.key}">
-                              (${fmtPct(grpPct)})
-                            </span>
-                          </div>
-                        </div>
                       </div>
                     `;
                   }).join('');
                 })()}
-              </div>
-
-              <!-- Totalizador Geral da Carteira de Posições Abertas (Sem dupla contagem de subtotais) -->
-              <div class="daily-update-table-container positions-grand-total-wrap">
-                <table class="daily-update-table positions-table positions-tfoot-table" aria-label="Totalizador de Posições Abertas">
-                  <tfoot>
-                    ${(() => {
-                      const totalUnrealized = typeof model.getTotalUnrealizedResult === 'function'
-                        ? model.getTotalUnrealizedResult()
-                        : 0;
-                      const totalUnrealizedPct = typeof model.getTotalUnrealizedPct === 'function'
-                        ? model.getTotalUnrealizedPct()
-                        : 0;
-                      const totResClass = totalUnrealized > 0.005 ? 'positive' : totalUnrealized < -0.005 ? 'negative' : 'neutral';
-                      const totResSign = totalUnrealized > 0.005 ? '+' : '';
-
-                      return `
-                        <tr class="positions-tfoot-row">
-                          <td colspan="6" class="td-total-label" style="text-align: right;">
-                            <strong>TOTAL EXPOSTO:</strong>
-                          </td>
-                          <td class="td-total-amount" style="text-align: right;">
-                            <strong class="pos-total-exposed-val font-numeric" id="tableTotalExposure">${fmtBRL(exposure)}</strong>
-                            <span class="pos-total-share-badge font-numeric" id="tableTotalExposurePct" title="${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio em investimentos">
-                              ${exposurePct.toFixed(2).replace('.', ',')}%
-                            </span>
-                          </td>
-                          <td class="td-total-result-label" style="text-align: right;">
-                            <span class="pos-tfoot-res-caption">RESULTADO ABERTO:</span>
-                          </td>
-                          <td class="td-total-result" style="text-align: right;">
-                            <div class="pos-result-stack ${totResClass}" id="tableTotalUnrealizedWrap">
-                              <strong class="pos-result-amount font-numeric ${totResClass}" id="tableTotalUnrealizedVal">
-                                ${totResSign}${fmtBRL(totalUnrealized)}
-                              </strong>
-                              <span class="pos-result-pct font-numeric ${totResClass}" id="tableTotalUnrealizedPct">
-                                ${fmtPct(totalUnrealizedPct)}
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-                      `;
-                    })()}
-                  </tfoot>
-                </table>
               </div>
 
               <footer class="daily-update-card-footer positions-footer">
@@ -1158,11 +1079,11 @@
       const elExpPct = document.getElementById('kpiExposurePct');
       if (elExpPct) elExpPct.textContent = `${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio`;
 
-      const elTableTotalExp = document.getElementById('tableTotalExposure');
-      if (elTableTotalExp) elTableTotalExp.textContent = fmtBRL(exposure);
+      const elHeaderTotalExp = document.getElementById('headerTotalExposure');
+      if (elHeaderTotalExp) elHeaderTotalExp.textContent = fmtBRL(exposure);
 
-      const elTableTotalExpPct = document.getElementById('tableTotalExposurePct');
-      if (elTableTotalExpPct) elTableTotalExpPct.textContent = `${exposurePct.toFixed(2).replace('.', ',')}%`;
+      const elHeaderTotalExpPct = document.getElementById('headerTotalExposurePct');
+      if (elHeaderTotalExpPct) elHeaderTotalExpPct.textContent = `(${exposurePct.toFixed(2).replace('.', ',')}%)`;
 
       const elTableWealth = document.getElementById('tableConsolidatedWealth');
       if (elTableWealth) elTableWealth.textContent = fmtBRL(realWealth);
@@ -1226,96 +1147,42 @@
         elProvisionalHint.style.display = isProvisional ? 'inline-flex' : 'none';
       }
 
-      // Update individual open position financial volumes and unrealized results live
+      // Update individual open position unrealized results live
       this.model.positions.forEach(pos => {
         if (pos.closed || pos.status === 'encerrada') return;
-        const volVal = this.model.getPositionFinancialVolume(pos);
-        const elVol = document.querySelector(`[data-pos-vol-for="${pos.id}"]`);
-        if (elVol) elVol.textContent = fmtBRL(volVal);
-
         if (typeof this.model.getPositionUnrealizedResult === 'function') {
           const pnl = this.model.getPositionUnrealizedResult(pos);
-          const pct = typeof this.model.getPositionUnrealizedPct === 'function'
-            ? this.model.getPositionUnrealizedPct(pos)
-            : 0;
           const resClass = pnl > 0.005 ? 'positive' : pnl < -0.005 ? 'negative' : 'neutral';
           const resSign = pnl > 0.005 ? '+' : '';
-
-          const elStack = document.querySelector(`[data-pos-result-stack="${pos.id}"]`);
-          if (elStack) elStack.className = `pos-result-stack ${resClass}`;
 
           const elAmt = document.querySelector(`[data-pos-result-amount="${pos.id}"]`);
           if (elAmt) {
             elAmt.className = `pos-result-amount font-numeric ${resClass}`;
             elAmt.textContent = `${resSign}${fmtBRL(pnl)}`;
           }
-
-          const elPct = document.querySelector(`[data-pos-result-pct="${pos.id}"]`);
-          if (elPct) {
-            elPct.className = `pos-result-pct font-numeric ${resClass}`;
-            elPct.textContent = fmtPct(pct);
-          }
         }
       });
 
-      // Update market category group headers and subtotals live
-      if (typeof this.model.getGroupedPositions === 'function') {
-        const posGroups = this.model.getGroupedPositions();
-        posGroups.forEach(grp => {
-          const grpRes = Number(grp.totalUnrealizedResult || 0);
-          const grpPct = Number(grp.totalUnrealizedPct || 0);
-          const grpResClass = grpRes > 0.005 ? 'positive' : grpRes < -0.005 ? 'negative' : 'neutral';
-          const grpResSign = grpRes > 0.005 ? '+' : '';
-
-          const elHdrRes = document.querySelector(`[data-pos-group-header-result="${grp.key}"]`);
-          if (elHdrRes) {
-            elHdrRes.className = `pos-group-result-amount font-numeric ${grpResClass}`;
-            elHdrRes.textContent = `${grpResSign}${fmtBRL(grpRes)}`;
-          }
-
-          const elHdrPct = document.querySelector(`[data-pos-group-header-pct="${grp.key}"]`);
-          if (elHdrPct) {
-            elHdrPct.className = `pos-group-result-pct font-numeric ${grpResClass}`;
-            elHdrPct.textContent = `(${fmtPct(grpPct)})`;
-          }
-
-          const elSubVol = document.querySelector(`[data-pos-group-volume="${grp.key}"]`);
-          if (elSubVol) elSubVol.textContent = `Exposição: ${fmtBRL(grp.totalVolume)}`;
-
-          const elSubRes = document.querySelector(`[data-pos-group-subtotal-result="${grp.key}"]`);
-          if (elSubRes) {
-            elSubRes.className = `pos-subtotal-res-amount font-numeric ${grpResClass}`;
-            elSubRes.textContent = `${grpResSign}${fmtBRL(grpRes)}`;
-          }
-
-          const elSubPct = document.querySelector(`[data-pos-group-subtotal-pct="${grp.key}"]`);
-          if (elSubPct) {
-            elSubPct.className = `pos-subtotal-res-pct font-numeric ${grpResClass}`;
-            elSubPct.textContent = `(${fmtPct(grpPct)})`;
-          }
-        });
-      }
-
-      // Update grand total open unrealized result in footer live
+      // Update consolidated Resultado Aberto pill in Positions header live
       if (typeof this.model.getTotalUnrealizedResult === 'function') {
         const totPnl = this.model.getTotalUnrealizedResult();
         const totPct = typeof this.model.getTotalUnrealizedPct === 'function' ? this.model.getTotalUnrealizedPct() : 0;
         const totClass = totPnl > 0.005 ? 'positive' : totPnl < -0.005 ? 'negative' : 'neutral';
         const totSign = totPnl > 0.005 ? '+' : '';
 
-        const elWrap = document.getElementById('tableTotalUnrealizedWrap');
-        if (elWrap) elWrap.className = `pos-result-stack ${totClass}`;
+        const elPill = document.getElementById('headerTotalUnrealizedPill');
+        if (elPill) elPill.className = `pos-header-kpi-pill result-pill ${totClass}`;
 
-        const elVal = document.getElementById('tableTotalUnrealizedVal');
+        const elVal = document.getElementById('headerTotalUnrealizedVal');
         if (elVal) {
-          elVal.className = `pos-result-amount font-numeric ${totClass}`;
+          elVal.className = `pos-header-kpi-val font-numeric ${totClass}`;
           elVal.textContent = `${totSign}${fmtBRL(totPnl)}`;
         }
 
-        const elPct = document.getElementById('tableTotalUnrealizedPct');
+        const elPct = document.getElementById('headerTotalUnrealizedPct');
         if (elPct) {
-          elPct.className = `pos-result-pct font-numeric ${totClass}`;
-          elPct.textContent = fmtPct(totPct);
+          elPct.className = `pos-header-kpi-pct font-numeric ${totClass}`;
+          elPct.textContent = `(${fmtPct(totPct)})`;
         }
       }
 

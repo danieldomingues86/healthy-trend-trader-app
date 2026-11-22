@@ -955,23 +955,22 @@ test('DailyUpdateHub: Volume Financeiro, Totalizador Sincronizado e Heat Oficial
   const controller = mockRoot.DailyUpdateHub;
   controller.render();
 
-  // 1. Coluna "Volume Financeiro" presente no cabeçalho da tabela de posições
-  assert.ok(renderedHtml.includes('th-pos-volume'), 'Classe th-pos-volume deve estar presente no thead');
-  assert.ok(renderedHtml.includes('Volume Financeiro'), 'Texto Volume Financeiro deve estar presente no thead');
+  // 1. Cabeçalho de Posições em Aberto contém apenas os dois indicadores consolidados (Exposição Total e Resultado)
+  assert.ok(renderedHtml.includes('id="headerTotalExposure"'), 'Pílula de Exposição Total deve estar no cabeçalho');
+  assert.ok(renderedHtml.includes('id="headerTotalExposurePct"'), 'Percentual da Exposição Total deve estar no cabeçalho');
+  assert.ok(renderedHtml.includes('314.302,00'), 'Valor consolidado de 314.302,00 deve estar no cabeçalho');
+  assert.ok(renderedHtml.includes('(31,42%)'), 'Percentual de 31,42% deve estar no cabeçalho');
+  assert.ok(renderedHtml.includes('id="headerTotalUnrealizedVal"'), 'Pílula de Resultado consolidado deve estar no cabeçalho');
+  assert.ok(renderedHtml.includes('id="headerTotalUnrealizedPct"'), 'Percentual do Resultado consolidado deve estar no cabeçalho');
 
-  // 2. Coluna e valores de volume em cada linha da tabela
-  assert.ok(renderedHtml.includes('td-pos-volume'), 'Classe td-pos-volume deve estar presente nas células');
-  assert.ok(renderedHtml.includes('pos-volume-val'), 'Classe pos-volume-val deve estar presente');
-  assert.ok(renderedHtml.includes('61.926,00'), 'Volume de AAPL34 (61.926,00) deve estar presente');
-  assert.ok(renderedHtml.includes('131.670,00'), 'Volume de BGIX26 com multiplicador 330 (131.670,00) deve estar presente');
-  assert.ok(renderedHtml.includes('67.038,00'), 'Volume de WINZ26 com multiplicador 0.20 (67.038,00) deve estar presente');
+  // 2. Simplificação das tabelas: sem colunas Volume Financeiro, Stop / Trailing ou Status, e sem rodapés/subtotais repetidos
+  assert.ok(!renderedHtml.includes('th-pos-volume'), 'Coluna th-pos-volume NÃO deve estar na tabela simplificada');
+  assert.ok(!renderedHtml.includes('td-pos-volume'), 'Células td-pos-volume NÃO devem estar na tabela simplificada');
+  assert.ok(!renderedHtml.includes('Stop / Trailing'), 'Coluna Stop / Trailing NÃO deve estar na tabela simplificada');
+  assert.ok(!renderedHtml.includes('positions-tfoot-row'), 'Linha duplicada de tfoot NÃO deve estar presente');
+  assert.ok(!renderedHtml.includes('position-group-subtotal'), 'Subtotais individuais por categoria NÃO devem estar presentes');
 
-  // 3. Linha de totalização no rodapé da tabela (tfoot)
-  assert.ok(renderedHtml.includes('positions-tfoot-row'), 'Linha de tfoot positions-tfoot-row deve estar presente');
-  assert.ok(renderedHtml.includes('TOTAL EXPOSTO:'), 'Rótulo TOTAL EXPOSTO: deve estar presente');
-  assert.ok(renderedHtml.includes('314.302,00'), 'Valor consolidado de 314.302,00 deve estar no rodapé da tabela');
-
-  // 4. Menu inferior colado à tabela sem barra duplicada de totalizador
+  // 3. Menu inferior colado à tabela sem barra duplicada de totalizador
   assert.ok(!renderedHtml.includes('positions-table-totalizer'), 'Barra duplicada positions-table-totalizer NÃO deve ser renderizada');
   assert.ok(renderedHtml.includes('positions-footer'), 'Menu inferior positions-footer deve estar presente');
   assert.ok(renderedHtml.includes('Atualizar Preços em Lote'), 'Botão Atualizar Preços em Lote deve estar no footer');
@@ -1165,13 +1164,17 @@ test('DailyUpdateHub: Coluna Resultado Atual (substituindo Status) e Agrupamento
   assert.ok(idxBdr > -1, 'Grupo BDR (BDRs) deve ser renderizado');
   assert.ok(idxFut < idxStock && idxStock < idxBdr, 'Ordem dos grupos deve ser Futuros -> Ações -> BDRs');
 
-  // 3. Resultados individuais e subtotais renderizados corretamente (com diferenciação visual positive/negative/neutral)
+  // 3. Resultados individuais e contagem entre parênteses nos grupos renderizados sem subtotais repetidos
   assert.ok(renderedHtml.includes('+R$ 1.410,00') || renderedHtml.includes('+R$ 1.410,00'), 'Lucro de AAPL34 (+R$ 1.410,00) deve ser exibido');
   assert.ok(renderedHtml.includes('+R$ 36,00') || renderedHtml.includes('+R$ 36,00'), 'Lucro na venda de WINZ26 (+R$ 36,00) deve ser exibido');
   assert.ok(renderedHtml.includes('-R$ 1.072,50') || renderedHtml.includes('-R$ 1.072,50'), 'Prejuízo de BGIX26 (-R$ 1.072,50) deve ser exibido');
-  assert.ok(renderedHtml.includes('SUBTOTAL FUTUROS'), 'Rodapé de subtotal de Futuros deve ser exibido');
-  assert.ok(renderedHtml.includes('SUBTOTAL AÇÕES'), 'Rodapé de subtotal de Ações deve ser exibido');
-  assert.ok(renderedHtml.includes('SUBTOTAL BDRS'), 'Rodapé de subtotal de BDRs deve ser exibido');
+  assert.ok(renderedHtml.includes('data-pos-group-count="FUTURES">(2)</span>'), 'Quantidade (2) ao lado de Futuros deve ser exibida');
+  assert.ok(renderedHtml.includes('data-pos-group-count="STOCK">(2)</span>'), 'Quantidade (2) ao lado de Ações deve ser exibida');
+  assert.ok(renderedHtml.includes('data-pos-group-count="BDR">(3)</span>'), 'Quantidade (3) ao lado de BDRs deve ser exibida');
+  assert.ok(!renderedHtml.includes('SUBTOTAL FUTUROS'), 'Rodapé de subtotal de Futuros NÃO deve ser exibido');
+  assert.ok(!renderedHtml.includes('SUBTOTAL AÇÕES'), 'Rodapé de subtotal de Ações NÃO deve ser exibido');
+  assert.ok(!renderedHtml.includes('SUBTOTAL BDRS'), 'Rodapé de subtotal de BDRs NÃO deve ser exibido');
+  assert.ok(!renderedHtml.includes('pos-group-header-metrics'), 'Resultado financeiro no cabeçalho de cada grupo NÃO deve ser exibido');
 
   // 4. Expansão e recolhimento de grupos de mercado
   assert.equal(controller.collapsedPositionGroups.has('FUTURES'), false);
