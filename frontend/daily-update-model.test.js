@@ -1155,4 +1155,13 @@ test('DailyUpdateModel: Resultado Atual (Compras, Vendas, Multiplicadores de Fut
   assert.equal(allGroups.find(g => g.key === 'ETF').totalUnrealizedResult, -200.00);
   assert.equal(allGroups.find(g => g.key === 'OTHER').totalUnrealizedResult, 0.00);
   assert.equal(allGroups.find(g => g.key === 'OTHER').positions[0].ticker, 'XYZ_STRUCT_99');
+
+  // 7. Identificação C/V (Compra = 'C', Venda = 'V') pela direção original da operação (independente de lucro ou prejuízo)
+  assert.equal(model.getPositionSideCode(win), 'V'); // WINZ26 vendido em lucro (+R$ 36,00) -> V
+  assert.equal(model.getPositionSideCode(bgi), 'C'); // BGIX26 comprado em prejuízo (-R$ 1.072,50) -> C
+  assert.equal(model.getPositionSideCode(bbas), 'C'); // BBAS3 comprado em prejuízo -> C
+  assert.equal(model.getPositionSideCode(brav), 'C'); // BRAV3 comprado em prejuízo -> C
+  assert.equal(model.getPositionSideCode(aapl), 'C'); // AAPL34 comprado em lucro -> C
+  assert.equal(model.getPositionSideCode(amzn), 'C'); // AMZN34 comprado em prejuízo -> C
+  assert.equal(model.getPositionSideCode(m2st), 'C'); // M2ST34 comprado em prejuízo -> C
 });

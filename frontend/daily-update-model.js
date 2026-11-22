@@ -149,13 +149,13 @@
 
   // Default sample open positions for instant preview
   const DEFAULT_POSITIONS = [
-    { id: 'pos_aapl34', ticker: 'AAPL34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 100.86, currentPrice: 103.21, stopPrice: 96.49, trailingStop: 96.49, atr: 2.77, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_amzn34', ticker: 'AMZN34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 78.69, currentPrice: 77.03, stopPrice: 73.48, trailingStop: 73.48, atr: 3.33, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_aapl34', ticker: 'AAPL34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 100.86, currentPrice: 103.21, stopPrice: 96.49, trailingStop: 96.49, atr: 2.77, mult: 1, contractMult: 1, side: 'Compra', direction: 'long', strategy: 'TREND_FOLLOWING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_amzn34', ticker: 'AMZN34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 78.69, currentPrice: 77.03, stopPrice: 73.48, trailingStop: 73.48, atr: 3.33, mult: 1, contractMult: 1, side: 'Compra', direction: 'long', strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
     { id: 'pos_winz26', ticker: 'WINZ26', assetClass: 'FUTURES', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 2, initialQuantity: 2, isPartial: false, partialCount: 0, entryPrice: 167685, currentPrice: 167595, stopPrice: 174435, trailingStop: 174435, atr: 5202.14, mult: 0.2, contractMult: 0.2, side: 'Venda', direction: 'short', strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_brav3', ticker: 'BRAV3', assetClass: 'STOCK', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 14.06, currentPrice: 12.87, stopPrice: 12.00, trailingStop: 12.00, atr: 0.83, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-11', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_bbas3', ticker: 'BBAS3', assetClass: 'STOCK', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 15.48, currentPrice: 14.30, stopPrice: 12.00, trailingStop: 12.00, atr: 1.09, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_bgix26', ticker: 'BGIX26', assetClass: 'FUTURES', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 1, initialQuantity: 1, isPartial: false, partialCount: 0, entryPrice: 402.25, currentPrice: 399.00, stopPrice: 395.00, trailingStop: 395.00, atr: 3.93, mult: 330, contractMult: 330, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_m2st34', ticker: 'M2ST34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 8.99, currentPrice: 7.38, stopPrice: 7.00, trailingStop: 7.00, atr: 0.74, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false }
+    { id: 'pos_brav3', ticker: 'BRAV3', assetClass: 'STOCK', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 14.06, currentPrice: 12.87, stopPrice: 12.00, trailingStop: 12.00, atr: 0.83, mult: 1, contractMult: 1, side: 'Compra', direction: 'long', strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-11', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_bbas3', ticker: 'BBAS3', assetClass: 'STOCK', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 15.48, currentPrice: 14.30, stopPrice: 12.00, trailingStop: 12.00, atr: 1.09, mult: 1, contractMult: 1, side: 'Compra', direction: 'long', strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_bgix26', ticker: 'BGIX26', assetClass: 'FUTURES', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 1, initialQuantity: 1, isPartial: false, partialCount: 0, entryPrice: 402.25, currentPrice: 399.00, stopPrice: 395.00, trailingStop: 395.00, atr: 3.93, mult: 330, contractMult: 330, side: 'Compra', direction: 'long', strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_m2st34', ticker: 'M2ST34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 8.99, currentPrice: 7.38, stopPrice: 7.00, trailingStop: 7.00, atr: 0.74, mult: 1, contractMult: 1, side: 'Compra', direction: 'long', strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false }
   ];
 
   const POSITION_MARKET_CATEGORIES = [
@@ -1572,11 +1572,36 @@ const DEFAULT_HISTORY = [
 
     /**
      * Resolves direction multiplier (+1 for Buy/Long, -1 for Sell/Short).
+     * Strictly uses the registered trade direction (never price variation or financial result).
      */
     getPositionDirectionSign(pos) {
       if (!pos) return 1;
-      const dir = String(pos.direction ?? pos.side ?? '').trim().toLowerCase();
-      return (dir === 'short' || dir === 'venda' || dir === 'sell') ? -1 : 1;
+      const rawCandidates = [
+        pos.direction,
+        pos.side,
+        pos.operationType,
+        pos.metadata?.direction,
+        pos.metadata?.side
+      ];
+      for (const candidate of rawCandidates) {
+        if (candidate === undefined || candidate === null) continue;
+        const dir = String(candidate).trim().toLowerCase();
+        if (dir === 'short' || dir === 'venda' || dir === 'sell' || dir === 'v' || dir === 'vendido' || dir === 'vendida') {
+          return -1;
+        }
+        if (dir === 'long' || dir === 'compra' || dir === 'buy' || dir === 'c' || dir === 'comprado' || dir === 'comprada') {
+          return 1;
+        }
+      }
+      return 1;
+    }
+
+    /**
+     * Returns the canonical compact direction badge code ('C' for Compra/Long, 'V' for Venda/Short).
+     * Strictly uses the registered trade direction (never price variation or financial result).
+     */
+    getPositionSideCode(pos) {
+      return this.getPositionDirectionSign(pos) === -1 ? 'V' : 'C';
     }
 
     /**
@@ -1880,7 +1905,19 @@ const DEFAULT_HISTORY = [
         if (!raw) return false;
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed.accounts)) this.accounts = parsed.accounts;
-        if (Array.isArray(parsed.positions)) this.positions = parsed.positions;
+        if (Array.isArray(parsed.positions)) {
+          this.positions = parsed.positions.map(p => {
+            const defPos = DEFAULT_POSITIONS.find(d => d.id === p.id || d.ticker === p.ticker);
+            if (defPos) {
+              if (!p.direction && defPos.direction) p.direction = defPos.direction;
+              if (!p.side && defPos.side) p.side = defPos.side;
+              if (!p.assetClass && defPos.assetClass) p.assetClass = defPos.assetClass;
+              if (!p.contractMult && defPos.contractMult) p.contractMult = defPos.contractMult;
+              if (!p.mult && defPos.mult) p.mult = defPos.mult;
+            }
+            return p;
+          });
+        }
         if (parsed.previousClosingWealth) this.previousClosingWealth = Number(parsed.previousClosingWealth);
         this.updateClosingReadiness();
         return true;

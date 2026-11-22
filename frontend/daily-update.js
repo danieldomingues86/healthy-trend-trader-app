@@ -687,13 +687,14 @@
                             <table class="daily-update-table positions-table" aria-label="Tabela de Posições Abertas — ${group.label}">
                               <thead>
                                 <tr>
-                                  <th class="th-pos-ticker" style="width: 13%;">Ativo</th>
-                                  <th class="th-pos-account" style="width: 22%;">Conta / Corretora</th>
+                                  <th class="th-pos-ticker" style="width: 11%;">Ativo</th>
+                                  <th class="th-pos-cv" style="text-align: center; width: 6%;">C/V</th>
+                                  <th class="th-pos-account" style="width: 21%;">Conta / Corretora</th>
                                   <th class="th-pos-qty" style="text-align: right; width: 10%;">Quantidade</th>
                                   <th class="th-pos-entry" style="text-align: right; width: 14%;">Preço de Entrada</th>
-                                  <th class="th-pos-price" style="text-align: right; width: 15%;">Preço Atual</th>
-                                  <th class="th-pos-var" style="text-align: right; width: 11%;">Variação %</th>
-                                  <th class="th-pos-result" style="text-align: right; width: 15%;">Resultado Atual</th>
+                                  <th class="th-pos-price" style="text-align: right; width: 14%;">Preço Atual</th>
+                                  <th class="th-pos-var" style="text-align: right; width: 10%;">Variação %</th>
+                                  <th class="th-pos-result" style="text-align: right; width: 14%;">Resultado Atual</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -712,7 +713,10 @@
                                     : (curr - entry) * (pos.direction === 'short' ? -1 : 1) * Number(pos.quantity || 0) * Number(pos.contractMult || pos.mult || 1);
                                   const resClass = unrealizedVal > 0.005 ? 'positive' : unrealizedVal < -0.005 ? 'negative' : 'neutral';
                                   const resSign = unrealizedVal > 0.005 ? '+' : '';
-                                  const isShort = (typeof model.getPositionDirectionSign === 'function' ? model.getPositionDirectionSign(pos) : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1)) === -1;
+                                  const sideCode = typeof model.getPositionSideCode === 'function'
+                                    ? model.getPositionSideCode(pos)
+                                    : ((typeof model.getPositionDirectionSign === 'function' ? model.getPositionDirectionSign(pos) : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1)) === -1 ? 'V' : 'C');
+                                  const isShort = sideCode === 'V';
 
                                   let rowClass = 'position-row';
                                   if (isDivergent) rowClass += ' divergent';
@@ -724,8 +728,10 @@
                                       <td>
                                         <div class="pos-ticker-group">
                                           <strong class="pos-ticker" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}');" title="Ver detalhes completos da operação">${pos.ticker}</strong>
-                                          ${isShort ? `<span class="pos-side-badge short" title="Operação Vendida (Short)">V</span>` : ''}
                                         </div>
+                                      </td>
+                                      <td class="td-pos-cv" style="text-align: center;">
+                                        <span class="pos-cv-badge ${isShort ? 'sell' : 'buy'}" data-pos-cv="${pos.id}" title="${isShort ? 'Operação Vendida (Short)' : 'Operação Comprada (Long)'}">${sideCode}</span>
                                       </td>
                                       <td class="td-pos-account">
                                         <select 

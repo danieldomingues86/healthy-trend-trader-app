@@ -1149,11 +1149,42 @@ test('DailyUpdateHub: Coluna Resultado Atual (substituindo Status) e Agrupamento
   const controller = mockRoot.DailyUpdateHub;
   controller.render();
 
-  // 1. Coluna redundante Status foi removida da tabela de posições e substituída por Resultado Atual
+  // 1. Coluna redundante Status foi removida da tabela de posições e substituída por Resultado Atual, e coluna C/V adicionada logo à direita de Ativo
   assert.ok(!renderedHtml.includes('th-pos-status'), 'Coluna th-pos-status NÃO deve estar presente na tabela de posições');
   assert.ok(!renderedHtml.includes('btn-status-dropdown'), 'Botão de dropdown de status Aberta NÃO deve estar presente na tabela');
+  assert.ok(renderedHtml.includes('th-pos-cv'), 'Cabeçalho th-pos-cv deve estar presente');
+  assert.ok(renderedHtml.includes('>C/V</th>'), 'Título da coluna C/V deve estar presente');
   assert.ok(renderedHtml.includes('th-pos-result'), 'Cabeçalho th-pos-result deve estar presente');
   assert.ok(renderedHtml.includes('Resultado Atual'), 'Título da coluna Resultado Atual deve estar presente');
+
+  // Ordem exata das 8 colunas: Ativo -> C/V -> Conta / Corretora -> Quantidade -> Preço de Entrada -> Preço Atual -> Variação % -> Resultado Atual
+  const idxColTicker = renderedHtml.indexOf('th-pos-ticker');
+  const idxColCv = renderedHtml.indexOf('th-pos-cv');
+  const idxColAcc = renderedHtml.indexOf('th-pos-account');
+  const idxColQty = renderedHtml.indexOf('th-pos-qty');
+  const idxColEntry = renderedHtml.indexOf('th-pos-entry');
+  const idxColPrice = renderedHtml.indexOf('th-pos-price');
+  const idxColVar = renderedHtml.indexOf('th-pos-var');
+  const idxColRes = renderedHtml.indexOf('th-pos-result');
+  assert.ok(
+    idxColTicker < idxColCv &&
+    idxColCv < idxColAcc &&
+    idxColAcc < idxColQty &&
+    idxColQty < idxColEntry &&
+    idxColEntry < idxColPrice &&
+    idxColPrice < idxColVar &&
+    idxColVar < idxColRes,
+    'As 8 colunas devem seguir a ordem canônica: Ativo -> C/V -> Conta / Corretora -> Quantidade -> Preço de Entrada -> Preço Atual -> Variação % -> Resultado Atual'
+  );
+
+  // Badges C (azul) e V (vermelho) exibidos para todas as posições abertas de acordo com a direção real da operação
+  assert.ok(renderedHtml.includes('class="pos-cv-badge sell" data-pos-cv="pos_winz26"'), 'WINZ26 deve exibir badge V (sell)');
+  assert.ok(renderedHtml.includes('class="pos-cv-badge buy" data-pos-cv="pos_bgix26"'), 'BGIX26 deve exibir badge C (buy) mesmo em prejuízo');
+  assert.ok(renderedHtml.includes('class="pos-cv-badge buy" data-pos-cv="pos_bbas3"'), 'BBAS3 deve exibir badge C (buy)');
+  assert.ok(renderedHtml.includes('class="pos-cv-badge buy" data-pos-cv="pos_brav3"'), 'BRAV3 deve exibir badge C (buy)');
+  assert.ok(renderedHtml.includes('class="pos-cv-badge buy" data-pos-cv="pos_amzn34"'), 'AMZN34 deve exibir badge C (buy)');
+  assert.ok(renderedHtml.includes('class="pos-cv-badge buy" data-pos-cv="pos_m2st34"'), 'M2ST34 deve exibir badge C (buy)');
+  assert.ok(renderedHtml.includes('class="pos-cv-badge buy" data-pos-cv="pos_aapl34"'), 'AAPL34 deve exibir badge C (buy)');
 
   // 2. Grupos de mercado renderizados na ordem canônica: Futuros, Ações, BDRs
   const idxFut = renderedHtml.indexOf('data-position-group="FUTURES"');

@@ -4681,6 +4681,41 @@ body[data-theme="pigeon"] .positions-card .positions-footer {
   transform: rotate(180deg);
 }
 
+/* Coluna C/V (Compra e Venda) */
+.th-pos-cv,
+.td-pos-cv {
+  text-align: center;
+  width: 44px;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
+
+.pos-cv-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+.pos-cv-badge.buy {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.pos-cv-badge.sell {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
 /* Coluna Resultado Atual */
 .th-pos-result,
 .td-pos-result {
@@ -4705,19 +4740,6 @@ body[data-theme="pigeon"] .positions-card .positions-footer {
 
 .pos-result-amount.neutral {
   color: var(--muted, #63786c);
-}
-
-.pos-side-badge.short {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: 9.5px;
-  font-weight: 800;
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 /* Gold / Dark Theme Overrides for Market Position Groups */
@@ -4788,4 +4810,16 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-result-amount.p
 
 body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-result-amount.negative {
   color: #f87171;
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-cv-badge.buy {
+  background: rgba(37, 99, 235, 0.22);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+body:not([data-theme="healthy"]):not([data-theme="pigeon"]) .pos-cv-badge.sell {
+  background: rgba(220, 38, 38, 0.22);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.35);
 }
