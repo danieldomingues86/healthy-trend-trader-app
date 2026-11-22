@@ -1095,3 +1095,93 @@ test('DailyUpdateHub: Interface Financeira de Contas (Sem coluna Ações, foco e
   assert.equal(controller.model.accounts.find(a => a.id === 'xp_daniel').newBalance, 215000.00);
   assert.equal(controller.model.getProgress().accountsComplete, true);
 });
+
+test('DailyUpdateHub: Coluna Resultado Atual (substituindo Status) e Agrupamento Expansível por Mercado na Tabela de Posições', () => {
+  let renderedHtml = '';
+  const fakeElement = {
+    set innerHTML(val) { renderedHtml = val; },
+    get innerHTML() { return renderedHtml; },
+    classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+    style: {},
+    appendChild: () => {},
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {}
+  };
+
+  const storageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v)),
+    removeItem: (k) => storageMap.delete(k)
+  };
+
+  const mockRoot = {
+    localStorage: mockStorage,
+    sessionStorage: mockStorage,
+    DailyUpdateModel,
+    dispatchEvent: () => {},
+    operationalState: { positions: [] }
+  };
+
+  const mockDoc = {
+    getElementById: (id) => {
+      if (id === 'dailyUpdateRoot') return fakeElement;
+      return null;
+    },
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    createElement: () => ({ setAttribute: () => {}, appendChild: () => {}, style: {} }),
+    body: { appendChild: () => {}, removeChild: () => {} }
+  };
+
+  class MockCustomEvent {
+    constructor(type, init) {
+      this.type = type;
+      this.detail = init?.detail;
+    }
+  }
+
+  const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+  const runFn = new Function('root', 'document', 'localStorage', 'CustomEvent', 'self', code);
+  runFn.call(mockRoot, mockRoot, mockDoc, mockStorage, MockCustomEvent, mockRoot);
+
+  const controller = mockRoot.DailyUpdateHub;
+  controller.render();
+
+  // 1. Coluna redundante Status foi removida da tabela de posições e substituída por Resultado Atual
+  assert.ok(!renderedHtml.includes('th-pos-status'), 'Coluna th-pos-status NÃO deve estar presente na tabela de posições');
+  assert.ok(!renderedHtml.includes('btn-status-dropdown'), 'Botão de dropdown de status Aberta NÃO deve estar presente na tabela');
+  assert.ok(renderedHtml.includes('th-pos-result'), 'Cabeçalho th-pos-result deve estar presente');
+  assert.ok(renderedHtml.includes('Resultado Atual'), 'Título da coluna Resultado Atual deve estar presente');
+
+  // 2. Grupos de mercado renderizados na ordem canônica: Futuros, Ações, BDRs
+  const idxFut = renderedHtml.indexOf('data-position-group="FUTURES"');
+  const idxStock = renderedHtml.indexOf('data-position-group="STOCK"');
+  const idxBdr = renderedHtml.indexOf('data-position-group="BDR"');
+  assert.ok(idxFut > -1, 'Grupo FUTURES (Futuros) deve ser renderizado');
+  assert.ok(idxStock > -1, 'Grupo STOCK (Ações) deve ser renderizado');
+  assert.ok(idxBdr > -1, 'Grupo BDR (BDRs) deve ser renderizado');
+  assert.ok(idxFut < idxStock && idxStock < idxBdr, 'Ordem dos grupos deve ser Futuros -> Ações -> BDRs');
+
+  // 3. Resultados individuais e subtotais renderizados corretamente (com diferenciação visual positive/negative/neutral)
+  assert.ok(renderedHtml.includes('+R$ 1.410,00') || renderedHtml.includes('+R$ 1.410,00'), 'Lucro de AAPL34 (+R$ 1.410,00) deve ser exibido');
+  assert.ok(renderedHtml.includes('+R$ 36,00') || renderedHtml.includes('+R$ 36,00'), 'Lucro na venda de WINZ26 (+R$ 36,00) deve ser exibido');
+  assert.ok(renderedHtml.includes('-R$ 1.072,50') || renderedHtml.includes('-R$ 1.072,50'), 'Prejuízo de BGIX26 (-R$ 1.072,50) deve ser exibido');
+  assert.ok(renderedHtml.includes('SUBTOTAL FUTUROS'), 'Rodapé de subtotal de Futuros deve ser exibido');
+  assert.ok(renderedHtml.includes('SUBTOTAL AÇÕES'), 'Rodapé de subtotal de Ações deve ser exibido');
+  assert.ok(renderedHtml.includes('SUBTOTAL BDRS'), 'Rodapé de subtotal de BDRs deve ser exibido');
+
+  // 4. Expansão e recolhimento de grupos de mercado
+  assert.equal(controller.collapsedPositionGroups.has('FUTURES'), false);
+  controller.togglePositionGroup('FUTURES');
+  assert.equal(controller.collapsedPositionGroups.has('FUTURES'), true);
+  assert.ok(renderedHtml.includes('pos-group-chevron collapsed'), 'Chevron recolhido deve ser renderizado');
+  controller.togglePositionGroup('FUTURES');
+  assert.equal(controller.collapsedPositionGroups.has('FUTURES'), false);
+
+  // 5. Status operacional interno continua preservado para regras e fechamento
+  assert.equal(controller.model.positions.every(p => p.status === 'conferida'), true);
+  assert.equal(controller.model.getProgress().positionsComplete, true);
+});

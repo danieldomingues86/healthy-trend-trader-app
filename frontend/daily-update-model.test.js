@@ -1038,3 +1038,121 @@ test('DailyUpdateModel: 11 Cenários de Aceitação — Volume Financeiro, Expos
     assert.ok(p.financialVolume > 0, `Posição ${p.ticker} deve registrar financialVolume`);
   });
 });
+
+test('DailyUpdateModel: Resultado Atual (Compras, Vendas, Multiplicadores de Futuros, Câmbio USD) e Agrupamento por Mercado', () => {
+  const model = new DailyUpdateModel();
+
+  // 1. Verifica cálculo financeiro individual das 7 posições padrão
+  const aapl = model.positions.find(p => p.id === 'pos_aapl34'); // Long 600, entry 100.86, curr 103.21, mult 1
+  const amzn = model.positions.find(p => p.id === 'pos_amzn34'); // Long 500, entry 78.69, curr 77.03, mult 1
+  const win = model.positions.find(p => p.id === 'pos_winz26');  // Short 2, entry 167685, curr 167595, mult 0.2
+  const brav = model.positions.find(p => p.id === 'pos_brav3');  // Long 500, entry 14.06, curr 12.87, mult 1
+  const bbas = model.positions.find(p => p.id === 'pos_bbas3');  // Long 300, entry 15.48, curr 14.30, mult 1
+  const bgi = model.positions.find(p => p.id === 'pos_bgix26');  // Long 1, entry 402.25, curr 399.00, mult 330
+  const m2st = model.positions.find(p => p.id === 'pos_m2st34'); // Long 600, entry 8.99, curr 7.38, mult 1
+
+  // AAPL34: (103.21 - 100.86) * +1 * 600 * 1 = +1410.00 (+2.33%)
+  assert.equal(model.getPositionUnrealizedResult(aapl), 1410.00);
+  assert.equal(model.getPositionUnrealizedPct(aapl), 2.33);
+
+  // AMZN34: (77.03 - 78.69) * +1 * 500 * 1 = -830.00 (-2.11%)
+  assert.equal(model.getPositionUnrealizedResult(amzn), -830.00);
+  assert.equal(model.getPositionUnrealizedPct(amzn), -2.11);
+
+  // WINZ26 (Short/Venda com mult 0.2): (167595 - 167685) * -1 * 2 * 0.2 = +36.00 (+0.05%)
+  // Apesar da variação de preço do ativo ser negativa (-0.05%), a posição é Vendida e está no LUCRO (+R$ 36,00)
+  assert.ok(model.getPositionVariationPct(win) < 0);
+  assert.equal(model.getPositionUnrealizedResult(win), 36.00);
+  assert.equal(model.getPositionUnrealizedPct(win), 0.05);
+
+  // BGIX26 (Long com mult 330): (399.00 - 402.25) * +1 * 1 * 330 = -1072.50 (-0.81%)
+  assert.equal(model.getPositionUnrealizedResult(bgi), -1072.50);
+  assert.equal(model.getPositionUnrealizedPct(bgi), -0.81);
+
+  // BRAV3: (12.87 - 14.06) * 500 = -595.00 (-8.46%)
+  assert.equal(model.getPositionUnrealizedResult(brav), -595.00);
+  assert.equal(model.getPositionUnrealizedPct(brav), -8.46);
+
+  // BBAS3: (14.30 - 15.48) * 300 = -354.00 (-7.62%)
+  assert.equal(model.getPositionUnrealizedResult(bbas), -354.00);
+  assert.equal(model.getPositionUnrealizedPct(bbas), -7.62);
+
+  // M2ST34: (7.38 - 8.99) * 600 = -966.00 (-17.91%)
+  assert.equal(model.getPositionUnrealizedResult(m2st), -966.00);
+  assert.equal(model.getPositionUnrealizedPct(m2st), -17.91);
+
+  // 2. Resultado zerado (entry === current)
+  const breakevenPos = { ticker: 'WEGE3', quantity: 200, entryPrice: 50.00, currentPrice: 50.00, contractMult: 1 };
+  assert.equal(model.getPositionUnrealizedResult(breakevenPos), 0);
+  assert.equal(model.getPositionUnrealizedPct(breakevenPos), 0);
+
+  // 3. Posição em moeda estrangeira (USD) com conversão cambial e custos
+  const usdShortPos = {
+    ticker: 'NVDA',
+    direction: 'short',
+    quantity: 10,
+    entryPrice: 140.00,
+    currentPrice: 135.00,
+    currency: 'USD',
+    fxRate: 5.95,
+    contractMult: 1,
+    costs: 15.00
+  };
+  // (135 - 140) * -1 * 10 * 1 * 5.95 - 15.00 = 297.50 - 15.00 = +282.50
+  assert.equal(model.getPositionUnrealizedResult(usdShortPos), 282.50);
+
+  // 4. Classificação e Agrupamento por Tipo de Mercado (Futuros, Ações, BDRs, FIIs, ETFs, Outros)
+  assert.equal(model.classifyPositionMarket(win), 'FUTURES');
+  assert.equal(model.classifyPositionMarket(bgi), 'FUTURES');
+  assert.equal(model.classifyPositionMarket(bbas), 'STOCK');
+  assert.equal(model.classifyPositionMarket(brav), 'STOCK');
+  assert.equal(model.classifyPositionMarket(aapl), 'BDR');
+  assert.equal(model.classifyPositionMarket(amzn), 'BDR');
+  assert.equal(model.classifyPositionMarket(m2st), 'BDR');
+
+  // Testa agrupamento das 7 posições padrão (3 grupos ativos: Futuros, Ações, BDRs)
+  const groups = model.getGroupedPositions();
+  assert.equal(groups.length, 3);
+  assert.deepEqual(groups.map(g => g.key), ['FUTURES', 'STOCK', 'BDR']);
+
+  const gFut = groups.find(g => g.key === 'FUTURES');
+  assert.equal(gFut.label, 'Futuros');
+  assert.equal(gFut.count, 2);
+  assert.equal(gFut.totalVolume, 67038.00 + 131670.00); // 198708.00
+  assert.equal(gFut.totalUnrealizedResult, 36.00 - 1072.50); // -1036.50
+
+  const gStock = groups.find(g => g.key === 'STOCK');
+  assert.equal(gStock.label, 'Ações');
+  assert.equal(gStock.count, 2);
+  assert.equal(gStock.totalVolume, 6435.00 + 4290.00); // 10725.00
+  assert.equal(gStock.totalUnrealizedResult, -595.00 - 354.00); // -949.00
+
+  const gBdr = groups.find(g => g.key === 'BDR');
+  assert.equal(gBdr.label, 'BDRs');
+  assert.equal(gBdr.count, 3);
+  assert.equal(gBdr.totalVolume, 61926.00 + 38515.00 + 4428.00); // 104869.00
+  assert.equal(gBdr.totalUnrealizedResult, 1410.00 - 830.00 - 966.00); // -386.00
+
+  // 5. Garantir que subtotais são informativos e não causam dupla contagem no Total Exposto nem no Resultado Total
+  const sumGroupVolumes = groups.reduce((acc, g) => acc + g.totalVolume, 0);
+  assert.equal(sumGroupVolumes, model.getTotalExposure());
+  assert.equal(model.getTotalExposure(), 314302.00);
+
+  const sumGroupResults = Math.round(groups.reduce((acc, g) => acc + g.totalUnrealizedResult, 0) * 100) / 100;
+  assert.equal(sumGroupResults, model.getTotalUnrealizedResult());
+  assert.equal(model.getTotalUnrealizedResult(), -2371.50);
+
+  // 6. Novas posições de FIIs, ETFs e Outros (ativos sem classificação conhecida) entram automaticamente nas categorias corretas sem desaparecer
+  model.positions.push(
+    { id: 'pos_hglg11', ticker: 'HGLG11', assetClass: 'FII', quantity: 100, entryPrice: 160.00, currentPrice: 162.50, contractMult: 1, status: 'conferida', checked: true },
+    { id: 'pos_bova11', ticker: 'BOVA11', assetClass: 'ETF', quantity: 200, entryPrice: 125.00, currentPrice: 124.00, contractMult: 1, status: 'conferida', checked: true },
+    { id: 'pos_custom', ticker: 'XYZ_STRUCT_99', quantity: 1, entryPrice: 10000.00, currentPrice: 10000.00, contractMult: 1, status: 'conferida', checked: true }
+  );
+
+  const allGroups = model.getGroupedPositions();
+  assert.deepEqual(allGroups.map(g => g.key), ['FUTURES', 'STOCK', 'BDR', 'FII', 'ETF', 'OTHER']);
+  assert.equal(allGroups.find(g => g.key === 'FII').totalUnrealizedResult, 250.00);
+  assert.equal(allGroups.find(g => g.key === 'ETF').totalUnrealizedResult, -200.00);
+  assert.equal(allGroups.find(g => g.key === 'OTHER').totalUnrealizedResult, 0.00);
+  assert.equal(allGroups.find(g => g.key === 'OTHER').positions[0].ticker, 'XYZ_STRUCT_99');
+});

@@ -149,14 +149,49 @@
 
   // Default sample open positions for instant preview
   const DEFAULT_POSITIONS = [
-    { id: 'pos_aapl34', ticker: 'AAPL34', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 100.86, currentPrice: 103.21, stopPrice: 96.49, trailingStop: 96.49, atr: 2.77, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_amzn34', ticker: 'AMZN34', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 78.69, currentPrice: 77.03, stopPrice: 73.48, trailingStop: 73.48, atr: 3.33, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_winz26', ticker: 'WINZ26', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 2, initialQuantity: 2, isPartial: false, partialCount: 0, entryPrice: 167685, currentPrice: 167595, stopPrice: 174435, trailingStop: 174435, atr: 5202.14, mult: 0.2, contractMult: 0.2, side: 'Venda', direction: 'short', strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_brav3', ticker: 'BRAV3', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 14.06, currentPrice: 12.87, stopPrice: 12.00, trailingStop: 12.00, atr: 0.83, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-11', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_bbas3', ticker: 'BBAS3', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 15.48, currentPrice: 14.30, stopPrice: 12.00, trailingStop: 12.00, atr: 1.09, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_bgix26', ticker: 'BGIX26', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 1, initialQuantity: 1, isPartial: false, partialCount: 0, entryPrice: 402.25, currentPrice: 399.00, stopPrice: 395.00, trailingStop: 395.00, atr: 3.93, mult: 330, contractMult: 330, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false },
-    { id: 'pos_m2st34', ticker: 'M2ST34', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 8.99, currentPrice: 7.38, stopPrice: 7.00, trailingStop: 7.00, atr: 0.74, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false }
+    { id: 'pos_aapl34', ticker: 'AAPL34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 100.86, currentPrice: 103.21, stopPrice: 96.49, trailingStop: 96.49, atr: 2.77, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_amzn34', ticker: 'AMZN34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 78.69, currentPrice: 77.03, stopPrice: 73.48, trailingStop: 73.48, atr: 3.33, mult: 1, contractMult: 1, strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_winz26', ticker: 'WINZ26', assetClass: 'FUTURES', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 2, initialQuantity: 2, isPartial: false, partialCount: 0, entryPrice: 167685, currentPrice: 167595, stopPrice: 174435, trailingStop: 174435, atr: 5202.14, mult: 0.2, contractMult: 0.2, side: 'Venda', direction: 'short', strategy: 'TREND_FOLLOWING', entryDate: '2026-11-19', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_brav3', ticker: 'BRAV3', assetClass: 'STOCK', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 500, initialQuantity: 500, isPartial: false, partialCount: 0, entryPrice: 14.06, currentPrice: 12.87, stopPrice: 12.00, trailingStop: 12.00, atr: 0.83, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-11', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_bbas3', ticker: 'BBAS3', assetClass: 'STOCK', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 300, initialQuantity: 300, isPartial: false, partialCount: 0, entryPrice: 15.48, currentPrice: 14.30, stopPrice: 12.00, trailingStop: 12.00, atr: 1.09, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-13', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_bgix26', ticker: 'BGIX26', assetClass: 'FUTURES', accountId: 'genial_daniel', broker: 'Genial — Daniel', quantity: 1, initialQuantity: 1, isPartial: false, partialCount: 0, entryPrice: 402.25, currentPrice: 399.00, stopPrice: 395.00, trailingStop: 395.00, atr: 3.93, mult: 330, contractMult: 330, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false },
+    { id: 'pos_m2st34', ticker: 'M2ST34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 8.99, currentPrice: 7.38, stopPrice: 7.00, trailingStop: 7.00, atr: 0.74, mult: 1, contractMult: 1, strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false }
   ];
+
+  const POSITION_MARKET_CATEGORIES = [
+    { key: 'FUTURES', label: 'Futuros', singularLabel: 'Futuro', icon: '⚡', order: 1 },
+    { key: 'STOCK', label: 'Ações', singularLabel: 'Ação', icon: '📈', order: 2 },
+    { key: 'BDR', label: 'BDRs', singularLabel: 'BDR', icon: '🌎', order: 3 },
+    { key: 'FII', label: 'FIIs', singularLabel: 'FII', icon: '🏢', order: 4 },
+    { key: 'ETF', label: 'ETFs', singularLabel: 'ETF', icon: '🧺', order: 5 },
+    { key: 'OTHER', label: 'Outros', singularLabel: 'Outro', icon: '📦', order: 6 }
+  ];
+
+  const KNOWN_ETF_TICKERS = new Set([
+    'BOVA11', 'SMAL11', 'IVVB11', 'XFIX11', 'HASH11', 'NASD11', 'GOLD11', 'DIVO11',
+    'SPXI11', 'BOVV11', 'BRAX11', 'ECOO11', 'FIND11', 'GOVE11', 'ISUS11', 'MATB11',
+    'PIBB11', 'BOVB11', 'ACWI11', 'WRLD11', 'EURP11', 'ASIA11', 'CHINA11', 'XINA11',
+    'QBTC11', 'QETH11', 'ETHE11', 'BITH11', 'CRPT11', 'TECK11', 'DNAI11', 'MILL11',
+    'SHOT11', 'AGRI11', 'BBOV11', 'BBOI11', 'CORN11', 'IMAB11', 'IB5M11', 'IRFM11',
+    'FIXA11', 'B5P211', 'LFTS11', 'NTNS11', 'DEFI11', 'WEB311', 'NFTS11',
+    'SPY', 'QQQ', 'IWM', 'DIA', 'VTI', 'VOO', 'VEA', 'VWO', 'EEM', 'GLD', 'SLV', 'TLT', 'ARKK', 'SOXX', 'SMH', 'XLF', 'XLK', 'XLE', 'XLV'
+  ]);
+
+  const KNOWN_STOCK_UNITS_11 = new Set([
+    'ALUP11', 'BIDI11', 'BPAC11', 'CPLE11', 'ENGI11', 'IGTI11', 'KLBN11', 'MODL11',
+    'RANI11', 'SANB11', 'SAPR11', 'SULA11', 'TAEE11', 'TIET11', 'BRBI11', 'ALLD11'
+  ]);
+
+  const KNOWN_FII_TICKERS = new Set([
+    'ALZR11', 'BTLG11', 'CPTS11', 'CVBI11', 'DEVA11', 'GALG11', 'GARE11', 'HABT11',
+    'HCTR11', 'HGBS11', 'HGCR11', 'HGLG11', 'HGRE11', 'HGRU11', 'HSML11', 'IRDM11',
+    'JGPX11', 'JSRE11', 'KNCA11', 'KNCR11', 'KNIP11', 'KNRI11', 'KNSC11', 'MALL11',
+    'MAXR11', 'MFII11', 'MXRF11', 'OUJP11', 'PATL11', 'PLCR11', 'PVBI11', 'QAGR11',
+    'RBED11', 'RBRP11', 'RBRR11', 'RBRY11', 'RCRB11', 'RECT11', 'RECR11', 'RNDP11',
+    'RZAK11', 'RZTR11', 'SARE11', 'TGAR11', 'TRBL11', 'TRXF11', 'URPR11', 'VGHF11',
+    'VGIA11', 'VGIP11', 'VGIR11', 'VILG11', 'VINO11', 'VISC11', 'VRTA11', 'VSHO11',
+    'XPCI11', 'XPCM11', 'XPIN11', 'XPLG11', 'XPML11', 'XPPR11', 'HGRF11', 'BROF11'
+  ]);
 
   // Default sample historical snapshots for consultation and comparison
 const DEFAULT_HISTORY = [
@@ -1327,10 +1362,13 @@ const DEFAULT_HISTORY = [
 
       const oldPrice = Number(pos.currentPrice || pos.entryPrice || 0);
       const newPriceNum = validation.amount;
-      const deltaPerUnit = newPriceNum - oldPrice;
-      const mult = Number(pos.contractMult || pos.mult || 1);
-      const qty = Number(pos.quantity || 0);
-      const deltaTotal = Math.round(deltaPerUnit * qty * mult * 100) / 100;
+      const dirStr = String(pos.direction ?? pos.side ?? '').trim().toLowerCase();
+      const sign = (dirStr === 'short' || dirStr === 'venda' || dirStr === 'sell') ? -1 : 1;
+      const deltaPerUnit = (newPriceNum - oldPrice) * sign;
+      const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+      const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+      const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+      const deltaTotal = Math.round(deltaPerUnit * qty * mult * fxRate * 100) / 100;
 
       pos.error = null;
       pos.previousCheckedPrice = oldPrice;
@@ -1522,24 +1560,260 @@ const DEFAULT_HISTORY = [
     }
 
     /**
-     * Calculates position variation %.
+     * Calculates position price variation %.
      */
     getPositionVariationPct(pos) {
-      const entry = Number(pos.entryPrice || 0);
-      const curr = Number(pos.currentPrice || entry);
+      if (!pos) return 0;
+      const entry = Number(pos.entryPrice ?? pos.averageEntry ?? pos.entry ?? 0);
+      const curr = Number(pos.currentPrice ?? entry);
       if (!entry || entry <= 0) return 0;
       return ((curr - entry) / entry) * 100;
     }
 
     /**
-     * Calculates unrealized financial result for an open position.
+     * Resolves direction multiplier (+1 for Buy/Long, -1 for Sell/Short).
+     */
+    getPositionDirectionSign(pos) {
+      if (!pos) return 1;
+      const dir = String(pos.direction ?? pos.side ?? '').trim().toLowerCase();
+      return (dir === 'short' || dir === 'venda' || dir === 'sell') ? -1 : 1;
+    }
+
+    /**
+     * Calculates unrealized financial result (in BRL) for an open position.
+     * Respects quantity, entry price, current price, direction (buy/sell),
+     * contract multiplier (futures), FX conversion rate, and costs when present.
      */
     getPositionUnrealizedResult(pos) {
-      const entry = Number(pos.entryPrice || 0);
-      const curr = Number(pos.currentPrice || entry);
-      const qty = Number(pos.quantity || 0);
-      const sign = pos.direction === 'short' ? -1 : 1;
-      return (curr - entry) * sign * qty;
+      if (!pos || pos.closed || pos.status === 'encerrada') return 0;
+      const entry = Number(pos.entryPrice ?? pos.averageEntry ?? pos.entry ?? 0);
+      const curr = Number(pos.currentPrice ?? entry);
+      const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+      const sign = this.getPositionDirectionSign(pos);
+      const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+      const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+      const costs = Number(pos.costs ?? pos.costsIncurred ?? 0);
+      const rawPnl = (curr - entry) * sign * qty * mult * fxRate - costs;
+      return Math.round(rawPnl * 100) / 100;
+    }
+
+    /**
+     * Calculates position profitability percentage (Rentabilidade % da operação),
+     * respecting the trade direction (Long/Short) and entry notional basis.
+     */
+    getPositionUnrealizedPct(pos) {
+      if (!pos || pos.closed || pos.status === 'encerrada') return 0;
+      const entry = Number(pos.entryPrice ?? pos.averageEntry ?? pos.entry ?? 0);
+      if (!entry || entry <= 0) return 0;
+      const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+      const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+      const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+      const entryNotional = qty * entry * mult * fxRate;
+      if (entryNotional > 0) {
+        const pnl = this.getPositionUnrealizedResult(pos);
+        return Math.round(((pnl / entryNotional) * 100) * 100) / 100;
+      }
+      const curr = Number(pos.currentPrice ?? entry);
+      const sign = this.getPositionDirectionSign(pos);
+      return Math.round((((curr - entry) * sign / entry) * 100) * 100) / 100;
+    }
+
+    /**
+     * Returns consolidated unrealized result (in BRL) across all open positions.
+     */
+    getTotalUnrealizedResult() {
+      const sum = this.positions
+        .filter(pos => !pos.closed && pos.status !== 'encerrada')
+        .reduce((acc, pos) => acc + this.getPositionUnrealizedResult(pos), 0);
+      return Math.round(sum * 100) / 100;
+    }
+
+    /**
+     * Returns consolidated unrealized profitability percentage across all open positions
+     * relative to total entry notional.
+     */
+    getTotalUnrealizedPct() {
+      const openPositions = this.positions.filter(pos => !pos.closed && pos.status !== 'encerrada');
+      const totalEntryNotional = openPositions.reduce((acc, pos) => {
+        const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+        const entry = Number(pos.entryPrice ?? pos.averageEntry ?? pos.entry ?? 0);
+        const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+        const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+        return acc + (qty * entry * mult * fxRate);
+      }, 0);
+      if (!totalEntryNotional || totalEntryNotional <= 0) return 0;
+      return Math.round(((this.getTotalUnrealizedResult() / totalEntryNotional) * 100) * 100) / 100;
+    }
+
+    /**
+     * Classifies an open position into one of the 6 market categories:
+     * FUTURES ('Futuros'), STOCK ('Ações'), BDR ('BDRs'), FII ('FIIs'), ETF ('ETFs'), OTHER ('Outros').
+     * Prioritizes explicit assetClass / category / market metadata before ticker pattern inference.
+     * Unclassified or unknown assets safely fall back to OTHER ('Outros').
+     */
+    classifyPositionMarket(pos) {
+      if (!pos) return 'OTHER';
+
+      const rawMeta = String(
+        pos.assetClass ||
+        pos.marketCategory ||
+        pos.category ||
+        pos.instrumentType ||
+        pos.type ||
+        pos.market ||
+        pos.metadata?.assetClass ||
+        pos.metadata?.marketCategory ||
+        pos.metadata?.category ||
+        pos.metadata?.instrumentType ||
+        ''
+      ).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      if (rawMeta) {
+        if (rawMeta === 'futures' || rawMeta === 'future' || rawMeta.includes('futuro') || rawMeta === 'bmf' || rawMeta === 'derivativo' || rawMeta === 'derivativos') {
+          return 'FUTURES';
+        }
+        if (rawMeta === 'bdr' || rawMeta === 'bdrs' || rawMeta.includes('bdr')) {
+          return 'BDR';
+        }
+        if (rawMeta === 'fii' || rawMeta === 'fiis' || rawMeta.includes('imobiliario') || rawMeta.includes('fii')) {
+          return 'FII';
+        }
+        if (rawMeta === 'etf' || rawMeta === 'etfs' || rawMeta.includes('etf')) {
+          return 'ETF';
+        }
+        if (
+          rawMeta === 'stock' ||
+          rawMeta === 'stocks' ||
+          rawMeta === 'stock_ibov' ||
+          rawMeta === 'stock_other' ||
+          rawMeta === 'stock_b3' ||
+          rawMeta === 'acao' ||
+          rawMeta === 'acoes' ||
+          rawMeta === 'acao b3' ||
+          rawMeta === 'acoes b3' ||
+          rawMeta === 'equities' ||
+          rawMeta === 'equity' ||
+          rawMeta === 'ibov'
+        ) {
+          return 'STOCK';
+        }
+        if (rawMeta === 'other' || rawMeta === 'outro' || rawMeta === 'outros') {
+          return 'OTHER';
+        }
+      }
+
+      const sym = String(pos.ticker || pos.asset || pos.symbol || '').trim().toUpperCase();
+      if (!sym) return 'OTHER';
+
+      // 1. Check Futures by B3 futures ticker pattern (e.g. WINZ26, WDOF27, BGIX26,INDG26, CCMU26, BITG26, DI1F29) or non-unit contract multiplier
+      const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+      if (/^(WIN|IND|WDO|DOL|BGI|CCM|ICF|SJC|BIT|ETH|DI1|DDI|FRC|ISP|WSP|HSI|EUR|GBP)[FGHJKMNQUVXZ]\d{2}$/.test(sym)) {
+        return 'FUTURES';
+      }
+      if (Number.isFinite(mult) && mult > 0 && mult !== 1 && /^[A-Z]{3,4}[FGHJKMNQUVXZ]\d{2}$/.test(sym)) {
+        return 'FUTURES';
+      }
+
+      // 2. Check known ETFs
+      if (KNOWN_ETF_TICKERS.has(sym)) {
+        return 'ETF';
+      }
+
+      // 3. Check BDRs (B3 BDR suffixes 31, 32, 33, 34, 35, 39)
+      if (/^[A-Z0-9]{4}(31|32|33|34|35|39)$/.test(sym)) {
+        return 'BDR';
+      }
+
+      // 4. Check known FIIs and 11-ending tickers (excluding Stock Units and ETFs)
+      if (KNOWN_FII_TICKERS.has(sym)) {
+        return 'FII';
+      }
+      if (/^[A-Z]{4}11B?$/.test(sym)) {
+        if (KNOWN_STOCK_UNITS_11.has(sym)) return 'STOCK';
+        return 'FII';
+      }
+
+      // 5. Check standard B3 Stocks (ON 3, PN 4, PNA 5, PNB 6, PNC 7, PND 8) or known Stock Units
+      if (KNOWN_STOCK_UNITS_11.has(sym) || /^[A-Z]{4}[345678]$/.test(sym) || /^[A-Z]{4}[345678]F$/.test(sym)) {
+        return 'STOCK';
+      }
+
+      // 6. Check global MarketCycleModel helper if available in root/window
+      const g = (typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null));
+      const mcm = g?.MarketCycleModel;
+      if (mcm) {
+        if (typeof mcm.isBdrSymbol === 'function' && mcm.isBdrSymbol(sym)) return 'BDR';
+        if (typeof mcm.isFiiSymbol === 'function' && mcm.isFiiSymbol(sym)) return 'FII';
+        if (typeof mcm.isNasdaqSymbol === 'function' && mcm.isNasdaqSymbol(sym)) return 'STOCK';
+      }
+
+      return 'OTHER';
+    }
+
+    /**
+     * Groups open positions by market category in canonical order:
+     * Futuros -> Ações -> BDRs -> FIIs -> ETFs -> Outros.
+     * Each group includes position count, aggregated financial volume,
+     * aggregated unrealized result (R$) and profitability (%).
+     */
+    getGroupedPositions(options = {}) {
+      const includeEmpty = Boolean(options.includeEmpty);
+      const openPositions = this.positions.filter(pos => !pos.closed && pos.status !== 'encerrada');
+
+      const buckets = new Map();
+      POSITION_MARKET_CATEGORIES.forEach(cat => {
+        buckets.set(cat.key, []);
+      });
+
+      openPositions.forEach(pos => {
+        const catKey = this.classifyPositionMarket(pos);
+        const targetKey = buckets.has(catKey) ? catKey : 'OTHER';
+        buckets.get(targetKey).push(pos);
+      });
+
+      const groups = [];
+      POSITION_MARKET_CATEGORIES.forEach(cat => {
+        const list = buckets.get(cat.key) || [];
+        if (list.length === 0 && !includeEmpty) return;
+
+        let totalVolume = 0;
+        let totalUnrealizedResult = 0;
+        let totalEntryNotional = 0;
+
+        list.forEach(pos => {
+          const vol = this.getPositionFinancialVolume(pos);
+          const pnl = this.getPositionUnrealizedResult(pos);
+          const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+          const entry = Number(pos.entryPrice ?? pos.averageEntry ?? pos.entry ?? 0);
+          const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+          const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+
+          totalVolume += vol;
+          totalUnrealizedResult += pnl;
+          totalEntryNotional += (qty * entry * mult * fxRate);
+        });
+
+        totalVolume = Math.round(totalVolume * 100) / 100;
+        totalUnrealizedResult = Math.round(totalUnrealizedResult * 100) / 100;
+        const totalUnrealizedPct = totalEntryNotional > 0
+          ? Math.round(((totalUnrealizedResult / totalEntryNotional) * 100) * 100) / 100
+          : 0;
+
+        groups.push({
+          key: cat.key,
+          label: cat.label,
+          singularLabel: cat.singularLabel,
+          icon: cat.icon,
+          order: cat.order,
+          positions: list,
+          count: list.length,
+          totalVolume,
+          totalUnrealizedResult,
+          totalUnrealizedPct
+        });
+      });
+
+      return groups;
     }
 
     /**
@@ -1688,6 +1962,10 @@ const DEFAULT_HISTORY = [
         positions: this.positions.map(p => ({
           id: p.id,
           ticker: p.ticker,
+          assetClass: p.assetClass || this.classifyPositionMarket(p),
+          marketCategory: this.classifyPositionMarket(p),
+          direction: p.direction || (p.side === 'Venda' ? 'short' : 'long'),
+          side: p.side || (p.direction === 'short' ? 'Venda' : 'Compra'),
           accountId: p.accountId || null,
           accountLabel: p.accountLabel || p.broker || null,
           broker: p.broker,
@@ -1699,6 +1977,8 @@ const DEFAULT_HISTORY = [
           contractMult: Number(p.contractMult || p.mult || 1),
           mult: Number(p.contractMult || p.mult || 1),
           financialVolume: this.getPositionFinancialVolume(p),
+          unrealizedResult: this.getPositionUnrealizedResult(p),
+          unrealizedPct: this.getPositionUnrealizedPct(p),
           isPartial: Boolean(p.isPartial),
           status: p.status || 'conferida',
           checked: Boolean(p.checked),
@@ -2296,6 +2576,7 @@ const DEFAULT_HISTORY = [
 
   DailyUpdateModel.DEFAULT_ACCOUNTS = DEFAULT_ACCOUNTS;
   DailyUpdateModel.DEFAULT_POSITIONS = DEFAULT_POSITIONS;
+  DailyUpdateModel.POSITION_MARKET_CATEGORIES = POSITION_MARKET_CATEGORIES;
   DailyUpdateModel.DEFAULT_HISTORY = DEFAULT_HISTORY;
   DailyUpdateModel.STORAGE_KEY_DRAFT = STORAGE_KEY_DRAFT;
   DailyUpdateModel.STORAGE_KEY_ACCOUNTS = STORAGE_KEY_ACCOUNTS;

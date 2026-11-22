@@ -51,6 +51,7 @@
       this.equityOwner = 'both';
       this.activeHistoryTab = 'details';
       this.collapsedTitulares = new Set();
+      this.collapsedPositionGroups = new Set();
     }
 
     async init() {
@@ -180,7 +181,14 @@
             return {
               id: t.id || `pos_${idx}`,
               ticker: t.ticker || t.asset,
-              broker: t.broker || t.metadata?.account || t.account || (t.metadata?.broker || 'Pendente de conferência'),
+              assetClass: t.asset_class || t.assetClass || t.metadata?.assetClass || t.market || existingPos?.assetClass || null,
+              market: t.market || t.metadata?.market || existingPos?.market || null,
+              direction: t.direction || t.metadata?.direction || existingPos?.direction || 'long',
+              side: (t.direction === 'short' || t.side === 'Venda') ? 'Venda' : (existingPos?.side || 'Compra'),
+              currency: t.currency || t.metadata?.currency || existingPos?.currency || 'BRL',
+              fxRate: Number(t.fx_rate || t.fxRate || t.metadata?.fxRate || existingPos?.fxRate || 1),
+              accountId: t.account_id || t.accountId || t.metadata?.accountId || existingPos?.accountId || null,
+              broker: t.broker || t.metadata?.account || t.account || (t.metadata?.broker || existingPos?.broker || 'Pendente de conferência'),
               quantity: remaining || totalBought,
               initialQuantity: totalBought,
               contractMult: contractMult,
@@ -614,175 +622,256 @@
                   </div>
                 </div>
                 <div class="card-header-badge-wrap">
-                  <span class="pos-badge-solid" id="badgePositionsChecked">${model.positions.length} posições abertas</span>
+                  <span class="pos-badge-solid" id="badgePositionsChecked">${model.positions.filter(p => !p.closed && p.status !== 'encerrada').length} posições abertas</span>
                 </div>
               </header>
 
-              <div class="daily-update-table-container">
-                <table class="daily-update-table positions-table" aria-label="Tabela de Conferência de Posições Abertas">
-                  <thead>
-                    <tr>
-                      <th class="th-pos-ticker" style="width: 10%;">Ativo</th>
-                      <th class="th-pos-account" style="width: 15%;">Conta / Corretora</th>
-                      <th class="th-pos-qty" style="text-align: right; width: 8%;">Quantidade</th>
-                      <th class="th-pos-entry" style="text-align: right; width: 10%;">Preço Entrada</th>
-                      <th class="th-pos-price" style="text-align: right; width: 11%;">Preço Atual</th>
-                      <th class="th-pos-var" style="text-align: right; width: 8%;">Variação</th>
-                      <th class="th-pos-volume" style="text-align: right; width: 14%;">Volume Financeiro</th>
-                      <th class="th-pos-stop" style="text-align: right; width: 12%;">Stop / Trailing</th>
-                      <th class="th-pos-status" style="text-align: center; width: 12%;">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              <div class="position-groups-container">
+                ${(() => {
+                  const groupedAccounts = typeof model.getGroupedAccounts === 'function' ? model.getGroupedAccounts() : [];
+                  const groupedPositions = typeof model.getGroupedPositions === 'function'
+                    ? model.getGroupedPositions()
+                    : [{
+                        key: 'OTHER',
+                        label: 'Posições',
+                        icon: '📊',
+                        positions: model.positions,
+                        count: model.positions.length,
+                        totalVolume: exposure,
+                        totalUnrealizedResult: model.positions.reduce((s, p) => s + (model.getPositionUnrealizedResult ? model.getPositionUnrealizedResult(p) : 0), 0),
+                        totalUnrealizedPct: 0
+                      }];
+
+                  let globalPosIdx = 0;
+
+                  return groupedPositions.map(group => {
+                    const isGroupCollapsed = this.collapsedPositionGroups.has(group.key);
+                    const grpRes = Number(group.totalUnrealizedResult || 0);
+                    const grpPct = Number(group.totalUnrealizedPct || 0);
+                    const grpResClass = grpRes > 0.005 ? 'positive' : grpRes < -0.005 ? 'negative' : 'neutral';
+                    const grpResSign = grpRes > 0.005 ? '+' : '';
+
+                    return `
+                      <div class="position-group-card position-group--${group.key.toLowerCase()}" data-position-group="${group.key}">
+                        <header class="position-group-header" onclick="window.DailyUpdateHub.togglePositionGroup('${group.key}')" title="Clique para recolher ou expandir ${group.label}">
+                          <div class="pos-group-header-left">
+                            <span class="pos-group-icon" aria-hidden="true">${group.icon}</span>
+                            <span class="pos-group-name">${group.label}</span>
+                            <span class="pos-group-count-badge" data-pos-group-count="${group.key}">${group.count} ${group.count === 1 ? 'posição' : 'posições'}</span>
+                          </div>
+                          <div class="pos-group-header-right">
+                            <div class="pos-group-header-metrics">
+                              <span class="pos-group-result-label">Resultado:</span>
+                              <strong class="pos-group-result-amount font-numeric ${grpResClass}" data-pos-group-header-result="${group.key}">
+                                ${grpResSign}${fmtBRL(grpRes)}
+                              </strong>
+                              <span class="pos-group-result-pct font-numeric ${grpResClass}" data-pos-group-header-pct="${group.key}">
+                                (${fmtPct(grpPct)})
+                              </span>
+                            </div>
+                            <button type="button" class="pos-group-toggle-btn" aria-label="Recolher ou expandir grupo ${group.label}">
+                              <svg class="pos-group-chevron ${isGroupCollapsed ? 'collapsed' : ''}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <polyline points="18 15 12 9 6 15"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </header>
+
+                        <div class="position-group-body" style="display: ${isGroupCollapsed ? 'none' : 'block'};">
+                          <div class="daily-update-table-container">
+                            <table class="daily-update-table positions-table" aria-label="Tabela de Posições Abertas — ${group.label}">
+                              <thead>
+                                <tr>
+                                  <th class="th-pos-ticker" style="width: 11%;">Ativo</th>
+                                  <th class="th-pos-account" style="width: 15%;">Conta / Corretora</th>
+                                  <th class="th-pos-qty" style="text-align: right; width: 8%;">Quantidade</th>
+                                  <th class="th-pos-entry" style="text-align: right; width: 10%;">Preço Entrada</th>
+                                  <th class="th-pos-price" style="text-align: right; width: 11%;">Preço Atual</th>
+                                  <th class="th-pos-var" style="text-align: right; width: 8%;">Variação</th>
+                                  <th class="th-pos-volume" style="text-align: right; width: 13%;">Volume Financeiro</th>
+                                  <th class="th-pos-stop" style="text-align: right; width: 11%;">Stop / Trailing</th>
+                                  <th class="th-pos-result" style="text-align: right; width: 13%;">Resultado Atual</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                ${group.positions.map(pos => {
+                                  const pIdx = globalPosIdx++;
+                                  const entry = Number(pos.entryPrice || 0);
+                                  const curr = Number(pos.currentPrice || entry);
+                                  const varPct = entry > 0 ? ((curr - entry) / entry) * 100 : 0;
+                                  const varClass = varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral';
+                                  const isChecked = pos.checked && pos.status !== 'pendente' && !pos.hasDivergence && !pos.error;
+                                  const isDivergent = Boolean(pos.hasDivergence);
+                                  const isPending = pos.status === 'pendente' || (!pos.checked && !isDivergent);
+
+                                  const unrealizedVal = typeof model.getPositionUnrealizedResult === 'function'
+                                    ? model.getPositionUnrealizedResult(pos)
+                                    : (curr - entry) * (pos.direction === 'short' ? -1 : 1) * Number(pos.quantity || 0) * Number(pos.contractMult || pos.mult || 1);
+                                  const unrealizedPct = typeof model.getPositionUnrealizedPct === 'function'
+                                    ? model.getPositionUnrealizedPct(pos)
+                                    : varPct * (pos.direction === 'short' ? -1 : 1);
+                                  const resClass = unrealizedVal > 0.005 ? 'positive' : unrealizedVal < -0.005 ? 'negative' : 'neutral';
+                                  const resSign = unrealizedVal > 0.005 ? '+' : '';
+                                  const isShort = (typeof model.getPositionDirectionSign === 'function' ? model.getPositionDirectionSign(pos) : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1)) === -1;
+
+                                  let rowClass = 'position-row';
+                                  if (isDivergent) rowClass += ' divergent';
+                                  else if (isPending) rowClass += ' pending';
+                                  else if (isChecked) rowClass += ' checked';
+
+                                  return `
+                                    <tr class="${rowClass}" data-position-row="${pos.id}" data-position-group-item="${group.key}">
+                                      <td>
+                                        <div class="pos-ticker-group">
+                                          <strong class="pos-ticker" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}');" title="Ver detalhes completos da operação">${pos.ticker}</strong>
+                                          ${isShort ? `<span class="pos-side-badge short" title="Operação Vendida (Short)">V</span>` : ''}
+                                        </div>
+                                      </td>
+                                      <td class="td-pos-account">
+                                        <select 
+                                          class="pos-account-select ${pos.accountId ? 'linked' : 'unlinked'}" 
+                                          data-position-id="${pos.id}"
+                                          onchange="window.DailyUpdateHub.handlePositionAccountChange('${pos.id}', this.value)"
+                                          title="Conta onde esta posição está custodiada. Atualizações de preço refletem no saldo desta conta."
+                                          aria-label="Conta onde ${pos.ticker} está custodiada"
+                                        >
+                                          <option value="" ${!pos.accountId ? 'selected' : ''}>— Selecionar conta —</option>
+                                          ${groupedAccounts.map(g => {
+                                            const investAccounts = g.accounts.filter(a => a.type !== 'CHECKING');
+                                            if (investAccounts.length === 0) return '';
+                                            return `
+                                              <optgroup label="${g.person}">
+                                                ${investAccounts.map(a => `
+                                                  <option value="${a.id}" ${pos.accountId === a.id ? 'selected' : ''}>
+                                                    ${a.label}
+                                                  </option>
+                                                `).join('')}
+                                              </optgroup>
+                                            `;
+                                          }).join('')}
+                                        </select>
+                                      </td>
+                                      <td style="text-align: right;">
+                                        <div class="pos-qty-cell">
+                                          <span class="pos-qty-number">${pos.quantity}</span>
+                                          ${pos.isPartial ? `<span class="pos-partial-pill" title="Posição com saída parcial realizada">parcial</span>` : ''}
+                                          ${isDivergent ? `<span class="divergence-tag" title="${pos.divergence?.note || ''}">⚠️ ${pos.divergence?.reported || ''} na corr.</span>` : ''}
+                                        </div>
+                                      </td>
+                                      <td style="text-align: right;">
+                                        <span class="pos-entry-val font-numeric">${fmtBRL(entry)}</span>
+                                      </td>
+                                      <td style="text-align: right;">
+                                        <input 
+                                          type="text" 
+                                          class="pos-price-clean-input ${pos.error ? 'input-error' : ''}" 
+                                          data-position-id="${pos.id}"
+                                          data-index="${pIdx}"
+                                          value="${fmtBRL(curr)}"
+                                          placeholder="R$ 0,00"
+                                          title="Digite o preço atual na corretora (Enter ou setas navegam)"
+                                          aria-label="Preço atual de ${pos.ticker}"
+                                        />
+                                        ${pos.error ? `<span class="account-error-msg">${pos.error}</span>` : ''}
+                                      </td>
+                                      <td style="text-align: right;">
+                                        <span class="variation-tag position-var-tag ${varClass}" data-pos-var-for="${pos.id}">
+                                          ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
+                                        </span>
+                                      </td>
+                                      <td class="td-pos-volume" style="text-align: right;">
+                                        <span class="pos-volume-val font-numeric" data-pos-vol-for="${pos.id}">
+                                          ${fmtBRL(model.getPositionFinancialVolume(pos))}
+                                        </span>
+                                      </td>
+                                      <td style="text-align: right;">
+                                        <span class="pos-stop-val font-numeric" title="Stop inicial: ${fmtBRL(pos.stopPrice)} | Trailing stop: ${fmtBRL(pos.trailingStop || pos.stopPrice)}">
+                                          ${fmtBRL(pos.trailingStop || pos.stopPrice)}
+                                        </span>
+                                      </td>
+                                      <td class="td-pos-result" style="text-align: right;">
+                                        <div class="pos-result-stack ${resClass}" data-pos-result-stack="${pos.id}">
+                                          <strong class="pos-result-amount font-numeric ${resClass}" data-pos-result-amount="${pos.id}">
+                                            ${resSign}${fmtBRL(unrealizedVal)}
+                                          </strong>
+                                          <span class="pos-result-pct font-numeric ${resClass}" data-pos-result-pct="${pos.id}">
+                                            ${fmtPct(unrealizedPct)}
+                                          </span>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  `;
+                                }).join('')}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        <!-- Subtotal Informativo da Categoria (não gera dupla contagem no Total Exposto) -->
+                        <div class="position-group-subtotal">
+                          <div class="pos-subtotal-left">
+                            <span class="pos-subtotal-label">SUBTOTAL ${group.label.toUpperCase()}</span>
+                            <span class="pos-subtotal-vol font-numeric" data-pos-group-volume="${group.key}" title="Volume financeiro alocado em ${group.label}">
+                              Exposição: ${fmtBRL(group.totalVolume)}
+                            </span>
+                          </div>
+                          <div class="pos-subtotal-right">
+                            <span class="pos-subtotal-res-caption">Resultado do grupo:</span>
+                            <strong class="pos-subtotal-res-amount font-numeric ${grpResClass}" data-pos-group-subtotal-result="${group.key}">
+                              ${grpResSign}${fmtBRL(grpRes)}
+                            </strong>
+                            <span class="pos-subtotal-res-pct font-numeric ${grpResClass}" data-pos-group-subtotal-pct="${group.key}">
+                              (${fmtPct(grpPct)})
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  }).join('');
+                })()}
+              </div>
+
+              <!-- Totalizador Geral da Carteira de Posições Abertas (Sem dupla contagem de subtotais) -->
+              <div class="daily-update-table-container positions-grand-total-wrap">
+                <table class="daily-update-table positions-table positions-tfoot-table" aria-label="Totalizador de Posições Abertas">
+                  <tfoot>
                     ${(() => {
-                      const groupedAccounts = typeof model.getGroupedAccounts === 'function' ? model.getGroupedAccounts() : [];
-                      return model.positions.map((pos, pIdx) => {
-                      const entry = Number(pos.entryPrice || 0);
-                      const curr = Number(pos.currentPrice || entry);
-                      const varPct = entry > 0 ? ((curr - entry) / entry) * 100 : 0;
-                      const varClass = varPct > 0 ? 'positive' : varPct < 0 ? 'negative' : 'neutral';
-                      const isChecked = pos.checked && pos.status !== 'pendente' && !pos.hasDivergence && !pos.error;
-                      const isDivergent = Boolean(pos.hasDivergence);
-                      const isPending = pos.status === 'pendente' || (!pos.checked && !isDivergent);
-
-                      let rowClass = 'position-row';
-                      if (isDivergent) rowClass += ' divergent';
-                      else if (isPending) rowClass += ' pending';
-                      else if (isChecked) rowClass += ' checked';
-
-                      let statusLabel = 'Aberta';
-                      let statusClass = 'open';
-                      if (isDivergent) {
-                        statusLabel = 'Divergente';
-                        statusClass = 'divergent';
-                      } else if (isPending) {
-                        statusLabel = 'Pendente';
-                        statusClass = 'pending';
-                      } else if (isChecked) {
-                        statusLabel = 'Aberta';
-                        statusClass = 'open';
-                      }
+                      const totalUnrealized = typeof model.getTotalUnrealizedResult === 'function'
+                        ? model.getTotalUnrealizedResult()
+                        : 0;
+                      const totalUnrealizedPct = typeof model.getTotalUnrealizedPct === 'function'
+                        ? model.getTotalUnrealizedPct()
+                        : 0;
+                      const totResClass = totalUnrealized > 0.005 ? 'positive' : totalUnrealized < -0.005 ? 'negative' : 'neutral';
+                      const totResSign = totalUnrealized > 0.005 ? '+' : '';
 
                       return `
-                        <tr class="${rowClass}" data-position-row="${pos.id}">
-                          <td>
-                            <div class="pos-ticker-group">
-                              <strong class="pos-ticker" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}');" title="Ver detalhes completos da operação na corretora">${pos.ticker}</strong>
-                            </div>
+                        <tr class="positions-tfoot-row">
+                          <td colspan="6" class="td-total-label" style="text-align: right;">
+                            <strong>TOTAL EXPOSTO:</strong>
                           </td>
-                          <td class="td-pos-account">
-                            <select 
-                              class="pos-account-select ${pos.accountId ? 'linked' : 'unlinked'}" 
-                              data-position-id="${pos.id}"
-                              onchange="window.DailyUpdateHub.handlePositionAccountChange('${pos.id}', this.value)"
-                              title="Conta onde esta posição está custodiada. Atualizações de preço refletem no saldo desta conta."
-                              aria-label="Conta onde ${pos.ticker} está custodiada"
-                            >
-                              <option value="" ${!pos.accountId ? 'selected' : ''}>— Selecionar conta —</option>
-                              ${groupedAccounts.map(g => {
-                                const investAccounts = g.accounts.filter(a => a.type !== 'CHECKING');
-                                if (investAccounts.length === 0) return '';
-                                return `
-                                  <optgroup label="${g.person}">
-                                    ${investAccounts.map(a => `
-                                      <option value="${a.id}" ${pos.accountId === a.id ? 'selected' : ''}>
-                                        ${a.label}
-                                      </option>
-                                    `).join('')}
-                                  </optgroup>
-                                `;
-                              }).join('')}
-                            </select>
-                          </td>
-                          <td style="text-align: right;">
-                            <div class="pos-qty-cell">
-                              <span class="pos-qty-number">${pos.quantity}</span>
-                              ${pos.isPartial ? `<span class="pos-partial-pill" title="Posição com saída parcial realizada">parcial</span>` : ''}
-                              ${isDivergent ? `<span class="divergence-tag" title="${pos.divergence?.note || ''}">⚠️ ${pos.divergence?.reported || ''} na corr.</span>` : ''}
-                            </div>
-                          </td>
-                          <td style="text-align: right;">
-                            <span class="pos-entry-val">${fmtBRL(entry)}</span>
-                          </td>
-                          <td style="text-align: right;">
-                            <input 
-                              type="text" 
-                              class="pos-price-clean-input ${pos.error ? 'input-error' : ''}" 
-                              data-position-id="${pos.id}"
-                              data-index="${pIdx}"
-                              value="${fmtBRL(curr)}"
-                              placeholder="R$ 0,00"
-                              title="Digite o preço atual na corretora (Enter ou setas navegam)"
-                              aria-label="Preço atual de ${pos.ticker}"
-                            />
-                            ${pos.error ? `<span class="account-error-msg">${pos.error}</span>` : ''}
-                          </td>
-                          <td style="text-align: right;">
-                            <span class="variation-tag ${varClass}">
-                              ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
+                          <td class="td-total-amount" style="text-align: right;">
+                            <strong class="pos-total-exposed-val font-numeric" id="tableTotalExposure">${fmtBRL(exposure)}</strong>
+                            <span class="pos-total-share-badge font-numeric" id="tableTotalExposurePct" title="${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio em investimentos">
+                              ${exposurePct.toFixed(2).replace('.', ',')}%
                             </span>
                           </td>
-                          <td class="td-pos-volume" style="text-align: right;">
-                            <span class="pos-volume-val font-numeric">
-                              ${fmtBRL(model.getPositionFinancialVolume(pos))}
-                            </span>
+                          <td class="td-total-result-label" style="text-align: right;">
+                            <span class="pos-tfoot-res-caption">RESULTADO ABERTO:</span>
                           </td>
-                          <td style="text-align: right;">
-                            <span class="pos-stop-val" title="Stop inicial: ${fmtBRL(pos.stopPrice)} | Trailing stop: ${fmtBRL(pos.trailingStop || pos.stopPrice)}">
-                              ${fmtBRL(pos.trailingStop || pos.stopPrice)}
-                            </span>
-                          </td>
-                          <td style="text-align: center;">
-                            <div class="pos-status-wrap">
-                              <button 
-                                type="button" 
-                                class="btn-status-dropdown ${statusClass}" 
-                                onclick="window.DailyUpdateHub.togglePositionMenu('${pos.id}', event)"
-                                title="Status da operação na corretora. Clique para alterar status ou reportar divergência"
-                              >
-                                <span>${statusLabel}</span>
-                                <span class="chevron">∨</span>
-                              </button>
-                              <div class="pos-menu-popover" id="posMenu_${pos.id}" style="display: none;">
-                                <button type="button" class="pos-menu-item" onclick="window.DailyUpdateHub.confirmPosition('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
-                                  ✓ Marcar Conferida
-                                </button>
-                                <button type="button" class="pos-menu-item" onclick="window.DailyUpdateHub.setPositionPending('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
-                                  ⏳ Marcar Pendente
-                                </button>
-                                <button type="button" class="pos-menu-item warning" onclick="window.DailyUpdateHub.promptDivergence('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
-                                  ⚠️ Reportar Divergência
-                                </button>
-                                ${isDivergent ? `
-                                  <button type="button" class="pos-menu-item resolve" onclick="window.DailyUpdateHub.resolveDivergence('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
-                                    ✓ Resolver Divergência
-                                  </button>
-                                ` : ''}
-                                <button type="button" class="pos-menu-item" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}'); window.DailyUpdateHub.closeAllMenus();">
-                                  ↗ Ver Detalhes
-                                </button>
-                              </div>
+                          <td class="td-total-result" style="text-align: right;">
+                            <div class="pos-result-stack ${totResClass}" id="tableTotalUnrealizedWrap">
+                              <strong class="pos-result-amount font-numeric ${totResClass}" id="tableTotalUnrealizedVal">
+                                ${totResSign}${fmtBRL(totalUnrealized)}
+                              </strong>
+                              <span class="pos-result-pct font-numeric ${totResClass}" id="tableTotalUnrealizedPct">
+                                ${fmtPct(totalUnrealizedPct)}
+                              </span>
                             </div>
                           </td>
                         </tr>
                       `;
-                    }).join('');
-                  })()}
-                  </tbody>
-                  <tfoot>
-                    <tr class="positions-tfoot-row">
-                      <td colspan="6" class="td-total-label" style="text-align: right;">
-                        <strong>TOTAL EXPOSTO:</strong>
-                      </td>
-                      <td class="td-total-amount" style="text-align: right;">
-                        <strong class="pos-total-exposed-val font-numeric">${fmtBRL(exposure)}</strong>
-                      </td>
-                      <td colspan="2" class="td-total-share" style="text-align: left; padding-left: 8px;">
-                        <span class="pos-total-share-badge font-numeric" title="${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio em investimentos">
-                          ${exposurePct.toFixed(2).replace('.', ',')}%
-                        </span>
-                      </td>
-                    </tr>
+                    })()}
                   </tfoot>
                 </table>
               </div>
@@ -964,9 +1053,13 @@
             const pos = this.model.positions.find(p => p.id === posId);
             if (pos) {
               const oldPrice = Number(pos.currentPrice || pos.entryPrice || 0);
-              const mult = Number(pos.contractMult || pos.mult || 1);
-              const qty = Number(pos.quantity || 0);
-              const deltaTotal = Math.round((parsed - oldPrice) * qty * mult * 100) / 100;
+              const sign = typeof this.model.getPositionDirectionSign === 'function'
+                ? this.model.getPositionDirectionSign(pos)
+                : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1);
+              const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+              const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+              const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+              const deltaTotal = Math.round((parsed - oldPrice) * sign * qty * mult * fxRate * 100) / 100;
 
               pos.currentPrice = parsed;
               pos.checked = true;
@@ -990,13 +1083,13 @@
               }
             }
             this.updateTotalsLive();
-            // Update row variation badge live
+            // Update row variation badge, volume, and unrealized result live
             const row = input.closest('tr');
             if (row && pos) {
-              const varPct = ((parsed - pos.entryPrice) / pos.entryPrice) * 100;
+              const varPct = pos.entryPrice > 0 ? ((parsed - pos.entryPrice) / pos.entryPrice) * 100 : 0;
               const varTag = row.querySelector('.position-var-tag, .variation-tag');
               if (varTag) {
-                varTag.className = `variation-tag position-var-tag ${varPct > 0 ? 'positive' : varPct < 0 ? 'negative' : 'neutral'}`;
+                varTag.className = `variation-tag position-var-tag ${varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral'}`;
                 varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
               }
             }
@@ -1059,11 +1152,17 @@
         elDayVar.innerHTML = `${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)}) vs. fechamento anterior`;
       }
 
-      const elExpVal = document.getElementById('kpiExposureVal');
+      const elExpVal = document.getElementById('kpiExposureVal') || document.getElementById('kpiTotalExposure');
       if (elExpVal) elExpVal.textContent = fmtBRL(exposure);
 
       const elExpPct = document.getElementById('kpiExposurePct');
       if (elExpPct) elExpPct.textContent = `${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio`;
+
+      const elTableTotalExp = document.getElementById('tableTotalExposure');
+      if (elTableTotalExp) elTableTotalExp.textContent = fmtBRL(exposure);
+
+      const elTableTotalExpPct = document.getElementById('tableTotalExposurePct');
+      if (elTableTotalExpPct) elTableTotalExpPct.textContent = `${exposurePct.toFixed(2).replace('.', ',')}%`;
 
       const elTableWealth = document.getElementById('tableConsolidatedWealth');
       if (elTableWealth) elTableWealth.textContent = fmtBRL(realWealth);
@@ -1127,6 +1226,99 @@
         elProvisionalHint.style.display = isProvisional ? 'inline-flex' : 'none';
       }
 
+      // Update individual open position financial volumes and unrealized results live
+      this.model.positions.forEach(pos => {
+        if (pos.closed || pos.status === 'encerrada') return;
+        const volVal = this.model.getPositionFinancialVolume(pos);
+        const elVol = document.querySelector(`[data-pos-vol-for="${pos.id}"]`);
+        if (elVol) elVol.textContent = fmtBRL(volVal);
+
+        if (typeof this.model.getPositionUnrealizedResult === 'function') {
+          const pnl = this.model.getPositionUnrealizedResult(pos);
+          const pct = typeof this.model.getPositionUnrealizedPct === 'function'
+            ? this.model.getPositionUnrealizedPct(pos)
+            : 0;
+          const resClass = pnl > 0.005 ? 'positive' : pnl < -0.005 ? 'negative' : 'neutral';
+          const resSign = pnl > 0.005 ? '+' : '';
+
+          const elStack = document.querySelector(`[data-pos-result-stack="${pos.id}"]`);
+          if (elStack) elStack.className = `pos-result-stack ${resClass}`;
+
+          const elAmt = document.querySelector(`[data-pos-result-amount="${pos.id}"]`);
+          if (elAmt) {
+            elAmt.className = `pos-result-amount font-numeric ${resClass}`;
+            elAmt.textContent = `${resSign}${fmtBRL(pnl)}`;
+          }
+
+          const elPct = document.querySelector(`[data-pos-result-pct="${pos.id}"]`);
+          if (elPct) {
+            elPct.className = `pos-result-pct font-numeric ${resClass}`;
+            elPct.textContent = fmtPct(pct);
+          }
+        }
+      });
+
+      // Update market category group headers and subtotals live
+      if (typeof this.model.getGroupedPositions === 'function') {
+        const posGroups = this.model.getGroupedPositions();
+        posGroups.forEach(grp => {
+          const grpRes = Number(grp.totalUnrealizedResult || 0);
+          const grpPct = Number(grp.totalUnrealizedPct || 0);
+          const grpResClass = grpRes > 0.005 ? 'positive' : grpRes < -0.005 ? 'negative' : 'neutral';
+          const grpResSign = grpRes > 0.005 ? '+' : '';
+
+          const elHdrRes = document.querySelector(`[data-pos-group-header-result="${grp.key}"]`);
+          if (elHdrRes) {
+            elHdrRes.className = `pos-group-result-amount font-numeric ${grpResClass}`;
+            elHdrRes.textContent = `${grpResSign}${fmtBRL(grpRes)}`;
+          }
+
+          const elHdrPct = document.querySelector(`[data-pos-group-header-pct="${grp.key}"]`);
+          if (elHdrPct) {
+            elHdrPct.className = `pos-group-result-pct font-numeric ${grpResClass}`;
+            elHdrPct.textContent = `(${fmtPct(grpPct)})`;
+          }
+
+          const elSubVol = document.querySelector(`[data-pos-group-volume="${grp.key}"]`);
+          if (elSubVol) elSubVol.textContent = `Exposição: ${fmtBRL(grp.totalVolume)}`;
+
+          const elSubRes = document.querySelector(`[data-pos-group-subtotal-result="${grp.key}"]`);
+          if (elSubRes) {
+            elSubRes.className = `pos-subtotal-res-amount font-numeric ${grpResClass}`;
+            elSubRes.textContent = `${grpResSign}${fmtBRL(grpRes)}`;
+          }
+
+          const elSubPct = document.querySelector(`[data-pos-group-subtotal-pct="${grp.key}"]`);
+          if (elSubPct) {
+            elSubPct.className = `pos-subtotal-res-pct font-numeric ${grpResClass}`;
+            elSubPct.textContent = `(${fmtPct(grpPct)})`;
+          }
+        });
+      }
+
+      // Update grand total open unrealized result in footer live
+      if (typeof this.model.getTotalUnrealizedResult === 'function') {
+        const totPnl = this.model.getTotalUnrealizedResult();
+        const totPct = typeof this.model.getTotalUnrealizedPct === 'function' ? this.model.getTotalUnrealizedPct() : 0;
+        const totClass = totPnl > 0.005 ? 'positive' : totPnl < -0.005 ? 'negative' : 'neutral';
+        const totSign = totPnl > 0.005 ? '+' : '';
+
+        const elWrap = document.getElementById('tableTotalUnrealizedWrap');
+        if (elWrap) elWrap.className = `pos-result-stack ${totClass}`;
+
+        const elVal = document.getElementById('tableTotalUnrealizedVal');
+        if (elVal) {
+          elVal.className = `pos-result-amount font-numeric ${totClass}`;
+          elVal.textContent = `${totSign}${fmtBRL(totPnl)}`;
+        }
+
+        const elPct = document.getElementById('tableTotalUnrealizedPct');
+        if (elPct) {
+          elPct.className = `pos-result-pct font-numeric ${totClass}`;
+          elPct.textContent = fmtPct(totPct);
+        }
+      }
+
       // Broadcast centralized financials update to other listening components (Meu Desktop, Patrimônio, Topbar)
       try {
         const finDetail = {
@@ -1161,6 +1353,30 @@
         const body = groupCard.querySelector('.titular-group-body');
         const chevron = groupCard.querySelector('.titular-chevron');
         const nowCollapsed = this.collapsedTitulares.has(person);
+        if (body) {
+          body.style.display = nowCollapsed ? 'none' : 'block';
+        }
+        if (chevron) {
+          chevron.classList.toggle('collapsed', nowCollapsed);
+        }
+      } else {
+        this.render();
+      }
+    }
+
+    togglePositionGroup(categoryKey) {
+      if (!categoryKey) return;
+      const key = String(categoryKey).trim().toUpperCase();
+      if (this.collapsedPositionGroups.has(key)) {
+        this.collapsedPositionGroups.delete(key);
+      } else {
+        this.collapsedPositionGroups.add(key);
+      }
+      const groupCard = document.querySelector(`.position-group-card[data-position-group="${key}"]`);
+      if (groupCard) {
+        const body = groupCard.querySelector('.position-group-body');
+        const chevron = groupCard.querySelector('.pos-group-chevron');
+        const nowCollapsed = this.collapsedPositionGroups.has(key);
         if (body) {
           body.style.display = nowCollapsed ? 'none' : 'block';
         }
