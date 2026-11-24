@@ -199,6 +199,7 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
     'relativestrength',
     'marketcycle',
     'marketcentral',
+    'capitalintelligence',
     'fundamentals',
     'markettreemap'
   ], 'Itens de Análise de Mercado devem respeitar a ordem prioritária de uso diário');

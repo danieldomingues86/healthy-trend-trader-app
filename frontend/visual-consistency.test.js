@@ -68,12 +68,12 @@ describe('Visual Consistency Engine & Design Tokens', () => {
 });
 
 describe('Screen Inventory & Page Architecture', () => {
-  test('All 47 software modules are registered in NavigationSystemModel', () => {
-    assert.equal(navModel.MODULES.length, 47, 'Must contain exactly 47 modules in registry');
-    assert.equal(engine.SCREEN_REGISTRY.length, 47, 'Engine must track all 47 modules');
+  test('All 48 software modules are registered in NavigationSystemModel', () => {
+    assert.equal(navModel.MODULES.length, 48, 'Must contain exactly 48 modules in registry');
+    assert.equal(engine.SCREEN_REGISTRY.length, 48, 'Engine must track all 48 modules');
   });
 
-  test('Each of the 47 modules has a valid container, template or generator in application', () => {
+  test('Each of the 48 modules has a valid container, template or generator in application', () => {
     const indexPath = path.join(__dirname, '../index.html');
     const html = fs.readFileSync(indexPath, 'utf8');
 

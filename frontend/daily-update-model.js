@@ -158,6 +158,12 @@
     { id: 'pos_m2st34', ticker: 'M2ST34', assetClass: 'BDR', accountId: 'xp_daniel', broker: 'XP — Daniel', quantity: 600, initialQuantity: 600, isPartial: false, partialCount: 0, entryPrice: 8.99, currentPrice: 7.38, stopPrice: 7.00, trailingStop: 7.00, atr: 0.74, mult: 1, contractMult: 1, side: 'Compra', direction: 'long', strategy: 'VOLATILITY_TRADING', entryDate: '2026-11-16', status: 'conferida', checked: true, hasDivergence: false }
   ];
 
+  const POSITION_STRATEGY_GROUPS = [
+    { key: 'TREND_FOLLOWING', label: 'Tendência', badgeLabel: 'Tendência', badgeClass: 'trend', icon: '📈', order: 1 },
+    { key: 'VOLATILITY_TRADING', label: 'Volatilidade', badgeLabel: 'Volatilidade', badgeClass: 'volatility', icon: '⚡', order: 2 },
+    { key: 'UNCLASSIFIED', label: 'Não classificada', badgeLabel: 'Não classificada', badgeClass: 'unclassified', icon: '🏷️', order: 3 }
+  ];
+
   const POSITION_MARKET_CATEGORIES = [
     { key: 'FUTURES', label: 'Futuros', singularLabel: 'Futuro', icon: '⚡', order: 1 },
     { key: 'STOCK', label: 'Ações', singularLabel: 'Ação', icon: '📈', order: 2 },
@@ -641,39 +647,84 @@ const DEFAULT_HISTORY = [
 
   /**
    * Robust parser for Brazilian and international currency inputs.
+   * Supports integers, decimals, trailing separators during typing,
+   * BRL thousand-grouped integers (e.g. "206.335" / "R$ 14.000"), and USD formats.
    */
-  function parseNumber(val) {
+  function parseNumber(val, localeHint = null) {
     if (typeof val === 'number') return Number.isFinite(val) ? val : null;
-    if (!val || typeof val !== 'string') return null;
-    let str = val.trim().replace(/^(?:R\$|US\$|\$)\s*/i, '').trim();
-    if (!str) return null;
+    if (val === null || val === undefined || typeof val !== 'string') return null;
 
-    if (str.includes('.') && str.includes(',')) {
-      if (str.indexOf('.') < str.indexOf(',')) {
+    const raw = val.trim();
+    if (!raw) return null;
+
+    const hasBRLPrefix = /R\$/i.test(raw);
+    const hasUSDPrefix = /US\$/i.test(raw);
+    const effectiveLocale = localeHint || (hasUSDPrefix ? 'USD' : hasBRLPrefix ? 'BRL' : null);
+
+    let str = raw.replace(/(?:R\$|US\$|\$)/gi, '').replace(/[\s\u00A0]+/g, '');
+    if (!str || !/^[+-]?[\d.,]+$/.test(str)) return null;
+
+    const hasDot = str.includes('.');
+    const hasComma = str.includes(',');
+
+    if (hasDot && hasComma) {
+      if (str.lastIndexOf('.') < str.lastIndexOf(',')) {
         // Brazilian format: 1.234,56 -> 1234.56
         str = str.replace(/\./g, '').replace(',', '.');
       } else {
         // US format: 1,234.56 -> 1234.56
         str = str.replace(/,/g, '');
       }
-    } else if (str.includes(',')) {
-      str = str.replace(',', '.');
-    } else if ((str.match(/\./g) || []).length > 1) {
-      str = str.replace(/\./g, '');
+    } else if (hasComma) {
+      const commaCount = (str.match(/,/g) || []).length;
+      if (commaCount > 1) {
+        str = str.replace(/,/g, '');
+      } else if (effectiveLocale === 'USD' && /^[+-]?\d{1,3},\d{3}$/.test(str)) {
+        // US thousand separator without decimals: 17,759 -> 17759
+        str = str.replace(',', '');
+      } else {
+        // Brazilian decimal comma: 206335,50 or trailing 206335,
+        str = str.replace(',', '.');
+      }
+    } else if (hasDot) {
+      const dotCount = (str.match(/\./g) || []).length;
+      if (dotCount > 1) {
+        str = str.replace(/\./g, '');
+      } else if (effectiveLocale === 'BRL' && /^[+-]?\d{1,3}\.\d{3}$/.test(str)) {
+        // Brazilian thousand separator without decimals: 206.335 / 14.000 -> 206335 / 14000
+        str = str.replace('.', '');
+      }
     }
 
-    const num = parseFloat(str);
+    // Allow intermediate trailing decimal separator while user is typing (e.g. "206335,")
+    if (str.endsWith('.')) {
+      str = str.slice(0, -1);
+    }
+    if (!str || str === '+' || str === '-') return null;
+
+    const num = Number(str);
     return Number.isFinite(num) ? num : null;
+  }
+
+  /**
+   * Formats a numeric balance into a clean, unmasked editable string for active focus
+   * (no currency prefix, no thousand separators) to guarantee zero cursor jumping.
+   */
+  function formatEditableNumber(val, isUSD = false) {
+    const num = Number(val);
+    if (!Number.isFinite(num)) return '';
+    const fixed = num.toFixed(2);
+    return isUSD ? fixed : fixed.replace('.', ',');
   }
 
   /**
    * Validates a balance input.
    */
-  function validateBalanceInput(val, allowZero = true) {
+  function validateBalanceInput(val, allowZero = true, localeHint = null) {
     if (val === null || val === undefined || (typeof val === 'string' && val.trim() === '')) {
       return { valid: false, amount: null, error: 'O saldo não pode ficar vazio.' };
     }
-    const parsed = parseNumber(val);
+    const parsed = parseNumber(val, localeHint);
     if (parsed === null || Number.isNaN(parsed)) {
       return { valid: false, amount: null, error: 'Formato numérico inválido.' };
     }
@@ -740,6 +791,285 @@ const DEFAULT_HISTORY = [
     }
   }
 
+  /**
+   * Formats an ISO date/timestamp (YYYY-MM-DD...) or DD/MM/YYYY string into Brazilian DD/MM/AAAA
+   * without timezone off-by-one shifts. Never substitutes today's date when missing.
+   */
+  function formatDateBR(dateVal) {
+    if (!dateVal) return '—';
+    const str = String(dateVal).trim();
+    if (!str) return '—';
+    const brMatch = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (brMatch) return `${brMatch[1]}/${brMatch[2]}/${brMatch[3]}`;
+    const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+    const parsed = new Date(str);
+    if (Number.isNaN(parsed.getTime())) return '—';
+    const dd = String(parsed.getDate()).padStart(2, '0');
+    const mm = String(parsed.getMonth() + 1).padStart(2, '0');
+    const yyyy = parsed.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  /**
+   * Resolves the original entry date (ISO YYYY-MM-DD) recorded in the position's history.
+   * Never invents or substitutes the current date for existing/older operations.
+   */
+  function resolvePositionEntryDate(pos) {
+    if (!pos) return null;
+    const events = Array.isArray(pos.events) ? pos.events : [];
+    const entryEv = events.find(e => e && e.type === 'entry');
+    const entries = Array.isArray(pos.entries) ? pos.entries : [];
+    const initialEntry = entries.find(e => e && (e.type === 'INITIAL' || e.entry_type === 'INITIAL')) || entries[0];
+
+    const candidates = [
+      pos.entryDate,
+      pos.entry_date,
+      pos.metadata?.entryDate,
+      pos.metadata?.entry_date,
+      entryEv?.at,
+      entryEv?.occurred_at,
+      initialEntry?.date,
+      initialEntry?.entry_date,
+      pos.executedAt,
+      pos.executed_at,
+      pos.openedAt,
+      pos.opened_at,
+      pos.createdAt,
+      pos.created_at
+    ];
+
+    for (const raw of candidates) {
+      if (!raw) continue;
+      const str = String(raw).trim();
+      const isoMatch = str.match(/^(\d{4}-\d{2}-\d{2})/);
+      if (isoMatch) return isoMatch[1];
+      const brMatch = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+      if (brMatch) return `${brMatch[3]}-${brMatch[2]}-${brMatch[1]}`;
+    }
+    return null;
+  }
+
+  /**
+   * Resolves the canonical strategy key from the position's explicitly recorded strategy field.
+   * NEVER infers strategy from ticker or asset class. Legacy positions without classification
+   * return 'UNCLASSIFIED' ('Não classificada').
+   */
+  function resolvePositionStrategy(pos) {
+    if (!pos) return 'UNCLASSIFIED';
+    const raw = pos.strategyType ?? pos.strategy_type ?? pos.strategy ?? pos.metadata?.strategyType ?? pos.metadata?.strategy ?? null;
+    if (raw === null || raw === undefined) return 'UNCLASSIFIED';
+    const norm = String(raw)
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
+      .replace(/[\s\-]+/g, '_');
+    if (!norm) return 'UNCLASSIFIED';
+    if (
+      norm === 'TREND_FOLLOWING' ||
+      norm === 'TREND' ||
+      norm === 'TENDENCIA' ||
+      norm === 'SWING_TRADE_DE_TENDENCIA'
+    ) {
+      return 'TREND_FOLLOWING';
+    }
+    if (
+      norm === 'VOLATILITY_TRADING' ||
+      norm === 'VOLATILITY' ||
+      norm === 'VOLATILIDADE' ||
+      norm === 'SWING_TRADE_DE_VOLATILIDADE'
+    ) {
+      return 'VOLATILITY_TRADING';
+    }
+    return 'UNCLASSIFIED';
+  }
+
+  function getPositionStrategyMeta(pos) {
+    const key = typeof pos === 'string'
+      ? resolvePositionStrategy({ strategy: pos })
+      : resolvePositionStrategy(pos);
+    return POSITION_STRATEGY_GROUPS.find(g => g.key === key) || POSITION_STRATEGY_GROUPS[2];
+  }
+
+  // ---------------------------------------------------------------------------
+  // B3 OFFICIAL TRADING CALENDAR (DIAS ÚTEIS DE PREGÃO B3)
+  // Excludes Saturdays, Sundays, Brazilian national holidays, movable holidays
+  // (Carnaval, Sexta-feira Santa, Corpus Christi), and B3 year-end closures
+  // (Dec 24 and last business day of December / Dec 31).
+  // ---------------------------------------------------------------------------
+  const _b3NonTradingDaysCache = new Map();
+
+  function normalizeDateToISO(dateVal) {
+    if (!dateVal) return null;
+    if (dateVal instanceof Date) {
+      if (Number.isNaN(dateVal.getTime())) return null;
+      return `${dateVal.getFullYear()}-${String(dateVal.getMonth() + 1).padStart(2, '0')}-${String(dateVal.getDate()).padStart(2, '0')}`;
+    }
+    const str = String(dateVal).trim();
+    if (!str) return null;
+    const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
+    const brMatch = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (brMatch) return `${brMatch[3]}-${brMatch[2]}-${brMatch[1]}`;
+    const parsed = new Date(str);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
+  }
+
+  function formatUTCDateISO(dateObj) {
+    const y = dateObj.getUTCFullYear();
+    const m = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(dateObj.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  /**
+   * Computes Easter Sunday (UTC noon) for any Gregorian year using the
+   * Anonymous Gregorian (Meeus/Jones/Butcher) algorithm.
+   */
+  function computeEasterDateUTC(year) {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31);
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  }
+
+  /**
+   * Returns the Set of ISO (YYYY-MM-DD) non-trading holiday dates on B3 for a given year.
+   */
+  function getB3NonTradingDaysForYear(year) {
+    const y = Number(year);
+    if (!Number.isInteger(y) || y < 1900 || y > 2200) return new Set();
+    if (_b3NonTradingDaysCache.has(y)) return _b3NonTradingDaysCache.get(y);
+
+    const holidays = new Set([
+      `${y}-01-01`, // Confraternização Universal
+      `${y}-04-21`, // Tiradentes
+      `${y}-05-01`, // Dia do Trabalho
+      `${y}-09-07`, // Independência do Brasil
+      `${y}-10-12`, // Nossa Senhora Aparecida
+      `${y}-11-02`, // Finados
+      `${y}-11-15`, // Proclamação da República
+      `${y}-12-24`, // Véspera de Natal (sem negociação na B3)
+      `${y}-12-25`, // Natal
+      `${y}-12-31`  // Véspera de Ano Novo (sem negociação na B3)
+    ]);
+
+    // Dia Nacional de Zumbi e da Consciência Negra (Feriado Nacional Lei 14.759/2023 a partir de 2024;
+    // também era feriado municipal SP na B3 até 2021)
+    if (y >= 2024 || y <= 2021) {
+      holidays.add(`${y}-11-20`);
+    }
+
+    // Feriados municipais de SP que suspendiam pregão na B3 apenas até 2021
+    if (y <= 2021) {
+      holidays.add(`${y}-01-25`); // Aniversário de São Paulo
+      holidays.add(`${y}-07-09`); // Revolução Constitucionalista
+    }
+
+    // Último dia útil bancário do ano (sem negociação na B3 quando 31/12 cai em fim de semana)
+    const dec31 = new Date(Date.UTC(y, 11, 31, 12, 0, 0));
+    const dec31Dow = dec31.getUTCDay();
+    if (dec31Dow === 6) {
+      holidays.add(`${y}-12-30`);
+    } else if (dec31Dow === 0) {
+      holidays.add(`${y}-12-29`);
+    }
+
+    // Feriados móveis baseados na Páscoa (Quarta-feira de Cinzas tem pregão a partir das 13h, portanto é dia útil)
+    const easter = computeEasterDateUTC(y);
+    const addOffset = (days) => formatUTCDateISO(new Date(easter.getTime() + days * 86400000));
+    holidays.add(addOffset(-48)); // Segunda-feira de Carnaval
+    holidays.add(addOffset(-47)); // Terça-feira de Carnaval
+    holidays.add(addOffset(-2));  // Sexta-feira da Paixão (Sexta-feira Santa)
+    holidays.add(addOffset(60));  // Corpus Christi
+
+    _b3NonTradingDaysCache.set(y, holidays);
+    return holidays;
+  }
+
+  /**
+   * Returns true if the date is an effective B3 trading session day.
+   */
+  function isB3TradingDay(dateVal) {
+    const iso = normalizeDateToISO(dateVal);
+    if (!iso) return false;
+    const d = new Date(`${iso}T12:00:00Z`);
+    if (Number.isNaN(d.getTime())) return false;
+    const dow = d.getUTCDay();
+    if (dow === 0 || dow === 6) return false; // Domingo ou Sábado
+    const year = d.getUTCFullYear();
+    return !getB3NonTradingDaysForYear(year).has(iso);
+  }
+
+  /**
+   * Returns today's calendar date in São Paulo (B3 timezone) as YYYY-MM-DD.
+   */
+  function getTodaySaoPauloISO(now = new Date()) {
+    try {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).formatToParts(now);
+      const y = parts.find(p => p.type === 'year')?.value;
+      const m = parts.find(p => p.type === 'month')?.value;
+      const d = parts.find(p => p.type === 'day')?.value;
+      if (y && m && d) return `${y}-${m}-${d}`;
+    } catch (_) {}
+    return normalizeDateToISO(now);
+  }
+
+  /**
+   * Calculates how many effective B3 trading days have elapsed since entryDateVal.
+   * - Entry date is Day 0.
+   * - Each B3 trading session strictly after entryDateVal up to referenceDateVal adds +1.
+   * - Non-trading days (weekends, national/movable/B3 holidays) do not increment duration.
+   */
+  function calculateB3TradingDuration(entryDateVal, referenceDateVal = null) {
+    const startIso = normalizeDateToISO(entryDateVal);
+    if (!startIso) return null;
+    const endIso = referenceDateVal ? normalizeDateToISO(referenceDateVal) : getTodaySaoPauloISO();
+    if (!endIso) return null;
+    if (endIso <= startIso) return 0;
+
+    let count = 0;
+    let curMs = Date.parse(`${startIso}T12:00:00Z`) + 86400000;
+    const endMs = Date.parse(`${endIso}T12:00:00Z`);
+    if (!Number.isFinite(curMs) || !Number.isFinite(endMs)) return null;
+
+    let guard = 0;
+    while (curMs <= endMs && guard < 15000) {
+      const curIso = formatUTCDateISO(new Date(curMs));
+      if (isB3TradingDay(curIso)) {
+        count += 1;
+      }
+      curMs += 86400000;
+      guard += 1;
+    }
+    return count;
+  }
+
+  function formatTradingDurationLabel(days) {
+    if (days === null || days === undefined || !Number.isFinite(Number(days))) return '—';
+    const n = Math.max(0, Math.floor(Number(days)));
+    if (n === 1) return '1 dia útil';
+    return `${n} dias úteis`;
+  }
+
   class DailyUpdateModel {
     constructor(options = {}) {
       this.accounts = options.accounts ? JSON.parse(JSON.stringify(options.accounts)) : JSON.parse(JSON.stringify(DEFAULT_ACCOUNTS));
@@ -748,6 +1078,7 @@ const DEFAULT_HISTORY = [
         if (!acc.type) acc.type = 'INVESTMENT';
       });
       this.positions = options.positions ? JSON.parse(JSON.stringify(options.positions)) : JSON.parse(JSON.stringify(DEFAULT_POSITIONS));
+      this.closedPositions = options.closedPositions ? JSON.parse(JSON.stringify(options.closedPositions)) : [];
       this.strategyEquity = options.strategyEquity !== undefined ? Number(options.strategyEquity) : 1112175.49;
       this._portfolioHeat = options.portfolioHeat !== undefined ? Number(options.portfolioHeat) : null;
       this._heatLimit = options.heatLimit !== undefined ? Number(options.heatLimit) : null;
@@ -1016,7 +1347,8 @@ const DEFAULT_HISTORY = [
       const acc = this.accounts.find(a => a.id === accountId);
       if (!acc) return { success: false, error: 'Conta não encontrada.' };
 
-      const validation = validateBalanceInput(newAmount);
+      const localeHint = isUSD ? 'USD' : 'BRL';
+      const validation = validateBalanceInput(newAmount, true, localeHint);
       if (!validation.valid) {
         acc.error = validation.error;
         this.updateClosingReadiness();
@@ -1280,11 +1612,12 @@ const DEFAULT_HISTORY = [
       const invalidAccounts = this.accounts.filter(a => Boolean(a.error)).length;
       const accountsChecked = this.accounts.filter(a => (a.status === 'keep' || a.status === 'updated') && !a.error).length;
 
-      const totalPositions = this.positions.length;
-      const positionsChecked = this.positions.filter(p => p.checked && p.status !== 'pendente' && !p.hasDivergence && !p.error).length;
-      const pendingPositions = this.positions.filter(p => !p.checked || p.status === 'pendente').length;
-      const divergences = this.positions.filter(p => p.hasDivergence).length;
-      const invalidPositions = this.positions.filter(p => Boolean(p.error)).length;
+      const openPositions = this.positions.filter(p => !p.closed && p.status !== 'encerrada');
+      const totalPositions = openPositions.length;
+      const positionsChecked = openPositions.filter(p => p.checked && p.status !== 'pendente' && !p.hasDivergence && !p.error).length;
+      const pendingPositions = openPositions.filter(p => !p.checked || p.status === 'pendente').length;
+      const divergences = openPositions.filter(p => p.hasDivergence).length;
+      const invalidPositions = openPositions.filter(p => Boolean(p.error)).length;
       const unverifiedPositions = totalPositions - positionsChecked;
 
       const pendencies = divergences + pendingAccounts + invalidAccounts + pendingPositions + invalidPositions;
@@ -1402,6 +1735,53 @@ const DEFAULT_HISTORY = [
     }
 
     /**
+     * Adjusts the entry price of an OPEN position (e.g. fixing a typo while the trade is open).
+     * Never alters broker account balances (real cash+positions stays unchanged), recalculates
+     * unrealized P&L and portfolio heat, and blocks editing already-closed trades.
+     */
+    updatePositionEntryPrice(positionId, newEntryPrice) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return { success: false, error: 'Posição não encontrada.' };
+      if (pos.closed || pos.status === 'encerrada') {
+        return { success: false, error: 'O preço de entrada só pode ser ajustado enquanto o trade ainda estiver em aberto.' };
+      }
+
+      const num = parseNumber(newEntryPrice, 'BRL');
+      if (num === null || !Number.isFinite(num) || num <= 0) {
+        pos.entryError = 'Preço de entrada inválido';
+        this.updateClosingReadiness();
+        return { success: false, error: pos.entryError, position: pos };
+      }
+
+      const oldEntryPrice = Number(pos.entryPrice || 0);
+      pos.entryPrice = num;
+      pos.averageEntry = num;
+      pos.entry = num;
+      pos.entryError = null;
+      pos.updatedAt = new Date().toISOString();
+
+      // Keep initial entry event in sync when no scale-in occurred
+      if (Array.isArray(pos.events)) {
+        const hasScaleIn = pos.events.some(e => e && e.type === 'scale_in');
+        if (!hasScaleIn) {
+          const entryEv = pos.events.find(e => e && e.type === 'entry');
+          if (entryEv) entryEv.price = num;
+        }
+      }
+
+      this.updateClosingReadiness();
+      return {
+        success: true,
+        position: pos,
+        oldEntryPrice,
+        newEntryPrice: num,
+        unrealizedResult: this.getPositionUnrealizedResult(pos),
+        totalUnrealizedResult: this.getTotalUnrealizedResult(),
+        portfolioHeat: this.getPortfolioHeat()
+      };
+    }
+
+    /**
      * Updates an open position's quantity.
      * Recalculates financial volume and overall exposure.
      */
@@ -1442,16 +1822,245 @@ const DEFAULT_HISTORY = [
     }
 
     /**
-     * Closes an open position.
-     * Updates total exposure and heat immediately.
+     * Calculates a real-time preview for closing (full or partial) an open position.
+     * Strictly honors direction (Compra/Long vs Venda/Short), contract multiplier, FX rate, and operational costs.
+     * Separates realized profit of the exiting slice from remaining unrealized profit (zero double-counting).
      */
-    closePosition(positionId) {
+    calculatePositionClosePreview(positionOrId, params = {}) {
+      const pos = typeof positionOrId === 'string'
+        ? this.positions.find(p => p.id === positionOrId)
+        : positionOrId;
+      if (!pos) return { valid: false, error: 'Posição não encontrada.' };
+
+      const openQty = Number(pos.quantity ?? pos.remaining ?? 0);
+      if (!Number.isFinite(openQty) || openQty <= 0 || pos.closed || pos.status === 'encerrada') {
+        return { valid: false, error: 'Esta posição já está encerrada.' };
+      }
+
+      const exitPrice = parseNumber(params.exitPrice !== undefined ? params.exitPrice : pos.currentPrice, 'BRL');
+      if (exitPrice === null || !Number.isFinite(exitPrice) || exitPrice <= 0) {
+        return { valid: false, error: 'Informe um preço de encerramento maior que zero.' };
+      }
+
+      const rawQty = params.exitQuantity !== undefined ? Number(params.exitQuantity) : openQty;
+      if (!Number.isFinite(rawQty) || !Number.isInteger(rawQty) || rawQty < 1) {
+        return { valid: false, error: 'A quantidade a encerrar deve ser um número inteiro maior ou igual a 1.' };
+      }
+      if (rawQty > openQty) {
+        return { valid: false, error: `A quantidade a encerrar (${rawQty}) não pode exceder a quantidade aberta (${openQty}).` };
+      }
+
+      const exitDate = String(params.exitDate || new Date().toISOString().slice(0, 10)).trim().slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(exitDate)) {
+        return { valid: false, error: 'Data de encerramento inválida.' };
+      }
+
+      const parsedCosts = params.costs !== undefined && params.costs !== ''
+        ? parseNumber(params.costs, 'BRL')
+        : Number(pos.costs ?? pos.costsIncurred ?? 0);
+      const costs = (parsedCosts !== null && Number.isFinite(parsedCosts) && parsedCosts >= 0) ? parsedCosts : 0;
+
+      const entryPrice = Number(pos.entryPrice ?? pos.averageEntry ?? pos.entry ?? 0);
+      const sign = this.getPositionDirectionSign(pos);
+      const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+      const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+      const remainingQuantity = openQty - rawQty;
+      const isPartial = remainingQuantity > 0;
+
+      // Compra (sign=+1): (exit - entry) * qty * mult * fxRate
+      // Venda (sign=-1):  (entry - exit) * qty * mult * fxRate
+      const grossResult = Math.round(((exitPrice - entryPrice) * sign * rawQty * mult * fxRate) * 100) / 100;
+      const netResult = Math.round((grossResult - costs) * 100) / 100;
+      const entryNotional = entryPrice * rawQty * mult * fxRate;
+      const returnPct = entryNotional > 0
+        ? Math.round(((netResult / entryNotional) * 100) * 100) / 100
+        : 0;
+
+      // Remaining unrealized result computed strictly on remaining open quantity (zero overlap)
+      const currentPrice = Number(pos.currentPrice ?? exitPrice);
+      const remainingUnrealizedResult = remainingQuantity > 0
+        ? Math.round(((currentPrice - entryPrice) * sign * remainingQuantity * mult * fxRate) * 100) / 100
+        : 0;
+
+      const previousRealized = Number(pos.realizedResult || 0);
+      const totalRealizedAfter = Math.round((previousRealized + netResult) * 100) / 100;
+
+      return {
+        valid: true,
+        error: null,
+        positionId: pos.id,
+        ticker: pos.ticker,
+        direction: sign === -1 ? 'short' : 'long',
+        sideLabel: sign === -1 ? 'Venda' : 'Compra',
+        sideCode: sign === -1 ? 'V' : 'C',
+        entryDate: resolvePositionEntryDate(pos),
+        entryDateBR: formatDateBR(resolvePositionEntryDate(pos)),
+        entryPrice,
+        openQuantity: openQty,
+        exitQuantity: rawQty,
+        remainingQuantity,
+        exitPrice,
+        exitDate,
+        exitDateBR: formatDateBR(exitDate),
+        costs,
+        mult,
+        fxRate,
+        isPartial,
+        isFullClose: !isPartial,
+        grossResult,
+        netResult,
+        returnPct,
+        previousRealized,
+        totalRealizedAfter,
+        remainingUnrealizedResult
+      };
+    }
+
+    /**
+     * Executes a full or partial position close, preserving original entry date, average entry price,
+     * and complete event history without deleting the operation.
+     */
+    executePositionClose(positionId, params = {}) {
       const pos = this.positions.find(p => p.id === positionId);
       if (!pos) return { success: false, error: 'Posição não encontrada.' };
-      pos.closed = true;
-      pos.status = 'encerrada';
+
+      const preview = this.calculatePositionClosePreview(pos, params);
+      if (!preview.valid) {
+        return { success: false, error: preview.error };
+      }
+
+      const originalEntryDate = resolvePositionEntryDate(pos);
+      if (originalEntryDate && !pos.entryDate) {
+        pos.entryDate = originalEntryDate;
+      }
+
+      // Ensure original entry event is preserved in position history
+      if (!Array.isArray(pos.events)) pos.events = [];
+      if (!pos.events.some(e => e && e.type === 'entry')) {
+        pos.events.unshift({
+          type: 'entry',
+          at: originalEntryDate ? `${originalEntryDate}T12:00:00-03:00` : null,
+          qty: Number(pos.initialQuantity || pos.quantity || preview.openQuantity),
+          price: preview.entryPrice,
+          stop: Number(pos.stopPrice || 0),
+          note: 'Entrada original registrada.'
+        });
+      }
+
+      const exitTimestamp = `${preview.exitDate}T17:00:00-03:00`;
+      const eventRecord = {
+        id: `ev_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        type: preview.isPartial ? 'peeloff' : 'close',
+        qty: preview.exitQuantity,
+        price: preview.exitPrice,
+        at: exitTimestamp,
+        exitDate: preview.exitDate,
+        costs: preview.costs,
+        grossResult: preview.grossResult,
+        realizedResult: preview.netResult,
+        returnPct: preview.returnPct,
+        note: String(params.note || (preview.isPartial
+          ? `Encerramento parcial (${preview.exitQuantity} un.) via Atualização Diária.`
+          : 'Encerramento integral via Atualização Diária.')).trim()
+      };
+      pos.events.push(eventRecord);
+
+      pos.realizedResult = preview.totalRealizedAfter;
+      pos.totalCosts = Math.round(((Number(pos.totalCosts || 0)) + preview.costs) * 100) / 100;
+      pos.currentPrice = preview.exitPrice;
+      pos.updatedAt = new Date().toISOString();
+
+      let closedTradeRecord = null;
+      if (preview.isPartial) {
+        // Partial exit: keep remaining quantity open, preserve average entry & entryDate
+        pos.quantity = preview.remainingQuantity;
+        pos.isPartial = true;
+        pos.partialCount = Number(pos.partialCount || 0) + 1;
+        pos.closed = false;
+        if (!pos.hasDivergence) pos.status = 'conferida';
+      } else {
+        // Full close: preserve record with status 'encerrada' (never delete!) and mirror in closedPositions
+        pos.quantity = 0;
+        pos.closed = true;
+        pos.status = 'encerrada';
+        pos.exitPrice = preview.exitPrice;
+        pos.exitDate = preview.exitDate;
+        pos.closedAt = exitTimestamp;
+        pos.finalRealizedResult = preview.totalRealizedAfter;
+        const totalEntryNotional = preview.entryPrice * Number(pos.initialQuantity || preview.openQuantity) * preview.mult * preview.fxRate;
+        pos.finalReturnPct = totalEntryNotional > 0
+          ? Math.round(((preview.totalRealizedAfter / totalEntryNotional) * 100) * 100) / 100
+          : preview.returnPct;
+
+        closedTradeRecord = {
+          id: pos.id,
+          ticker: pos.ticker,
+          asset: pos.ticker,
+          assetClass: pos.assetClass || this.classifyPositionMarket(pos),
+          market: pos.market || pos.assetClass || this.classifyPositionMarket(pos),
+          direction: preview.direction,
+          side: preview.sideLabel,
+          accountId: pos.accountId || null,
+          broker: pos.broker || null,
+          strategy: pos.strategy || 'TREND_FOLLOWING',
+          entryDate: originalEntryDate,
+          openedAt: pos.openedAt || (originalEntryDate ? `${originalEntryDate}T12:00:00-03:00` : null),
+          exitDate: preview.exitDate,
+          closedAt: exitTimestamp,
+          entryPrice: preview.entryPrice,
+          entry: preview.entryPrice,
+          averageEntry: preview.entryPrice,
+          exitPrice: preview.exitPrice,
+          initialQuantity: Number(pos.initialQuantity || preview.openQuantity),
+          initialQty: Number(pos.initialQuantity || preview.openQuantity),
+          closedQuantity: Number(pos.initialQuantity || preview.openQuantity),
+          stopPrice: Number(pos.stopPrice || 0),
+          initialStop: Number(pos.stopPrice || 0),
+          contractMult: preview.mult,
+          fxRate: preview.fxRate,
+          costs: pos.totalCosts,
+          realizedResult: preview.totalRealizedAfter,
+          returnPct: pos.finalReturnPct,
+          status: 'closed',
+          events: JSON.parse(JSON.stringify(pos.events))
+        };
+
+        const existingIdx = this.closedPositions.findIndex(c => c.id === pos.id);
+        if (existingIdx >= 0) this.closedPositions[existingIdx] = closedTradeRecord;
+        else this.closedPositions.unshift(closedTradeRecord);
+      }
+
       this.updateClosingReadiness();
-      return { success: true, position: pos, totalExposure: this.getTotalExposure(), portfolioHeat: this.getPortfolioHeat() };
+
+      return {
+        success: true,
+        isPartial: preview.isPartial,
+        isFullClose: preview.isFullClose,
+        position: pos,
+        closedTrade: closedTradeRecord,
+        event: eventRecord,
+        preview,
+        totalExposure: this.getTotalExposure(),
+        totalUnrealizedResult: this.getTotalUnrealizedResult(),
+        portfolioHeat: this.getPortfolioHeat()
+      };
+    }
+
+    /**
+     * Closes an open position (full close at current price when no params supplied).
+     * Preserves complete history and updates exposure & heat immediately.
+     */
+    closePosition(positionId, params = null) {
+      const pos = this.positions.find(p => p.id === positionId);
+      if (!pos) return { success: false, error: 'Posição não encontrada.' };
+      if (params && typeof params === 'object') {
+        return this.executePositionClose(positionId, params);
+      }
+      return this.executePositionClose(positionId, {
+        exitPrice: Number(pos.currentPrice || pos.entryPrice || 1),
+        exitQuantity: Number(pos.quantity || 1),
+        exitDate: new Date().toISOString().slice(0, 10)
+      });
     }
 
     /**
@@ -1776,8 +2385,25 @@ const DEFAULT_HISTORY = [
     }
 
     /**
-     * Groups open positions by market category in canonical order:
-     * Futuros -> Ações -> BDRs -> FIIs -> ETFs -> Outros.
+     * Resolves canonical strategy metadata for a position without inferring from ticker/assetClass.
+     */
+    getPositionStrategy(pos) {
+      return getPositionStrategyMeta(pos);
+    }
+
+    /**
+     * Calculates B3 trading-day duration since entry date (entry day = 0).
+     */
+    getPositionDurationDays(pos, referenceDate = null) {
+      const entryIso = resolvePositionEntryDate(pos);
+      if (!entryIso) return null;
+      return calculateB3TradingDuration(entryIso, referenceDate);
+    }
+
+    /**
+     * Groups open positions exclusively by STRATEGY in canonical order:
+     * Tendência (TREND_FOLLOWING) -> Volatilidade (VOLATILITY_TRADING) -> Não classificada (UNCLASSIFIED).
+     * Never groups by asset class (Futuros/Ações/BDRs) and never infers strategy from ticker.
      * Each group includes position count, aggregated financial volume,
      * aggregated unrealized result (R$) and profitability (%).
      */
@@ -1786,19 +2412,20 @@ const DEFAULT_HISTORY = [
       const openPositions = this.positions.filter(pos => !pos.closed && pos.status !== 'encerrada');
 
       const buckets = new Map();
-      POSITION_MARKET_CATEGORIES.forEach(cat => {
-        buckets.set(cat.key, []);
+      POSITION_STRATEGY_GROUPS.forEach(group => {
+        buckets.set(group.key, []);
       });
 
       openPositions.forEach(pos => {
-        const catKey = this.classifyPositionMarket(pos);
-        const targetKey = buckets.has(catKey) ? catKey : 'OTHER';
+        const stratKey = resolvePositionStrategy(pos);
+        const targetKey = buckets.has(stratKey) ? stratKey : 'UNCLASSIFIED';
         buckets.get(targetKey).push(pos);
       });
 
       const groups = [];
-      POSITION_MARKET_CATEGORIES.forEach(cat => {
-        const list = buckets.get(cat.key) || [];
+      POSITION_STRATEGY_GROUPS.forEach(meta => {
+        const list = buckets.get(meta.key) || [];
+        // Show UNCLASSIFIED only when there are actually unclassified positions (unless includeEmpty)
         if (list.length === 0 && !includeEmpty) return;
 
         let totalVolume = 0;
@@ -1825,11 +2452,12 @@ const DEFAULT_HISTORY = [
           : 0;
 
         groups.push({
-          key: cat.key,
-          label: cat.label,
-          singularLabel: cat.singularLabel,
-          icon: cat.icon,
-          order: cat.order,
+          key: meta.key,
+          label: meta.label,
+          badgeLabel: meta.badgeLabel,
+          badgeClass: meta.badgeClass,
+          icon: meta.icon,
+          order: meta.order,
           positions: list,
           count: list.length,
           totalVolume,
@@ -1884,6 +2512,7 @@ const DEFAULT_HISTORY = [
         const payload = {
           accounts: this.accounts,
           positions: this.positions,
+          closedPositions: this.closedPositions,
           closingDate: this.closingDate,
           previousClosingWealth: this.previousClosingWealth,
           savedAt: new Date().toISOString()
@@ -1914,10 +2543,15 @@ const DEFAULT_HISTORY = [
               if (!p.assetClass && defPos.assetClass) p.assetClass = defPos.assetClass;
               if (!p.contractMult && defPos.contractMult) p.contractMult = defPos.contractMult;
               if (!p.mult && defPos.mult) p.mult = defPos.mult;
+              if (!p.entryDate && defPos.entryDate) p.entryDate = defPos.entryDate;
+              if (defPos.id === p.id && p.strategy === undefined && p.strategyType === undefined && p.strategy_type === undefined && defPos.strategy) {
+                p.strategy = defPos.strategy;
+              }
             }
             return p;
           });
         }
+        if (Array.isArray(parsed.closedPositions)) this.closedPositions = parsed.closedPositions;
         if (parsed.previousClosingWealth) this.previousClosingWealth = Number(parsed.previousClosingWealth);
         this.updateClosingReadiness();
         return true;
@@ -2613,18 +3247,30 @@ const DEFAULT_HISTORY = [
 
   DailyUpdateModel.DEFAULT_ACCOUNTS = DEFAULT_ACCOUNTS;
   DailyUpdateModel.DEFAULT_POSITIONS = DEFAULT_POSITIONS;
+  DailyUpdateModel.POSITION_STRATEGY_GROUPS = POSITION_STRATEGY_GROUPS;
   DailyUpdateModel.POSITION_MARKET_CATEGORIES = POSITION_MARKET_CATEGORIES;
   DailyUpdateModel.DEFAULT_HISTORY = DEFAULT_HISTORY;
   DailyUpdateModel.STORAGE_KEY_DRAFT = STORAGE_KEY_DRAFT;
   DailyUpdateModel.STORAGE_KEY_ACCOUNTS = STORAGE_KEY_ACCOUNTS;
   DailyUpdateModel.STORAGE_KEY_HISTORY = STORAGE_KEY_HISTORY;
   DailyUpdateModel.parseNumber = parseNumber;
+  DailyUpdateModel.formatEditableNumber = formatEditableNumber;
   DailyUpdateModel.validateBalanceInput = validateBalanceInput;
   DailyUpdateModel.formatBRL = formatBRL;
   DailyUpdateModel.formatUSD = formatUSD;
   DailyUpdateModel.formatPercent = formatPercent;
   DailyUpdateModel.formatCompactBRL = formatCompactBRL;
   DailyUpdateModel.formatRelativeDate = formatRelativeDate;
+  DailyUpdateModel.formatDateBR = formatDateBR;
+  DailyUpdateModel.resolvePositionEntryDate = resolvePositionEntryDate;
+  DailyUpdateModel.resolvePositionStrategy = resolvePositionStrategy;
+  DailyUpdateModel.getPositionStrategyMeta = getPositionStrategyMeta;
+  DailyUpdateModel.computeEasterDateUTC = computeEasterDateUTC;
+  DailyUpdateModel.getB3NonTradingDaysForYear = getB3NonTradingDaysForYear;
+  DailyUpdateModel.isB3TradingDay = isB3TradingDay;
+  DailyUpdateModel.getTodaySaoPauloISO = getTodaySaoPauloISO;
+  DailyUpdateModel.calculateB3TradingDuration = calculateB3TradingDuration;
+  DailyUpdateModel.formatTradingDurationLabel = formatTradingDurationLabel;
 
   /**
    * CANONICAL FINANCIALS SERVICE:

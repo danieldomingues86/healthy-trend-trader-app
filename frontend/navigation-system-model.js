@@ -255,6 +255,17 @@
       proOnly: false
     },
     {
+      id: 'capitalintelligence',
+      page: 'capitalintelligence',
+      label: 'Capital Intelligence',
+      labelEn: 'Capital Intelligence',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="M10.5 10.5 6.5 17.5M13.5 13.5l4-7M17 5h4v4M5 19H1v-4"/></svg>`,
+      desc: 'Mapa vivo dos fluxos globais de dinheiro, forças macro e posicionamento.',
+      descEn: 'Living map of global money flows, macro forces and portfolio positioning.',
+      proOnly: false
+    },
+    {
       id: 'fundamentals',
       page: 'fundamentals',
       label: 'Análise Fundamentalista',

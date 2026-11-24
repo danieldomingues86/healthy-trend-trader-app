@@ -47,6 +47,7 @@
     ['mistakesbook','Erros e Lições','Catálogo de aprendizados.',null,'Registre erros operacionais e comportamentais para identificar padrões e consolidar lições aprendidas.'],
     ['charts','Gráficos','Leitura técnica e benchmarking.','manual-charts','Analise candles diários com médias móveis, volume institucional, benchmarking automático (IBOV, BDRX, IFIX) e avaliação instantânea de Grade pela Trading Rubric.'],
     ['marketcentral','Central de Mercado','Observatório macro e breadth.','manual-marketcentral','Acompanhe em tempo real o regime do mercado, indicadores de breadth, mercados globais (S&P 500, Nasdaq, Dólar, US10Y), notícias do dia e mapa setorial.'],
+    ['capitalintelligence','Capital Intelligence','Mapa vivo dos fluxos globais de dinheiro.',null,'Explore visualmente o ecossistema financeiro através de esferas conectadas, fluxos de liquidez entre Brasil, EUA, Macroeconomia e seu Patrimônio, com insights explicáveis e simulação de cenários.'],
     ['eventplaybook','Registro de Eventos','Biblioteca histórica de catalisadores.','manual-eventplaybook','Estude a reação histórica dos preços a eventos macroeconômicos (FOMC, Copom, CPI, Payroll) e utilize roteiros testados para proteger seu capital.'],
     ['marketcycle','Ciclo de Mercado','Entenda o ambiente.','manual-permission','Leia o regime multi-mercado independente (Ações B3, BDRs e FIIs) e a atualização dos dados antes de procurar uma oportunidade.'],
     ['opportunityradar','Radar de Oportunidades','Ativos prontos para entrada no Diário.',null,'Consolide em uma visão rápida e objetiva somente os ativos que cumprem todos os critérios obrigatórios do método e possuem gatilho confirmado no gráfico Diário.'],
@@ -186,6 +187,12 @@
       'Mercados Globais: monitore a dinâmica de índices internacionais (S&P 500, Nasdaq 100), Dólar e juros dos Treasuries de 10 anos para contextualizar o fluxo estrangeiro na B3.',
       'Calendário e Notícias: antecipe decisões de política monetária, divulgação de indicadores de inflação e notícias relevantes antes de posicionar suas ordens.',
       'Mapa Setorial: visualize a força relativa de cada setor da economia para focar o capital nos setores líderes.'
+    ],
+    capitalintelligence: [
+      'O Capital Intelligence (Mapa Vivo do Dinheiro) é um ecossistema visual e interativo que mapeia as conexões econômicas, correlações estatísticas e alocações de capital entre Brasil, Estados Unidos, Macroeconomia e o Patrimônio do trader.',
+      'Quatro Universos Conectados: explore as forças macroeconômicas (Selic, Inflação, DXY, Curva de Juros), benchmarks globais (S&P 500, Nasdaq, VIX) e mercados locais (IBOV, IFIX, BDRX, Dólar) conectados dinamicamente às alocações do seu patrimônio.',
+      'Conexões Explicáveis e Auditáveis: cada linha no mapa possui fundamentação econômica real, horizonte temporal observado e métricas de sustentação, permitindo entender o porquê de cada fluxo de capital.',
+      'Motor de Insights & Cenários: receba diagnósticos automáticos sobre divergências de força relativa, pressões inflacionárias e simule cenários de rebalanceamento não vinculantes para apoiar suas decisões estratégicas.'
     ],
     eventplaybook: [
       'O Registro de Eventos é uma biblioteca histórica e viva dos principais catalisadores macroeconômicos do mercado.',

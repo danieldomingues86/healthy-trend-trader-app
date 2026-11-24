@@ -19,3 +19,4 @@ output/
 scratch/
 verify-about-page.cjs
 backend/data/market-regimes-cache.json
+backend/data/capital-intelligence-store.json
