@@ -1101,7 +1101,7 @@ test('DailyUpdateModel: Resultado Atual (Compras, Vendas, Multiplicadores de Fut
   // (135 - 140) * -1 * 10 * 1 * 5.95 - 15.00 = 297.50 - 15.00 = +282.50
   assert.equal(model.getPositionUnrealizedResult(usdShortPos), 282.50);
 
-  // 4. Classificação e Agrupamento por Tipo de Mercado (Futuros, Ações, BDRs, FIIs, ETFs, Outros)
+  // 4. Classificação de mercado preservada como utilitário, mas agrupamento oficial é 100% por ESTRATÉGIA
   assert.equal(model.classifyPositionMarket(win), 'FUTURES');
   assert.equal(model.classifyPositionMarket(bgi), 'FUTURES');
   assert.equal(model.classifyPositionMarket(bbas), 'STOCK');
@@ -1110,28 +1110,22 @@ test('DailyUpdateModel: Resultado Atual (Compras, Vendas, Multiplicadores de Fut
   assert.equal(model.classifyPositionMarket(amzn), 'BDR');
   assert.equal(model.classifyPositionMarket(m2st), 'BDR');
 
-  // Testa agrupamento das 7 posições padrão (3 grupos ativos: Futuros, Ações, BDRs)
+  // Testa agrupamento das 7 posições padrão exclusivamente por ESTRATÉGIA (Tendência e Volatilidade)
   const groups = model.getGroupedPositions();
-  assert.equal(groups.length, 3);
-  assert.deepEqual(groups.map(g => g.key), ['FUTURES', 'STOCK', 'BDR']);
+  assert.equal(groups.length, 2);
+  assert.deepEqual(groups.map(g => g.key), ['TREND_FOLLOWING', 'VOLATILITY_TRADING']);
 
-  const gFut = groups.find(g => g.key === 'FUTURES');
-  assert.equal(gFut.label, 'Futuros');
-  assert.equal(gFut.count, 2);
-  assert.equal(gFut.totalVolume, 67038.00 + 131670.00); // 198708.00
-  assert.equal(gFut.totalUnrealizedResult, 36.00 - 1072.50); // -1036.50
+  const gTrend = groups.find(g => g.key === 'TREND_FOLLOWING');
+  assert.equal(gTrend.label, 'Tendência');
+  assert.equal(gTrend.count, 3); // AAPL34 (BDR), AMZN34 (BDR), WINZ26 (Futuro) juntos!
+  assert.equal(gTrend.totalVolume, 61926.00 + 38515.00 + 67038.00); // 167479.00
+  assert.equal(gTrend.totalUnrealizedResult, 1410.00 - 830.00 + 36.00); // +616.00
 
-  const gStock = groups.find(g => g.key === 'STOCK');
-  assert.equal(gStock.label, 'Ações');
-  assert.equal(gStock.count, 2);
-  assert.equal(gStock.totalVolume, 6435.00 + 4290.00); // 10725.00
-  assert.equal(gStock.totalUnrealizedResult, -595.00 - 354.00); // -949.00
-
-  const gBdr = groups.find(g => g.key === 'BDR');
-  assert.equal(gBdr.label, 'BDRs');
-  assert.equal(gBdr.count, 3);
-  assert.equal(gBdr.totalVolume, 61926.00 + 38515.00 + 4428.00); // 104869.00
-  assert.equal(gBdr.totalUnrealizedResult, 1410.00 - 830.00 - 966.00); // -386.00
+  const gVol = groups.find(g => g.key === 'VOLATILITY_TRADING');
+  assert.equal(gVol.label, 'Volatilidade');
+  assert.equal(gVol.count, 4); // BRAV3 (Ação), BBAS3 (Ação), BGIX26 (Futuro), M2ST34 (BDR) juntos!
+  assert.equal(gVol.totalVolume, 6435.00 + 4290.00 + 131670.00 + 4428.00); // 146823.00
+  assert.equal(gVol.totalUnrealizedResult, -595.00 - 354.00 - 1072.50 - 966.00); // -2987.50
 
   // 5. Garantir que subtotais são informativos e não causam dupla contagem no Total Exposto nem no Resultado Total
   const sumGroupVolumes = groups.reduce((acc, g) => acc + g.totalVolume, 0);
@@ -1142,19 +1136,18 @@ test('DailyUpdateModel: Resultado Atual (Compras, Vendas, Multiplicadores de Fut
   assert.equal(sumGroupResults, model.getTotalUnrealizedResult());
   assert.equal(model.getTotalUnrealizedResult(), -2371.50);
 
-  // 6. Novas posições de FIIs, ETFs e Outros (ativos sem classificação conhecida) entram automaticamente nas categorias corretas sem desaparecer
+  // 6. Operações legadas sem estratégia explícita nunca são inferidas por ticker/ativo e vão para "Não classificada"
   model.positions.push(
-    { id: 'pos_hglg11', ticker: 'HGLG11', assetClass: 'FII', quantity: 100, entryPrice: 160.00, currentPrice: 162.50, contractMult: 1, status: 'conferida', checked: true },
-    { id: 'pos_bova11', ticker: 'BOVA11', assetClass: 'ETF', quantity: 200, entryPrice: 125.00, currentPrice: 124.00, contractMult: 1, status: 'conferida', checked: true },
-    { id: 'pos_custom', ticker: 'XYZ_STRUCT_99', quantity: 1, entryPrice: 10000.00, currentPrice: 10000.00, contractMult: 1, status: 'conferida', checked: true }
+    { id: 'pos_hglg11', ticker: 'HGLG11', assetClass: 'FII', strategy: 'TREND_FOLLOWING', quantity: 100, entryPrice: 160.00, currentPrice: 162.50, contractMult: 1, status: 'conferida', checked: true },
+    { id: 'pos_bova11', ticker: 'BOVA11', assetClass: 'ETF', strategy: 'VOLATILITY_TRADING', quantity: 200, entryPrice: 125.00, currentPrice: 124.00, contractMult: 1, status: 'conferida', checked: true },
+    { id: 'pos_legacy_unclass', ticker: 'PETR4', assetClass: 'STOCK', quantity: 100, entryPrice: 38.00, currentPrice: 38.00, contractMult: 1, status: 'conferida', checked: true }
   );
 
   const allGroups = model.getGroupedPositions();
-  assert.deepEqual(allGroups.map(g => g.key), ['FUTURES', 'STOCK', 'BDR', 'FII', 'ETF', 'OTHER']);
-  assert.equal(allGroups.find(g => g.key === 'FII').totalUnrealizedResult, 250.00);
-  assert.equal(allGroups.find(g => g.key === 'ETF').totalUnrealizedResult, -200.00);
-  assert.equal(allGroups.find(g => g.key === 'OTHER').totalUnrealizedResult, 0.00);
-  assert.equal(allGroups.find(g => g.key === 'OTHER').positions[0].ticker, 'XYZ_STRUCT_99');
+  assert.deepEqual(allGroups.map(g => g.key), ['TREND_FOLLOWING', 'VOLATILITY_TRADING', 'UNCLASSIFIED']);
+  assert.equal(allGroups.find(g => g.key === 'UNCLASSIFIED').label, 'Não classificada');
+  assert.equal(allGroups.find(g => g.key === 'UNCLASSIFIED').positions[0].ticker, 'PETR4');
+  assert.equal(DailyUpdateModel.resolvePositionStrategy({ ticker: 'WINZ26', assetClass: 'FUTURES' }), 'UNCLASSIFIED', 'Nunca inferir estratégia pelo ticker ou classe de ativo');
 
   // 7. Identificação C/V (Compra = 'C', Venda = 'V') pela direção original da operação (independente de lucro ou prejuízo)
   assert.equal(model.getPositionSideCode(win), 'V'); // WINZ26 vendido em lucro (+R$ 36,00) -> V
@@ -1164,4 +1157,78 @@ test('DailyUpdateModel: Resultado Atual (Compras, Vendas, Multiplicadores de Fut
   assert.equal(model.getPositionSideCode(aapl), 'C'); // AAPL34 comprado em lucro -> C
   assert.equal(model.getPositionSideCode(amzn), 'C'); // AMZN34 comprado em prejuízo -> C
   assert.equal(model.getPositionSideCode(m2st), 'C'); // M2ST34 comprado em prejuízo -> C
+});
+
+test('DailyUpdateModel: Calendário oficial de dias úteis B3 e cálculo de Duração das operações', () => {
+  const { isB3TradingDay, calculateB3TradingDuration, formatTradingDurationLabel } = DailyUpdateModel;
+
+  // Finais de semana nunca são pregão
+  assert.equal(isB3TradingDay('2026-11-14'), false, 'Sábado não é dia útil');
+  assert.equal(isB3TradingDay('2026-11-15'), false, 'Domingo / Proclamação da República não é dia útil');
+
+  // Feriados nacionais fixos e específicos da B3
+  assert.equal(isB3TradingDay('2026-01-01'), false, 'Confraternização Universal');
+  assert.equal(isB3TradingDay('2026-04-21'), false, 'Tiradentes');
+  assert.equal(isB3TradingDay('2026-05-01'), false, 'Dia do Trabalho');
+  assert.equal(isB3TradingDay('2026-09-07'), false, 'Independência');
+  assert.equal(isB3TradingDay('2026-10-12'), false, 'Nossa Senhora Aparecida');
+  assert.equal(isB3TradingDay('2026-11-02'), false, 'Finados');
+  assert.equal(isB3TradingDay('2026-11-20'), false, 'Dia da Consciência Negra (Feriado Nacional B3)');
+  assert.equal(isB3TradingDay('2026-12-24'), false, 'Véspera de Natal (sem pregão na B3)');
+  assert.equal(isB3TradingDay('2026-12-25'), false, 'Natal');
+  assert.equal(isB3TradingDay('2026-12-31'), false, 'Último dia útil do ano (sem pregão na B3)');
+  assert.equal(isB3TradingDay('2022-12-30'), false, 'Sexta-feira 30/12/2022 (último dia útil bancário sem pregão B3)');
+
+  // Feriados móveis 2026 (Carnaval, Sexta-feira Santa, Corpus Christi) e Quarta de Cinzas (tem pregão a partir das 13h)
+  assert.equal(isB3TradingDay('2026-02-16'), false, 'Segunda de Carnaval 2026');
+  assert.equal(isB3TradingDay('2026-02-17'), false, 'Terça de Carnaval 2026');
+  assert.equal(isB3TradingDay('2026-02-18'), true, 'Quarta-feira de Cinzas tem pregão na B3');
+  assert.equal(isB3TradingDay('2026-04-03'), false, 'Sexta-feira Santa 2026');
+  assert.equal(isB3TradingDay('2026-06-04'), false, 'Corpus Christi 2026');
+  assert.equal(isB3TradingDay('2026-07-09'), true, '9 de julho opera normalmente na B3 desde 2022');
+
+  // Exemplos oficiais de contagem: dia da entrada = 0; somente pregões efetivos incrementam
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-13'), 0, 'Dia da entrada é marco zero');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-14'), 0, 'Sábado não incrementa');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-15'), 0, 'Domingo não incrementa');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-16'), 1, '13/11 -> 16/11 = 1 dia útil');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-17'), 2, '13/11 -> 17/11 = 2 dias úteis');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-19'), 4, '13/11 -> 19/11 = 4 dias úteis');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-20'), 4, 'Feriado 20/11 (Consciência Negra) não incrementa');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-21'), 4, 'Sábado 21/11 não incrementa');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-22'), 4, 'Domingo 22/11 não incrementa');
+  assert.equal(calculateB3TradingDuration('2026-11-13', '2026-11-23'), 5, '13/11 -> 23/11 = 5 dias úteis (excluindo 20/11 e fins de semana)');
+  assert.equal(calculateB3TradingDuration('2026-02-13', '2026-02-18'), 1, 'Pula fim de semana + Segunda e Terça de Carnaval -> Quarta de Cinzas = 1 dia útil');
+  assert.equal(calculateB3TradingDuration(null, '2026-11-23'), null);
+
+  assert.equal(formatTradingDurationLabel(0), '0 dias úteis');
+  assert.equal(formatTradingDurationLabel(1), '1 dia útil');
+  assert.equal(formatTradingDurationLabel(5), '5 dias úteis');
+  assert.equal(formatTradingDurationLabel(null), '—');
+});
+
+test('DailyUpdateModel: Preço de Entrada editável enquanto aberto, sem alterar saldo da corretora e bloqueado quando encerrado', () => {
+  const model = new DailyUpdateModel();
+  const aapl = model.positions.find(p => p.id === 'pos_aapl34');
+  const xpBefore = model.accounts.find(a => a.id === 'xp_daniel').newBalance;
+
+  // Antes: entrada 100,86, atual 103,21, qty 600 -> +1.410,00
+  assert.equal(model.getPositionUnrealizedResult(aapl), 1410.00);
+
+  // Ajusta preço de entrada para 100,00 (formato BR) -> novo resultado = (103,21 - 100,00) * 600 = +1.926,00
+  const res = model.updatePositionEntryPrice('pos_aapl34', '100,00');
+  assert.equal(res.success, true);
+  assert.equal(aapl.entryPrice, 100.00);
+  assert.equal(model.getPositionUnrealizedResult(aapl), 1926.00);
+  assert.equal(model.accounts.find(a => a.id === 'xp_daniel').newBalance, xpBefore, 'Corrigir preço de entrada não deve alterar saldo da corretora');
+
+  // Rejeita preço inválido ou <= 0
+  const bad = model.updatePositionEntryPrice('pos_aapl34', '0');
+  assert.equal(bad.success, false);
+  assert.equal(aapl.entryPrice, 100.00, 'Preço anterior válido deve ser preservado');
+
+  // Encerra a operação -> edição de preço de entrada deve ser bloqueada
+  model.executePositionClose('pos_aapl34', { exitPrice: 103.21, exitQuantity: 600, exitDate: '2026-11-23' });
+  const closedEdit = model.updatePositionEntryPrice('pos_aapl34', '98,00');
+  assert.equal(closedEdit.success, false, 'Trade já encerrado não pode ter preço de entrada editado');
 });

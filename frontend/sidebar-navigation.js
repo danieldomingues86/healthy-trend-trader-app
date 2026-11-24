@@ -58,6 +58,13 @@
           page: 'marketcentral'
         },
         {
+          id: 'capitalintelligence',
+          title: 'Capital Intelligence',
+          desc: 'Mapa vivo dos fluxos globais de dinheiro, forças macro e posicionamento.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="M10.5 10.5 6.5 17.5M13.5 13.5l4-7M17 5h4v4M5 19H1v-4"/></svg>`,
+          page: 'capitalintelligence'
+        },
+        {
           id: 'fundamentals',
           title: 'Análise Fundamentalista',
           desc: 'Consultar os fundamentos e a qualidade dos ativos.',

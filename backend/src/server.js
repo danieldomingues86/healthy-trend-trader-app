@@ -41,6 +41,7 @@ const strategyConfigs = require('./strategy-configs');
 const volatilityEngine = require('./volatility-engine');
 const volatilitySimulator = require('./volatility-simulator');
 const strategyAnalytics = require('./strategy-analytics');
+const capitalIntelligence = require('./capital-intelligence-pipeline');
 
 const port = Number(process.env.PORT || 8787);
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Authorization, Content-Type, X-File-Name, X-Journal-Record', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS' };
@@ -1170,6 +1171,34 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, payload);
     }
 
+    // Capital Intelligence — API interna (cache/armazenamento, zero chamadas externas por acesso)
+    if (url.pathname === '/api/capital-intelligence/snapshot' && request.method === 'GET') {
+      const user = await auth.session(bearer(request)).catch(() => null);
+      const dateParam = url.searchParams.get('date') || null;
+      const payload = await capitalIntelligence.pipeline.getSnapshotForUser(user ? user.id : null, { date: dateParam });
+      return send(response, 200, payload);
+    }
+    if (url.pathname === '/api/capital-intelligence/series' && request.method === 'GET') {
+      const indicatorId = url.searchParams.get('indicator') || '';
+      const limit = Number(url.searchParams.get('limit')) || 120;
+      const from = url.searchParams.get('from') || null;
+      const to = url.searchParams.get('to') || null;
+      const payload = await capitalIntelligence.pipeline.getSeries(indicatorId, { limit, from, to });
+      return send(response, 200, payload);
+    }
+    if (url.pathname === '/api/capital-intelligence/status' && request.method === 'GET') {
+      const payload = await capitalIntelligence.pipeline.getStatus();
+      return send(response, 200, payload);
+    }
+    if (url.pathname === '/api/capital-intelligence/refresh' && request.method === 'POST') {
+      const user = await auth.session(bearer(request));
+      if (!user) return send(response, 401, { error: 'Sessão inválida ou expirada.' });
+      const reqBody = await body(request).catch(() => ({}));
+      const jobKey = reqBody?.jobKey || url.searchParams.get('jobKey') || 'all';
+      const payload = await capitalIntelligence.pipeline.triggerManualRefresh({ jobKey });
+      return send(response, 200, payload);
+    }
+
     if (!['/api/opportunity-radar','/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength','/api/trading-analytics/performance-by-regime','/api/market-regime/current','/api/market-regime/history','/api/market-regime/periods','/api/market-regime/configuration'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
@@ -1324,6 +1353,7 @@ server.listen(port, async () => {
   try { await database.migrate(); await auth.ensureAdmin(); } catch (error) { console.error(`[database] ${error.message}`); }
   console.log(`Market data API em http://localhost:${port}`);
   tickerChart.warmup().catch((error) => console.error('[ticker-chart warmup]', error.message));
+  capitalIntelligence.pipeline.startScheduler();
 });
 setInterval(() => refreshIfDue().catch((error) => console.error('[scheduler]', error.message)), 15 * 60 * 1000);
 refreshIfDue().catch((error) => console.error('[startup]', error.message));

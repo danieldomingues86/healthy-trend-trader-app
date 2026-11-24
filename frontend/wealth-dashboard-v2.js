@@ -1338,17 +1338,21 @@
   window.addEventListener('healthyTrend:authenticated', loadWealthData);
   window.addEventListener('healthyTrend:equityUpdated', (e) => {
     if (state.wealth?.summary && e?.detail) {
-      if (e.detail.realWealth) state.wealth.summary.realWealth = e.detail.realWealth;
-      if (e.detail.newEquity) state.wealth.summary.operationalEquity = e.detail.newEquity;
-      if (e.detail.investmentWealth) state.wealth.summary.investmentWealth = e.detail.investmentWealth;
-      if (e.detail.strategyEquity) state.wealth.summary.strategyEquity = e.detail.strategyEquity;
-      if (e.detail.allocatedCapital) state.wealth.summary.allocatedCapital = e.detail.allocatedCapital;
-      if (e.detail.availableCash) state.wealth.summary.availableCash = e.detail.availableCash;
-      if (e.detail.availableCashPct) state.wealth.summary.availableCashPct = e.detail.availableCashPct;
-      if (e.detail.heat) state.wealth.summary.heat = e.detail.heat;
-      if (e.detail.heatLimit) state.wealth.summary.heatLimit = e.detail.heatLimit;
-      if (e.detail.remainingRiskCapacityPct) state.wealth.summary.remainingRiskCapacityPct = e.detail.remainingRiskCapacityPct;
-      render();
+      if (e.detail.realWealth !== undefined) state.wealth.summary.realWealth = e.detail.realWealth;
+      if (e.detail.newEquity !== undefined) state.wealth.summary.operationalEquity = e.detail.newEquity;
+      if (e.detail.investmentWealth !== undefined) state.wealth.summary.investmentWealth = e.detail.investmentWealth;
+      if (e.detail.strategyEquity !== undefined) state.wealth.summary.strategyEquity = e.detail.strategyEquity;
+      if (e.detail.allocatedCapital !== undefined) state.wealth.summary.allocatedCapital = e.detail.allocatedCapital;
+      if (e.detail.availableCash !== undefined) state.wealth.summary.availableCash = e.detail.availableCash;
+      if (e.detail.availableCashPct !== undefined) state.wealth.summary.availableCashPct = e.detail.availableCashPct;
+      if (e.detail.heat !== undefined) state.wealth.summary.heat = e.detail.heat;
+      if (e.detail.heatLimit !== undefined) state.wealth.summary.heatLimit = e.detail.heatLimit;
+      if (e.detail.remainingRiskCapacityPct !== undefined) state.wealth.summary.remainingRiskCapacityPct = e.detail.remainingRiskCapacityPct;
+      // Avoid rebuilding heavy SVG dashboard charts while hidden (e.g. while typing in Atualização Diária)
+      const dashPage = typeof document !== 'undefined' ? document.getElementById('dashboard') : null;
+      if (!dashPage || dashPage.classList.contains('active')) {
+        render();
+      }
     }
   });
 

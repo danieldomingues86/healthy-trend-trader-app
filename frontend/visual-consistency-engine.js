@@ -167,11 +167,12 @@
     { id: 'deservingdiary', page: 'deservingdiary', name: 'Diário do Merecimento', category: 'Treinamento' },
     { id: 'mistakesbook', page: 'mistakesbook', name: 'Erros & Lições', category: 'Treinamento' },
 
-    // Análise de Mercado (7)
+    // Análise de Mercado (8)
     { id: 'opportunityradar', page: 'opportunityradar', name: 'Radar de Oportunidades', category: 'Análise de Mercado' },
     { id: 'relativestrength', page: 'relativestrength', name: 'Força Relativa', category: 'Análise de Mercado' },
     { id: 'marketcycle', page: 'marketcycle', name: 'Ciclo de Mercado', category: 'Análise de Mercado' },
     { id: 'marketcentral', page: 'marketcentral', name: 'Central de Mercado', category: 'Análise de Mercado' },
+    { id: 'capitalintelligence', page: 'capitalintelligence', name: 'Capital Intelligence', category: 'Análise de Mercado' },
     { id: 'fundamentals', page: 'fundamentals', name: 'Análise Fundamentalista', category: 'Análise de Mercado' },
     { id: 'charts', page: 'charts', name: 'Gráficos', category: 'Análise de Mercado' },
     { id: 'markettreemap', page: 'markettreemap', name: 'Setores', category: 'Análise de Mercado' },

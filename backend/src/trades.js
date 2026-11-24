@@ -909,6 +909,81 @@ async function updateTrade(userId, tradeId, payload = {}) {
     scaleInEnabled = Boolean(payload.scale_in_enabled ?? payload.scaleInEnabled);
   }
 
+  const hasEntryPrice =
+    payload.entryPrice !== undefined ||
+    payload.entry_price !== undefined ||
+    payload.average_entry_price !== undefined ||
+    payload.entry !== undefined;
+
+  if (hasEntryPrice) {
+    const rawEntry = payload.entryPrice ?? payload.entry_price ?? payload.average_entry_price ?? payload.entry;
+    const newEntryPrice = number(rawEntry, 'Preço de entrada', { minimum: 0.000001, required: true });
+
+    return database.transaction(async (client) => {
+      const current = await client.query(
+        `SELECT id, status, total_quantity, executed_quantity, planned_quantity, scale_in_count,
+                entry_price, execution_price, average_entry_price
+           FROM app.trades
+          WHERE id = $1 AND user_id = $2
+          FOR UPDATE`,
+        [tradeId, userId]
+      );
+      if (!current.rowCount) throw invalid('Trade não encontrado.');
+      const trade = current.rows[0];
+      if (trade.status === 'closed') {
+        throw invalid('O preço de entrada só pode ser ajustado enquanto o trade ainda estiver em aberto.');
+      }
+
+      const exits = await client.query(
+        `SELECT COALESCE(SUM(quantity), 0) AS total
+           FROM app.trade_events
+          WHERE trade_id = $1 AND event_type IN ('peeloff', 'close')`,
+        [tradeId]
+      );
+      const totalQty = Number(trade.total_quantity || trade.executed_quantity || trade.planned_quantity || 0);
+      const remaining = Math.max(0, totalQty - Number(exits.rows[0]?.total || 0));
+      const newAllocated = Math.round(remaining * newEntryPrice * 100) / 100;
+
+      const updated = await client.query(
+        `UPDATE app.trades
+            SET setup_trigger = COALESCE($3, setup_trigger),
+                setup = COALESCE($4, setup),
+                scale_in_enabled = COALESCE($5, scale_in_enabled),
+                entry_price = $6,
+                execution_price = CASE WHEN execution_price IS NOT NULL THEN $6 ELSE execution_price END,
+                average_entry_price = $6,
+                total_allocated_capital = $7,
+                updated_at = now()
+          WHERE id = $1 AND user_id = $2
+          RETURNING id, ticker, status, setup, setup_trigger, scale_in_enabled, scale_in_count,
+                    total_quantity, entry_price, execution_price, average_entry_price,
+                    total_allocated_capital, current_risk_percent`,
+        [tradeId, userId, setupTrigger, setupLabel, scaleInEnabled, newEntryPrice, newAllocated]
+      );
+
+      if (Number(trade.scale_in_count || 0) === 0) {
+        await client.query(
+          `UPDATE app.trade_events
+              SET price = $2
+            WHERE trade_id = $1 AND event_type = 'entry'`,
+          [tradeId, newEntryPrice]
+        );
+        await client.query(
+          `UPDATE app.trade_entries
+              SET price = $2,
+                  capital_allocated = quantity * $2
+            WHERE trade_id = $1 AND entry_type = 'INITIAL'`,
+          [tradeId, newEntryPrice]
+        ).catch(() => null);
+      }
+
+      return {
+        ...updated.rows[0],
+        setupTrigger: updated.rows[0].setup_trigger
+      };
+    });
+  }
+
   const result = await database.query(
     `UPDATE app.trades
         SET setup_trigger = COALESCE($3, setup_trigger),

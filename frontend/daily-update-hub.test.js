@@ -1186,36 +1186,470 @@ test('DailyUpdateHub: Coluna Resultado Atual (substituindo Status) e Agrupamento
   assert.ok(renderedHtml.includes('class="pos-cv-badge buy" data-pos-cv="pos_m2st34"'), 'M2ST34 deve exibir badge C (buy)');
   assert.ok(renderedHtml.includes('class="pos-cv-badge buy" data-pos-cv="pos_aapl34"'), 'AAPL34 deve exibir badge C (buy)');
 
-  // 2. Grupos de mercado renderizados na ordem canônica: Futuros, Ações, BDRs
-  const idxFut = renderedHtml.indexOf('data-position-group="FUTURES"');
-  const idxStock = renderedHtml.indexOf('data-position-group="STOCK"');
-  const idxBdr = renderedHtml.indexOf('data-position-group="BDR"');
-  assert.ok(idxFut > -1, 'Grupo FUTURES (Futuros) deve ser renderizado');
-  assert.ok(idxStock > -1, 'Grupo STOCK (Ações) deve ser renderizado');
-  assert.ok(idxBdr > -1, 'Grupo BDR (BDRs) deve ser renderizado');
-  assert.ok(idxFut < idxStock && idxStock < idxBdr, 'Ordem dos grupos deve ser Futuros -> Ações -> BDRs');
+  // 2. Agrupamento substituído exclusivamente por ESTRATÉGIA: Tendência -> Volatilidade (sem agrupamento por Futuros/Ações/BDRs)
+  const idxTrend = renderedHtml.indexOf('data-position-group="TREND_FOLLOWING"');
+  const idxVol = renderedHtml.indexOf('data-position-group="VOLATILITY_TRADING"');
+  assert.ok(idxTrend > -1, 'Grupo TREND_FOLLOWING (Tendência) deve ser renderizado');
+  assert.ok(idxVol > -1, 'Grupo VOLATILITY_TRADING (Volatilidade) deve ser renderizado');
+  assert.ok(idxTrend < idxVol, 'Ordem dos grupos deve ser Tendência -> Volatilidade');
+  assert.equal(renderedHtml.includes('data-position-group="FUTURES"'), false, 'Agrupamento por Futuros deve ter sido removido');
+  assert.equal(renderedHtml.includes('data-position-group="STOCK"'), false, 'Agrupamento por Ações deve ter sido removido');
+  assert.equal(renderedHtml.includes('data-position-group="BDR"'), false, 'Agrupamento por BDRs deve ter sido removido');
 
-  // 3. Resultados individuais e contagem entre parênteses nos grupos renderizados sem subtotais repetidos
+  // Ordem canônica completa das 12 colunas: Ativo -> Data Entrada -> Estratégia -> C/V -> Conta / Corretora -> Quantidade -> Preço de Entrada -> Preço Atual -> Variação % -> Resultado Atual -> Duração -> Ação
+  const idxColDate = renderedHtml.indexOf('th-pos-date');
+  const idxColStrategy = renderedHtml.indexOf('th-pos-strategy');
+  const idxColDuration = renderedHtml.indexOf('th-pos-duration');
+  const idxColAction = renderedHtml.indexOf('th-pos-action');
+  assert.ok(
+    idxColTicker < idxColDate &&
+    idxColDate < idxColStrategy &&
+    idxColStrategy < idxColCv &&
+    idxColRes < idxColDuration &&
+    idxColDuration < idxColAction,
+    'As 12 colunas devem seguir exatamente: Ativo -> Data Entrada -> Estratégia -> C/V -> Conta / Corretora -> Quantidade -> Preço de Entrada -> Preço Atual -> Variação % -> Resultado Atual -> Duração -> Ação'
+  );
+
+  // Badges de Estratégia e coluna Duração renderizados
+  assert.ok(renderedHtml.includes('class="pos-strategy-badge trend" data-pos-strategy="pos_aapl34"'), 'AAPL34 deve exibir badge Tendência');
+  assert.ok(renderedHtml.includes('class="pos-strategy-badge trend" data-pos-strategy="pos_winz26"'), 'WINZ26 (Futuro) deve aparecer no grupo Tendência com badge Tendência');
+  assert.ok(renderedHtml.includes('class="pos-strategy-badge volatility" data-pos-strategy="pos_brav3"'), 'BRAV3 deve exibir badge Volatilidade');
+  assert.ok(renderedHtml.includes('class="pos-strategy-badge volatility" data-pos-strategy="pos_bgix26"'), 'BGIX26 (Futuro) deve aparecer no grupo Volatilidade com badge Volatilidade');
+  assert.ok(renderedHtml.includes('data-pos-duration="pos_aapl34"'), 'Coluna Duração deve estar renderizada para AAPL34');
+
+  // 3. Resultados individuais e contagem entre parênteses nos grupos por estratégia sem subtotais repetidos
   assert.ok(renderedHtml.includes('+R$ 1.410,00') || renderedHtml.includes('+R$ 1.410,00'), 'Lucro de AAPL34 (+R$ 1.410,00) deve ser exibido');
   assert.ok(renderedHtml.includes('+R$ 36,00') || renderedHtml.includes('+R$ 36,00'), 'Lucro na venda de WINZ26 (+R$ 36,00) deve ser exibido');
   assert.ok(renderedHtml.includes('-R$ 1.072,50') || renderedHtml.includes('-R$ 1.072,50'), 'Prejuízo de BGIX26 (-R$ 1.072,50) deve ser exibido');
-  assert.ok(renderedHtml.includes('data-pos-group-count="FUTURES">(2)</span>'), 'Quantidade (2) ao lado de Futuros deve ser exibida');
-  assert.ok(renderedHtml.includes('data-pos-group-count="STOCK">(2)</span>'), 'Quantidade (2) ao lado de Ações deve ser exibida');
-  assert.ok(renderedHtml.includes('data-pos-group-count="BDR">(3)</span>'), 'Quantidade (3) ao lado de BDRs deve ser exibida');
-  assert.ok(!renderedHtml.includes('SUBTOTAL FUTUROS'), 'Rodapé de subtotal de Futuros NÃO deve ser exibido');
-  assert.ok(!renderedHtml.includes('SUBTOTAL AÇÕES'), 'Rodapé de subtotal de Ações NÃO deve ser exibido');
-  assert.ok(!renderedHtml.includes('SUBTOTAL BDRS'), 'Rodapé de subtotal de BDRs NÃO deve ser exibido');
+  assert.ok(renderedHtml.includes('data-pos-group-count="TREND_FOLLOWING">(3)</span>'), 'Quantidade (3) ao lado de Tendência deve ser exibida');
+  assert.ok(renderedHtml.includes('data-pos-group-count="VOLATILITY_TRADING">(4)</span>'), 'Quantidade (4) ao lado de Volatilidade deve ser exibida');
   assert.ok(!renderedHtml.includes('pos-group-header-metrics'), 'Resultado financeiro no cabeçalho de cada grupo NÃO deve ser exibido');
 
-  // 4. Expansão e recolhimento de grupos de mercado
-  assert.equal(controller.collapsedPositionGroups.has('FUTURES'), false);
-  controller.togglePositionGroup('FUTURES');
-  assert.equal(controller.collapsedPositionGroups.has('FUTURES'), true);
+  // 4. Expansão e recolhimento de grupos de estratégia
+  assert.equal(controller.collapsedPositionGroups.has('TREND_FOLLOWING'), false);
+  controller.togglePositionGroup('TREND_FOLLOWING');
+  assert.equal(controller.collapsedPositionGroups.has('TREND_FOLLOWING'), true);
   assert.ok(renderedHtml.includes('pos-group-chevron collapsed'), 'Chevron recolhido deve ser renderizado');
-  controller.togglePositionGroup('FUTURES');
-  assert.equal(controller.collapsedPositionGroups.has('FUTURES'), false);
+  controller.togglePositionGroup('TREND_FOLLOWING');
+  assert.equal(controller.collapsedPositionGroups.has('TREND_FOLLOWING'), false);
 
-  // 5. Status operacional interno continua preservado para regras e fechamento
+  // 5. Layout horizontal 42% (Atualizar Contas) / 58% (Posições em Aberto) no CSS
+  const cssContent = fs.readFileSync(path.join(__dirname, 'daily-update.css'), 'utf8');
+  assert.ok(cssContent.includes('minmax(0, 42fr) minmax(0, 58fr)'), 'Grid principal deve redistribuir 42% Atualizar Contas e 58% Posições em Aberto');
+
+  // 6. Status operacional interno continua preservado para regras e fechamento
   assert.equal(controller.model.positions.every(p => p.status === 'conferida'), true);
   assert.equal(controller.model.getProgress().positionsComplete, true);
+});
+
+test('DailyUpdateHub — Digitação instantânea em NOVO SALDO: sem travamento, sem reformatar na tecla, sem perder foco e recálculo em tempo real', () => {
+  const { parseNumber, formatEditableNumber, formatBRL, formatUSD } = DailyUpdateModel;
+
+  // 1. Parser robusto para digitação intermediária brasileira e internacional
+  assert.equal(parseNumber('206335', 'BRL'), 206335);
+  assert.equal(parseNumber('206335,', 'BRL'), 206335);
+  assert.equal(parseNumber('206335,5', 'BRL'), 206335.5);
+  assert.equal(parseNumber('206335,25', 'BRL'), 206335.25);
+  assert.equal(parseNumber('206.335', 'BRL'), 206335, 'Milhar brasileiro sem centavos (206.335) não pode virar 206,335');
+  assert.equal(parseNumber('R$\u00A0206.335,00', 'BRL'), 206335, 'Non-breaking space em R$ deve ser aceito');
+  assert.equal(parseNumber('R$ 14.000', 'BRL'), 14000);
+  assert.equal(parseNumber('17759.25', 'USD'), 17759.25);
+  assert.equal(parseNumber('17,759', 'USD'), 17759);
+  assert.equal(parseNumber('US$ 17,759.25', 'USD'), 17759.25);
+  assert.equal(parseNumber('12abc', 'BRL'), null);
+
+  assert.equal(formatEditableNumber(206335, false), '206335,00');
+  assert.equal(formatEditableNumber(17759.25, true), '17759.25');
+
+  // 2. Simulação completa de foco -> digitação tecla a tecla -> blur sem re-renderizar a tabela
+  const makeMockEl = (extra = {}) => {
+    const listeners = new Map();
+    const classes = new Set();
+    return Object.assign({
+      textContent: '',
+      innerHTML: '',
+      value: '',
+      style: {},
+      dataset: {},
+      isConnected: true,
+      classList: {
+        add: (c) => classes.add(c),
+        remove: (c) => classes.delete(c),
+        toggle: (c, force) => (force === undefined ? (classes.has(c) ? classes.delete(c) : classes.add(c)) : (force ? classes.add(c) : classes.delete(c))),
+        contains: (c) => classes.has(c)
+      },
+      addEventListener(type, fn) {
+        if (!listeners.has(type)) listeners.set(type, []);
+        listeners.get(type).push(fn);
+      },
+      emit(type, evt = {}) {
+        const list = listeners.get(type) || [];
+        list.forEach(fn => fn(Object.assign({ target: this, preventDefault() {} }, evt)));
+      },
+      closest() { return this._row || null; }
+    }, extra);
+  };
+
+  const xpRow = makeMockEl();
+  const xpInput = makeMockEl({ dataset: { accountInput: 'xp_daniel' }, value: formatBRL(207521), _row: xpRow });
+  const xpVarTag = makeMockEl();
+  const xpShareEl = makeMockEl();
+  const xpErrorEl = makeMockEl();
+
+  const nomadRow = makeMockEl();
+  const nomadInput = makeMockEl({ dataset: { accountInput: 'nomad_daniel' }, value: formatUSD(17759.25), _row: nomadRow });
+  const nomadFxBadge = makeMockEl();
+  const nomadUsdVar = makeMockEl();
+
+  const danielSubtotal = makeMockEl({ dataset: { titularSubtotal: 'Daniel' } });
+  const danielShare = makeMockEl();
+  const danielHeader = makeMockEl();
+  const nataliaSubtotal = makeMockEl({ dataset: { titularSubtotal: 'Natália' } });
+  const nataliaShare = makeMockEl();
+  const nataliaHeader = makeMockEl();
+  const kpiRealWealth = makeMockEl();
+  const tableConsolidatedWealth = makeMockEl();
+  const kpiDayVar = makeMockEl();
+  const tableDayVar = makeMockEl();
+
+  const selectorMap = {
+    '[data-account-input="xp_daniel"]': xpInput,
+    '[data-account-var-for="xp_daniel"]': xpVarTag,
+    '[data-wealth-share-for="xp_daniel"]': xpShareEl,
+    '[data-account-error-for="xp_daniel"]': xpErrorEl,
+    '[data-account-input="nomad_daniel"]': nomadInput,
+    '[data-nomad-fx-badge="nomad_daniel"]': nomadFxBadge,
+    '[data-account-usd-var-for="nomad_daniel"]': nomadUsdVar,
+    '[data-titular-subtotal="Daniel"]': danielSubtotal,
+    '[data-titular-share="Daniel"]': danielShare,
+    '[data-titular-header-total="Daniel"]': danielHeader,
+    '[data-titular-subtotal="Natália"]': nataliaSubtotal,
+    '[data-titular-share="Natália"]': nataliaShare,
+    '[data-titular-header-total="Natália"]': nataliaHeader,
+    '#kpiRealWealth': kpiRealWealth,
+    '#tableConsolidatedWealth': tableConsolidatedWealth,
+    '#kpiDayVar': kpiDayVar,
+    '#tableDayVar': tableDayVar
+  };
+
+  const mockContainer = {
+    querySelector(sel) { return selectorMap[sel] || null; },
+    querySelectorAll(sel) {
+      if (sel === '[data-account-input]') return [xpInput, nomadInput];
+      if (sel === '[data-titular-subtotal]') return [danielSubtotal, nataliaSubtotal];
+      return [];
+    }
+  };
+
+  const savedWorkspaceCalls = [];
+  const mockRoot = {
+    DailyUpdateModel,
+    dispatchEvent() {},
+    healthyTrendWorkspace: {
+      save(key, val) { savedWorkspaceCalls.push({ key, val }); }
+    }
+  };
+
+  const savedDoc = global.document;
+  const savedWindow = global.window;
+  global.document = {
+    activeElement: xpInput,
+    getElementById(id) { return selectorMap[`#${id}`] || null; },
+    querySelector(sel) { return selectorMap[sel] || null; },
+    addEventListener() {}
+  };
+  global.window = mockRoot;
+
+  try {
+    const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+    const fn = new Function('self', 'window', 'document', 'CustomEvent', code);
+    fn(mockRoot, mockRoot, global.document, class { constructor(t, o) { this.type = t; this.detail = o?.detail; } });
+
+    const controller = mockRoot.DailyUpdateHub;
+    let renderCalls = 0;
+    controller.render = () => { renderCalls += 1; };
+
+    controller.cacheLiveDomRefs(mockContainer);
+    controller.bindInputs(mockContainer);
+
+    // 2a. Foco desmascara uma única vez para formato editável limpo
+    xpInput.emit('focus');
+    assert.equal(xpInput.value, '207521,00');
+
+    // 2b. Digitação tecla a tecla (substituição completa -> inteiro -> vírgula -> decimal)
+    //     Input.value JAMAIS é reescrito durante input, e totais atualizam imediatamente!
+    const keystrokes = [
+      { typed: '2', expectedBalance: 2 },
+      { typed: '210000', expectedBalance: 210000 },
+      { typed: '210000,', expectedBalance: 210000 },
+      { typed: '210000,5', expectedBalance: 210000.5 },
+      { typed: '210000,50', expectedBalance: 210000.5 }
+    ];
+
+    for (const step of keystrokes) {
+      xpInput.value = step.typed;
+      xpInput.emit('input');
+      assert.equal(xpInput.value, step.typed, `Input não deve ser reformatado agressivamente durante digitação (${step.typed})`);
+      assert.equal(controller.model.accounts.find(a => a.id === 'xp_daniel').newBalance, step.expectedBalance);
+
+      const expectedTotal = controller.model.getConsolidatedRealWealth();
+      const expectedDaniel = controller.model.getTitularSubtotal('Daniel');
+      assert.equal(tableConsolidatedWealth.textContent, formatBRL(expectedTotal), 'Patrimônio Total Consolidado deve atualizar em tempo real');
+      assert.equal(kpiRealWealth.textContent, formatBRL(expectedTotal), 'KPI Patrimônio Real deve atualizar em tempo real');
+      assert.equal(danielSubtotal.textContent, formatBRL(expectedDaniel), 'Total Daniel deve atualizar em tempo real');
+    }
+
+    assert.equal(renderCalls, 0, 'Nenhuma re-renderização completa da tabela deve ocorrer durante a digitação');
+
+    // 2c. Blur formata SOMENTE o campo editado no padrão brasileiro e persiste sem chamar render()
+    global.document.activeElement = null;
+    xpInput.emit('blur');
+    assert.equal(xpInput.value, formatBRL(210000.50), 'No blur, valor deve ser formatado no padrão brasileiro R$ 210.000,50');
+    assert.equal(renderCalls, 0, 'Blur NÃO deve destruir/re-renderizar a tabela inteira');
+    assert.ok(savedWorkspaceCalls.length >= 1, 'Persistência em workspace-state deve ser mantida sem regressão');
+
+    // 2d. Nomad em modo USD atualiza badge cambial e variação USD em tempo real durante input
+    const nomadAcc = controller.model.accounts.find(a => a.id === 'nomad_daniel');
+    nomadAcc.inputCurrency = 'USD';
+    global.document.activeElement = nomadInput;
+    nomadInput.emit('focus');
+    assert.equal(nomadInput.value, '17759.25');
+    nomadInput.value = '18000';
+    nomadInput.emit('input');
+    assert.equal(nomadAcc.newBalanceUSD, 18000);
+    assert.ok(nomadFxBadge.textContent.includes('18,000.00'), 'Badge cambial da Nomad deve atualizar em tempo real durante digitação');
+    assert.ok(nomadUsdVar.textContent.includes('% USD'), 'Variação USD da Nomad deve atualizar em tempo real durante digitação');
+    assert.equal(renderCalls, 0, 'Digitação na Nomad também não dispara render()');
+
+    // 3. Verifica que telas ocultas (Patrimônio e Capital Intelligence) não re-renderizam durante digitação
+    const wealthCode = fs.readFileSync(path.join(__dirname, 'wealth-dashboard-v2.js'), 'utf8');
+    const ciCode = fs.readFileSync(path.join(__dirname, 'capital-intelligence.js'), 'utf8');
+    assert.ok(wealthCode.includes("dashPage.classList.contains('active')"), 'Patrimônio só deve renderizar em equityUpdated quando estiver ativo');
+    assert.ok(ciCode.includes("ciPage && !ciPage.classList.contains('active')"), 'Capital Intelligence só deve redesenhar em equityUpdated quando estiver ativo');
+  } finally {
+    global.document = savedDoc;
+    global.window = savedWindow;
+  }
+});
+
+test('DailyUpdateHub — Evolução Posições em Aberto: coluna DATA ENTRADA (DD/MM/AAAA), modal de encerramento, Compra/Venda, parcial e transferência para Trades Encerrados', async () => {
+  const { formatDateBR, resolvePositionEntryDate } = DailyUpdateModel;
+
+  // 1. Formatação DD/MM/AAAA fiel sem substituir data ausente pela data atual
+  assert.equal(formatDateBR('2026-11-13'), '13/11/2026');
+  assert.equal(formatDateBR('2026-11-19T17:00:00.000Z'), '19/11/2026');
+  assert.equal(formatDateBR(null), '—');
+  assert.equal(resolvePositionEntryDate({}), null, 'Não deve inventar a data atual para posição sem data registrada');
+
+  // 2. Cálculos de preview: Compra, Venda (Short), multiplicador de futuros e custos operacionais
+  const model = new DailyUpdateModel();
+
+  // Compra (BRAV3: 500 un. @ 14,06 -> saída 16,06 com R$ 10 de custos = +990,00)
+  const buyPrev = model.calculatePositionClosePreview('pos_brav3', {
+    exitPrice: '16,06',
+    exitQuantity: 500,
+    exitDate: '2026-11-23',
+    costs: '10,00'
+  });
+  assert.equal(buyPrev.valid, true);
+  assert.equal(buyPrev.sideLabel, 'Compra');
+  assert.equal(buyPrev.entryDateBR, '11/11/2026');
+  assert.equal(buyPrev.grossResult, 1000);
+  assert.equal(buyPrev.netResult, 990);
+  assert.equal(buyPrev.isFullClose, true);
+  assert.equal(buyPrev.isPartial, false);
+
+  // Venda / Short (WINZ26: 2 contratos @ 167.685, mult 0.2 -> queda para 166.685 = lucro +400,00; alta para 168.685 = prejuízo -400,00)
+  const shortWinPrev = model.calculatePositionClosePreview('pos_winz26', {
+    exitPrice: '166685',
+    exitQuantity: 2,
+    exitDate: '2026-11-23',
+    costs: 0
+  });
+  assert.equal(shortWinPrev.valid, true);
+  assert.equal(shortWinPrev.sideLabel, 'Venda');
+  assert.equal(shortWinPrev.entryDateBR, '19/11/2026');
+  assert.equal(shortWinPrev.netResult, 400);
+
+  const shortLossPrev = model.calculatePositionClosePreview('pos_winz26', {
+    exitPrice: '168685',
+    exitQuantity: 2,
+    exitDate: '2026-11-23',
+    costs: 0
+  });
+  assert.equal(shortLossPrev.netResult, -400);
+
+  // 3. Encerramento PARCIAL (BRAV3: 500 -> encerra 200 @ 15,06 -> restam 300 em aberto, sem dupla contagem!)
+  const partialRes = model.executePositionClose('pos_brav3', {
+    exitPrice: 15.06,
+    exitQuantity: 200,
+    exitDate: '2026-11-23',
+    costs: 0
+  });
+  assert.equal(partialRes.success, true);
+  assert.equal(partialRes.isPartial, true);
+  assert.equal(partialRes.isFullClose, false);
+  const bravAfterPartial = model.positions.find(p => p.id === 'pos_brav3');
+  assert.equal(bravAfterPartial.quantity, 300, 'Devem permanecer exatamente 300 ações em aberto');
+  assert.equal(bravAfterPartial.entryPrice, 14.06, 'Preço médio de entrada deve ser preservado');
+  assert.equal(bravAfterPartial.entryDate, '2026-11-11', 'Data original de entrada deve ser preservada');
+  assert.equal(bravAfterPartial.isPartial, true);
+  assert.equal(bravAfterPartial.closed, false);
+  assert.equal(bravAfterPartial.realizedResult, 200, 'Resultado realizado de 200 ações (+R$ 200,00)');
+  // Atualiza preço de mercado restante para 16,06 -> não realizado só sobre as 300 restantes (+R$ 600,00, sem somar os 200 já realizados!)
+  bravAfterPartial.currentPrice = 16.06;
+  assert.equal(model.getPositionUnrealizedResult(bravAfterPartial), 600, 'Não realizado calcula apenas sobre as 300 ações restantes');
+  assert.equal(model.closedPositions.length, 0, 'Saída parcial não modela um trade independente encerrado');
+  assert.equal(bravAfterPartial.events.filter(e => e.type === 'peeloff').length, 1);
+
+  // 4. Encerramento INTEGRAL do saldo restante (300 @ 16,06) -> status ENCERRADA, sai das abertas, preserva histórico e vai para closedPositions
+  const fullRes = model.executePositionClose('pos_brav3', {
+    exitPrice: 16.06,
+    exitQuantity: 300,
+    exitDate: '2026-11-23',
+    costs: 0
+  });
+  assert.equal(fullRes.success, true);
+  assert.equal(fullRes.isFullClose, true);
+  assert.equal(bravAfterPartial.status, 'encerrada', 'Status deve virar ENCERRADA sem excluir o registro');
+  assert.equal(bravAfterPartial.closed, true);
+  assert.equal(bravAfterPartial.quantity, 0);
+  assert.equal(bravAfterPartial.entryDate, '2026-11-11', 'Histórico original preservado após encerramento');
+  assert.equal(bravAfterPartial.exitDate, '2026-11-23');
+  assert.equal(bravAfterPartial.exitPrice, 16.06);
+  assert.equal(bravAfterPartial.finalRealizedResult, 800, 'Realizado total acumulado (200 parcial + 600 final = R$ 800,00)');
+  assert.equal(model.getGroupedPositions().flatMap(g => g.positions).some(p => p.id === 'pos_brav3'), false, 'Operação encerrada deve sair de Posições em Aberto');
+  assert.equal(model.closedPositions.length, 1);
+  assert.equal(model.closedPositions[0].ticker, 'BRAV3');
+  assert.equal(model.closedPositions[0].status, 'closed');
+  assert.equal(model.closedPositions[0].events.length, 3, 'Histórico completo preservado (entry + peeloff + close)');
+
+  // 5. Renderização HTML no Controller + fluxo completo de modal + backend UUID POST /api/trades/:id/events
+  let renderedHtml = '';
+  let injectedModalHtml = '';
+  const apiCalls = [];
+  const dispatched = [];
+  let syncDbCalled = false;
+  let closedViewRendered = false;
+
+  const mockRootEl = {
+    set innerHTML(val) { renderedHtml = val; },
+    get innerHTML() { return renderedHtml; },
+    querySelector: () => null,
+    querySelectorAll: () => []
+  };
+
+  const modalFieldValues = {
+    closePosPrice: '105,00',
+    closePosQty: '600',
+    closePosDate: '2026-11-23',
+    closePosCosts: '0,00'
+  };
+
+  const mockRoot = {
+    DailyUpdateModel,
+    operationalState: {
+      positions: [{ id: '11111111-2222-3333-4444-555555555555', asset: 'AAPL34', direction: 'long', entry: 100.86, initialQty: 600, currentPrice: 103.21, events: [] }],
+      closedPositions: []
+    },
+    healthyTrendApi: {
+      isAuthenticated: () => true,
+      request: async (url, opts) => {
+        apiCalls.push({ url, opts });
+        return { ok: true, status: 'closed' };
+      }
+    },
+    syncOperationalFromDatabase: async () => { syncDbCalled = true; },
+    renderClosedPositionsView: () => { closedViewRendered = true; },
+    renderTopHeat: () => {},
+    renderPortfolioHeat: () => {},
+    showToast: () => {},
+    dispatchEvent: (e) => dispatched.push(e.type)
+  };
+
+  const savedDoc = global.document;
+  const savedWindow = global.window;
+  global.document = {
+    body: { appendChild: (el) => { injectedModalHtml = el.innerHTML; } },
+    createElement: () => ({ id: '', innerHTML: '' }),
+    getElementById: (id) => {
+      if (id === 'dailyUpdateRoot') return mockRootEl;
+      if (id in modalFieldValues) return { value: modalFieldValues[id], addEventListener() {}, focus() {}, select() {} };
+      if (id === 'closePosPreviewBox') return { innerHTML: '' };
+      if (id === 'closePosErrorBanner') return { textContent: '', style: {} };
+      if (id === 'btnConfirmClosePos') return { disabled: false, textContent: '' };
+      return null;
+    },
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {}
+  };
+  global.window = mockRoot;
+
+  try {
+    const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+    const fn = new Function('self', 'window', 'document', 'CustomEvent', code);
+    fn(mockRoot, mockRoot, global.document, class { constructor(t, o) { this.type = t; this.detail = o?.detail; } });
+
+    const controller = mockRoot.DailyUpdateHub;
+    // Substitui ID de AAPL34 por UUID real para validar integração backend transacional
+    const aapl = controller.model.positions.find(p => p.ticker === 'AAPL34');
+    aapl.id = '11111111-2222-3333-4444-555555555555';
+
+    controller.render();
+
+    // Valida coluna DATA ENTRADA próxima a ATIVO + datas originais DD/MM/AAAA + botão Fechar operação
+    assert.ok(renderedHtml.includes('th-pos-date'), 'Coluna DATA ENTRADA deve estar presente');
+    assert.ok(renderedHtml.includes('>Data Entrada</th>'), 'Cabeçalho Data Entrada deve ser exibido');
+    assert.ok(renderedHtml.indexOf('th-pos-ticker') < renderedHtml.indexOf('th-pos-date') && renderedHtml.indexOf('th-pos-date') < renderedHtml.indexOf('th-pos-cv'), 'Data Entrada deve ficar logo após Ativo');
+    assert.ok(renderedHtml.includes('13/11/2026'), 'Data original 13/11/2026 deve ser exibida em DD/MM/AAAA');
+    assert.ok(renderedHtml.includes('19/11/2026'), 'Data original 19/11/2026 deve ser exibida em DD/MM/AAAA');
+    assert.ok(renderedHtml.includes('11/11/2026'), 'Data original 11/11/2026 deve ser exibida em DD/MM/AAAA');
+    assert.ok(renderedHtml.includes('title="Fechar operação"'), 'Botão discreto Fechar operação deve existir em cada linha');
+    assert.ok(renderedHtml.includes('data-close-position-btn="11111111-2222-3333-4444-555555555555"'));
+    assert.ok(renderedHtml.includes('class="pos-entry-clean-input font-numeric'), 'Coluna Preço de Entrada deve renderizar input editável');
+    assert.ok(renderedHtml.includes('data-position-entry-id="11111111-2222-3333-4444-555555555555"'));
+
+    // Edita Preço de Entrada enquanto trade ainda está aberto -> PATCH /api/trades/:id e sincroniza operationalState
+    const entryEditRes = await controller.updatePositionEntryPrice('11111111-2222-3333-4444-555555555555', '99,50');
+    assert.equal(entryEditRes.success, true);
+    assert.equal(aapl.entryPrice, 99.5);
+    assert.equal(mockRoot.operationalState.positions[0].entry, 99.5);
+    assert.equal(apiCalls.length, 1);
+    assert.equal(apiCalls[0].url, '/api/trades/11111111-2222-3333-4444-555555555555');
+    assert.equal(apiCalls[0].opts.method, 'PATCH');
+    assert.equal(JSON.parse(apiCalls[0].opts.body).entryPrice, 99.5);
+    apiCalls.length = 0; // limpa para a verificação seguinte do encerramento
+
+    // Abre modal de encerramento e verifica campos obrigatórios
+    controller.openClosePositionModal('11111111-2222-3333-4444-555555555555');
+    assert.ok(injectedModalHtml.includes('Encerrar Operação — AAPL34'));
+    assert.ok(injectedModalHtml.includes('13/11/2026'), 'Modal deve exibir Data de Entrada original');
+    assert.ok(injectedModalHtml.includes('id="closePosDate"'));
+    assert.ok(injectedModalHtml.includes('id="closePosPrice"'));
+    assert.ok(injectedModalHtml.includes('id="closePosQty"'));
+    assert.ok(injectedModalHtml.includes('Confirmar Encerramento'));
+
+    // Confirma encerramento -> chama POST /api/trades/:id/events (SEM DELETE), sincroniza banco e dashboards
+    const confirmRes = await controller.confirmClosePositionModal('11111111-2222-3333-4444-555555555555');
+    assert.equal(confirmRes.success, true);
+    assert.equal(apiCalls.length, 1);
+    assert.equal(apiCalls[0].url, '/api/trades/11111111-2222-3333-4444-555555555555/events');
+    assert.equal(apiCalls[0].opts.method, 'POST');
+    const postedBody = JSON.parse(apiCalls[0].opts.body);
+    assert.equal(postedBody.type, 'close');
+    assert.equal(postedBody.qty, 600);
+    assert.equal(postedBody.price, 105);
+    assert.ok(postedBody.occurredAt.startsWith('2026-11-23'));
+    assert.equal(syncDbCalled, true, 'syncOperationalFromDatabase deve sincronizar Trades Encerrados, Diário e Painel da Verdade');
+    assert.equal(closedViewRendered, true, 'renderClosedPositionsView deve ser acionado');
+    assert.equal(mockRoot.operationalState.positions.length, 0);
+    assert.equal(mockRoot.operationalState.closedPositions.length, 1);
+    assert.equal(mockRoot.operationalState.closedPositions[0].status, 'closed');
+    assert.ok(dispatched.includes('healthyTrend:tradesUpdated'));
+    assert.ok(dispatched.includes('healthyTrend:equityUpdated'));
+  } finally {
+    global.document = savedDoc;
+    global.window = savedWindow;
+  }
 });
