@@ -125,8 +125,8 @@ test('Interactive Book Reader: Flipbook Unificado sem Tela Longa / Sumário do A
 });
 
 test('Interactive Book Reader: Alto Contraste e Legibilidade na Topbar em Todos os Temas', () => {
-  const cssCode = fs.readFileSync(path.join(__dirname, 'book-reader.css'), 'utf8');
-  const mkCss = fs.readFileSync(path.join(__dirname, 'manual-knowledge.css'), 'utf8');
+  const cssCode = fs.readFileSync(path.join(__dirname, 'book-reader.css'), 'utf8').replace(/\r\n/g, '\n');
+  const mkCss = fs.readFileSync(path.join(__dirname, 'manual-knowledge.css'), 'utf8').replace(/\r\n/g, '\n');
 
   // Topbar deve ter cor de texto clara no tema escuro padrão (Healthy Green)
   assert.ok(cssCode.includes('color: #ECFDF5;'), 'Topbar deve definir cor de texto clara no Healthy Green');
@@ -185,41 +185,51 @@ test('Manual 2.0: Visual Learning Experience — Estrutura de Blocos do Piloto (
   assert.ok(cap1, 'Capítulo 1 deve existir');
 
   const pages = BooksModel.getChapterPages(cap1);
-  assert.equal(pages.length, 4, 'Capítulo 1 piloto deve expandir para exatamente 4 páginas');
+  assert.equal(pages.length, 4, 'Capítulo 1 piloto deve expandir para exatamente 4 páginas (2 spreads)');
 
-  // Página 1 (1.1 - A): Hero, Lead, Quote, Princípios
+  // Página 1 (Spread 1 Esquerda — Cap. 1.1): Split Editorial Hero, 4 Princípios, Mountain Visual Callout, Quiz Pare e Pense
   const p1 = pages[0];
   assert.ok(p1.blocks.some(b => b.type === 'hero'), 'Página 1 deve conter Hero');
-  assert.ok(p1.blocks.some(b => b.type === 'principles'), 'Página 1 deve conter Princípios Inegociáveis');
+  assert.ok(p1.blocks.some(b => b.type === 'principles'), 'Página 1 deve conter Princípios Fundamentais');
+  assert.ok(p1.blocks.some(b => b.type === 'visual-callout'), 'Página 1 deve conter Banner Visual da Montanha');
+  assert.ok(p1.blocks.some(b => b.type === 'quiz'), 'Página 1 deve conter Quiz Pare e Pense');
   const principlesBlock = p1.blocks.find(b => b.type === 'principles');
-  assert.equal(principlesBlock.principles.length, 3, 'Devem ser exatamente 3 princípios inegociáveis');
+  assert.equal(principlesBlock.principles.length, 4, 'Devem ser os 4 princípios fundamentais (Proteção do Capital, Disciplina, Consistência, Probabilidade)');
 
-  // Página 2 (1.1 - B): Story, Visual Callout, Tip, Quiz, What You Learned
+  // Página 2 (Spread 1 Direita — Cap. 1.2): Hero, Pillar Wheel (6 Pilares), A Ideia Central, Na Prática (Laptop Showcase)
   const p2 = pages[1];
-  assert.ok(p2.blocks.some(b => b.type === 'story'), 'Página 2 deve conter Storytelling Impulsivo vs. Disciplinado');
-  assert.ok(p2.blocks.some(b => b.type === 'quiz'), 'Página 2 deve conter Quiz interativo Pare e Pense');
-  assert.ok(p2.blocks.some(b => b.type === 'visual-callout'), 'Página 2 deve conter Visual Callout');
-
-  // Página 3 (1.2 - A): Hero, Lead, Pillar Wheel, Quote
-  const p3 = pages[2];
-  const wheelBlock = p3.blocks.find(b => b.type === 'pillar-wheel');
-  assert.ok(wheelBlock, 'Página 3 deve conter infográfico radial dos Seis Pilares');
+  const wheelBlock = p2.blocks.find(b => b.type === 'pillar-wheel');
+  assert.ok(wheelBlock, 'Página 2 deve conter infográfico radial dos Seis Pilares');
   assert.equal(wheelBlock.pillars.length, 6, 'Roda deve conter exatamente 6 pilares');
+  assert.ok(p2.blocks.some(b => b.type === 'central-idea'), 'Página 2 deve conter bloco A Ideia Central');
+  assert.ok(p2.blocks.some(b => b.type === 'in-practice'), 'Página 2 deve conter bloco Na Prática com laptop');
 
-  // Página 4 (1.2 - B): In-Practice, Challenge, Quiz, Visual Summary, Conquest Badge
+  // Página 3 (Spread 2 Esquerda — Aprofundamento): Story, Did You Know, Common Error, Fundamental Rule
+  const p3 = pages[2];
+  assert.ok(p3.blocks.some(b => b.type === 'story'), 'Página 3 deve conter Storytelling Impulsivo vs. Disciplinado');
+  assert.ok(p3.blocks.some(b => b.type === 'did-you-know'), 'Página 3 deve conter bloco Você Sabia?');
+  assert.ok(p3.blocks.some(b => b.type === 'common-error'), 'Página 3 deve conter bloco Erro Comum');
+  assert.ok(p3.blocks.some(b => b.type === 'fundamental-rule'), 'Página 3 deve conter bloco Regra Fundamental');
+
+  // Página 4 (Spread 2 Direita — Prática & Síntese): Flowchart, Reveal Cards, Challenge, Quiz 2, Visual Summary, What You Learned, Conquest Badge
   const p4 = pages[3];
-  assert.ok(p4.blocks.some(b => b.type === 'in-practice'), 'Página 4 deve conter Na Prática');
+  assert.ok(p4.blocks.some(b => b.type === 'flowchart'), 'Página 4 deve conter Fluxograma do Processo');
+  assert.ok(p4.blocks.some(b => b.type === 'reveal-cards'), 'Página 4 deve conter Cards Interativos Reveláveis');
   assert.ok(p4.blocks.some(b => b.type === 'challenge'), 'Página 4 deve conter Desafio do Capítulo');
   assert.ok(p4.blocks.some(b => b.type === 'visual-summary'), 'Página 4 deve conter Resumo Visual');
+  assert.ok(p4.blocks.some(b => b.type === 'conquest-badge'), 'Página 4 deve conter Conquest Badge');
 
   // Renderização via ManualBlocks.render
   const renderedP1 = ManualBlocks.render(p1, false);
   assert.ok(renderedP1.includes('ht-block-hero'), 'HTML deve renderizar Hero');
   assert.ok(renderedP1.includes('ht-principle-card'), 'HTML deve renderizar cards de princípios');
+  assert.ok(renderedP1.includes('is-pare-e-pense'), 'HTML deve renderizar card Pare e Pense');
 
-  const renderedP3 = ManualBlocks.render(p3, false, { activePillarId: 'pilar-1' });
-  assert.ok(renderedP3.includes('ht-wheel-svg'), 'HTML deve renderizar SVG radial');
-  assert.ok(renderedP3.includes('data-action="select-pillar"'), 'HTML deve conter gatilhos interativos para fatias da roda');
+  const renderedP2 = ManualBlocks.render(p2, true, { activePillarId: 'pilar-1' });
+  assert.ok(renderedP2.includes('ht-wheel-svg'), 'HTML deve renderizar SVG radial');
+  assert.ok(renderedP2.includes('data-action="select-pillar"'), 'HTML deve conter gatilhos interativos para fatias da roda');
+  assert.ok(renderedP2.includes('ht-pillar-list-item'), 'HTML deve renderizar lista lateral numerada dos 6 pilares');
+  assert.ok(renderedP2.includes('ht-laptop-mockup-frame'), 'HTML deve renderizar mockup de laptop no bloco Na Prática');
 
   // Busca indexa os termos dos novos blocos
   const searchRevenge = BookReaderModel.searchAcervo('Revenge trading', BooksModel.BOOKS);
@@ -235,6 +245,10 @@ test('Manual 2.0: Arquivos de Mídia e Imagens em assets/manual-learning/', () =
   const requiredImages = [
     'mlx-hero-disciplined-trader.webp',
     'mlx-hero-disciplined-trader.jpg',
+    'mlx-trader-3d-hero.webp',
+    'mlx-trader-3d-hero.jpg',
+    'mlx-mountain-hiker-banner.webp',
+    'mlx-mountain-hiker-banner.jpg',
     'mlx-story-impulsive-vs-disciplined.webp',
     'mlx-story-impulsive-vs-disciplined.jpg',
     'mlx-process-mountain-path.webp',
@@ -252,7 +266,7 @@ test('Manual 2.0: Arquivos de Mídia e Imagens em assets/manual-learning/', () =
 });
 
 test('Flipbook 2.1: Unified Scroll — Rolagem Única Compartilhada no Spread Sem Barras Independentes', () => {
-  const cssCode = fs.readFileSync(path.join(__dirname, 'book-reader.css'), 'utf8');
+  const cssCode = fs.readFileSync(path.join(__dirname, 'book-reader.css'), 'utf8').replace(/\r\n/g, '\n');
   const mkCode = fs.readFileSync(path.join(__dirname, 'manual-knowledge.js'), 'utf8');
 
   // 1. .ht-book-spread é o contêiner único de rolagem vertical

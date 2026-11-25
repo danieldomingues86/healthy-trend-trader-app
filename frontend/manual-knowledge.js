@@ -1082,7 +1082,7 @@
   // NÍVEL 2 — INTERACTIVE BOOK READER (FLIPBOOK PREMIUM 3D)
   // =========================================================================
 
-  function renderPageSpread(page, isRightPage) {
+  function renderPageSpread(page, isRightPage, totalBookPages) {
     if (!page) {
       return `
         <div class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} blank-page kc-page-surface">
@@ -1297,27 +1297,34 @@
         achievements: achievements
       });
 
+      const runningHeadRightText = (page.pageData && page.pageData.runningHeadRight)
+        || ('CAP. ' + page.chapterNumber + ' · PÁG. ' + (page.chapterPageIndex + 1) + '/' + page.chapterPageCount);
+      const displayTotalPages = totalBookPages ? (totalBookPages - 2) : 13;
+
       return `
         <article class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} kc-page-surface ht-page-visual-mode" id="kcPageSurface">
           <header class="ht-page-running-head">
-            <span>${esc(page.bookTitle)}</span>
-            <span class="kc-page-eyebrow">Cap. ${page.chapterNumber} · Pág. ${page.chapterPageIndex + 1}/${page.chapterPageCount}</span>
+            <span class="ht-running-book-title">${esc(page.bookTitle)}</span>
+            <div style="display:inline-flex;align-items:center;gap:10px;">
+              <span class="kc-page-eyebrow">${esc(runningHeadRightText)}</span>
+              <button type="button" class="kc-btn-toggle-chapter ${isChapterCompleted(page.chapterId) ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${page.chapterId}" style="border:none;background:transparent;cursor:pointer;font-size:10.5px;font-weight:700;color:var(--ht-book-accent);display:inline-flex;align-items:center;gap:3px;padding:0;">
+                ${icon('checkCircle', 13)} <span>${isChapterCompleted(page.chapterId) ? 'Concluído' : 'Concluir'}</span>
+              </button>
+            </div>
           </header>
 
           <div class="ht-page-body">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <span class="ht-page-chapter-badge">Capítulo ${page.chapterNumber}</span>
-              <button type="button" class="kc-btn-toggle-chapter ${isChapterCompleted(page.chapterId) ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${page.chapterId}" style="border:none;background:transparent;cursor:pointer;font-size:11px;font-weight:700;color:var(--ht-book-accent);display:inline-flex;align-items:center;gap:4px;">
-                ${icon('checkCircle', 14)} <span>${isChapterCompleted(page.chapterId) ? 'Concluído' : 'Concluir'}</span>
-              </button>
-            </div>
-
             ${blocksHtml}
           </div>
 
           <footer class="ht-page-running-foot">
-            <span>The Healthy Trend Trader</span>
-            <span class="ht-page-num">${page.globalIndex + 1}</span>
+            <span class="ht-foot-brand" style="display:inline-flex;align-items:center;gap:6px;">
+              <svg viewBox="0 0 18 16" width="15" height="13" aria-hidden="true"><rect x="1" y="9" width="3.5" height="6" rx="0.8" fill="#10b981"/><rect x="6.5" y="5.5" width="3.5" height="9.5" rx="0.8" fill="#059669"/><rect x="12" y="1.5" width="3.5" height="13.5" rx="0.8" fill="#047857"/></svg>
+              <strong style="color:var(--ht-book-ink, #0f2922);font-weight:800;">Healthy Trend Trader</strong>
+              <span style="opacity:0.4;">|</span>
+              <span>Manual do Software</span>
+            </span>
+            <span class="ht-page-num">Pág. ${page.globalIndex + 1} de ${displayTotalPages}</span>
           </footer>
         </article>
       `;
@@ -1814,10 +1821,10 @@ function renderReaderView() {
               <div class="ht-book-ribbon"></div>
 
               ${spread.isDual ? `
-                ${renderPageSpread(spread.leftPage, false)}
-                ${renderPageSpread(spread.rightPage, true)}
+                ${renderPageSpread(spread.leftPage, false, flatPages.length)}
+                ${renderPageSpread(spread.rightPage, true, flatPages.length)}
               ` : `
-                ${renderPageSpread(spread.centerPage, false)}
+                ${renderPageSpread(spread.centerPage, false, flatPages.length)}
               `}
 
               ${appState.isFlipping ? `

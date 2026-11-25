@@ -49,6 +49,39 @@
     }
   ];
 
+  var ALLOWED_BLOCK_TYPES = [
+    'hero',
+    'lead',
+    'quote',
+    'definition',
+    'callout',
+    'principles',
+    'story',
+    'visual-callout',
+    'pillar-wheel',
+    'central-idea',
+    'method-tip',
+    'did-you-know',
+    'common-error',
+    'warning',
+    'fundamental-rule',
+    'quiz',
+    'true-false',
+    'reveal-cards',
+    'flowchart',
+    'comparison',
+    'mindmap',
+    'annotated-image',
+    'in-practice',
+    'software-tool',
+    'challenge',
+    'visual-summary',
+    'what-you-learned',
+    'conquest-badge',
+    'markdown',
+    'custom'
+  ];
+
   /**
    * Avalia a resposta fornecida para um quiz.
    * @param {Object} quiz - Definição do bloco de quiz
@@ -76,12 +109,13 @@
     }
 
     var correctIdx = typeof quiz.correctIndex === 'number' ? quiz.correctIndex : 0;
-    var isCorrect = selectedIdx === correctIdx;
     var selectedOption = quiz.options[selectedIdx];
+    var isOptionMarkedCorrect = selectedOption && typeof selectedOption === 'object' && selectedOption.isCorrect === true;
+    var isCorrect = (selectedIdx === correctIdx) || isOptionMarkedCorrect || Boolean(quiz.acceptAllWithExplanation);
 
     var feedbackText = '';
     if (isCorrect) {
-      feedbackText = quiz.feedbackCorrect || (typeof selectedOption === 'object' && selectedOption.explanation) || 'Correto! Excelente compreensão dos conceitos do método.';
+      feedbackText = (typeof selectedOption === 'object' && selectedOption.explanation) || quiz.feedbackCorrect || 'Correto! Excelente compreensão dos conceitos do método.';
     } else {
       feedbackText = (typeof selectedOption === 'object' && selectedOption.explanation) || quiz.feedbackIncorrect || 'Não foi desta vez. Revise o conceito e tente novamente.';
     }
@@ -109,17 +143,25 @@
       var b = blocks[i];
       if (!b) continue;
 
+      if (b.kicker) parts.push(b.kicker);
+      if (b.titlePrefix) parts.push(b.titlePrefix);
+      if (b.titleHighlight) parts.push(b.titleHighlight);
       if (b.title) parts.push(b.title);
       if (b.subtitle) parts.push(b.subtitle);
       if (b.lead) parts.push(b.lead);
+      if (b.philosophyHeading) parts.push(b.philosophyHeading);
+      if (b.philosophyText) parts.push(b.philosophyText);
       if (b.text) parts.push(b.text);
       if (b.content) parts.push(b.content);
       if (b.quote) parts.push(b.quote);
       if (b.tip) parts.push(b.tip);
       if (b.heading) parts.push(b.heading);
       if (b.description) parts.push(b.description);
+      if (b.term) parts.push(b.term);
+      if (b.consequence) parts.push(b.consequence);
+      if (b.correction) parts.push(b.correction);
 
-      // Listas
+      // Listas e Steps
       if (Array.isArray(b.items)) {
         for (var j = 0; j < b.items.length; j++) {
           var it = b.items[j];
@@ -129,6 +171,30 @@
             if (it.text) parts.push(it.text);
             if (it.desc) parts.push(it.desc);
             if (it.label) parts.push(it.label);
+          }
+        }
+      }
+
+      if (Array.isArray(b.steps)) {
+        for (var s = 0; s < b.steps.length; s++) {
+          var st = b.steps[s];
+          if (typeof st === 'string') parts.push(st);
+          else if (st && typeof st === 'object') {
+            if (st.title) parts.push(st.title);
+            if (st.description) parts.push(st.description);
+            if (st.text) parts.push(st.text);
+          }
+        }
+      }
+
+      if (Array.isArray(b.cards)) {
+        for (var c = 0; c < b.cards.length; c++) {
+          var cd = b.cards[c];
+          if (cd && typeof cd === 'object') {
+            if (cd.front) parts.push(cd.front);
+            if (cd.back) parts.push(cd.back);
+            if (cd.title) parts.push(cd.title);
+            if (cd.text) parts.push(cd.text);
           }
         }
       }
@@ -147,6 +213,7 @@
         for (var pl = 0; pl < b.pillars.length; pl++) {
           var pil = b.pillars[pl];
           if (pil.name) parts.push(pil.name);
+          if (pil.subtitle) parts.push(pil.subtitle);
           if (pil.description) parts.push(pil.description);
           if (Array.isArray(pil.modules)) parts.push(pil.modules.join(', '));
         }
@@ -165,9 +232,9 @@
         }
       }
 
-      // Story
-      if (b.left && b.left.title) parts.push(b.left.title + ' ' + (b.left.text || ''));
-      if (b.right && b.right.title) parts.push(b.right.title + ' ' + (b.right.text || ''));
+      // Story / Comparison
+      if (b.left && b.left.title) parts.push(b.left.title + ' ' + (b.left.text || '') + ' ' + (Array.isArray(b.left.points) ? b.left.points.join(' ') : ''));
+      if (b.right && b.right.title) parts.push(b.right.title + ' ' + (b.right.text || '') + ' ' + (Array.isArray(b.right.points) ? b.right.points.join(' ') : ''));
     }
 
     return parts.join(' ').replace(/\s+/g, ' ').trim();
@@ -232,25 +299,7 @@
     if (!block.type || typeof block.type !== 'string') {
       return { valid: false, error: 'Bloco sem tipo (type) definido.' };
     }
-    var allowedTypes = [
-      'hero',
-      'lead',
-      'quote',
-      'principles',
-      'story',
-      'visual-callout',
-      'pillar-wheel',
-      'method-tip',
-      'quiz',
-      'in-practice',
-      'challenge',
-      'visual-summary',
-      'what-you-learned',
-      'conquest-badge',
-      'markdown',
-      'custom'
-    ];
-    if (allowedTypes.indexOf(block.type) === -1) {
+    if (ALLOWED_BLOCK_TYPES.indexOf(block.type) === -1) {
       return { valid: false, error: 'Tipo de bloco desconhecido: ' + block.type };
     }
     return { valid: true, error: null };
@@ -258,6 +307,7 @@
 
   return {
     ACHIEVEMENTS: ACHIEVEMENTS,
+    ALLOWED_BLOCK_TYPES: ALLOWED_BLOCK_TYPES,
     evaluateQuiz: evaluateQuiz,
     extractBlocksText: extractBlocksText,
     computeAchievements: computeAchievements,
