@@ -194,7 +194,7 @@ test('Esfera Ciclo Brasil (04): integração real com caches em disco (IBOV + Br
   const store = new CapitalIntelligenceStore({ storePath: path.join(tmpDir, 'store.json'), useDatabase: false });
   const pipeline = new CapitalIntelligencePipeline({ store });
 
-  const now = new Date('2026-11-22T17:00:00.000Z');
+  const now = new Date('2026-11-24T23:00:00.000Z');
   const snapshot = await pipeline.bootstrapFromLocalCaches(now);
   assert.ok(snapshot, 'Bootstrap local deve gerar snapshot válido');
 

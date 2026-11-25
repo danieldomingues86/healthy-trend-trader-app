@@ -258,4 +258,249 @@ test('1-2-3 de Compra — 6. Consistência canônica estrita entre TickerChartMo
   assert.equal(chart.stopLoss, 25.99, 'Stop 26.00 - 0.01 = 25.99');
   assert.equal(chart.initialRisk, 4.52, 'Risco inicial 30.51 - 25.99 = 4.52');
   assert.equal(chart.graphicRiskPct, 14.81, 'Risco % (4.52 / 30.51) * 100 = 14.81%');
+  assert.equal(chart.candle3High, 30.50);
+  assert.equal(chart.candle3Low, 27.00);
+  assert.equal(chart.invalidationLow, 27.00);
+  assert.equal(chart.state, 'ACTIVE');
+  assert.equal(sim.state, 'ACTIVE');
+});
+
+/**
+ * ============================================================================
+ * TESTES OBRIGATÓRIOS — REGRAS DE VALIDADE DO PADRÃO 1-2-3 DE COMPRA
+ * Estados: ACTIVE, EXECUTED, INVALIDATED
+ * ============================================================================
+ *
+ * Formação base utilizada nos 8 cenários:
+ * - Candle 1 (2026-06-01): open 21.50, high 22.00, low 20.00, close 20.50
+ * - Candle 2 (2026-06-02): open 20.40, high 21.00, low 18.00, close 18.50 (vértice do fundo = 18.00 -> Stop da operação = 17.99)
+ * - Candle 3 (2026-06-03): open 19.20, high 22.00, low 19.00, close 21.50 (fecha 21.50 > 21.00, mínima 19.00 > 18.00)
+ *   -> Máxima do Candle 3 = 22.00 (Gatilho de Entrada = 22.01)
+ *   -> Mínima do Candle 3 = 19.00 (Nível de Invalidação do Setup antes da entrada: qualquer candle posterior com low < 19.00)
+ */
+function buildBase123Formation() {
+  const candle1 = { date: '2026-06-01', time: '2026-06-01', open: 21.50, high: 22.00, low: 20.00, close: 20.50 };
+  const candle2 = { date: '2026-06-02', time: '2026-06-02', open: 20.40, high: 21.00, low: 18.00, close: 18.50 };
+  const candle3 = { date: '2026-06-03', time: '2026-06-03', open: 19.20, high: 22.00, low: 19.00, close: 21.50 };
+  const baseSim = {
+    id: 'sim-123-validity',
+    symbol: 'PETR4',
+    companyName: 'Petrobras PN',
+    triggerName: '1-2-3 de Compra',
+    grade: 'A',
+    signalDate: '2026-06-03',
+    entryPrice: 22.01,
+    stopLoss: 17.99,
+    candle3High: 22.00,
+    candle3Low: 19.00,
+    status: TradeSimulatorModel.STATUS.WAITING_ENTRY,
+    patternState: TradeSimulatorModel.ONE_TWO_THREE_STATES.ACTIVE,
+    managementScenario: '2R'
+  };
+  return { candle1, candle2, candle3, baseSim };
+}
+
+test('Validade 1-2-3 — Cenário 1: Candle 4 rompe a máxima -> executa entrada (EXECUTED)', () => {
+  const { candle1, candle2, candle3, baseSim } = buildBase123Formation();
+  // Nota: 2026-06-04 é feriado B3 (Corpus Christi); próximo pregão é 2026-06-05
+  const candle4 = { date: '2026-06-05', time: '2026-06-05', open: 21.60, high: 22.50, low: 19.50, close: 22.30 };
+
+  const candles = [candle1, candle2, candle3, candle4];
+  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const lifecycle = TradeSimulatorModel.evaluateOneTwoThreeSignalLifecycle(candles);
+
+  assert.equal(evaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.EXECUTED);
+  assert.equal(evaluated.state, 'EXECUTED');
+  assert.equal(evaluated.status, TradeSimulatorModel.STATUS.IN_OPERATION);
+  assert.equal(evaluated.entryDate, '2026-06-05');
+  assert.equal(evaluated.executedEntryPrice, 22.01);
+  assert.equal(evaluated.executedAtCandle, 4);
+
+  assert.equal(lifecycle.state, 'EXECUTED');
+  assert.equal(lifecycle.executedAtCandle, 4);
+  assert.equal(lifecycle.executedEntryPrice, 22.01);
+});
+
+test('Validade 1-2-3 — Cenário 2: Candle 4 não rompe a máxima e não perde a mínima -> mantém sinal ativo (ACTIVE)', () => {
+  const { candle1, candle2, candle3, baseSim } = buildBase123Formation();
+  // Candle 4: high 21.80 (< 22.01) e low 19.20 (>= 19.00)
+  const candle4 = { date: '2026-06-05', time: '2026-06-05', open: 21.20, high: 21.80, low: 19.20, close: 20.90 };
+
+  const candles = [candle1, candle2, candle3, candle4];
+  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const lifecycle = TradeSimulatorModel.evaluateOneTwoThreeSignalLifecycle(candles);
+
+  assert.equal(evaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.ACTIVE);
+  assert.equal(evaluated.state, 'ACTIVE');
+  assert.equal(evaluated.status, TradeSimulatorModel.STATUS.WAITING_ENTRY, 'Sinal deve permanecer ativo aguardando entrada');
+  assert.equal(evaluated.executedEntryPrice, null);
+  assert.equal(evaluated.entryDate, null);
+  assert.equal(evaluated.exitDate, null);
+
+  assert.equal(lifecycle.state, 'ACTIVE');
+  assert.equal(lifecycle.isActive, true);
+  assert.equal(lifecycle.executedEntryPrice, null);
+});
+
+test('Validade 1-2-3 — Cenário 3: Candle 4 não rompe; Candle 5 rompe -> executa entrada no Candle 5 (EXECUTED)', () => {
+  const { candle1, candle2, candle3, baseSim } = buildBase123Formation();
+  // Candle 4 (2026-06-05): não rompe (high 21.80) e não perde mínima do Candle 3 (low 19.20 >= 19.00) -> ACTIVE
+  const candle4 = { date: '2026-06-05', time: '2026-06-05', open: 21.20, high: 21.80, low: 19.20, close: 21.40 };
+  // Candle 5 (2026-06-08): rompe a máxima do Candle 3 (high 22.60 >= 22.01) sem perder a mínima (low 21.10 >= 19.00) -> EXECUTED
+  const candle5 = { date: '2026-06-08', time: '2026-06-08', open: 21.50, high: 22.60, low: 21.10, close: 22.40 };
+
+  const candles = [candle1, candle2, candle3, candle4, candle5];
+  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const lifecycle = TradeSimulatorModel.evaluateOneTwoThreeSignalLifecycle(candles);
+
+  assert.equal(evaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.EXECUTED);
+  assert.equal(evaluated.state, 'EXECUTED');
+  assert.equal(evaluated.status, TradeSimulatorModel.STATUS.IN_OPERATION);
+  assert.equal(evaluated.entryDate, '2026-06-08', 'Entrada deve ser executada no Candle 5');
+  assert.equal(evaluated.executedEntryPrice, 22.01);
+  assert.equal(evaluated.executedAtCandle, 5);
+
+  assert.equal(lifecycle.state, 'EXECUTED');
+  assert.equal(lifecycle.executedAtCandle, 5);
+  assert.equal(lifecycle.entryDate, '2026-06-08');
+});
+
+test('Validade 1-2-3 — Cenário 4: Candle 4 perde a mínima do Candle 3 -> invalida definitivamente (INVALIDATED)', () => {
+  const { candle1, candle2, candle3, baseSim } = buildBase123Formation();
+  // Candle 4 (2026-06-05): low 18.95 < 19.00 (perdeu a mínima do Candle 3, mesmo estando acima do vértice 18.00 do Candle 2!)
+  const candle4 = { date: '2026-06-05', time: '2026-06-05', open: 20.50, high: 21.20, low: 18.95, close: 19.40 };
+
+  const candles = [candle1, candle2, candle3, candle4];
+  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const lifecycle = TradeSimulatorModel.evaluateOneTwoThreeSignalLifecycle(candles);
+
+  assert.equal(evaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.INVALIDATED);
+  assert.equal(evaluated.state, 'INVALIDATED');
+  assert.equal(evaluated.status, TradeSimulatorModel.STATUS.NOT_TRIGGERED);
+  assert.equal(evaluated.executedEntryPrice, null);
+  assert.equal(evaluated.entryDate, null);
+  assert.equal(evaluated.invalidationDate, '2026-06-05');
+  assert.equal(evaluated.invalidationPrice, 18.95);
+  assert.equal(evaluated.invalidatedAtCandle, 4);
+
+  assert.equal(lifecycle.state, 'INVALIDATED');
+  assert.equal(lifecycle.isInvalidated, true);
+  assert.equal(lifecycle.invalidatedAtCandle, 4);
+});
+
+test('Validade 1-2-3 — Cenário 5: Candle 4 permanece válido; Candle 5 perde a mínima do Candle 3 -> invalida definitivamente (INVALIDATED)', () => {
+  const { candle1, candle2, candle3, baseSim } = buildBase123Formation();
+  // Candle 4 (2026-06-05): válido (high 21.70 < 22.01, low 19.30 >= 19.00) -> ACTIVE
+  const candle4 = { date: '2026-06-05', time: '2026-06-05', open: 21.00, high: 21.70, low: 19.30, close: 20.10 };
+  // Candle 5 (2026-06-08): perde a mínima do Candle 3 (low 18.80 < 19.00) -> INVALIDATED
+  const candle5 = { date: '2026-06-08', time: '2026-06-08', open: 20.00, high: 20.60, low: 18.80, close: 19.10 };
+
+  const candles = [candle1, candle2, candle3, candle4, candle5];
+  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const lifecycle = TradeSimulatorModel.evaluateOneTwoThreeSignalLifecycle(candles);
+
+  assert.equal(evaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.INVALIDATED);
+  assert.equal(evaluated.state, 'INVALIDATED');
+  assert.equal(evaluated.status, TradeSimulatorModel.STATUS.NOT_TRIGGERED);
+  assert.equal(evaluated.executedEntryPrice, null);
+  assert.equal(evaluated.entryDate, null);
+  assert.equal(evaluated.invalidationDate, '2026-06-08');
+  assert.equal(evaluated.invalidationPrice, 18.80);
+  assert.equal(evaluated.invalidatedAtCandle, 5);
+
+  assert.equal(lifecycle.state, 'INVALIDATED');
+  assert.equal(lifecycle.invalidatedAtCandle, 5);
+  assert.equal(lifecycle.invalidationDate, '2026-06-08');
+});
+
+test('Validade 1-2-3 — Cenário 6: Candle 4 e Candle 5 permanecem válidos; Candle 6 rompe a máxima -> executa entrada no Candle 6 (EXECUTED)', () => {
+  const { candle1, candle2, candle3, baseSim } = buildBase123Formation();
+  // Candle 4 (2026-06-05): válido (high 21.60 < 22.01, low 19.40 >= 19.00) -> ACTIVE
+  const candle4 = { date: '2026-06-05', time: '2026-06-05', open: 21.10, high: 21.60, low: 19.40, close: 20.80 };
+  // Candle 5 (2026-06-08): válido (high 21.90 < 22.01, low 19.10 >= 19.00) -> ACTIVE
+  const candle5 = { date: '2026-06-08', time: '2026-06-08', open: 20.80, high: 21.90, low: 19.10, close: 21.70 };
+  // Candle 6 (2026-06-09): rompe a máxima do Candle 3 (high 22.80 >= 22.01, low 21.50 >= 19.00) -> EXECUTED
+  const candle6 = { date: '2026-06-09', time: '2026-06-09', open: 21.80, high: 22.80, low: 21.50, close: 22.60 };
+
+  const candles = [candle1, candle2, candle3, candle4, candle5, candle6];
+  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const lifecycle = TradeSimulatorModel.evaluateOneTwoThreeSignalLifecycle(candles);
+
+  assert.equal(evaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.EXECUTED);
+  assert.equal(evaluated.state, 'EXECUTED');
+  assert.equal(evaluated.status, TradeSimulatorModel.STATUS.IN_OPERATION);
+  assert.equal(evaluated.entryDate, '2026-06-09', 'Entrada deve ser executada no Candle 6');
+  assert.equal(evaluated.executedEntryPrice, 22.01);
+  assert.equal(evaluated.executedAtCandle, 6);
+
+  assert.equal(lifecycle.state, 'EXECUTED');
+  assert.equal(lifecycle.executedAtCandle, 6);
+  assert.equal(lifecycle.entryDate, '2026-06-09');
+});
+
+test('Validade 1-2-3 — Cenário 7: Após invalidação, candle posterior rompe a máxima -> NÃO executa entrada (permanece INVALIDATED)', () => {
+  const { candle1, candle2, candle3, baseSim } = buildBase123Formation();
+  // Candle 4 (2026-06-05): válido -> ACTIVE
+  const candle4 = { date: '2026-06-05', time: '2026-06-05', open: 21.00, high: 21.60, low: 19.20, close: 20.20 };
+  // Candle 5 (2026-06-08): perde a mínima do Candle 3 (low 18.70 < 19.00) -> INVALIDATED
+  const candle5 = { date: '2026-06-08', time: '2026-06-08', open: 20.10, high: 20.50, low: 18.70, close: 19.50 };
+  // Candle 6 (2026-06-09): rompe fortemente a máxima do Candle 3 (high 23.50 >= 22.01) -> NÃO PODE EXECUTAR!
+  const candle6 = { date: '2026-06-09', time: '2026-06-09', open: 20.00, high: 23.50, low: 19.80, close: 23.20 };
+
+  const candles = [candle1, candle2, candle3, candle4, candle5, candle6];
+  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const lifecycle = TradeSimulatorModel.evaluateOneTwoThreeSignalLifecycle(candles);
+
+  assert.equal(evaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.INVALIDATED);
+  assert.equal(evaluated.state, 'INVALIDATED');
+  assert.equal(evaluated.status, TradeSimulatorModel.STATUS.NOT_TRIGGERED);
+  assert.equal(evaluated.executedEntryPrice, null, 'Nenhuma entrada pode ser executada após a invalidação do padrão');
+  assert.equal(evaluated.entryDate, null);
+  assert.equal(evaluated.resultR, null);
+  assert.equal(evaluated.invalidationDate, '2026-06-08');
+  assert.ok(!evaluated.timeline.some(e => e.type === 'ENTRY_EXECUTED'));
+
+  assert.equal(lifecycle.state, 'INVALIDATED');
+  assert.equal(lifecycle.entriesCount, 0);
+  assert.equal(lifecycle.postInvalidationBreakoutBlocked, true);
+
+  // Também verifica que reavaliar um objeto já INVALIDATED jamais volta a ACTIVE nem executa
+  const reEvaluated = TradeSimulatorModel.evaluateSimulationOnCandles(evaluated, [candle1, candle2, candle3, candle6]);
+  assert.equal(reEvaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.INVALIDATED);
+  assert.equal(reEvaluated.status, TradeSimulatorModel.STATUS.NOT_TRIGGERED);
+  assert.equal(reEvaluated.executedEntryPrice, null);
+});
+
+test('Validade 1-2-3 — Cenário 8: Após execução, não permitir nova entrada com base no mesmo padrão (permanece EXECUTED)', () => {
+  const { candle1, candle2, candle3, baseSim } = buildBase123Formation();
+  // Candle 4 (2026-06-05): rompe a máxima do Candle 3 (22.01) -> EXECUTED
+  const candle4 = { date: '2026-06-05', time: '2026-06-05', open: 21.60, high: 22.50, low: 21.20, close: 21.80 };
+  // Candle 5 (2026-06-08): recua abaixo de 22.01 (sem tocar o stop da operação em 17.99) e rompe 22.01 novamente
+  const candle5 = { date: '2026-06-08', time: '2026-06-08', open: 21.50, high: 22.90, low: 20.80, close: 22.70 };
+  // Candle 6 (2026-06-09): atinge o alvo de +2R (22.01 + 2 * 4.02 = 30.05)
+  const candle6 = { date: '2026-06-09', time: '2026-06-09', open: 23.00, high: 30.50, low: 22.80, close: 30.20 };
+  // Candle 7 (2026-06-10): novo cruzamento de 22.01 após encerramento -> jamais pode reativar o padrão
+  const candle7 = { date: '2026-06-10', time: '2026-06-10', open: 21.50, high: 23.00, low: 21.00, close: 22.80 };
+
+  const candles = [candle1, candle2, candle3, candle4, candle5, candle6, candle7];
+  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const lifecycle = TradeSimulatorModel.evaluateOneTwoThreeSignalLifecycle(candles);
+
+  assert.equal(evaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.EXECUTED);
+  assert.equal(evaluated.state, 'EXECUTED');
+  assert.equal(evaluated.entryDate, '2026-06-05', 'Data da única entrada deve permanecer a do Candle 4');
+  assert.equal(evaluated.executedEntryPrice, 22.01);
+  const entryEvents = evaluated.timeline.filter(e => e.type === 'ENTRY_EXECUTED');
+  assert.equal(entryEvents.length, 1, 'Deve existir estritamente 1 único evento de entrada executada para o padrão');
+
+  assert.equal(lifecycle.state, 'EXECUTED');
+  assert.equal(lifecycle.entriesCount, 1);
+  assert.equal(lifecycle.executedAtCandle, 4);
+  assert.equal(lifecycle.duplicateEntryAttemptBlocked, true);
+
+  // Tentar reavaliar a simulação já executada não volta para ACTIVE nem altera a entrada original
+  const reEvaluated = TradeSimulatorModel.evaluateSimulationOnCandles(evaluated, candles);
+  assert.equal(reEvaluated.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.EXECUTED);
+  assert.equal(reEvaluated.entryDate, '2026-06-05');
+  assert.equal(reEvaluated.timeline.filter(e => e.type === 'ENTRY_EXECUTED').length, 1);
 });

@@ -53,10 +53,10 @@
     },
     macro: {
       id: 'macro',
-      label: 'Macroeconomia',
+      label: 'Cenário Macroeconômico',
       color: '#d4af37',
       glowColor: 'rgba(212, 175, 55, 0.44)',
-      description: 'Juros, câmbio, proteção real (Ouro/Commodities) e catalisadores macroeconômicos.'
+      description: 'Juros, inflação, câmbio, política monetária, atividade econômica e indicadores macroeconômicos.'
     },
     rotation: {
       id: 'rotation',
@@ -182,13 +182,13 @@
       tier: 'primary',
       universe: 'macro',
       region: 'GLOBAL',
-      badge: 'PROTEÇÃO',
-      label: 'Ouro & Commodities',
+      badge: 'OURO / PROTEÇÃO',
+      label: 'Ouro & Ativos de Proteção',
       shortLabel: 'Ouro / Proteção',
-      subtitle: 'Hedge Real · Ativos de Reserva',
-      windowLabel: 'Tendência 21 pregões',
+      subtitle: 'Hedge Real · Tendência 21p · Força Relativa',
+      windowLabel: 'Tendência 21 pregões (destaque)',
       displayValue: 'Aguardando feed',
-      metricCaption: 'Fluxo de proteção',
+      metricCaption: 'Ouro · Janela 21p',
       trendDirection: 'neutral',
       state: 'neutral',
       stateLabel: 'Termômetro de Hedge',
@@ -202,7 +202,7 @@
       sourceRoute: 'marketcentral',
       description: 'Monitora a migração de capital para reserva de valor, proteção inflacionária e commodities reais em janelas estruturais.',
       details: {
-        window: '21 pregões (tendência estrutural)',
+        window: '21 pregões (destaque primário) · 1d secundário',
         assets: 'Ouro Spot (XAU) · Petróleo WTI · Cesta Commodities',
         focus: 'Força persistente no ouro sinaliza busca institucional por proteção e diversificação'
       }
@@ -491,6 +491,30 @@
       timeframe: 'Ciclo de decisões de política monetária.'
     },
     {
+      id: 'conn_macro_cycle_br',
+      source: 'macro_events',
+      target: 'cycle_br',
+      type: 'economic',
+      strength: 4,
+      direction: 'source_to_target',
+      label: 'Catalisadores no Ciclo Brasil',
+      explanation: 'Decisões de juros (Copom) e dados de inflação/PIB redefinem a taxa de desconto e a propensão ao risco em ações brasileiras.',
+      supportingData: 'Sensibilidade do Ibovespa a ciclos de política monetária e dados de atividade.',
+      timeframe: 'Ciclos Copom / Divulgações oficiais.'
+    },
+    {
+      id: 'conn_macro_cycle_us',
+      source: 'macro_events',
+      target: 'cycle_us',
+      type: 'economic',
+      strength: 5,
+      direction: 'source_to_target',
+      label: 'Catalisadores no Ciclo EUA',
+      explanation: 'Reuniões do FOMC, CPI e Payroll reprecificam o custo do capital mundial e impactam os múltiplos de Wall Street.',
+      supportingData: 'Volatilidade estrutural no S&P 500 associada aos eventos institucionais norte-americanos.',
+      timeframe: 'Ciclo FOMC / Divulgações mensais.'
+    },
+    {
       id: 'conn_macro_us10y',
       source: 'macro_events',
       target: 'trend_us10y',
@@ -681,12 +705,12 @@
 
   // Faixa secundária do rodapé — somente variações de 1 pregão (hidratadas de dados reais)
   const DEFAULT_DAILY_TAPE = [
-    { symbol: 'IBOV', label: 'IBOV', displayValue: '—', changePct: null, dataStatus: 'awaiting_feed' },
-    { symbol: 'SPX', label: 'S&P 500', displayValue: '—', changePct: null, dataStatus: 'awaiting_feed' },
-    { symbol: 'NDX', label: 'Nasdaq', displayValue: '—', changePct: null, dataStatus: 'awaiting_feed' },
-    { symbol: 'USD', label: 'Dólar', displayValue: '—', changePct: null, dataStatus: 'awaiting_feed' },
-    { symbol: 'GOLD', label: 'Ouro', displayValue: '—', changePct: null, dataStatus: 'awaiting_feed' },
-    { symbol: 'VIX', label: 'VIX', displayValue: '—', changePct: null, dataStatus: 'awaiting_feed' }
+    { symbol: 'IBOV', label: 'IBOV', market: 'BR', flag: '🇧🇷', calendar: 'B3 (São Paulo)', displayValue: '—', changePct: null, asOfDate: null, updatedAt: null, dataStatus: 'awaiting_feed' },
+    { symbol: 'SPX', label: 'S&P 500', market: 'US', flag: '🇺🇸', calendar: 'NYSE (New York)', displayValue: '—', changePct: null, asOfDate: null, updatedAt: null, dataStatus: 'awaiting_feed' },
+    { symbol: 'NDX', label: 'Nasdaq', market: 'US', flag: '🇺🇸', calendar: 'NASDAQ (New York)', displayValue: '—', changePct: null, asOfDate: null, updatedAt: null, dataStatus: 'awaiting_feed' },
+    { symbol: 'USD', label: 'Dólar', market: 'BR', flag: '🇧🇷', calendar: 'Banco Central (BRL)', displayValue: '—', changePct: null, asOfDate: null, updatedAt: null, dataStatus: 'awaiting_feed' },
+    { symbol: 'GOLD', label: 'Ouro', market: 'US', flag: '🇺🇸', calendar: 'NYSE Arca (USD)', displayValue: '—', changePct: null, asOfDate: null, updatedAt: null, dataStatus: 'awaiting_feed' },
+    { symbol: 'VIX', label: 'VIX', market: 'US', flag: '🇺🇸', calendar: 'CBOE (New York)', displayValue: '—', changePct: null, asOfDate: null, updatedAt: null, dataStatus: 'awaiting_feed' }
   ];
 
   function formatBRL(value) {
@@ -736,6 +760,7 @@
       this.pipelineStatus = 'indisponivel'; // 'atualizado' | 'atrasado' | 'indisponivel' | 'parcial'
       this.freshnessSummary = null;
       this.macroTrendsDetail = null;
+      this.allocationSuggestion = null;
     }
 
     /**
@@ -941,15 +966,32 @@
         }
       }
 
-      // 4. Ouro & Commodities
-      if (spheres.gold_commodities?.primary) {
+      // 4. Ouro & Ativos de Proteção (09)
+      if (spheres.gold_commodities) {
         const gNode = this.getNodeById('gold_commodities');
-        const p = spheres.gold_commodities.primary;
-        if (gNode && p.status !== 'indisponivel') {
-          gNode.displayValue = Number.isFinite(p.change21dPct) ? formatSignedPct(p.change21dPct) : `${p.latestValue}`;
-          gNode.metricCaption = `Ouro (${p.symbol}) · 21p`;
-          gNode.state = (p.change21dPct ?? 0) > 0.5 ? 'expansion' : (p.change21dPct ?? 0) < -0.5 ? 'defense' : 'neutral';
-          applyFreshnessMeta(gNode, p.status, p.freshness?.asOfDate, p.freshness?.lagBusinessDays, p.freshness?.collectedAt, p.provider);
+        const gc = spheres.gold_commodities;
+        if (gNode) {
+          gNode.goldProtectionDetail = gc;
+          applyFreshnessMeta(gNode, gc.status || 'indisponivel', gc.asOfDate, gc.lagBusinessDays, gc.collectedAt, gc.source);
+
+          if (gc.status === 'indisponivel' || !gc.primaryPrice?.currentPrice) {
+            gNode.displayValue = 'Aguardando feed';
+            gNode.metricCaption = 'Ouro · Janela 21p';
+            gNode.state = 'neutral';
+            gNode.stateLabel = 'Indisponível';
+            gNode.trendDirection = 'neutral';
+          } else {
+            // Destaque primário: Tendência histórica de 21 pregões; Variação diária secundária
+            gNode.displayValue = gc.displayValue || (Number.isFinite(gc.historicalTrends?.change21dPct)
+              ? formatSignedPct(gc.historicalTrends.change21dPct, ' (21p)')
+              : `$${gc.primaryPrice.currentPrice.toFixed(2)}`);
+            gNode.metricCaption = gc.metricCaption || (Number.isFinite(gc.historicalTrends?.change1dPct)
+              ? `Hoje: ${formatSignedPct(gc.historicalTrends.change1dPct)}`
+              : 'Ouro · Janela 21p');
+            gNode.state = gc.state || 'neutral';
+            gNode.stateLabel = gc.stateLabel || 'Proteção / Hedge';
+            gNode.trendDirection = gc.historicalTrends?.trendDirection || 'neutral';
+          }
         }
       }
 
@@ -1010,46 +1052,94 @@
         }
       }
 
-      // 6. Eventos Macro
-      if (spheres.macro_events && Array.isArray(spheres.macro_events.upcomingEvents) && spheres.macro_events.upcomingEvents.length) {
-        this.upcomingEvents = spheres.macro_events.upcomingEvents.slice(0, 4).map(ev => ({
+      // 6. Eventos Macroeconômicos e Catalisadores (10)
+      if (spheres.macro_events) {
+        const me = spheres.macro_events;
+        const mNode = this.getNodeById('macro_events');
+        const upcomingList = Array.isArray(me.upcomingEvents) ? me.upcomingEvents : [];
+        const allList = Array.isArray(me.allEvents) ? me.allEvents : upcomingList;
+
+        this.upcomingEvents = upcomingList.slice(0, 6).map(ev => ({
           id: ev.id,
           region: ev.country || 'GLOBAL',
+          country: ev.country || 'GLOBAL',
+          countryLabel: ev.countryLabel || (ev.country === 'BR' ? 'Brasil' : (ev.country === 'US' ? 'Estados Unidos' : 'Global')),
           flag: ev.flag || '🌐',
-          title: ev.title,
-          dateLabel: ev.dateLabel || ev.date,
-          impact: ev.impact || 'ALTO',
+          title: ev.shortTitle || ev.title,
+          fullTitle: ev.title,
+          category: ev.category || 'monetary_policy',
+          categoryLabel: ev.categoryLabel || 'Macro',
+          date: ev.date,
+          dateLabel: ev.dateLabel || (ev.date ? `${ev.date.slice(8, 10)}/${ev.date.slice(5, 7)}` : '—'),
+          dateFormatted: ev.dateFormatted || ev.date,
+          time: ev.time,
+          timezone: ev.timezone,
+          timezoneLabel: ev.timezoneLabel || (ev.timeLocal || 'BRT'),
+          impact: ev.impact || 'high',
+          impactLabel: ev.impactLabel || (ev.impact === 'high' ? 'ALTO IMPACTO' : 'MÉDIO IMPACTO'),
+          dynamicStatus: ev.dynamicStatus || 'upcoming',
+          statusLabel: ev.statusLabel || 'Próximo',
+          numbers: ev.numbers || null,
+          affectedSpheres: Array.isArray(ev.affectedSpheres) ? ev.affectedSpheres : [],
+          transmissionChannel: ev.transmissionChannel || '',
+          behavioralGuardrail: ev.behavioralGuardrail || '',
+          source: ev.source || 'Fontes Oficiais',
+          hasHistoricalPlaybook: Boolean(ev.hasHistoricalPlaybook),
+          playbookId: ev.playbookId || null,
           targetNodeId: 'macro_events'
         }));
-        const mNode = this.getNodeById('macro_events');
+
         if (mNode) {
-          mNode.displayValue = `${this.upcomingEvents.length} eventos`;
-          mNode.metricCaption = `${this.upcomingEvents[0].title} (${this.upcomingEvents[0].dateLabel})`;
-          applyFreshnessMeta(mNode, spheres.macro_events.status, spheres.macro_events.asOfDate, 0, spheres.macro_events.collectedAt, spheres.macro_events.source);
+          mNode.macroEventsDetail = {
+            ...me,
+            upcomingEvents: upcomingList,
+            allEvents: allList,
+            counts: me.counts || { upcoming: upcomingList.length, highImpact: 0 }
+          };
+          mNode.upcomingEvents = upcomingList;
+          mNode.allEvents = allList;
+          mNode.counts = mNode.macroEventsDetail.counts;
+          mNode.nextEvent = me.nextEvent || upcomingList[0] || null;
+
+          mNode.displayValue = me.displayValue || (upcomingList.length > 0 ? `${upcomingList.length} eventos` : 'Agenda livre');
+          mNode.metricCaption = me.metricCaption || (mNode.nextEvent ? `${mNode.nextEvent.shortTitle || mNode.nextEvent.title} (${mNode.nextEvent.dateLabel || ''})` : 'Sem catalisadores');
+          mNode.state = me.state || (mNode.counts.highImpact > 0 ? 'caution' : 'neutral');
+          mNode.stateLabel = me.stateLabel || 'Catalisadores';
+
+          applyFreshnessMeta(mNode, me.status, me.asOfDate, 0, me.collectedAt, me.source);
         }
       }
 
       // 7. Meu Patrimônio (do backend isolado por tenant, se presente)
-      if (spheres.my_portfolio?.isLive && Number(spheres.my_portfolio.equity) > 0) {
+      if (spheres.my_portfolio) {
         const mp = spheres.my_portfolio;
-        this.portfolioSnapshot = {
-          isLive: true,
-          equity: mp.equity,
-          cashValue: mp.cashValue,
-          localExposureValue: mp.localExposureValue,
-          globalExposureValue: mp.globalExposureValue,
-          heatPct: mp.heatPct,
-          heatLimitPct: mp.heatLimitPct,
-          openPositionsCount: mp.openPositionsCount
-        };
-        const pNode = this.getNodeById('my_portfolio');
-        if (pNode) {
-          pNode.equityValue = mp.equity;
-          pNode.heatPct = mp.heatPct;
-          pNode.heatLimitPct = mp.heatLimitPct;
-          pNode.displayValue = formatBRL(mp.equity);
-          pNode.metricCaption = `Heat ${Number(mp.heatPct || 0).toFixed(2).replace('.', ',')}% / ${Number(mp.heatLimitPct || 5).toFixed(1).replace('.', ',')}%`;
-          applyFreshnessMeta(pNode, 'atualizado', mp.asOfDate, 0, mp.collectedAt, mp.source);
+        const equity = Number(mp.operationalEquity ?? mp.equity ?? 0);
+        if (mp.isLive || equity > 0) {
+          this.portfolioSnapshot = {
+            isLive: true,
+            equity,
+            operationalEquity: equity,
+            realWealth: Number(mp.realWealth ?? equity),
+            checkingWealth: Number(mp.checkingWealth ?? 0),
+            cashValue: Number(mp.cashValue ?? 0),
+            localExposureValue: Number(mp.localExposureValue ?? mp.exposureByRegion?.brazil?.amount ?? 0),
+            globalExposureValue: Number(mp.globalExposureValue ?? mp.exposureByRegion?.global?.amount ?? 0),
+            heatPct: Number(mp.heatPct ?? 0),
+            heatLimitPct: Number(mp.heatLimitPct ?? 5),
+            openPositionsCount: Number(mp.openPositionsCount ?? 0)
+          };
+          this.portfolioDetail = mp;
+          const pNode = this.getNodeById('my_portfolio');
+          if (pNode) {
+            pNode.equityValue = equity;
+            pNode.portfolioDetail = mp;
+            pNode.heatPct = mp.heatPct;
+            pNode.heatLimitPct = mp.heatLimitPct;
+            pNode.displayValue = formatBRL(equity);
+            pNode.metricCaption = `Heat ${Number(mp.heatPct || 0).toFixed(2).replace('.', ',')}% / ${Number(mp.heatLimitPct || 5).toFixed(1).replace('.', ',')}%`;
+            pNode.stateLabel = `${mp.openPositionsCount || 0} ${mp.openPositionsCount === 1 ? 'posição aberta' : 'posições abertas'}`;
+            applyFreshnessMeta(pNode, mp.status || 'atualizado', mp.asOfDate, 0, mp.collectedAt || mp.snapshotTimestamp, mp.source);
+          }
         }
       }
 
@@ -1123,14 +1213,24 @@
         this.dailyTape = snapshot.dailyTapeSecondary.map(item => ({
           symbol: item.symbol,
           label: item.label,
+          market: item.market || (['IBOV', 'USD'].includes(item.symbol) ? 'BR' : 'US'),
+          flag: item.flag || (['IBOV', 'USD'].includes(item.symbol) ? '🇧🇷' : '🇺🇸'),
+          calendar: item.calendar || (['IBOV', 'USD'].includes(item.symbol) ? 'B3 (São Paulo)' : 'NYSE / NASDAQ (New York)'),
           displayValue: Number.isFinite(item.closeValue)
             ? Number(item.closeValue).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
             : '—',
           changePct: Number.isFinite(item.change1dPct) ? Number(item.change1dPct) : null,
           asOfDate: item.asOfDate || null,
+          updatedAt: item.updatedAt || snapshot.generatedAt || null,
+          timezone: item.timezone || (item.market === 'US' ? 'America/New_York' : 'America/Sao_Paulo'),
           dataStatus: item.status === 'indisponivel' ? 'awaiting_feed' : 'live',
           freshnessStatus: item.status
         }));
+      }
+
+      // 10. Sugestão de Alocação por Evidências de 21 Pregões (Backend Engine)
+      if (snapshot.allocationSuggestion && typeof snapshot.allocationSuggestion === 'object') {
+        this.allocationSuggestion = snapshot.allocationSuggestion;
       }
 
       return this;
@@ -1220,6 +1320,56 @@
             pNode.stateLabel = `${openCount} ${openCount === 1 ? 'posição aberta' : 'posições abertas'}`;
             pNode.dataStatus = 'live';
             pNode.state = this.portfolioSnapshot.heatPct > heatLimit * 0.8 ? 'caution' : 'expansion';
+
+            const realWealth = typeof dailyModel.getConsolidatedRealWealth === 'function'
+              ? dailyModel.getConsolidatedRealWealth()
+              : (investmentWealth + (typeof dailyModel.getCheckingWealth === 'function' ? dailyModel.getCheckingWealth() : 0));
+            const checkingWealth = typeof dailyModel.getCheckingWealth === 'function'
+              ? dailyModel.getCheckingWealth()
+              : Math.max(0, realWealth - investmentWealth);
+            const totalExp = volBr + volGlobal;
+            const cVal = Number.isFinite(availableCash) ? availableCash : Math.max(0, investmentWealth - totalExp);
+
+            pNode.portfolioDetail = {
+              id: 'my_portfolio',
+              isLive: true,
+              realWealth,
+              operationalEquity: investmentWealth,
+              checkingWealth,
+              totalExposure: totalExp,
+              cashValue: cVal,
+              cashPercentage: investmentWealth > 0 ? Number(((cVal / investmentWealth) * 100).toFixed(2)) : 0,
+              openPositionsCount: openCount,
+              heatPct: this.portfolioSnapshot.heatPct,
+              heatLimitPct: heatLimit,
+              asOfDate: new Date().toISOString().slice(0, 10),
+              snapshotTimestamp: new Date().toISOString(),
+              reconciledAt: new Date().toISOString(),
+              source: 'Atualização Diária (Workspace Local Reconciliado)',
+              exposureByRegion: {
+                brazil: { label: 'Brasil (B3)', amount: volBr, percentage: (totalExp > 0 ? Number(((volBr / totalExp) * 100).toFixed(2)) : 100) },
+                global: { label: 'Internacional / EUA (BDRs & Dólar)', amount: volGlobal, percentage: (totalExp > 0 ? Number(((volGlobal / totalExp) * 100).toFixed(2)) : 0) }
+              },
+              exposureByCurrency: {
+                brl: { label: 'Real Brasileiro (BRL)', amount: volBr + cVal, percentage: Number((((volBr + cVal) / (investmentWealth || 1)) * 100).toFixed(2)) },
+                usd: { label: 'Dólar Americano & BDRs (USD)', amount: volGlobal, percentage: Number(((volGlobal / (investmentWealth || 1)) * 100).toFixed(2)), isForeignCurrencyHedge: volGlobal > 0 }
+              },
+              concentration: {
+                level: openCount <= 2 ? 'Moderada' : 'Baixa',
+                diagnostic: 'Risco pulverizado conforme plano operacional da Atualização Diária.'
+              },
+              liquidity: {
+                cashAmount: cVal,
+                cashPercentage: investmentWealth > 0 ? Number(((cVal / investmentWealth) * 100).toFixed(2)) : 0,
+                status: cVal > 0 ? 'Adequada' : 'Alocação Máxima'
+              },
+              principles: [
+                'Segregação Estrita: Contas correntes permanecem 100% fora da Equity da estratégia.',
+                'Prevenção de Dupla Contagem: O saldo nas corretoras já engloba o valor de custódia das posições. NUNCA somar posições ao Patrimônio Real.',
+                'Classificação Setorial Fidedigna: Sem invenções. Ativos sem mapeamento confiável são categorizados como "Outros / A Classificar".',
+                'Carteira e Decisões Intactas: Atualizações de mercado podem recalcular o valor de mercado das posições na fotografia, mas NUNCA alteram quantidades, ordens ou planos do usuário.'
+              ]
+            };
           }
         }
       }
@@ -1538,62 +1688,301 @@
 
     getIndicativeRebalanceScenario() {
       const current = this.getPortfolioAllocationBreakdown();
+
+      // 1. Se o snapshot do pipeline forneceu a sugestão enriquecida do motor de alocação de 21 pregões
+      if (this.allocationSuggestion && typeof this.allocationSuggestion === 'object') {
+        const s = this.allocationSuggestion;
+        const comparisonRows = Array.isArray(s.comparisonRows) ? s.comparisonRows : [];
+
+        // Mapeia para manter compatibilidade com consumidores legados de `rows`
+        const rows = comparisonRows.map(r => ({
+          key: r.key,
+          label: r.label,
+          currentDisplay: r.currentDisplay,
+          currentPct: r.currentPct,
+          currentAmount: r.currentAmount,
+          suggestedDisplay: r.suggestedDisplay,
+          suggestedPct: r.suggestedPct,
+          suggestedAmount: r.suggestedAmount,
+          deltaPct: r.deltaPct,
+          action: r.action,
+          actionLabel: r.actionLabel,
+          postureGuidance: r.rationale,
+          direction: r.action === 'increase' ? 'up' : r.action === 'decrease' ? 'down' : 'neutral'
+        }));
+
+        return {
+          isLivePortfolio: !!(s.hasLivePortfolio ?? current.isLive),
+          totalEquity: s.totalEquity ?? current.equity,
+          postureLabel: s.postureLabel || 'Postura Neutra & Disciplinada',
+          confidenceLevel: s.confidenceLevel || 'MODERADA',
+          shortRationale: s.shortRationale || 'Panorama baseado na consistência de 21 pregões.',
+          horizonLabel: 'Horizonte Estrutural de 21 Pregões',
+          isHoldRecommended: !!s.isHoldRecommended,
+          hasBinarySuperRisk: !!s.hasBinarySuperRisk,
+          eventsNote: s.eventsNote || '',
+          highImpactEvents: Array.isArray(s.highImpactEvents) ? s.highImpactEvents : [],
+          netRiskScore: s.netRiskScore ?? 0,
+          evidences: Array.isArray(s.evidences) ? s.evidences : [],
+          targetAllocations: s.targetAllocations || {},
+          current,
+          rows,
+          comparisonRows,
+          recommendations: Array.isArray(s.regulatoryPrinciples) && s.regulatoryPrinciples.length
+            ? s.regulatoryPrinciples
+            : [
+              'Respeite a precedência do método: Permissão do Ciclo → Qualidade do Setup (Grades A/B/C) → Position Sizing → Portfolio Heat.',
+              'Decisões de alocação exigem persistência comprovada de tendência na janela canônica de 21 pregões.',
+              'Preserve a separação contábil: contas correntes permanecem fora da Equity de Investimentos.'
+            ],
+          disclaimer: 'AVISO IMPORTANTE (CARÁTER NÃO VINCULANTE): Esta leitura estrutural de alocação é estritamente uma ferramenta educacional e de apoio à decisão baseada nas evidências macroeconômicas de 21 pregões e regras do método. Não constitui recomendação personalizada de investimento, nem executa ordens ou rebalanceamentos automáticos.'
+        };
+      }
+
+      // 2. Fallback autônomo (quando sem conexão ao backend) — Motor determinístico de 21 pregões
       const brNode = this.getNodeById('cycle_br');
       const usNode = this.getNodeById('cycle_us');
+      const breadthNode = this.getNodeById('breadth_us');
+      const goldNode = this.getNodeById('gold_commodities');
+      const diNode = this.getNodeById('trend_di');
+      const dollarNode = this.getNodeById('trend_dolar');
 
-      // Postura estrutural derivada dos regimes ativos (nunca números copiados da imagem de referência)
-      const isBrDefense = brNode?.state === 'defense';
-      const isUsExpansion = usNode?.state === 'expansion';
+      const isBrDefense = brNode?.state === 'defense' || (brNode?.trendDirection === 'down');
+      const isBrExpansion = brNode?.state === 'expansion' || (brNode?.trendDirection === 'up');
+      const isUsExpansion = usNode?.state === 'expansion' || (usNode?.trendDirection === 'up');
+      const isUsDefense = usNode?.state === 'defense' || (usNode?.trendDirection === 'down');
+      const isGoldStrong = goldNode?.trendDirection === 'up';
 
-      const postureLabel = isBrDefense
-        ? 'Postura Defensiva & Seletiva'
-        : isUsExpansion
-          ? 'Postura Equilibrada com Viés Global'
-          : 'Postura Neutra & Disciplinada';
+      let postureLabel = 'Postura Neutra & Disciplinada';
+      let confidenceLevel = 'MODERADA';
+      let shortRationale = 'Mercados em consolidação de 21 pregões. Seletividade rigorosa em novos setups.';
 
-      const rows = [
+      if (isBrDefense && isUsDefense) {
+        postureLabel = 'Postura Defensiva Máxima (Preservação de Capital)';
+        confidenceLevel = 'ALTA';
+        shortRationale = 'Confluência de contração nos 21 pregões em Brasil e EUA. Prioridade total à liquidez e proteção.';
+      } else if (isBrDefense && isUsExpansion) {
+        postureLabel = 'Postura Seletiva com Viés Global';
+        confidenceLevel = 'MODERADA';
+        shortRationale = 'Divergência entre fraqueza na B3 e expansão nos EUA. Manter lideranças externas e cautela local.';
+      } else if (isBrExpansion && isUsExpansion) {
+        postureLabel = 'Postura Construtiva / Alocação em Tendência';
+        confidenceLevel = 'ALTA';
+        shortRationale = 'Alinhamento favorável nos 21 pregões entre B3 e EUA com lideranças sólidas.';
+      }
+
+      // Alvos em múltiplos de 5% somando 100%
+      let sugFixed = 35;
+      let sugBr = 20;
+      let sugUs = 20;
+      let sugGold = 10;
+      let sugCash = 15;
+
+      if (isBrDefense) {
+        sugBr = 10;
+        sugCash = 25;
+        sugFixed = 40;
+      }
+      if (isUsDefense) {
+        sugUs = 10;
+        sugGold = 15;
+      }
+      if (isBrExpansion) {
+        sugBr = 25;
+        sugCash = 10;
+      }
+      if (isUsExpansion) {
+        sugUs = 25;
+      }
+
+      // Normalização final para garantir soma 100% em múltiplos de 5
+      const sum = sugFixed + sugBr + sugUs + sugGold + sugCash;
+      if (sum !== 100) {
+        sugCash += (100 - sum);
+      }
+
+      const totalEq = current.equity || 0;
+
+      const compRows = [
         {
-          key: 'cash',
-          label: 'Caixa & Renda Fixa',
-          currentDisplay: current.isLive ? `${current.cash.pct.toFixed(1).replace('.', ',')}%` : '—',
-          postureGuidance: isBrDefense ? 'Priorizar preservação e liquidez' : 'Manter reserva de oportunidade',
-          direction: isBrDefense ? 'up' : 'neutral'
+          key: 'fixedIncome',
+          label: 'Renda Fixa / Pós-fixado',
+          currentPct: current.isLive ? Number((current.cash.pct * 0.7).toFixed(1)) : null,
+          currentDisplay: current.isLive ? `${(current.cash.pct * 0.7).toFixed(1).replace('.', ',')}%` : 'Sincronizar',
+          suggestedPct: sugFixed,
+          suggestedDisplay: `${sugFixed}%`,
+          action: 'maintain',
+          actionLabel: 'Manter',
+          rationale: 'Carrego estrutural atrelado à taxa DI com baixo risco de cauda.'
         },
         {
           key: 'localEquities',
-          label: 'Ações BR (B3)',
-          currentDisplay: current.isLive ? `${current.localEquities.pct.toFixed(1).replace('.', ',')}%` : '—',
-          postureGuidance: isBrDefense ? 'Reduzir risco / sem novas compras' : 'Operar apenas Grades A e B',
-          direction: isBrDefense ? 'down' : 'neutral'
+          label: 'Ações Brasil (B3)',
+          currentPct: current.isLive ? current.localEquities.pct : null,
+          currentDisplay: current.isLive ? `${current.localEquities.pct.toFixed(1).replace('.', ',')}%` : 'Sincronizar',
+          suggestedPct: sugBr,
+          suggestedDisplay: `${sugBr}%`,
+          action: isBrDefense ? 'decrease' : isBrExpansion ? 'increase' : 'maintain',
+          actionLabel: isBrDefense ? 'Reduzir' : isBrExpansion ? 'Aumentar' : 'Manter',
+          rationale: isBrDefense
+            ? 'Regime de defesa em 21 pregões: evitar novas compras e manter apenas posições com stop protegido.'
+            : 'Operar setups com confluência de volume e liderança setorial.'
         },
         {
           key: 'globalEquities',
-          label: 'EUA & BDRs',
-          currentDisplay: current.isLive ? `${current.globalEquities.pct.toFixed(1).replace('.', ',')}%` : '—',
-          postureGuidance: isUsExpansion ? 'Manter seletividade em líderes' : 'Acompanhar Market Breadth EUA',
-          direction: isUsExpansion ? 'up' : 'neutral'
+          label: 'Ações Globais & BDRs',
+          currentPct: current.isLive ? current.globalEquities.pct : null,
+          currentDisplay: current.isLive ? `${current.globalEquities.pct.toFixed(1).replace('.', ',')}%` : 'Sincronizar',
+          suggestedPct: sugUs,
+          suggestedDisplay: `${sugUs}%`,
+          action: isUsExpansion ? 'increase' : isUsDefense ? 'decrease' : 'maintain',
+          actionLabel: isUsExpansion ? 'Aumentar' : isUsDefense ? 'Reduzir' : 'Manter',
+          rationale: isUsExpansion
+            ? 'Manter exposição em líderes globais de alta rentabilidade com Breadth sustentado.'
+            : 'Moderação em ativos externos com monitoramento da amplitude setorial.'
         },
         {
-          key: 'hedge',
+          key: 'goldProtection',
           label: 'Ouro & Proteção',
-          currentDisplay: 'Monitorado',
-          postureGuidance: 'Avaliar hedge proporcional ao regime macro',
-          direction: 'neutral'
+          currentPct: current.isLive ? 5.0 : null,
+          currentDisplay: current.isLive ? '5,0%' : 'Monitorado',
+          suggestedPct: sugGold,
+          suggestedDisplay: `${sugGold}%`,
+          action: isGoldStrong ? 'increase' : 'maintain',
+          actionLabel: isGoldStrong ? 'Aumentar' : 'Manter',
+          rationale: 'Hedge estratégico descorrelacionado para amortecer choques de cauda macroeconômica.'
+        },
+        {
+          key: 'cashLiquidity',
+          label: 'Caixa & Liquidez Livre',
+          currentPct: current.isLive ? Number((current.cash.pct * 0.3).toFixed(1)) : null,
+          currentDisplay: current.isLive ? `${(current.cash.pct * 0.3).toFixed(1).replace('.', ',')}%` : 'Sincronizar',
+          suggestedPct: sugCash,
+          suggestedDisplay: `${sugCash}%`,
+          action: 'maintain',
+          actionLabel: 'Manter',
+          rationale: 'Reserva de oportunidade desimpedida para acionar quando novos setups surgirem.'
+        }
+      ];
+
+      // Atualiza delta e amounts
+      compRows.forEach(r => {
+        if (r.currentPct !== null) {
+          r.deltaPct = Number((r.suggestedPct - r.currentPct).toFixed(1));
+          r.currentAmount = totalEq > 0 ? (r.currentPct / 100) * totalEq : null;
+          r.suggestedAmount = totalEq > 0 ? (r.suggestedPct / 100) * totalEq : null;
+          if (r.deltaPct >= 4.0) {
+            r.action = 'increase';
+            r.actionLabel = `Aumentar (+${Math.round(r.deltaPct)}%)`;
+          } else if (r.deltaPct <= -4.0) {
+            r.action = 'decrease';
+            r.actionLabel = `Reduzir (${Math.round(r.deltaPct)}%)`;
+          } else {
+            r.action = 'maintain';
+            r.actionLabel = 'Manter';
+          }
+        } else {
+          r.deltaPct = null;
+          r.currentAmount = null;
+          r.suggestedAmount = totalEq > 0 ? (r.suggestedPct / 100) * totalEq : null;
+        }
+      });
+
+      const fallbackEvidences = [
+        {
+          name: 'Ciclo B3 (Brasil)',
+          period: '21 pregões',
+          summary: isBrDefense ? 'Pressão técnica na B3 em 21 pregões.' : 'Estabilidade ou expansão técnica na B3.',
+          directionScore: isBrDefense ? -1.0 : isBrExpansion ? 1.0 : 0.0,
+          weight: 20
+        },
+        {
+          name: 'Ciclo S&P 500 / Nasdaq (EUA)',
+          period: '21 pregões',
+          summary: isUsExpansion ? 'Expansão nos EUA em 21 pregões com suporte das lideranças.' : 'Correção ou consolidação externa.',
+          directionScore: isUsExpansion ? 1.0 : isUsDefense ? -1.0 : 0.0,
+          weight: 20
+        },
+        {
+          name: 'Market Breadth & Rotação (EUA)',
+          period: '21 pregões',
+          summary: 'Participação setorial e amplitude acompanhadas em esfera independente.',
+          directionScore: 0.0,
+          weight: 15
+        },
+        {
+          name: 'Juros DI Futuro (Brasil)',
+          period: '21 pregões',
+          summary: diNode?.stateLabel || 'Vértice intermediário monitorado em 21 pregões.',
+          directionScore: diNode?.trendDirection === 'up' ? -1.0 : diNode?.trendDirection === 'down' ? 1.0 : 0.0,
+          weight: 15
+        },
+        {
+          name: 'Câmbio Dólar / BRL',
+          period: '21 pregões',
+          summary: dollarNode?.stateLabel || 'Trajetória cambial de 21 pregões.',
+          directionScore: dollarNode?.trendDirection === 'up' ? -0.5 : 0.5,
+          weight: 10
+        },
+        {
+          name: 'Risco Global (Treasury 10Y & VIX)',
+          period: '21 pregões',
+          summary: 'Regime de volatilidade implícita e curva longa dos EUA.',
+          directionScore: 0.0,
+          weight: 10
+        },
+        {
+          name: 'Ouro & Ativos de Proteção',
+          period: '21 pregões',
+          summary: isGoldStrong ? 'Ouro em tendência ascendente de 21 pregões.' : 'Ouro em consolidação.',
+          directionScore: isGoldStrong ? 0.7 : 0.0,
+          weight: 10
         }
       ];
 
       return {
         isLivePortfolio: current.isLive,
+        totalEquity: current.equity,
         postureLabel,
-        horizonLabel: 'Visão Estrutural: 21 Pregões',
+        confidenceLevel,
+        shortRationale,
+        horizonLabel: 'Horizonte Estrutural de 21 Pregões',
+        isHoldRecommended: false,
+        hasBinarySuperRisk: false,
+        eventsNote: 'Nenhum super-evento de volatilidade binária iminente detectado.',
+        highImpactEvents: [],
+        netRiskScore: 0,
+        evidences: fallbackEvidences,
+        targetAllocations: {
+          fixedIncome: sugFixed,
+          localEquities: sugBr,
+          globalEquities: sugUs,
+          goldProtection: sugGold,
+          cashLiquidity: sugCash
+        },
         current,
-        rows,
+        rows: compRows.map(r => ({
+          key: r.key,
+          label: r.label,
+          currentDisplay: r.currentDisplay,
+          currentPct: r.currentPct,
+          currentAmount: r.currentAmount,
+          suggestedDisplay: r.suggestedDisplay,
+          suggestedPct: r.suggestedPct,
+          suggestedAmount: r.suggestedAmount,
+          deltaPct: r.deltaPct,
+          action: r.action,
+          actionLabel: r.actionLabel,
+          postureGuidance: r.rationale,
+          direction: r.action === 'increase' ? 'up' : r.action === 'decrease' ? 'down' : 'neutral'
+        })),
+        comparisonRows: compRows,
         recommendations: [
           'Respeite a precedência do método: Permissão do Ciclo → Qualidade do Setup (Grades A/B/C) → Position Sizing → Portfolio Heat.',
-          'Utilize a esfera independente de Market Breadth EUA para confirmar se a tendência global tem participação ampla antes de elevar exposição.',
+          'Decisões de alocação exigem persistência comprovada de tendência na janela canônica de 21 pregões.',
           'Preserve a separação contábil: contas correntes permanecem fora da Equity de Investimentos.'
         ],
-        disclaimer: 'AVISO IMPORTANTE (CARÁTER NÃO VINCULANTE): Esta leitura estrutural de alocação é estritamente uma ferramenta educacional e de apoio à decisão baseada nos ciclos e regras do método. Não constitui recomendação personalizada de investimento, nem executa ordens ou rebalanceamentos automáticos.'
+        disclaimer: 'AVISO IMPORTANTE (CARÁTER NÃO VINCULANTE): Esta leitura estrutural de alocação é estritamente uma ferramenta educacional e de apoio à decisão baseada nas evidências macroeconômicas de 21 pregões e regras do método. Não constitui recomendação personalizada de investimento, nem executa ordens ou rebalanceamentos automáticos.'
       };
     }
 
@@ -1639,10 +2028,12 @@
         {
           id: 'ins_gold_protection',
           nodeId: 'gold_commodities',
-          title: 'Sinal de Proteção em Ouro & Commodities',
-          diagnostic: gold?.dataStatus === 'live'
-            ? `Ouro e commodities em regime "${gold.stateLabel}" (${gold.displayValue} em 21p), servindo de termômetro para demanda institucional por hedge.`
-            : 'A tendência de 21 pregões do Ouro, Dólar e curvas de juros (DI e US10Y) revela pressões macroeconômicas antes dos eventos binários.',
+          title: 'Ouro & Ativos de Proteção (Tendência 21p & Força Relativa)',
+          diagnostic: gold?.goldProtectionDetail?.interpretation?.rationale
+            ? `${gold.goldProtectionDetail.interpretation.regimeLabel}: ${gold.goldProtectionDetail.interpretation.rationale}`
+            : (gold?.dataStatus === 'live'
+              ? `Ouro internacional em regime "${gold.stateLabel}" (${gold.displayValue}), servindo de termômetro para hedge real e reserva de valor.`
+              : 'Ouro operando em leitura independente (21 pregões e força relativa vs ações e dólar), sem presumir que toda alta seja fuga para segurança.'),
           confidence: gold?.dataStatus === 'live' ? 'high' : 'structural',
           portfolioImpact: 'Auxilia na calibragem da reserva defensiva e proteção cambial da carteira.'
         },

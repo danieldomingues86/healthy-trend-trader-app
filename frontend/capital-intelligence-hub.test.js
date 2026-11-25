@@ -20,7 +20,7 @@ test('CapitalIntelligenceHub: módulo devidamente registrado no NavigationSystem
   const ciItem = marketCat.items.find(i => i.id === 'capitalintelligence');
   assert.ok(ciItem, 'capitalintelligence deve estar presente em Análise de Mercado');
   assert.equal(ciItem.page, 'capitalintelligence');
-  assert.equal(ciItem.label, 'Capital Intelligence');
+  assert.equal(ciItem.label, 'Visão Sistêmica');
 
   const integrity = model.validateIntegrity(tree);
   assert.equal(integrity.isValid, true);
@@ -29,7 +29,7 @@ test('CapitalIntelligenceHub: módulo devidamente registrado no NavigationSystem
 test('CapitalIntelligenceHub: index.html contém seção, títulos, estilos e scripts integrados', () => {
   assert.ok(indexHtml.includes('id="capitalintelligence"'), 'Section capitalintelligence obrigatória');
   assert.ok(indexHtml.includes('id="capitalIntelligenceRoot"'), 'Container capitalIntelligenceRoot obrigatório');
-  assert.ok(indexHtml.includes("titles.capitalintelligence='Capital Intelligence'"), 'Título registrado');
+  assert.ok(indexHtml.includes("titles.capitalintelligence='Visão Sistêmica'"), 'Título registrado');
   assert.ok(indexHtml.includes('data-page="capitalintelligence"'), 'Botão na sidebar');
   assert.ok(indexHtml.includes('frontend/capital-intelligence.css'), 'Stylesheet link presente');
   assert.ok(indexHtml.includes('frontend/capital-intelligence-model.js'), 'Model script presente');
@@ -94,4 +94,28 @@ test('CapitalIntelligenceHub: modelo entrega resumo macro, eventos, insights e f
 
   const tape = model.getDailyTapeItems();
   assert.ok(tape.length >= 5);
+});
+
+test('CapitalIntelligenceHub: isolamento de visibilidade para não vazar sobre Atualização Diária e outras telas', () => {
+  // 1. Em capital-intelligence.css, não pode haver '#capitalintelligence {' com display: flex sem .active
+  assert.equal(
+    /#capitalintelligence\s*\{[^}]*display:\s*flex/i.test(ciCss),
+    false,
+    'capital-intelligence.css não deve aplicar display: flex ao seletor #capitalintelligence desacompanhado de .active'
+  );
+  assert.ok(
+    ciCss.includes('#capitalintelligence:not(.active)'),
+    'capital-intelligence.css deve conter a regra de blindagem #capitalintelligence:not(.active)'
+  );
+
+  // 2. Em index.html, a seção só pode ser display: flex quando .active e deve conter o guard :not(.active)
+  assert.ok(
+    indexHtml.includes('#capitalintelligence:not(.active){display:none!important}'),
+    'index.html deve conter a regra de blindagem #capitalintelligence:not(.active)'
+  );
+  assert.equal(
+    /#capitalintelligence\.page\.active,#capitalintelligence\{display:flex/i.test(indexHtml),
+    false,
+    'index.html não deve conter #capitalintelligence incondicional com display: flex'
+  );
 });

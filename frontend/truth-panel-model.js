@@ -46,7 +46,10 @@
   function resolveAccountLabel(trade) {
     if (!trade) return 'Conta real';
     const mode = trade.mode || trade.metadata?.mode;
-    return mode === 'paper' ? 'Paper Trading' : 'Conta real';
+    if (mode === 'paper') return 'Paper Trading';
+    const broker = trade.broker || trade.metadata?.broker || trade.metadata?.accountLabel;
+    if (broker) return broker;
+    return 'Conta real';
   }
 
   function resolveMarketCycleLabel(trade) {
@@ -178,7 +181,16 @@
       // 7. Conta
       if (filters.account) {
         const acc = norm.accountLabel || resolveAccountLabel(t);
-        if (acc !== filters.account) return false;
+        const mode = norm.mode || t.mode || t.metadata?.mode;
+        const broker = t.broker || t.metadata?.broker || t.metadata?.accountLabel;
+        const accId = t.account_id || t.accountId || t.metadata?.accountId;
+        if (filters.account === 'Conta real') {
+          if (mode === 'paper') return false;
+        } else if (filters.account === 'Paper Trading') {
+          if (mode !== 'paper') return false;
+        } else if (acc !== filters.account && broker !== filters.account && accId !== filters.account) {
+          return false;
+        }
       }
 
       return true;

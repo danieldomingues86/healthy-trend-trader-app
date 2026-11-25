@@ -1653,3 +1653,239 @@ test('DailyUpdateHub — Evolução Posições em Aberto: coluna DATA ENTRADA (D
     global.window = savedWindow;
   }
 });
+
+test('DailyUpdateHub — Persistência Ponta a Ponta (Salvar → Limpar Draft → Recarregar → Reabrir), Falhas de Cotação, Concorrência e Altura Uniforme da Nomad', async () => {
+  // 1. Storage persistente + workspace-state + backend mock simulando PostgreSQL real
+  const localStore = new Map();
+  const workspaceStore = new Map();
+  const dbTrades = [
+    { id: 'aaaa1111-1111-4111-8111-111111111111', ticker: 'BBAS3', status: 'open', direction: 'long', strategy_type: 'VOLATILITY_TRADING', total_quantity: 300, average_entry_price: 15.48, stop_price: 0, executed_at: '2026-11-13T14:00:00Z', metadata: {}, events: [] },
+    { id: 'bbbb2222-2222-4222-8222-222222222222', ticker: 'AAPL34', status: 'open', direction: 'long', strategy_type: 'TREND_FOLLOWING', total_quantity: 600, average_entry_price: 100.86, stop_price: 96.49, executed_at: '2026-11-13T14:00:00Z', metadata: {}, events: [] },
+    { id: 'cccc3333-3333-4333-8333-333333333333', ticker: 'WINZ26', status: 'open', direction: 'short', strategy_type: 'TREND_FOLLOWING', total_quantity: 2, average_entry_price: 167685, stop_price: 174435, executed_at: '2026-11-19T14:00:00Z', metadata: { contractMult: 0.2 }, events: [] }
+  ];
+
+  const mockLocalStorage = {
+    getItem: (k) => localStore.has(k) ? localStore.get(k) : null,
+    setItem: (k, v) => localStore.set(k, String(v)),
+    removeItem: (k) => localStore.delete(k)
+  };
+
+  function createSessionEnv() {
+    let renderedHtml = '';
+    const listeners = new Map();
+    const mockRootEl = {
+      set innerHTML(val) { renderedHtml = val; },
+      get innerHTML() { return renderedHtml; },
+      querySelector: () => null,
+      querySelectorAll: () => []
+    };
+    const mockWorkspace = {
+      raw: (k) => workspaceStore.has(k) ? workspaceStore.get(k) : null,
+      save: (k, v) => workspaceStore.set(k, typeof v === 'string' ? v : JSON.stringify(v))
+    };
+    const mockApi = {
+      isAuthenticated: () => true,
+      request: async (url, opts = {}) => {
+        if (url === '/api/trades?status=open') {
+          return {
+            trades: dbTrades.map(t => ({
+              ...t,
+              account_id: t.metadata.accountId ?? null,
+              accountId: t.metadata.accountId ?? null,
+              broker: t.metadata.broker ?? null,
+              current_price: t.metadata.currentPrice ?? null,
+              currentPrice: t.metadata.currentPrice ?? null,
+              price_updated_at: t.metadata.priceUpdatedAt ?? null,
+              price_source: t.metadata.priceSource ?? null
+            }))
+          };
+        }
+        const patchMatch = url.match(/^\/api\/trades\/([0-9a-f-]+)$/i);
+        if (patchMatch && opts.method === 'PATCH') {
+          const trade = dbTrades.find(t => t.id === patchMatch[1]);
+          const bodyObj = typeof opts.body === 'string' ? JSON.parse(opts.body) : (opts.body || {});
+          if (trade) {
+            if (bodyObj.accountId !== undefined) trade.metadata.accountId = bodyObj.accountId;
+            if (bodyObj.broker !== undefined) trade.metadata.broker = bodyObj.broker;
+            if (Number(bodyObj.currentPrice) > 0) {
+              trade.metadata.currentPrice = Number(bodyObj.currentPrice);
+              trade.metadata.priceUpdatedAt = bodyObj.priceUpdatedAt || new Date().toISOString();
+              trade.metadata.priceSource = bodyObj.priceSource || 'manual';
+            }
+            if (Number(bodyObj.entryPrice) > 0) {
+              trade.average_entry_price = Number(bodyObj.entryPrice);
+            }
+          }
+          return { ok: true, trade };
+        }
+        if (url.startsWith('/api/market-data/ticker-chart')) {
+          throw new Error('Provider temporarily unavailable');
+        }
+        return { ok: true };
+      }
+    };
+    const mockRoot = {
+      DailyUpdateModel,
+      localStorage: mockLocalStorage,
+      healthyTrendWorkspace: mockWorkspace,
+      healthyTrendApi: mockApi,
+      operationalState: { positions: [], closedPositions: [] },
+      showToast: () => {},
+      renderTopHeat: () => {},
+      renderPortfolioHeat: () => {},
+      addEventListener: (type, cb) => {
+        if (!listeners.has(type)) listeners.set(type, []);
+        listeners.get(type).push(cb);
+      },
+      dispatchEvent: (ev) => {
+        const list = listeners.get(ev.type) || [];
+        list.forEach(fn => fn(ev));
+      }
+    };
+    const mockDoc = {
+      getElementById: (id) => {
+        if (id === 'dailyUpdateRoot') return mockRootEl;
+        if (id === 'dailyupdate') return { classList: { contains: (c) => c === 'active' } };
+        return null;
+      },
+      querySelector: () => null,
+      querySelectorAll: () => [],
+      addEventListener: () => {}
+    };
+    const code = fs.readFileSync(path.join(__dirname, 'daily-update.js'), 'utf8');
+    const savedLS = global.localStorage;
+    const savedDoc = global.document;
+    const savedWin = global.window;
+    global.localStorage = mockLocalStorage;
+    global.document = mockDoc;
+    global.window = mockRoot;
+    try {
+      const fn = new Function('self', 'window', 'document', 'localStorage', 'CustomEvent', code);
+      fn(mockRoot, mockRoot, mockDoc, mockLocalStorage, class { constructor(t, o) { this.type = t; this.detail = o?.detail; } });
+    } finally {
+      global.localStorage = savedLS;
+      global.document = savedDoc;
+      global.window = savedWin;
+    }
+    return { mockRoot, controller: mockRoot.DailyUpdateHub, getHtml: () => renderedHtml, mockDoc };
+  }
+
+  // === SESSÃO 1: Usuário abre a tela, altera corretoras, preços, entrada, conta Nomad e SALVA ===
+  const savedLS = global.localStorage;
+  const savedDoc = global.document;
+  const savedWin = global.window;
+  try {
+    const s1 = createSessionEnv();
+    global.localStorage = mockLocalStorage;
+    global.document = s1.mockDoc;
+    global.window = s1.mockRoot;
+
+    await s1.controller.init();
+    assert.equal(s1.controller.model.positions.length, 3);
+
+    // Vincula corretoras em TODAS as posições
+    await s1.controller.handlePositionAccountChange('aaaa1111-1111-4111-8111-111111111111', 'xp_daniel');
+    await s1.controller.handlePositionAccountChange('bbbb2222-2222-4222-8222-222222222222', 'xp_daniel');
+    await s1.controller.handlePositionAccountChange('cccc3333-3333-4333-8333-333333333333', 'genial_daniel');
+
+    // Atualiza preços atuais (inclusive trade de Volatilidade BBAS3 com stop = 0!)
+    await s1.controller.updatePositionPrice('aaaa1111-1111-4111-8111-111111111111', '16,25');
+    await s1.controller.updatePositionPrice('bbbb2222-2222-4222-8222-222222222222', '104,50');
+    await s1.controller.updatePositionPrice('cccc3333-3333-4333-8333-333333333333', '166900');
+
+    // Ajusta preço de entrada de BBAS3 e modo USD + saldo da Nomad
+    await s1.controller.updatePositionEntryPrice('aaaa1111-1111-4111-8111-111111111111', '15,20');
+    s1.controller.toggleNomadCurrency('nomad_daniel');
+    s1.controller.model.updateAccountBalance('nomad_daniel', '18000', true);
+    s1.controller.persistDraftNonBlocking();
+
+    // Executa Fechamento Diário (que chama clearDraft()!)
+    const closedOk = await s1.controller.saveDailyClosing();
+    assert.equal(closedOk, true);
+
+    // Verifica proteção contra falha de rede em handleBatchPrices -> NENHUM preço válido pode desaparecer!
+    await s1.controller.handleBatchPrices();
+    assert.equal(s1.controller.model.positions.find(p => p.ticker === 'BBAS3').currentPrice, 16.25, 'Falha de rede nunca apaga último preço válido');
+    assert.equal(s1.controller.model.positions.find(p => p.ticker === 'BBAS3').priceStale, true, 'Preço mantido em fallback deve ser sinalizado como stale');
+    assert.equal(s1.controller.model.positions.find(p => p.ticker === 'AAPL34').currentPrice, 104.5);
+
+    // Verifica que respostas vazias/null/0/atrasadas nunca sobrescrevem cotações válidas
+    s1.controller.model.batchUpdatePrices({
+      BBAS3: null,
+      AAPL34: '',
+      WINZ26: { price: 160000, updatedAt: '2020-01-01T00:00:00Z' }
+    });
+    assert.equal(s1.controller.model.positions.find(p => p.ticker === 'BBAS3').currentPrice, 16.25);
+    assert.equal(s1.controller.model.positions.find(p => p.ticker === 'AAPL34').currentPrice, 104.5);
+    assert.equal(s1.controller.model.positions.find(p => p.ticker === 'WINZ26').currentPrice, 166900, 'Resposta atrasada não pode sobrescrever cotação mais recente');
+
+    // === SESSÃO 2: Simula RECARREGAMENTO TOTAL DO NAVEGADOR (nova instância, workspaceLoaded, authenticated) ===
+    const s2 = createSessionEnv();
+    global.document = s2.mockDoc;
+    global.window = s2.mockRoot;
+
+    await s2.controller.init();
+    s2.mockRoot.dispatchEvent({ type: 'healthyTrend:workspaceLoaded' });
+    s2.controller.render();
+
+    const bbasReloaded = s2.controller.model.positions.find(p => p.ticker === 'BBAS3');
+    const aaplReloaded = s2.controller.model.positions.find(p => p.ticker === 'AAPL34');
+    const winReloaded = s2.controller.model.positions.find(p => p.ticker === 'WINZ26');
+    const nomadReloaded = s2.controller.model.accounts.find(a => a.id === 'nomad_daniel');
+
+    assert.equal(bbasReloaded.accountId, 'xp_daniel', 'Corretora de BBAS3 deve permanecer vinculada à XP após salvar e recarregar');
+    assert.equal(aaplReloaded.accountId, 'xp_daniel', 'Corretora de AAPL34 deve permanecer vinculada à XP após salvar e recarregar');
+    assert.equal(winReloaded.accountId, 'genial_daniel', 'Corretora de WINZ26 deve permanecer vinculada à Genial após salvar e recarregar');
+    assert.equal(bbasReloaded.currentPrice, 16.25, 'Preço atual de BBAS3 (Volatilidade stop=0) deve persistir após recarregar');
+    assert.equal(aaplReloaded.currentPrice, 104.5, 'Preço atual de AAPL34 deve persistir após recarregar');
+    assert.equal(winReloaded.currentPrice, 166900, 'Preço atual de WINZ26 deve persistir após recarregar');
+    assert.equal(bbasReloaded.entryPrice, 15.2, 'Preço de entrada corrigido de BBAS3 deve persistir após recarregar');
+    assert.equal(nomadReloaded.inputCurrency, 'USD', 'Modo USD da Nomad deve persistir após recarregar');
+    assert.equal(nomadReloaded.newBalanceUSD, 18000, 'Saldo USD da Nomad deve persistir após recarregar');
+    assert.equal(nomadReloaded.newBalance, Math.round(18000 * 5.95 * 100) / 100, 'Conversão USD -> BRL da Nomad preservada');
+
+    // === TESTE DE CONCORRÊNCIA: resposta lenta antiga de syncWithBackend nunca sobrescreve resposta mais recente ===
+    let resolveSlow;
+    let markSlowEnteredTrades;
+    const slowEnteredTrades = new Promise(res => { markSlowEnteredTrades = res; });
+    const origReq = s2.mockRoot.healthyTrendApi.request;
+    let callCount = 0;
+    s2.mockRoot.healthyTrendApi.request = (url, opts) => {
+      if (url === '/api/trades?status=open') {
+        callCount += 1;
+        if (callCount === 1) {
+          markSlowEnteredTrades();
+          return new Promise(res => { resolveSlow = res; });
+        }
+        return Promise.resolve({
+          trades: [{ ...dbTrades[0], accountId: 'xp_daniel', currentPrice: 17.80, priceUpdatedAt: new Date(Date.now() + 5000).toISOString() }]
+        });
+      }
+      return origReq(url, opts);
+    };
+    const slowSync = s2.controller.syncWithBackend();
+    await slowEnteredTrades;
+    const fastSync = s2.controller.syncWithBackend();
+    await fastSync;
+    // Resolve a requisição antiga com dados velhos (sem conta e preço antigo)
+    resolveSlow({ trades: [{ ...dbTrades[0], accountId: null, currentPrice: 11.00, priceUpdatedAt: '2026-11-20T10:00:00Z' }] });
+    await slowSync;
+    assert.equal(s2.controller.model.positions[0].currentPrice, 17.8, 'Requisição concorrente atrasada nunca deve sobrescrever dados mais recentes');
+    assert.equal(s2.controller.model.positions[0].accountId, 'xp_daniel');
+
+    // === PARTE 2: LAYOUT PADRONIZADO DA CONTA NOMAD (MESMA ALTURA DAS DEMAIS LINHAS) ===
+    const html2 = s2.getHtml();
+    assert.equal(html2.includes('class="nomad-fx-strip"'), false, 'Faixa extra nomad-fx-strip que aumentava altura da linha deve ser removida');
+    assert.equal(html2.includes('class="prev-usd-hint'), false, 'Segunda linha prev-usd-hint em Saldo Anterior deve ser removida');
+    assert.equal(html2.includes('class="usd-var-hint'), false, 'Segunda linha usd-var-hint em Variação deve ser removida');
+    assert.ok(html2.includes('data-nomad-header-fx="true"'), 'Cotação USD/BRL de referência deve aparecer compacta no cabeçalho');
+    assert.ok(html2.includes('data-nomad-fx-badge="nomad_daniel"'), 'Informações compactas de USD e câmbio continuam visíveis na linha da Nomad');
+    assert.ok(html2.includes('btn-currency-toggle-inline'), 'Alternador BRL/USD deve aparecer inline sem aumentar a altura da linha');
+    const cssText = fs.readFileSync(path.join(__dirname, 'daily-update.css'), 'utf8');
+    assert.ok(cssText.includes('.accounts-table tbody tr.account-row'), 'CSS deve padronizar altura uniforme de todas as linhas de contas');
+  } finally {
+    global.localStorage = savedLS;
+    global.document = savedDoc;
+    global.window = savedWin;
+  }
+});

@@ -630,6 +630,19 @@
   }
 
   /**
+   * Estados canônicos do ciclo de vida do padrão 1-2-3 de Compra após a formação:
+   * - ACTIVE: padrão formado, aguardando rompimento da máxima do Candle 3 ou invalidação pela perda da mínima do Candle 3.
+   * - EXECUTED: rompimento da máxima do Candle 3 confirmado e entrada executada (estado terminal).
+   * - INVALIDATED: mínima do Candle 3 perdida em qualquer candle posterior antes da entrada; sinal descartado definitivamente (estado terminal).
+   */
+  const ONE_TWO_THREE_STATES = Object.freeze({
+    ACTIVE: 'ACTIVE',
+    EXECUTED: 'EXECUTED',
+    INVALIDATED: 'INVALIDATED'
+  });
+  const PATTERN_STATES = ONE_TWO_THREE_STATES;
+
+  /**
    * Validação estrita da estrutura geométrica do padrão 1-2-3 de Compra
    *
    * Formação clássica de fundo em 3 candles consecutivos no gráfico Diário:
@@ -638,9 +651,10 @@
    * - c1 (Candle 3 da formação / Candle Sinal): mínima estritamente maior que c2 (c1.low > c2.low), sustentando o suporte,
    *      e fechamento confirmando a reação compradora superando a máxima do candle 2 (c1.close > c2.high).
    *
-   * Entrada e Stop:
-   * - Entrada: 1 tick (+R$ 0,01) acima da máxima do candle sinal (c1.high + 0.01).
-   * - Stop Inicial: 1 tick (-R$ 0,01) abaixo da mínima do vértice do fundo (c2.low - 0.01).
+   * Entrada, Invalidação e Stop:
+   * - Entrada: 1 tick (+R$ 0,01) acima da máxima do Candle 3 / candle sinal (c1.high + 0.01).
+   * - Invalidação do Sinal (antes da entrada): perda da mínima do Candle 3 (qualquer candle posterior com low < c1.low).
+   * - Stop Inicial da Operação (após a entrada): 1 tick (-R$ 0,01) abaixo da mínima do vértice do fundo (c2.low - 0.01).
    * - Risco Gráfico: ((Entrada - Stop) / Entrada) * 100.
    */
   function validateOneTwoThreeBuyPattern(c1, c2, c3, options = {}) {
@@ -725,6 +739,8 @@
       };
     }
 
+    const candle3High = Math.round(c1High * 100) / 100;
+    const candle3Low = Math.round(c1Low * 100) / 100;
     const entryPrice = Math.round((c1High + 0.01) * 100) / 100;
     const stopLoss = Math.round((c2Low - 0.01) * 100) / 100;
     const initialRisk = Math.round(Math.max(0.01, entryPrice - stopLoss) * 100) / 100;
@@ -734,6 +750,11 @@
       isValid: true,
       reason: null,
       triggerType: '1-2-3 de Compra',
+      state: ONE_TWO_THREE_STATES.ACTIVE,
+      patternState: ONE_TWO_THREE_STATES.ACTIVE,
+      candle3High,
+      candle3Low,
+      invalidationLow: candle3Low,
       entryPrice,
       stopLoss,
       initialRisk,
@@ -1693,6 +1714,8 @@
     validatePfrBuyPattern,
     calculateDoubleInsideBarStructure,
     validateDoubleInsideBarPattern: calculateDoubleInsideBarStructure,
+    ONE_TWO_THREE_STATES,
+    PATTERN_STATES,
     validateOneTwoThreeBuyPattern,
     calculateOneTwoThreeBuyStructure: validateOneTwoThreeBuyPattern,
     validateRedBarIgnoredPattern,

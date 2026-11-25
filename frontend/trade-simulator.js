@@ -84,8 +84,12 @@
     massConfig: {
       strategy: 'TREND_FOLLOWING', // 'TREND_FOLLOWING' | 'VOLATILITY_TRADING'
       period: 730, // 30, 90, 120, 180, 365, 730, 1095, 'CUSTOM', 'ALL'
+      periodPreset: 'LAST_2_YEARS',
       startDate: '',
       endDate: '',
+      assetClasses: ['STOCK_BR', 'FII', 'BDR', 'ETF_BR', 'ETF_INTL', 'STOCK_US', 'OTHER'],
+      selectedSymbols: [],
+      tickerSearch: '',
       universe: 'IBOV', // 'IBOV', 'LIQUID_B3', 'ALL_B3', 'NASDAQ'
       triggers: 'ALL', // 'ALL' ou array
       grades: 'ALL', // 'ALL' ou array
@@ -2963,6 +2967,47 @@
   }
 
 
+  function formatBacktestDateSummary() {
+    const massCfg = state.massConfig || {};
+    if (massCfg.startDate && massCfg.endDate) {
+      return `${formatDateBR(massCfg.startDate)} a ${formatDateBR(massCfg.endDate)}`;
+    }
+    const days = state.filters.days;
+    if (days === 30) return 'Últimos 30 dias';
+    if (days === 90) return 'Últimos 90 dias';
+    if (days === 120) return 'Últimos 120 dias';
+    if (days === 180) return 'Últimos 6 meses';
+    if (days === 365) return 'Últimos 12 meses';
+    if (days === 730) return 'Últimos 24 meses';
+    if (days === 1095) return 'Últimos 36 meses';
+    if (days === 'ALL') return 'Todo o período';
+    return 'Últimos 24 meses';
+  }
+
+  function formatBacktestUniverseSummary() {
+    const massCfg = state.massConfig || {};
+    if (Array.isArray(massCfg.selectedSymbols) && massCfg.selectedSymbols.length > 0) {
+      if (massCfg.selectedSymbols.length === 1) return massCfg.selectedSymbols[0];
+      return `${massCfg.selectedSymbols.length} ativo(s) selecionado(s)`;
+    }
+    const activeClasses = Array.isArray(massCfg.assetClasses) && massCfg.assetClasses.length > 0
+      ? massCfg.assetClasses
+      : ['STOCK_BR', 'FII', 'BDR', 'ETF_BR', 'ETF_INTL', 'STOCK_US', 'OTHER'];
+    if (activeClasses.length === 7) {
+      return 'Todos os ativos (Multiclasse)';
+    }
+    const classLabels = {
+      STOCK_BR: 'Ações B3',
+      FII: 'FIIs',
+      BDR: 'BDRs',
+      ETF_BR: 'ETFs B3',
+      ETF_INTL: 'ETFs Globais',
+      STOCK_US: 'US Stocks',
+      OTHER: 'Outros'
+    };
+    return activeClasses.map(c => classLabels[c] || c).join(' + ');
+  }
+
   function renderHeader(scoped) {
     if (state.activeStrategyMode === 'VOLATILITY_TRADING') {
       return renderVolatilityHeader();
@@ -3029,6 +3074,12 @@
           </div>
           <p class="sim-header-sub">Acompanhamento sistemático de tendências com validação de contexto, qualidade de oportunidade e gestão de risco.</p>
           <div class="sim-active-config-summary" aria-label="Configuração ativa da simulação">
+            <span class="sim-active-config-chip">Período: <strong>${escapeHtml(formatBacktestDateSummary())}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Universo: <strong>${escapeHtml(formatBacktestUniverseSummary())}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Capital: <strong>${formattedCapital}</strong></span>
+            <span class="sim-active-config-sep">|</span>
             <span class="sim-active-config-chip">Gatilhos: <strong>${escapeHtml(triggerLabel)}</strong></span>
             <span class="sim-active-config-sep">|</span>
             <span class="sim-active-config-chip">EMA 10 &amp; EMA 72</span>
@@ -3043,40 +3094,10 @@
           </div>
         </div>
 
-        <!-- Barra Principal Simplificada: Apenas Controles Essenciais + Configurações + Mais Ações -->
+        <!-- Barra Principal Simplificada: Apenas Botão Unificado Configurar e Executar + Mais Ações -->
         <div class="sim-header-right-zone">
-          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar">
-            <!-- 1. Período Histórico -->
-            <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="simFilterPeriod" title="Filtrar por período histórico">
-                <option value="30" ${state.filters.days === 30 ? 'selected' : ''}>Últimos 30 dias</option>
-                <option value="90" ${state.filters.days === 90 ? 'selected' : ''}>Últimos 90 dias</option>
-                <option value="120" ${state.filters.days === 120 ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
-                <option value="180" ${state.filters.days === 180 ? 'selected' : ''}>Últimos 6 meses</option>
-                <option value="365" ${state.filters.days === 365 ? 'selected' : ''}>Últimos 12 meses</option>
-                <option value="730" ${state.filters.days === 730 ? 'selected' : ''}>Últimos 24 meses</option>
-                <option value="1095" ${state.filters.days === 1095 ? 'selected' : ''}>Últimos 36 meses</option>
-                <option value="ALL" ${state.filters.days === 'ALL' ? 'selected' : ''}>Todo o período</option>
-              </select>
-            </div>
-
-            <!-- 2. Universo de Ativos -->
-            <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="simFilterSymbol" title="Universo de ativos">
-                <option value="ALL" ${state.filters.symbol === 'ALL' ? 'selected' : ''}>Todos os ativos (B3)</option>
-                ${symbolOptionsHtml}
-              </select>
-            </div>
-
-            <!-- 3. Capital Inicial -->
-            <div class="sim-capital-control-wrap">
-              <span class="sim-control-label">Capital inicial</span>
-              <div class="sim-capital-input-box">
-                <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" title="Definir capital de referência para simulação financeira" />
-              </div>
-            </div>
-
-            <!-- 4. Botão Principal Unificado: Configurar e Executar Simulação -->
+          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar sim-header-clean-bar">
+            <!-- Botão Principal Unificado: Configurar e Executar Simulação -->
             <div class="sim-header-actions-row sim-header-actions-group">
               <button type="button" id="simBtnOpenAdvConfig" class="sim-btn-execute sim-btn-adv-config" title="Configurar parâmetros da estratégia e executar simulação" ${isSimulationRunning() ? 'disabled aria-disabled="true"' : ''}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
@@ -3086,9 +3107,27 @@
                 <span>Configurar e Executar Simulação</span>
               </button>
 
-              <!-- 6. Menu Mais Ações (···) -->
+              <!-- Menu Mais Ações (···) -->
               <div class="sim-filter-select-wrap">
                 <button class="sim-filter-btn sim-more-btn" type="button" data-dropdown="more" id="simBtnMoreDropdown" title="Mais ações: Comparar Cenários, Gerar Massa, Reavaliar Candles, Exportar e Excluir">
+                  <span>⋯</span>
+                </button>
+                <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
+                  <button class="sim-dropdown-item sim-btn-header-secondary" type="button" id="simBtnCompareModal">
+                    <span>📊</span> <span>Comparar Cenários</span>
+                  </button>
+                  <button class="sim-dropdown-item" type="button" id="simMoreBtnExport">
+                    <span>📥</span> <span>Exportar Simulação</span>
+                  </button>
+                  <div class="sim-dropdown-divider"></div>
+                  <button class="sim-dropdown-item" type="button" id="simBtnResetFilters">
+                    <span>↺</span> <span>Restaurar Parâmetros Padrão</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
                   <span>⋯</span>
                 </button>
                 <div class="sim-dropdown-menu sim-more-dropdown ${state.activeDropdown === 'more' ? 'open' : ''}">
@@ -8517,6 +8556,9 @@
       fixedCapitalPerTrade: Number(customOpts.fixedCapitalPerTrade || vState.fixedCapitalPerTrade || 10000),
       equityPercentPerTrade: Number(customOpts.equityPercentPerTrade || vState.equityPercentPerTrade || 2.0),
       initialCapital: Math.max(1000, Number(state.initialCapital || 500000)),
+      startDate: customOpts.startDate || state.massConfig?.startDate || null,
+      endDate: customOpts.endDate || state.massConfig?.endDate || null,
+      assetClasses: customOpts.assetClasses || state.massConfig?.assetClasses || null,
       maxConcurrentPositions: Number(customOpts.maxConcurrentPositions || vState.maxConcurrentPositions || 10),
       minDailyLiquidity: Number(customOpts.minDailyLiquidity || vState.minDailyLiquidity || 500000),
       liquidityWindowSessions: Number(customOpts.liquidityWindowSessions || vState.liquidityWindowSessions || 21),
@@ -8905,6 +8947,12 @@
           </div>
           <p class="sim-header-sub">Reversão à média em gráfico Diário: entrada em T+1 (Open) em exaustão de curto prazo e saída na recuperação da média curta ou limite temporal.</p>
           <div class="sim-active-config-summary" aria-label="Configuração ativa da simulação">
+            <span class="sim-active-config-chip">Período: <strong>${escapeHtml(formatBacktestDateSummary())}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Universo: <strong>${escapeHtml(formatBacktestUniverseSummary())}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Capital: <strong>${formattedCapital}</strong></span>
+            <span class="sim-active-config-sep">|</span>
             <span class="sim-active-config-chip">IFR(${vState.rsiPeriod || 2}) ≤ <strong>${vState.oversoldLevel || 10}</strong></span>
             <span class="sim-active-config-sep">|</span>
             <span class="sim-active-config-chip">SMA${vState.shortMaPeriod || 7}</span>
@@ -8919,47 +8967,15 @@
           </div>
         </div>
 
-        <!-- Barra Principal Simplificada: Apenas Controles Essenciais + Configurações + Mais Ações -->
+        <!-- Barra Principal Limpa: Apenas Botão Unificado Configurar e Executar + Mais Ações -->
         <div class="sim-header-right-zone">
-          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar">
-            <!-- 1. Período Histórico -->
-            <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="volHeaderPeriod" title="Período histórico da simulação">
-                <option value="30" ${String(vState.period || '730') === '30' ? 'selected' : ''}>Últimos 30 dias</option>
-                <option value="90" ${String(vState.period || '730') === '90' ? 'selected' : ''}>Últimos 90 dias</option>
-                <option value="120" ${String(vState.period || '730') === '120' ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
-                <option value="180" ${String(vState.period || '730') === '180' ? 'selected' : ''}>Últimos 6 meses</option>
-                <option value="365" ${String(vState.period || '730') === '365' ? 'selected' : ''}>Últimos 12 meses</option>
-                <option value="730" ${String(vState.period || '730') === '730' ? 'selected' : ''}>Últimos 24 meses</option>
-                <option value="1095" ${String(vState.period || '730') === '1095' ? 'selected' : ''}>Últimos 36 meses</option>
-                <option value="ALL" ${String(vState.period || '730') === 'ALL' ? 'selected' : ''}>Todo o período</option>
-              </select>
-            </div>
-
-            <!-- 2. Universo de Ativos -->
-            <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="volHeaderUniverse" title="Universo de ativos monitorados">
-                <option value="IBOV" ${vState.universe === 'IBOV' ? 'selected' : ''}>Universo IBOV (B3)</option>
-                <option value="LIQUID_B3" ${vState.universe === 'LIQUID_B3' ? 'selected' : ''}>B3 Líquidas</option>
-                <option value="ALL_B3" ${vState.universe === 'ALL_B3' ? 'selected' : ''}>Todas B3</option>
-                <option value="NASDAQ" ${vState.universe === 'NASDAQ' ? 'selected' : ''}>Nasdaq / BDRs</option>
-              </select>
-            </div>
-
-            <!-- 3. Capital Inicial -->
-            <div class="sim-capital-control-wrap">
-              <span class="sim-control-label">Capital inicial</span>
-              <div class="sim-capital-input-box">
-                <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" title="Capital inicial do portfólio" />
-              </div>
-            </div>
-
-            <!-- 4. Botão Principal Unificado: Configurar e Executar Simulação + Mais Ações -->
+          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar sim-header-clean-bar">
+            <!-- Botão Principal Unificado: Configurar e Executar Simulação + Mais Ações -->
             <div class="sim-header-actions-row sim-header-actions-group">
               <button type="button" id="simBtnOpenAdvConfig" class="sim-btn-execute sim-btn-adv-config" title="Configurar parâmetros do Volatility Trading e executar simulação" ${isSimulationRunning() ? 'disabled aria-disabled="true"' : ''}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                 </svg>
                 <span>Configurar e Executar Simulação</span>
               </button>
@@ -8980,6 +8996,14 @@
                     <span>📥</span> <span>Exportar Simulação</span>
                   </button>
                   <div class="sim-dropdown-divider"></div>
+                  <button class="sim-dropdown-item" type="button" id="volBtnResetDefaults">
+                    <span>↺</span> <span>Restaurar Parâmetros Padrão</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
                   <button class="sim-dropdown-item" type="button" id="volBtnResetDefaults">
                     <span>↺</span> <span>Restaurar Parâmetros Padrão</span>
                   </button>
@@ -9016,6 +9040,12 @@
           </div>
           <p class="sim-header-sub">Avaliação lado a lado de Trend Following e Volatility Trading sob a mesma base histórica, período, universo de ativos e capital inicial — sem misturar operações.</p>
           <div class="sim-active-config-summary" aria-label="Configuração ativa da comparação">
+            <span class="sim-active-config-chip">Período: <strong>${escapeHtml(formatBacktestDateSummary())}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Universo: <strong>${escapeHtml(formatBacktestUniverseSummary())}</strong></span>
+            <span class="sim-active-config-sep">|</span>
+            <span class="sim-active-config-chip">Capital: <strong>${formattedCapital}</strong></span>
+            <span class="sim-active-config-sep">|</span>
             <span class="sim-active-config-chip">Trend Following: <strong>EMA10 &amp; EMA72 (Modo Rubric)</strong></span>
             <span class="sim-active-config-sep">|</span>
             <span class="sim-active-config-chip">Volatility Trading: <strong>IFR(${vState.rsiPeriod || 2}) ≤ ${vState.oversoldLevel || 10} (SMA${vState.shortMaPeriod || 7} / SMA${vState.longMaPeriod || 200})</strong></span>
@@ -9024,42 +9054,14 @@
           </div>
         </div>
 
-        <!-- Barra Principal Simplificada: Apenas Controles Essenciais + Configurações + Mais Ações -->
+        <!-- Barra Principal Limpa: Apenas Botão Unificado Configurar e Executar + Mais Ações -->
         <div class="sim-header-right-zone">
-          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar">
-            <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="cmpHeaderPeriod" title="Período sincronizado para ambos os motores">
-                <option value="30" ${String(state.filters.days) === '30' ? 'selected' : ''}>Últimos 30 dias</option>
-                <option value="90" ${String(state.filters.days) === '90' ? 'selected' : ''}>Últimos 90 dias</option>
-                <option value="120" ${String(state.filters.days) === '120' ? 'selected' : ''}>Últimos 120 dias (4 meses)</option>
-                <option value="180" ${String(state.filters.days) === '180' ? 'selected' : ''}>Últimos 6 meses</option>
-                <option value="365" ${String(state.filters.days) === '365' ? 'selected' : ''}>Últimos 12 meses</option>
-                <option value="730" ${String(state.filters.days) === '730' ? 'selected' : ''}>Últimos 24 meses</option>
-                <option value="1095" ${String(state.filters.days) === '1095' ? 'selected' : ''}>Últimos 36 meses</option>
-                <option value="ALL" ${String(state.filters.days) === 'ALL' ? 'selected' : ''}>Todo o período</option>
-              </select>
-            </div>
-
-            <div class="sim-control-select-wrap">
-              <select class="sim-header-select" id="volHeaderUniverse" title="Universo de ativos sincronizado">
-                <option value="IBOV" ${vState.universe === 'IBOV' ? 'selected' : ''}>Universo IBOV (B3)</option>
-                <option value="LIQUID_B3" ${vState.universe === 'LIQUID_B3' ? 'selected' : ''}>B3 Líquidas</option>
-                <option value="ALL_B3" ${vState.universe === 'ALL_B3' ? 'selected' : ''}>Todas B3</option>
-              </select>
-            </div>
-
-            <div class="sim-capital-control-wrap">
-              <span class="sim-control-label">Capital inicial</span>
-              <div class="sim-capital-input-box">
-                <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" />
-              </div>
-            </div>
-
+          <div class="sim-header-filters-row sim-header-controls-row sim-header-essential-bar sim-header-clean-bar">
             <div class="sim-header-actions-row sim-header-actions-group">
               <button type="button" id="simBtnOpenAdvConfig" class="sim-btn-execute sim-btn-adv-config" title="Configurar parâmetros da comparação e executar simulação" ${isSimulationRunning() ? 'disabled aria-disabled="true"' : ''}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                 </svg>
                 <span>Configurar e Executar Simulação</span>
               </button>
@@ -9076,6 +9078,10 @@
                     <span>↺</span> <span>Restaurar Parâmetros Padrão</span>
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
               </div>
             </div>
           </div>
@@ -10646,7 +10652,11 @@
     if (mode === 'TREND_FOLLOWING') {
       return generateScenarioMass(targetScenario, {
         strategy: 'TREND_FOLLOWING',
-        period: state.filters.days || 730,
+        period: state.massConfig?.period || state.filters.days || 730,
+        startDate: state.massConfig?.startDate || null,
+        endDate: state.massConfig?.endDate || null,
+        assetClasses: state.massConfig?.assetClasses || null,
+        symbols: (state.massConfig?.selectedSymbols && state.massConfig.selectedSymbols.length > 0) ? state.massConfig.selectedSymbols : null,
         universe: state.massConfig?.universe || 'IBOV',
         triggers: state.filters.trigger || 'ALL',
         grades: state.filters.grade || 'ALL',
@@ -10687,6 +10697,168 @@
    * Separação estrita: cada modalidade renderiza exclusivamente seus próprios parâmetros.
    * Durante a execução, exibe a tela obrigatória de loading até 100% de conclusão.
    */
+  
+  /**
+   * Renderiza as seções obrigatórias centralizadas de Backtest:
+   * Seção A: Período do backtest (Data inicial, Data final, Atalhos de períodos predefinidos)
+   * Seção B: Universo de ativos (Multiclasse, Seleção rápida, Busca por ticker, Seleção individual/múltipla)
+   * Seção C: Capital inicial
+   */
+  function renderBacktestCommonSections(mode) {
+    const rawCatalog = (root.TradeSimulatorModel && typeof root.TradeSimulatorModel.getAvailableSimulatorAssetsCatalog === 'function')
+      ? root.TradeSimulatorModel.getAvailableSimulatorAssetsCatalog()
+      : [];
+    const catalog = Array.isArray(rawCatalog) ? rawCatalog : (rawCatalog?.assets || []);
+
+    const massCfg = state.massConfig || {};
+    const curPreset = massCfg.periodPreset || (massCfg.startDate && massCfg.endDate ? 'CUSTOM' : 'LAST_2_YEARS');
+    const curStartDate = massCfg.startDate || '';
+    const curEndDate = massCfg.endDate || '';
+
+    const activeClasses = new Set(
+      Array.isArray(massCfg.assetClasses) && massCfg.assetClasses.length > 0
+        ? massCfg.assetClasses
+        : ['STOCK_BR', 'FII', 'BDR', 'ETF_BR', 'ETF_INTL', 'STOCK_US', 'OTHER']
+    );
+
+    const selectedSymbols = new Set(Array.isArray(massCfg.selectedSymbols) ? massCfg.selectedSymbols : []);
+    const searchFilter = String(massCfg.tickerSearch || '').trim().toUpperCase();
+
+    // Filtra ativos do catálogo pelas classes ativas e busca
+    const filteredAssets = catalog.filter(asset => {
+      if (!activeClasses.has(asset.assetClass)) return false;
+      if (searchFilter) {
+        return asset.symbol.toUpperCase().includes(searchFilter) ||
+          (asset.name && asset.name.toUpperCase().includes(searchFilter));
+      }
+      return true;
+    });
+
+    const isAllSelected = selectedSymbols.size === 0;
+    const selectedCount = isAllSelected ? filteredAssets.length : selectedSymbols.size;
+    const formattedCapital = `R$ ${formatMoney(state.initialCapital || 500000).replace('R$ ', '')}`;
+
+    const presets = [
+      { key: 'LAST_30_DAYS', label: 'Últimos 30 dias' },
+      { key: 'LAST_90_DAYS', label: 'Últimos 90 dias' },
+      { key: 'LAST_6_MONTHS', label: 'Últimos 6 meses' },
+      { key: 'LAST_1_YEAR', label: 'Último ano' },
+      { key: 'LAST_2_YEARS', label: 'Últimos 24 meses' },
+      { key: 'ALL_TIME', label: 'Todo o histórico' },
+      { key: 'CUSTOM', label: 'Personalizado' }
+    ];
+
+    const classesList = [
+      { code: 'STOCK_BR', name: 'Ações brasileiras (B3)' },
+      { code: 'FII', name: 'FIIs' },
+      { code: 'BDR', name: 'BDRs' },
+      { code: 'ETF_BR', name: 'ETFs brasileiros' },
+      { code: 'ETF_INTL', name: 'ETFs internacionais' },
+      { code: 'STOCK_US', name: 'Ações americanas' },
+      { code: 'OTHER', name: 'Outros instrumentos disponíveis' }
+    ];
+
+    return `
+      <!-- SEÇÃO A: PERÍODO DO BACKTEST -->
+      <section class="sim-adv-config-section sim-adv-section-backtest-period">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">📅</span>
+          <span>A. Período do backtest</span>
+        </div>
+        <p class="sim-adv-section-desc">Defina o intervalo histórico da simulação livremente ou utilize os atalhos rápidos. Sem look-ahead bias: dados posteriores à data final são rigorosamente excluídos.</p>
+        
+        <div class="sim-period-presets-bar" id="simPeriodPresetsBar">
+          ${presets.map(p => `
+            <button type="button" class="sim-preset-btn ${curPreset === p.key ? 'active' : ''}" data-period-preset="${p.key}">
+              ${p.label}
+            </button>
+          `).join('')}
+        </div>
+
+        <div class="sim-date-range-grid">
+          <div class="sim-adv-field">
+            <label for="simConfigStartDate">Data Inicial</label>
+            <input type="date" id="simConfigStartDate" class="sim-date-input" value="${curStartDate}" />
+          </div>
+          <div class="sim-adv-field">
+            <label for="simConfigEndDate">Data Final</label>
+            <input type="date" id="simConfigEndDate" class="sim-date-input" value="${curEndDate}" />
+          </div>
+        </div>
+        <div id="simConfigDateError" class="sim-config-inline-error" style="display:none;" role="alert"></div>
+      </section>
+
+      <!-- SEÇÃO B: UNIVERSO DE ATIVOS (MULTICLASSE) -->
+      <section class="sim-adv-config-section sim-adv-section-backtest-universe">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">🌐</span>
+          <span>B. Universo de ativos</span>
+        </div>
+        <p class="sim-adv-section-desc">Selecione uma ou mais classes de ativos simultaneamente, ou selecione ativos específicos por ticker.</p>
+
+        <!-- Seletor de Classes de Ativos -->
+        <div class="sim-classes-selector-row" id="simClassesSelectorRow">
+          ${classesList.map(c => `
+            <button type="button" class="sim-class-toggle-chip ${activeClasses.has(c.code) ? 'selected' : ''}" data-class-code="${c.code}">
+              <span class="chip-chk">${activeClasses.has(c.code) ? '✓' : '+'}</span>
+              <span class="chip-name">${c.name}</span>
+            </button>
+          `).join('')}
+        </div>
+
+        <!-- Barra de Ações do Universo e Pesquisa -->
+        <div class="sim-universe-search-actions-row">
+          <div class="sim-universe-search-box">
+            <input type="text" id="simConfigTickerSearch" class="sim-search-input" placeholder="Pesquisar ticker (ex: PETR4, IVVB11, AAPL, HGLG11)..." value="${escapeHtml(massCfg.tickerSearch || '')}" />
+          </div>
+          <div class="sim-universe-btn-actions">
+            <button type="button" class="sim-btn-header-secondary" id="simBtnSelectAllAssets">Selecionar todos os ativos disponíveis</button>
+            <button type="button" class="sim-btn-header-secondary" id="simBtnClearUniverse">Limpar seleção</button>
+          </div>
+        </div>
+
+        <!-- Grade de Ativos com Badges de Classe -->
+        <div class="sim-universe-assets-container">
+          <div class="sim-universe-assets-grid" id="simUniverseAssetsGrid">
+            ${filteredAssets.slice(0, 150).map(asset => {
+              const isSelected = isAllSelected || selectedSymbols.has(asset.symbol);
+              return `
+                <button type="button" class="sim-asset-pill-card ${isSelected ? 'selected' : ''}" data-asset-symbol="${asset.symbol}">
+                  <span class="asset-pill-chk">${isSelected ? '✓' : ''}</span>
+                  <span class="asset-pill-symbol">${asset.symbol}</span>
+                  <span class="asset-pill-class-badge badge-${asset.assetClass.toLowerCase()}">${asset.assetClass}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Resumo do Universo -->
+        <div class="sim-universe-summary-footer" id="simUniverseSummary">
+          <span><strong>${selectedCount}</strong> ativo(s) participante(s) em <strong>${activeClasses.size}</strong> classe(s) selecionada(s)</span>
+        </div>
+      </section>
+
+      <!-- SEÇÃO C: CAPITAL E EXECUÇÃO -->
+      <section class="sim-adv-config-section sim-adv-section-backtest-capital">
+        <div class="sim-adv-section-title">
+          <span class="sim-adv-section-icon">💰</span>
+          <span>C. Capital e execução</span>
+        </div>
+        <p class="sim-adv-section-desc">Patrimônio de referência para dimensionamento das posições e aplicação das regras operacionais da estratégia.</p>
+
+        <div class="sim-adv-grid">
+          <div class="sim-adv-field">
+            <label for="simCapitalInput">Capital Inicial (Patrimônio de Referência)</label>
+            <div class="sim-capital-input-box">
+              <input type="text" id="simCapitalInput" class="sim-capital-input" value="${formattedCapital}" title="Definir capital de referência para simulação financeira" />
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
   function renderAdvancedConfigDrawer(scoped, overrideMode) {
     const procState = state.massProcessingState || {};
     const procStatus = procState.status || 'IDLE';
@@ -10763,6 +10935,7 @@
           </div>
 
           <div class="sim-adv-config-body">
+            ${renderBacktestCommonSections(mode)}
             ${sectionsHtml}
           </div>
 
@@ -10827,6 +11000,185 @@
         state.advConfigOpen = false;
         render();
       }
+    });
+
+    // =========================================================================
+    // EVENTOS CENTRALIZADOS DE BACKTEST (SEÇÕES A, B E C)
+    // =========================================================================
+    
+    // Função auxiliar para validar e sincronizar os inputs de data
+    const validateBacktestDates = () => {
+      const startEl = rootEl.querySelector('#simConfigStartDate');
+      const endEl = rootEl.querySelector('#simConfigEndDate');
+      const errEl = rootEl.querySelector('#simConfigDateError');
+      const applyBtn = rootEl.querySelector('#simAdvConfigApplyBtn');
+      if (!startEl || !endEl) return true;
+
+      const startVal = startEl.value ? String(startEl.value).trim() : '';
+      const endVal = endEl.value ? String(endEl.value).trim() : '';
+
+      if (startVal && endVal && startVal > endVal) {
+        if (errEl) {
+          errEl.textContent = 'A data inicial não pode ser posterior à data final.';
+          errEl.style.display = 'block';
+        }
+        if (applyBtn) {
+          applyBtn.disabled = true;
+          applyBtn.setAttribute('aria-disabled', 'true');
+        }
+        return false;
+      }
+
+      if (errEl) {
+        errEl.textContent = '';
+        errEl.style.display = 'none';
+      }
+      if (applyBtn && !isSimulationRunning()) {
+        applyBtn.disabled = false;
+        applyBtn.removeAttribute('aria-disabled');
+      }
+      return true;
+    };
+
+    // A1. Atalhos de Período Predefinidos
+    rootEl.querySelectorAll('[data-period-preset]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const presetKey = btn.dataset.periodPreset;
+        state.massConfig = state.massConfig || {};
+        state.massConfig.periodPreset = presetKey;
+
+        // Atualiza estado ativo visual nos botões
+        rootEl.querySelectorAll('[data-period-preset]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (presetKey !== 'CUSTOM' && root.TradeSimulatorModel && typeof root.TradeSimulatorModel.resolveBacktestDatePreset === 'function') {
+          const resolved = root.TradeSimulatorModel.resolveBacktestDatePreset(presetKey);
+          if (resolved.startDate && resolved.endDate) {
+            state.massConfig.startDate = resolved.startDate;
+            state.massConfig.endDate = resolved.endDate;
+            state.filters.startDate = resolved.startDate;
+            state.filters.endDate = resolved.endDate;
+            const startInput = rootEl.querySelector('#simConfigStartDate');
+            const endInput = rootEl.querySelector('#simConfigEndDate');
+            if (startInput) startInput.value = resolved.startDate;
+            if (endInput) endInput.value = resolved.endDate;
+          }
+        }
+        validateBacktestDates();
+      });
+    });
+
+    // A2. Inputs de Data Inicial e Final
+    const handleDateInputChange = () => {
+      const startEl = rootEl.querySelector('#simConfigStartDate');
+      const endEl = rootEl.querySelector('#simConfigEndDate');
+      if (!startEl || !endEl) return;
+      state.massConfig = state.massConfig || {};
+      state.massConfig.startDate = startEl.value || '';
+      state.massConfig.endDate = endEl.value || '';
+      state.filters.startDate = startEl.value || null;
+      state.filters.endDate = endEl.value || null;
+      state.massConfig.periodPreset = 'CUSTOM';
+      rootEl.querySelectorAll('[data-period-preset]').forEach(b => {
+        b.classList.toggle('active', b.dataset.periodPreset === 'CUSTOM');
+      });
+      validateBacktestDates();
+    };
+
+    rootEl.querySelector('#simConfigStartDate')?.addEventListener('change', handleDateInputChange);
+    rootEl.querySelector('#simConfigEndDate')?.addEventListener('change', handleDateInputChange);
+    rootEl.querySelector('#simConfigStartDate')?.addEventListener('input', handleDateInputChange);
+    rootEl.querySelector('#simConfigEndDate')?.addEventListener('input', handleDateInputChange);
+
+    // B1. Toggles de Classes de Ativos (Multiclasse)
+    rootEl.querySelectorAll('[data-class-code]').forEach(chipBtn => {
+      chipBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const code = chipBtn.dataset.classCode;
+        state.massConfig = state.massConfig || {};
+        let activeClasses = Array.isArray(state.massConfig.assetClasses) && state.massConfig.assetClasses.length > 0
+          ? [...state.massConfig.assetClasses]
+          : ['STOCK_BR', 'FII', 'BDR', 'ETF_BR', 'ETF_INTL', 'STOCK_US', 'OTHER'];
+
+        if (activeClasses.includes(code)) {
+          // Não permite desmarcar todas
+          if (activeClasses.length > 1) {
+            activeClasses = activeClasses.filter(c => c !== code);
+          }
+        } else {
+          activeClasses.push(code);
+        }
+
+        state.massConfig.assetClasses = activeClasses;
+        renderAdvancedConfigDrawer();
+        render();
+      });
+    });
+
+    // B2. Botão Selecionar Todos os Ativos Disponíveis
+    rootEl.querySelector('#simBtnSelectAllAssets')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      state.massConfig = state.massConfig || {};
+      state.massConfig.assetClasses = ['STOCK_BR', 'FII', 'BDR', 'ETF_BR', 'ETF_INTL', 'STOCK_US', 'OTHER'];
+      state.massConfig.selectedSymbols = [];
+      state.massConfig.tickerSearch = '';
+      render();
+    });
+
+    // B3. Botão Limpar Seleção do Universo
+    rootEl.querySelector('#simBtnClearUniverse')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      state.massConfig = state.massConfig || {};
+      state.massConfig.selectedSymbols = [];
+      render();
+    });
+
+    // B4. Busca por Ticker
+    rootEl.querySelector('#simConfigTickerSearch')?.addEventListener('input', (e) => {
+      const q = String(e.target.value || '').trim().toUpperCase();
+      state.massConfig = state.massConfig || {};
+      state.massConfig.tickerSearch = q;
+      const cards = rootEl.querySelectorAll('.sim-asset-pill-card');
+      let visibleCount = 0;
+      cards.forEach(card => {
+        const sym = card.dataset.assetSymbol || '';
+        const match = !q || sym.includes(q);
+        card.style.display = match ? 'inline-flex' : 'none';
+        if (match) visibleCount++;
+      });
+      const summaryEl = rootEl.querySelector('#simUniverseSummary');
+      if (summaryEl && q) {
+        summaryEl.innerHTML = '<span>Mostrando <strong>' + visibleCount + '</strong> ativo(s) correspondente(s) a "' + escapeHtml(q) + '"</span>';
+      }
+    });
+
+    // B5. Seleção Individual de Ativos no Grid
+    rootEl.querySelectorAll('.sim-asset-pill-card').forEach(assetBtn => {
+      assetBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const sym = assetBtn.dataset.assetSymbol;
+        if (!sym) return;
+        state.massConfig = state.massConfig || {};
+        let current = Array.isArray(state.massConfig.selectedSymbols) ? [...state.massConfig.selectedSymbols] : [];
+        if (current.includes(sym)) {
+          current = current.filter(s => s !== sym);
+          assetBtn.classList.remove('selected');
+          const chk = assetBtn.querySelector('.asset-pill-chk');
+          if (chk) chk.textContent = '';
+        } else {
+          current.push(sym);
+          assetBtn.classList.add('selected');
+          const chk = assetBtn.querySelector('.asset-pill-chk');
+          if (chk) chk.textContent = '✓';
+        }
+        state.massConfig.selectedSymbols = current;
+        const summaryEl = rootEl.querySelector('#simUniverseSummary');
+        if (summaryEl) {
+          const totalActive = current.length > 0 ? current.length : 'Todos';
+          summaryEl.innerHTML = '<span><strong>' + totalActive + '</strong> ativo(s) participante(s) selecionado(s)</span>';
+        }
+      });
     });
 
     // Controles exclusivos de Trend Following dentro do modal (atualizam estado sem disparar execução antecipada)

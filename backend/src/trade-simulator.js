@@ -675,42 +675,40 @@ async function generateMass(userId, payload = {}, client = database) {
   const scenario = opts.scenario || '2R';
   const targetVolume = opts.targetVolume || 100;
   const period = opts.period || '12m';
-  const startDate = opts.startDate || null;
-  const endDate = opts.endDate || null;
+  const startDate = opts.startDate ? toIsoDate(opts.startDate) : null;
+  const endDate = opts.endDate ? toIsoDate(opts.endDate) : null;
   const triggers = opts.triggers || 'ALL';
   const grades = opts.grades || 'ALL';
+  const assetClasses = opts.assetClasses || null;
+
+  if (startDate && endDate && startDate > endDate) {
+    throw invalid('A Data Inicial não pode ser maior que a Data Final.', 400);
+  }
 
   let candlesMap = opts.candlesMap || null;
   let metadataMap = opts.metadataMap || {};
-  let universeSymbols = opts.symbols || null;
+  let universeSymbols = Array.isArray(opts.symbols) && opts.symbols.length > 0 ? opts.symbols : null;
 
   if (!candlesMap) {
-    // Carrega datasets conforme o universo
-    if (universe === 'NASDAQ') {
-      if (tickerChart && typeof tickerChart.loadNasdaqHistory === 'function') {
-        candlesMap = tickerChart.loadNasdaqHistory();
-      }
-      const nasdaqCacheFile = path.join(__dirname, '..', 'data', 'nasdaq-market-cache.json');
-      if (fs.existsSync(nasdaqCacheFile)) {
-        try {
-          const raw = JSON.parse(fs.readFileSync(nasdaqCacheFile, 'utf8'));
-          if (Array.isArray(raw.ranking)) {
-            raw.ranking.forEach(item => {
-              if (item.symbol) {
-                metadataMap[item.symbol] = {
-                  name: item.name || item.symbol,
-                  sector: 'Tecnologia'
-                };
-              }
-            });
-            universeSymbols = raw.ranking.map(r => r.symbol);
-          }
-        } catch (err) {}
-      }
-    } else {
-      // Universo B3
-      if (tickerChart && typeof tickerChart.loadB3History === 'function') {
-        candlesMap = tickerChart.loadB3History();
+    const normalizedClasses = Array.isArray(assetClasses)
+      ? assetClasses.map(c => String(c || '').toUpperCase().trim()).filter(Boolean)
+      : (typeof assetClasses === 'string' && assetClasses.trim() ? assetClasses.split(',').map(c => c.trim().toUpperCase()) : []);
+    const hasMultiOrCustomClasses = normalizedClasses.length > 0 && !normalizedClasses.includes('ALL');
+    const isAllClasses = normalizedClasses.includes('ALL') || universe === 'ALL' || universe === 'MULTI';
+    const needsUs = universe === 'NASDAQ' || universe === 'STOCK_US' || isAllClasses ||
+      normalizedClasses.includes('STOCK_US') || normalizedClasses.includes('ETF_INTL') ||
+      (Array.isArray(universeSymbols) && universeSymbols.some(s => /^[A-Z]{1,5}$/.test(String(s || '').toUpperCase().trim()) && !['IBOV', 'IFIX', 'SMLL', 'BDRX'].includes(String(s || '').toUpperCase().trim())));
+    const needsB3 = universe !== 'NASDAQ' || isAllClasses || hasMultiOrCustomClasses ||
+      (Array.isArray(universeSymbols) && universeSymbols.some(s => /\d/.test(String(s || '')) || ['IBOV', 'IFIX', 'SMLL', 'BDRX'].includes(String(s || '').toUpperCase().trim())));
+
+    const combinedMap = new Map();
+    const b3StocksByClass = { stock_ibov: [], stock_all: [], fii: [], bdr: [] };
+    let nasdaqSymbols = [];
+
+    if (needsB3 && tickerChart && typeof tickerChart.loadB3History === 'function') {
+      const b3Map = tickerChart.loadB3History();
+      if (b3Map instanceof Map) {
+        for (const [k, v] of b3Map.entries()) combinedMap.set(k, v);
       }
       const marketCacheFile = path.join(__dirname, '..', 'data', 'market-cache.json');
       if (fs.existsSync(marketCacheFile)) {
@@ -721,19 +719,131 @@ async function generateMass(userId, payload = {}, client = database) {
               if (item.symbol) {
                 metadataMap[item.symbol] = {
                   name: item.name || item.symbol,
-                  sector: item.sector || 'Geral'
+                  sector: item.sector || 'Geral',
+                  assetClass: 'STOCK_BR'
+                };
+                b3StocksByClass.stock_all.push(item.symbol);
+                if (item.assetClass === 'stock_ibov') {
+                  b3StocksByClass.stock_ibov.push(item.symbol);
+                }
+              }
+            });
+          }
+          const fiiItems = raw.relativeStrengthByClass?.fii?.items || [];
+          fiiItems.forEach(item => {
+            if (item.symbol) {
+              metadataMap[item.symbol] = {
+                name: item.name || item.symbol,
+                sector: item.sector || 'Fundos Imobiliários',
+                assetClass: 'FII'
+              };
+              b3StocksByClass.fii.push(item.symbol);
+            }
+          });
+          const bdrItems = raw.relativeStrengthByClass?.bdr?.items || [];
+          bdrItems.forEach(item => {
+            if (item.symbol) {
+              metadataMap[item.symbol] = {
+                name: item.name || item.symbol,
+                sector: item.sector || 'BDRs',
+                assetClass: 'BDR'
+              };
+              b3StocksByClass.bdr.push(item.symbol);
+            }
+          });
+        } catch (err) {}
+      }
+    }
+
+    if (needsUs && tickerChart && typeof tickerChart.loadNasdaqHistory === 'function') {
+      const usMap = tickerChart.loadNasdaqHistory();
+      if (usMap instanceof Map) {
+        for (const [k, v] of usMap.entries()) {
+          if (!combinedMap.has(k)) combinedMap.set(k, v);
+        }
+      }
+      const nasdaqCacheFile = path.join(__dirname, '..', 'data', 'nasdaq-market-cache.json');
+      if (fs.existsSync(nasdaqCacheFile)) {
+        try {
+          const raw = JSON.parse(fs.readFileSync(nasdaqCacheFile, 'utf8'));
+          if (Array.isArray(raw.ranking)) {
+            raw.ranking.forEach(item => {
+              if (item.symbol) {
+                const isUsEtf = ['QQQ', 'SPY', 'IWM', 'DIA', 'VTI', 'VOO', 'EWZ'].includes(String(item.symbol).toUpperCase());
+                metadataMap[item.symbol] = {
+                  name: item.name || item.companyName || item.symbol,
+                  sector: item.sector || 'Tecnologia / EUA',
+                  assetClass: isUsEtf ? 'ETF_INTL' : 'STOCK_US',
+                  market: 'US'
                 };
               }
             });
-            if (universe === 'IBOV') {
-              universeSymbols = raw.relativeStrength
-                .filter(s => s.assetClass === 'stock_ibov')
-                .map(s => s.symbol);
-            } else if (universe === 'LIQUID_B3' || universe === 'LIQUID') {
-              universeSymbols = raw.relativeStrength.map(s => s.symbol);
-            }
+            nasdaqSymbols = raw.ranking.map(r => r.symbol);
           }
         } catch (err) {}
+      }
+    }
+
+    candlesMap = combinedMap;
+
+    // Enriquece metadataMap com catálogo multiclasse de referência
+    if (typeof model.getAvailableSimulatorAssetsCatalog === 'function') {
+      const refCatalog = model.getAvailableSimulatorAssetsCatalog();
+      for (const item of refCatalog.assets) {
+        if (!metadataMap[item.symbol]) {
+          metadataMap[item.symbol] = {
+            name: item.name,
+            sector: item.sector,
+            assetClass: item.assetClass,
+            market: item.market
+          };
+        }
+      }
+    }
+
+    if (!universeSymbols || universeSymbols.length === 0) {
+      if (hasMultiOrCustomClasses || isAllClasses) {
+        const classesToLoad = isAllClasses
+          ? (model.SIMULATOR_ASSET_CLASS_ORDER || ['STOCK_BR', 'FII', 'BDR', 'ETF_BR', 'ETF_INTL', 'STOCK_US', 'OTHER'])
+          : normalizedClasses;
+        const refCatalog = typeof model.getAvailableSimulatorAssetsCatalog === 'function'
+          ? model.getAvailableSimulatorAssetsCatalog()
+          : { byClass: {} };
+        const resolvedSet = new Set();
+
+        for (const cls of classesToLoad) {
+          if (cls === 'STOCK_BR') {
+            const pool = universe === 'IBOV' && b3StocksByClass.stock_ibov.length > 0
+              ? b3StocksByClass.stock_ibov
+              : (b3StocksByClass.stock_all.length > 0 ? b3StocksByClass.stock_all : (refCatalog.byClass?.STOCK_BR?.assets || []).map(a => a.symbol));
+            pool.forEach(s => resolvedSet.add(s));
+          } else if (cls === 'FII') {
+            const pool = b3StocksByClass.fii.length > 0
+              ? b3StocksByClass.fii
+              : (refCatalog.byClass?.FII?.assets || []).map(a => a.symbol);
+            pool.forEach(s => resolvedSet.add(s));
+          } else if (cls === 'BDR') {
+            const pool = b3StocksByClass.bdr.length > 0
+              ? b3StocksByClass.bdr
+              : (refCatalog.byClass?.BDR?.assets || []).map(a => a.symbol);
+            pool.forEach(s => resolvedSet.add(s));
+          } else if (cls === 'STOCK_US') {
+            const pool = nasdaqSymbols.length > 0
+              ? nasdaqSymbols.filter(s => s !== 'QQQ')
+              : (refCatalog.byClass?.STOCK_US?.assets || []).map(a => a.symbol);
+            pool.forEach(s => resolvedSet.add(s));
+          } else {
+            const classAssets = (refCatalog.byClass?.[cls]?.assets || []).map(a => a.symbol);
+            classAssets.forEach(s => resolvedSet.add(s));
+          }
+        }
+        universeSymbols = Array.from(resolvedSet);
+      } else if (universe === 'NASDAQ') {
+        universeSymbols = nasdaqSymbols;
+      } else if (universe === 'IBOV') {
+        universeSymbols = b3StocksByClass.stock_ibov;
+      } else if (universe === 'LIQUID_B3' || universe === 'LIQUID') {
+        universeSymbols = b3StocksByClass.stock_all;
       }
     }
   }
@@ -794,6 +904,7 @@ async function generateMass(userId, payload = {}, client = database) {
     candlesMap,
     metadataMap,
     symbols: universeSymbols,
+    assetClasses,
     targetVolume,
     period,
     startDate,

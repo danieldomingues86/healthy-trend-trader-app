@@ -206,3 +206,195 @@ test('FocusGuardianModel: finais de semana são liberados para estudos (sem alar
   assert.equal(sundayEval.label, 'Estudo Livre');
   assert.equal(sundayEval.shouldShowModal, false);
 });
+
+test('FocusGuardianModel: Regra Fundamental — Horário de Mercado e Calendário B3 (fechado antes das 10h, após 17h55, feriados fixos/móveis e Quarta de Cinzas antes das 13h)', () => {
+  // 1. Dia útil fora do horário de pregão (08:45 BRT e 18:30 BRT) -> mercado fechado, sem modal e sem contabilizar tempo fechado como operacional
+  const beforeOpenTs = new Date('2026-11-24T08:45:00-03:00').getTime();
+  const afterCloseTs = new Date('2026-11-24T18:30:00-03:00').getTime();
+  const openSessionTs = new Date('2026-11-24T14:00:00-03:00').getTime();
+
+  assert.equal(Model.isMarketOpen(beforeOpenTs), false, 'Antes das 10h o mercado está fechado');
+  assert.equal(Model.isMarketOpen(afterCloseTs), false, 'Após 17h55 o mercado está fechado');
+  assert.equal(Model.isMarketOpen(openSessionTs), true, 'Terça-feira às 14h o mercado está aberto');
+
+  const heavyBurstSessions = [
+    { openedAt: '2026-11-24T08:30:00-03:00', durationSeconds: 3600 },
+    { openedAt: '2026-11-24T08:35:00-03:00', durationSeconds: 3600 },
+    { openedAt: '2026-11-24T08:40:00-03:00', durationSeconds: 3600 },
+    { openedAt: '2026-11-24T08:42:00-03:00', durationSeconds: 3600 }
+  ];
+
+  const evalBeforeOpen = Model.evaluateFocusState({
+    monitor: { active: true, profitRunning: true },
+    sessions: heavyBurstSessions,
+    now: beforeOpenTs
+  });
+  assert.equal(evalBeforeOpen.status, 'market_closed');
+  assert.equal(evalBeforeOpen.isMarketOpen, false);
+  assert.equal(evalBeforeOpen.shouldShowModal, false, 'Nunca exibir modal antes da abertura do mercado');
+  assert.equal(evalBeforeOpen.openingsCount, 0, 'Não contabilizar mercado fechado como tempo/aberturas operacionais');
+  assert.equal(evalBeforeOpen.totalDurationSeconds, 0);
+  assert.deepEqual(evalBeforeOpen.triggers, []);
+
+  const evalAfterClose = Model.evaluateFocusState({
+    monitor: { active: true, profitRunning: true },
+    sessions: heavyBurstSessions,
+    now: afterCloseTs
+  });
+  assert.equal(evalAfterClose.status, 'market_closed');
+  assert.equal(evalAfterClose.isMarketOpen, false);
+  assert.equal(evalAfterClose.shouldShowModal, false, 'Nunca exibir modal após o fechamento do mercado');
+  assert.equal(evalAfterClose.totalDurationSeconds, 0);
+
+  // 2. Feriado Nacional B3 em plena sexta-feira às 14h (20/11/2026 - Consciência Negra) -> mercado fechado!
+  const holidayTs = new Date('2026-11-20T14:00:00-03:00').getTime();
+  assert.equal(Model.isB3TradingDay('2026-11-20'), false);
+  assert.equal(Model.isMarketOpen(holidayTs), false);
+  const evalHoliday = Model.evaluateFocusState({
+    monitor: { active: true, profitRunning: true },
+    sessions: [
+      { openedAt: '2026-11-20T13:50:00-03:00', durationSeconds: 9000 },
+      { openedAt: '2026-11-20T13:52:00-03:00', durationSeconds: 9000 },
+      { openedAt: '2026-11-20T13:55:00-03:00', durationSeconds: 9000 }
+    ],
+    now: holidayTs
+  });
+  assert.equal(evalHoliday.status, 'market_closed');
+  assert.equal(evalHoliday.isHoliday, true);
+  assert.equal(evalHoliday.isMarketOpen, false);
+  assert.equal(evalHoliday.shouldShowModal, false, 'Feriado B3 nunca dispara modal');
+
+  // 3. Feriados móveis (Carnaval, Sexta-feira Santa, Corpus Christi) e Quarta-feira de Cinzas (abre às 13h)
+  assert.equal(Model.isMarketOpen(new Date('2026-02-16T14:00:00-03:00').getTime()), false, 'Segunda de Carnaval fechada');
+  assert.equal(Model.isMarketOpen(new Date('2026-02-17T14:00:00-03:00').getTime()), false, 'Terça de Carnaval fechada');
+  assert.equal(Model.isMarketOpen(new Date('2026-02-18T11:30:00-03:00').getTime()), false, 'Quarta de Cinzas às 11h30 ainda está fechada na B3');
+  assert.equal(Model.isMarketOpen(new Date('2026-02-18T14:00:00-03:00').getTime()), true, 'Quarta de Cinzas às 14h está aberta na B3');
+  assert.equal(Model.isMarketOpen(new Date('2026-04-03T14:00:00-03:00').getTime()), false, 'Sexta-feira Santa fechada');
+  assert.equal(Model.isMarketOpen(new Date('2026-06-04T14:00:00-03:00').getTime()), false, 'Corpus Christi fechado');
+  assert.equal(Model.isMarketOpen(new Date('2026-12-24T14:00:00-03:00').getTime()), false, 'Véspera de Natal fechada na B3');
+  assert.equal(Model.isMarketOpen(new Date('2026-12-31T14:00:00-03:00').getTime()), false, 'Véspera de Ano Novo fechada na B3');
+
+  // 4. Durante o pregão aberto (Terça 24/11/2026 às 14:00), detecção de comportamento impulsivo funciona integralmente
+  const evalOpenCritical = Model.evaluateFocusState({
+    monitor: { active: true, profitRunning: true },
+    sessions: [
+      { openedAt: '2026-11-24T13:50:00-03:00', durationSeconds: 1800 },
+      { openedAt: '2026-11-24T13:54:00-03:00', durationSeconds: 1800 },
+      { openedAt: '2026-11-24T13:58:00-03:00', durationSeconds: 2400 }
+    ],
+    now: openSessionTs
+  });
+  assert.equal(evalOpenCritical.isMarketOpen, true);
+  assert.equal(evalOpenCritical.level, 'critical');
+  assert.equal(evalOpenCritical.shouldShowModal, true);
+  assert.equal(evalOpenCritical.config.soundEnabled, false, 'Som permanentemente desativado');
+});
+
+test('FocusGuardianController & Redesign Premium: modal cinematográfico 88vw, arte do Guardião integrada, zero som e bloqueio com mercado fechado', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+
+  const controllerCode = fs.readFileSync(path.join(__dirname, 'focus-guardian.js'), 'utf8');
+  const cssCode = fs.readFileSync(path.join(__dirname, 'focus-guardian.css'), 'utf8');
+  const artPath = path.join(__dirname, '../assets/focus-guardian/spartan-guardian-backdrop.jpg');
+
+  // 1. Arte do Guardião existe e está integrada ao CSS
+  assert.equal(fs.existsSync(artPath), true, 'Imagem cinematográfica do Guardião Espartano deve existir em assets/focus-guardian/');
+  assert.ok(cssCode.includes('spartan-guardian-backdrop.jpg'), 'CSS deve integrar a arte do Guardião ao fundo do modal');
+  assert.ok(cssCode.includes('width: min(88vw, 1340px)'), 'Modal deve ocupar 85%-90% da largura em desktop');
+  assert.ok(cssCode.includes('max-height: 85vh'), 'Modal deve respeitar limite de 85vh');
+  assert.ok(cssCode.includes('.focus-guardian-split-layout'), 'Layout dividido em duas áreas deve estar definido');
+
+  // 2. Ausência total de som / Web Audio API
+  assert.equal(controllerCode.includes('AudioContext'), false, 'Nenhuma chamada a AudioContext deve existir');
+  assert.equal(controllerCode.includes('webkitAudioContext'), false, 'Nenhuma chamada a webkitAudioContext deve existir');
+  assert.equal(controllerCode.includes('createOscillator'), false, 'Nenhum oscilador sonoro deve existir');
+  assert.equal(controllerCode.includes('playAlertChime'), false, 'Função playAlertChime deve ter sido removida');
+
+  // 3. Execução do Controller no DOM simulado: exibe com mercado aberto e bloqueia com mercado fechado
+  let backdropEl = null;
+  const mockDoc = {
+    readyState: 'complete',
+    getElementById: (id) => (id === 'focusGuardianModalBackdrop' ? backdropEl : null),
+    querySelector: () => null,
+    createElement: () => {
+      backdropEl = {
+        id: '',
+        className: '',
+        innerHTML: '',
+        style: { display: 'none' },
+        setAttribute: () => {}
+      };
+      return backdropEl;
+    },
+    body: { appendChild: () => {} },
+    addEventListener: () => {}
+  };
+  const mockWin = {
+    FocusGuardianModel: Model,
+    document: mockDoc,
+    localStorage: { getItem: () => null, setItem: () => {} },
+    addEventListener: () => {},
+    go: () => {}
+  };
+
+  const savedWin = global.window;
+  const savedDoc = global.document;
+  const savedLS = global.localStorage;
+  global.window = mockWin;
+  global.document = mockDoc;
+  global.localStorage = mockWin.localStorage;
+  try {
+    const fn = new Function('window', 'document', 'localStorage', controllerCode);
+    fn(mockWin, mockDoc, mockWin.localStorage);
+
+    const ctrl = mockWin.FocusGuardianController;
+
+    // 3a. Mercado FECHADO (20:00 BRT): modal NÃO pode abrir
+    ctrl._setMockDataForTesting({
+      nowOverride: new Date('2026-11-24T20:00:00-03:00').getTime(),
+      monitor: { active: true, profitRunning: true },
+      sessions: [
+        { openedAt: '2026-11-24T19:50:00-03:00', durationSeconds: 3600 },
+        { openedAt: '2026-11-24T19:53:00-03:00', durationSeconds: 3600 },
+        { openedAt: '2026-11-24T19:56:00-03:00', durationSeconds: 3600 }
+      ]
+    });
+    ctrl.evaluateAndNotify();
+    assert.equal(backdropEl === null || backdropEl.style.display === 'none', true, 'Modal nunca deve aparecer com o mercado fechado');
+
+    // 3b. Mercado ABERTO (14:00 BRT em dia útil de pregão): modal abre com todos os elementos preservados
+    ctrl._setMockDataForTesting({
+      nowOverride: new Date('2026-11-24T14:00:00-03:00').getTime(),
+      monitor: { active: true, profitRunning: true },
+      sessions: [
+        { openedAt: '2026-11-24T13:50:00-03:00', durationSeconds: 2000 },
+        { openedAt: '2026-11-24T13:54:00-03:00', durationSeconds: 2000 },
+        { openedAt: '2026-11-24T13:58:00-03:00', durationSeconds: 2000 }
+      ]
+    });
+    ctrl.evaluateAndNotify();
+    assert.ok(backdropEl, 'Backdrop do modal deve ser criado quando mercado está aberto e limite crítico é atingido');
+    assert.equal(backdropEl.style.display, 'grid');
+    assert.ok(backdropEl.innerHTML.includes('focus-guardian-cinematic'), 'Classe cinematográfica deve estar presente');
+    assert.ok(backdropEl.innerHTML.includes('GUARDIÃO DO FOCO'));
+    assert.ok(backdropEl.innerHTML.includes('Aberturas Hoje'));
+    assert.ok(backdropEl.innerHTML.includes('Tempo de Tela Hoje'));
+    assert.ok(backdropEl.innerHTML.includes('1h 40min'));
+    assert.ok(backdropEl.innerHTML.includes('Motivo:'));
+    assert.ok(backdropEl.innerHTML.includes('Tenho um setup válido segundo meu plano operacional?'));
+    assert.ok(backdropEl.innerHTML.includes('Reconhecer e seguir meu plano'));
+    assert.ok(backdropEl.innerHTML.includes('Vou fazer uma pausa (Trader Zen)'));
+
+    // 3c. Se o mercado fechar enquanto o modal estava aberto, evaluateAndNotify fecha o modal imediatamente
+    ctrl._setMockDataForTesting({
+      nowOverride: new Date('2026-11-24T18:05:00-03:00').getTime()
+    });
+    ctrl.evaluateAndNotify();
+    assert.equal(backdropEl.style.display, 'none', 'Fechamento do mercado deve ocultar qualquer modal aberto');
+  } finally {
+    global.window = savedWin;
+    global.document = savedDoc;
+    global.localStorage = savedLS;
+  }
+});

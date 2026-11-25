@@ -174,7 +174,7 @@
 
     renderShell(container) {
       container.innerHTML = `
-        <div class="capital-intelligence-page" id="capitalIntelligencePage" data-theme-scope="capital-intelligence">
+        <div class="capital-intelligence-page capital-intelligence-container" id="capitalIntelligencePage" data-theme-scope="capital-intelligence">
           <div class="ci-eagle-backdrop" aria-hidden="true"></div>
           <div class="ci-atmosphere-vignette" aria-hidden="true"></div>
 
@@ -189,7 +189,7 @@
                   </svg>
                 </div>
                 <div class="ci-title-text">
-                  <h1>Capital Intelligence</h1>
+                  <h1>Visão Sistêmica</h1>
                   <p>O Mapa Vivo do Seu Dinheiro</p>
                 </div>
               </div>
@@ -208,14 +208,14 @@
               </div>
             </div>
 
-            <nav class="ci-lens-bar" aria-label="Filtros estruturais do Capital Intelligence">
+            <nav class="ci-lens-bar" aria-label="Filtros estruturais da Visão Sistêmica">
               <button type="button" class="ci-lens-btn active" data-universe="all">Visão Global</button>
               <span class="ci-lens-sep" aria-hidden="true">•</span>
               <button type="button" class="ci-lens-btn" data-universe="cycles">Ciclos</button>
               <span class="ci-lens-sep" aria-hidden="true">•</span>
               <button type="button" class="ci-lens-btn" data-universe="breadth">Market Breadth</button>
               <span class="ci-lens-sep" aria-hidden="true">•</span>
-              <button type="button" class="ci-lens-btn" data-universe="macro">Macroeconomia</button>
+              <button type="button" class="ci-lens-btn" data-universe="macro">Cenário Macroeconômico</button>
               <span class="ci-lens-sep" aria-hidden="true">•</span>
               <button type="button" class="ci-lens-btn" data-universe="rotation">Rotação Setorial</button>
               <span class="ci-lens-sep" aria-hidden="true">•</span>
@@ -227,7 +227,7 @@
           <div class="ci-stage-layout">
             <div class="ci-map-stage" id="ciMapStage">
               <div class="ci-canvas-wrapper" id="ciCanvasWrapper">
-                <canvas id="ciLiveMapCanvas" aria-label="Mapa Vivo de Esferas Tridimensionais do Capital Intelligence"></canvas>
+                <canvas id="ciLiveMapCanvas" aria-label="Mapa Vivo de Esferas Tridimensionais da Visão Sistêmica"></canvas>
               </div>
 
               <!-- Controles Discretos de Zoom & Legenda -->
@@ -396,19 +396,43 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               Sugestão de Alocação
             </span>
-            <span class="ci-rail-tag">21 Pregões</span>
+            <div class="ci-rail-head-tags">
+              <span class="ci-rail-tag">21 Pregões</span>
+              <span class="ci-alloc-confidence-badge ${
+                String(alloc.confidenceLevel || '').toUpperCase() === 'ALTA'
+                  ? 'confidence-high'
+                  : String(alloc.confidenceLevel || '').toUpperCase() === 'AGUARDAR'
+                    ? 'confidence-wait'
+                    : 'confidence-mod'
+              }">${esc(alloc.confidenceLevel || 'MODERADA')}</span>
+            </div>
           </div>
           <div class="ci-alloc-posture">${esc(alloc.postureLabel)}</div>
+          ${alloc.hasBinarySuperRisk ? `
+            <div class="ci-alloc-super-risk-chip">
+              ⚠️ Decisão de juros iminente · Manter alocação
+            </div>
+          ` : ''}
+          <div class="ci-alloc-short-rationale">${esc(alloc.shortRationale || '')}</div>
           <div class="ci-alloc-mini-rows">
-            ${alloc.rows.slice(0, 3).map(r => `
+            ${(alloc.comparisonRows && alloc.comparisonRows.length ? alloc.comparisonRows : alloc.rows).slice(0, 4).map(r => `
               <div class="ci-alloc-mini-row">
-                <span>${esc(r.label)}</span>
-                <span class="ci-alloc-mini-val">${esc(r.currentDisplay)}</span>
+                <span class="ci-alloc-mini-name">${esc(r.label)}</span>
+                <span class="ci-alloc-mini-vals">
+                  <span class="ci-alloc-mini-cur">${esc(r.currentDisplay)}</span>
+                  <span class="ci-alloc-mini-arrow">→</span>
+                  <span class="ci-alloc-mini-sug">${esc(r.suggestedDisplay || (r.suggestedPct ? `${r.suggestedPct}%` : '—'))}</span>
+                  ${r.deltaPct !== null && r.deltaPct !== undefined ? `
+                    <span class="ci-alloc-action-chip ${r.action === 'increase' ? 'action-increase' : r.action === 'decrease' ? 'action-decrease' : 'action-maintain'}">
+                      ${r.deltaPct > 0 ? `+${Math.round(r.deltaPct)}%` : r.deltaPct < 0 ? `${Math.round(r.deltaPct)}%` : '0%'}
+                    </span>
+                  ` : ''}
+                </span>
               </div>
             `).join('')}
           </div>
           <div class="ci-alloc-cta">
-            <span>Ver análise detalhada</span>
+            <span>Ver análise completa & radar</span>
             <span aria-hidden="true">→</span>
           </div>
         </button>
@@ -469,8 +493,37 @@
       if (!strip || !this.model) return;
 
       const items = this.model.getDailyTapeItems();
+
+      const formatDateShort = (isoDate) => {
+        if (!isoDate || typeof isoDate !== 'string') return '';
+        const clean = isoDate.split('T')[0];
+        const parts = clean.split('-');
+        if (parts.length === 3) return `${parts[2]}/${parts[1]}`;
+        return clean;
+      };
+
+      let timeDisplay = 'Fechamento';
+      if (this.model.lastUpdated) {
+        try {
+          const d = new Date(this.model.lastUpdated);
+          if (!isNaN(d.getTime())) {
+            timeDisplay = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          }
+        } catch (e) {
+          // safe fallback
+        }
+      }
+
       strip.innerHTML = `
-        <span class="ci-daily-label">Pregão diário (1D · secundário)</span>
+        <div class="ci-daily-strip-left">
+          <span class="ci-daily-tag">1D · Secundário</span>
+          <span class="ci-daily-label">Pregão diário (1D · secundário)</span>
+          <span class="ci-daily-guard-badge" title="As variações do último pregão são meramente informativas e não alteram diretamente os ciclos macro nem as sugestões de alocação (baseadas na persistência de 21 pregões).">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Informativo · Não altera ciclos (21p)
+          </span>
+        </div>
+
         <div class="ci-daily-items">
           ${items.map(item => {
             const hasDelta = item.changePct !== null && Number.isFinite(item.changePct);
@@ -478,14 +531,28 @@
             const deltaText = hasDelta
               ? `${item.changePct > 0 ? '+' : ''}${item.changePct.toFixed(2).replace('.', ',')}%`
               : '—';
+            const asOfStr = item.asOfDate ? formatDateShort(item.asOfDate) : '';
+            const flag = item.flag || (item.market === 'BR' ? '🇧🇷' : '🇺🇸');
+            const cal = item.calendar || (item.market === 'BR' ? 'B3 (São Paulo)' : 'EUA (New York)');
+            const tooltip = `${item.label} · Fechamento: ${item.displayValue} (${deltaText}) · Pregão: ${item.asOfDate || 'Último disponível'} · Calendário: ${cal} · Variação diária secundária`;
+
             return `
-              <span class="ci-daily-item" title="Variação secundária de 1 pregão — ${esc(item.label)}">
+              <div class="ci-daily-item" title="${esc(tooltip)}" tabindex="0">
+                <span class="ci-daily-flag" aria-hidden="true">${esc(flag)}</span>
                 <span class="ci-daily-sym">${esc(item.label)}</span>
-                <span>${esc(item.displayValue)}</span>
+                <span class="ci-daily-val">${esc(item.displayValue)}</span>
                 <span class="ci-daily-delta ${deltaClass}">${esc(deltaText)}</span>
-              </span>
+                ${asOfStr ? `<span class="ci-daily-date-tag" title="Data do pregão: ${esc(item.asOfDate || '')} (${esc(cal)})">${esc(asOfStr)}</span>` : ''}
+              </div>
             `;
           }).join('')}
+        </div>
+
+        <div class="ci-daily-strip-right">
+          <span class="ci-daily-capture-meta" title="Fotografia com calendários independentes de B3 (São Paulo) e NYSE/Nasdaq (Nova York)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Fotografia: <strong>${esc(timeDisplay)}</strong> · B3/NY
+          </span>
         </div>
       `;
     }
@@ -1002,7 +1069,7 @@
       } else if (node.visualWidget === 'sector_bars') {
         this.drawSectorRotationArc(ctx, x, y, r, node);
       } else if (node.visualWidget === 'portfolio_ring') {
-        this.drawPortfolioConcentricRing(ctx, x, y, r);
+        this.drawPortfolioConcentricRing(ctx, x, y, r, node);
       } else if (node.tier === 'trend_satellite') {
         this.drawSatelliteSparkline(ctx, x, y, r, node);
       }
@@ -1119,12 +1186,38 @@
       ctx.restore();
     }
 
-    drawPortfolioConcentricRing(ctx, x, y, r) {
+    drawPortfolioConcentricRing(ctx, x, y, r, node) {
+      const alloc = node?.portfolioDetail?.allocationByClass;
+      if (Array.isArray(alloc) && alloc.length > 0) {
+        ctx.save();
+        const ringR = r + 5;
+        const totalAmount = alloc.reduce((s, c) => s + (c.amount || 0), 0);
+        if (totalAmount > 0) {
+          let currentAngle = -Math.PI / 2;
+          ctx.lineWidth = 3.5;
+          ctx.lineCap = 'butt';
+          alloc.forEach(cls => {
+            const span = (cls.amount / totalAmount) * (Math.PI * 2);
+            if (span > 0.05) {
+              const gap = 0.035;
+              ctx.beginPath();
+              ctx.arc(x, y, ringR, currentAngle + gap * 0.5, currentAngle + span - gap * 0.5);
+              ctx.strokeStyle = cls.color || '#e5c158';
+              ctx.stroke();
+            }
+            currentAngle += span;
+          });
+          ctx.restore();
+          return;
+        }
+        ctx.restore();
+      }
+
       ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, r + 5, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(229, 193, 88, 0.34)';
-      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(229, 193, 88, 0.42)';
+      ctx.lineWidth = 1.4;
       ctx.setLineDash([6, 4]);
       ctx.stroke();
       ctx.setLineDash([]);
@@ -1236,6 +1329,11 @@
       const node = this.model.getNodeById(nodeId);
       if (!node) return;
       this.selectedNodeId = nodeId;
+      if (nodeId === 'cycle_brazil' && node.brazilCycleDetail) {
+        this.openBrazilCycleModal(node);
+        this.draw();
+        return;
+      }
       if (nodeId === 'cycle_us' && node.usCycleDetail) {
         this.openUsCycleModal(node);
         this.draw();
@@ -1248,6 +1346,21 @@
       }
       if (nodeId === 'sector_rotation_us' && node.usSectorRotationDetail) {
         this.openUsSectorRotationModal(node);
+        this.draw();
+        return;
+      }
+      if (nodeId === 'gold_commodities' && node.goldProtectionDetail) {
+        this.openGoldProtectionModal(node);
+        this.draw();
+        return;
+      }
+      if (nodeId === 'macro_events') {
+        this.openMacroEventsModal(node);
+        this.draw();
+        return;
+      }
+      if (nodeId === 'my_portfolio') {
+        this.openMyPortfolioModal(node);
         this.draw();
         return;
       }
@@ -1355,6 +1468,9 @@
           <span style="font-size:10.5px;color:#688578;">Fonte: ${esc(node.source)}</span>
           <div style="display:flex;gap:6px;align-items:center;">
             ${isBrazilCycle ? `<button type="button" class="ci-link-btn" id="ciExpandBrazilCycleBtn">Expandir</button>` : ''}
+            ${node.goldProtectionDetail ? `<button type="button" class="ci-link-btn" id="ciExpandGoldModalBtn">Ver Análise Completa →</button>` : ''}
+            ${nodeId === 'macro_events' ? `<button type="button" class="ci-link-btn" id="ciExpandMacroEventsBtn">Ver Calendário Completo →</button>` : ''}
+            ${nodeId === 'my_portfolio' ? `<button type="button" class="ci-link-btn" id="ciExpandPortfolioModalBtn">Ver Detalhamento do Patrimônio →</button>` : ''}
             ${node.sourceRoute ? `<button type="button" class="ci-link-btn" id="ciDrawerGoRouteBtn">Abrir módulo →</button>` : ''}
           </div>
         </footer>
@@ -1365,6 +1481,9 @@
 
       document.getElementById('ciCloseDrawerBtn')?.addEventListener('click', () => this.closeNodeDrawer());
       document.getElementById('ciExpandBrazilCycleBtn')?.addEventListener('click', () => this.openBrazilCycleModal(node));
+      document.getElementById('ciExpandGoldModalBtn')?.addEventListener('click', () => this.openGoldProtectionModal(node));
+      document.getElementById('ciExpandMacroEventsBtn')?.addEventListener('click', () => this.openMacroEventsModal(node));
+      document.getElementById('ciExpandPortfolioModalBtn')?.addEventListener('click', () => this.openMyPortfolioModal(node));
       drawer.querySelectorAll('[data-open-conn]').forEach(btn => {
         btn.addEventListener('click', () => this.openConnectionModal(btn.getAttribute('data-open-conn')));
       });
@@ -1377,7 +1496,7 @@
       }
     }
 
-    buildBrazilCycleDiagnosticsHtml(node, freshLabel, freshState) {
+    buildBrazilCycleDiagnosticsHtml(node, freshLabel, freshState, isModal = false) {
       const d = node.brazilCycleDetail || {};
       const sup = d.supportingIndicators || {};
       const rf = d.relatedFactors || {};
@@ -1396,6 +1515,152 @@
       const collectedStr = d.provenance?.collectedAt
         ? new Date(d.provenance.collectedAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
         : '—';
+
+      if (isModal) {
+        return `
+          <div class="ci-modal-grid-2col">
+            <!-- COLUNA 1: DIAGNÓSTICO & EVOLUÇÃO -->
+            <div class="ci-modal-col">
+              <div class="ci-metric-hero">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span class="ci-cycle-regime-pill" style="${d.regimeColor ? `border-color:${esc(d.regimeColor)};` : ''}">
+                    <span class="ci-cycle-regime-dot" style="background:${esc(d.regimeColor || '#6b7280')};"></span>
+                    ${esc(d.hasOfficialRegime ? d.regimeLabel : 'Classificação Indisponível')}
+                  </span>
+                  <span class="ci-provenance-badge ${freshState === 'atualizado' ? 'is-live' : ''}">${esc(freshLabel)}</span>
+                </div>
+                <div class="ci-cycle-tags-row" style="margin-top:8px;">
+                  ${d.direction ? `<span class="ci-cycle-chip">Direção: ${esc(d.direction)}</span>` : ''}
+                  ${d.volatility ? `<span class="ci-cycle-chip">Volatilidade: ${esc(d.volatility)}</span>` : ''}
+                  ${d.currentPeriod ? `<span class="ci-cycle-chip">${esc(d.currentPeriod.durationTradingDays)}p desde ${esc(fmtShortDate(d.currentPeriod.startDate))}</span>` : ''}
+                </div>
+                <p class="ci-drawer-desc" style="margin-top:8px;font-size:12.5px;color:#cfe0d6;line-height:1.5;">${esc(d.diagnosis?.summary || node.description)}</p>
+                ${d.diagnosis?.permissionGuidance ? `
+                  <div class="ci-detail-row" style="margin-top:6px;border-left:3px solid #f3d58d;background:rgba(212,175,55,0.06);padding:6px 10px;border-radius:6px;">
+                    <div class="ci-detail-k" style="color:#f3d58d;">Diretriz Operacional</div>
+                    <div class="ci-detail-v">${esc(d.diagnosis.permissionGuidance)}</div>
+                  </div>
+                ` : ''}
+              </div>
+
+              ${timeline.length ? `
+                <div class="ci-cycle-timeline-wrap">
+                  <div class="ci-cycle-timeline-head">
+                    <span>Evolução do Regime (${timeline.length} pregões)</span>
+                    <span>IBOV · Fechamento</span>
+                  </div>
+                  <div class="ci-cycle-timeline-bars" role="img" aria-label="Evolução diária do regime nos últimos ${timeline.length} pregões">
+                    ${timeline.map(pt => `
+                      <div class="ci-cycle-bar" style="background:${esc(pt.color || '#6b7280')};" title="${esc(fmtShortDate(pt.date))} — ${esc(pt.regimeLabel)} (Fech.: ${esc(fmtNum(pt.close, 0))})"></div>
+                    `).join('')}
+                  </div>
+                  <div class="ci-cycle-timeline-dates">
+                    <span>${esc(fmtShortDate(timeline[0].date))}</span>
+                    <span>Janela de 21 pregões</span>
+                    <span>${esc(fmtShortDate(timeline[timeline.length - 1].date))}</span>
+                  </div>
+                </div>
+              ` : ''}
+
+              ${transitions.length ? `
+                <div>
+                  <div class="ci-conn-section-title" style="font-size:11px;">Transições Recentes de Regime</div>
+                  <div class="ci-cycle-transitions">
+                    ${transitions.slice(0, 4).map(tr => `
+                      <div class="ci-cycle-transition-row">
+                        <span style="display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#ffffff;">
+                          <i style="width:8px;height:8px;border-radius:50%;background:${esc(tr.color)};display:inline-block;"></i>
+                          ${esc(tr.regimeLabel)}
+                        </span>
+                        <span style="color:#9bb8aa;">${esc(fmtShortDate(tr.startDate))} → ${esc(fmtShortDate(tr.endDate))}</span>
+                        <span style="color:#f3d58d;font-weight:700;">${esc(tr.durationTradingDays)}p</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- COLUNA 2: INDICADORES PRINCIPAIS & DETALHAMENTO -->
+            <div class="ci-modal-col">
+              <div class="ci-conn-section-title">Indicadores que Sustentam o Regime</div>
+              <div class="ci-kpi-highlight-grid">
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">IBOV (Fechamento)</span>
+                  <span class="ci-kpi-highlight-val">${esc(fmtNum(sup.close, 0))}</span>
+                  <span class="ci-kpi-highlight-sub">EMA10: ${esc(fmtNum(sup.ema10, 0))} (${esc(fmtPct(sup.distEma10Pct))})</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Volatilidade ATR%</span>
+                  <span class="ci-kpi-highlight-val" style="color:#f3d58d;">${esc(fmtNum(sup.atrPct, 2))}%</span>
+                  <span class="ci-kpi-highlight-sub">Desvio vs MM252: ${esc(fmtPct(sup.volatilityDeviationPct))}</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Tendência 21 Pregões</span>
+                  <span class="ci-kpi-highlight-val" style="color:${(sup.return21dPct ?? 0) >= 0 ? '#10b981' : '#ef4444'};">${esc(fmtPct(sup.return21dPct))}</span>
+                  <span class="ci-kpi-highlight-sub">63 pregões: ${esc(fmtPct(sup.return63dPct))}</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Alinhamento EMA</span>
+                  <span class="ci-kpi-highlight-val" style="font-size:13.5px;color:#cfe0d6;">${esc(sup.emaStructure || '—')}</span>
+                  <span class="ci-kpi-highlight-sub">ATR(21): ${esc(fmtNum(sup.atr21, 0))} pts</span>
+                </div>
+              </div>
+
+              <details class="ci-accordion" style="margin-top:10px;">
+                <summary class="ci-accordion-summary">
+                  <span>Benchmarks Brasileiros & Contexto Conectado</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content">
+                  ${benchmarks.length ? `
+                    <div class="ci-cycle-transitions" style="margin-bottom:10px;">
+                      ${benchmarks.map(bm => `
+                        <div class="ci-cycle-transition-row">
+                          <span style="font-weight:700;color:#ffffff;">${esc(bm.symbol)}</span>
+                          <span style="color:${esc(bm.regimeColor || '#9bb8aa')};font-weight:700;">${esc(bm.regimeLabel || 'Indisponível')}</span>
+                          <span style="color:#9bb8aa;">21p: ${esc(fmtPct(bm.return21dPct))}</span>
+                          <span style="font-size:10px;color:#688578;">${esc(fmtShortDate(bm.asOfDate))}</span>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                  <div class="ci-cycle-kpi-grid">
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Amplitude B3</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">${rf.breadthB3?.status !== 'indisponivel' ? `${esc(rf.breadthB3.aboveEma50Pct)}% > MM50` : 'Indisponível'}</span>
+                    </div>
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Dólar PTAX (21p)</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">${rf.dolar?.status !== 'indisponivel' ? `R$ ${esc(fmtNum(rf.dolar.latestValue, 2))}` : 'Indisponível'}</span>
+                    </div>
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Juros (Selic / DI)</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">${rf.juros?.selicStatus !== 'indisponivel' ? `Selic ${esc(fmtNum(rf.juros.selicValue, 2))}%` : 'Indisponível'}</span>
+                    </div>
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Volatilidade</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">${esc(rf.volatility?.regimeVolatility || 'Indisponível')}</span>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <details class="ci-accordion" style="margin-top:8px;">
+                <summary class="ci-accordion-summary">
+                  <span>Rastreabilidade, Motor & Fontes</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content" style="font-size:11px;color:#9bb8aa;line-height:1.45;">
+                  <strong>Motor:</strong> ${esc(d.provenance?.engine || 'backend/src/market-regime.js')}<br/>
+                  <strong>Referência:</strong> ${esc(d.provenance?.asOfDate || '—')} · <strong>Coleta:</strong> ${esc(collectedStr)}<br/>
+                  <em>Variação de um único pregão não determina isoladamente o regime.</em>
+                </div>
+              </details>
+            </div>
+          </div>
+        `;
+      }
 
       return `
         <div class="ci-metric-hero">
@@ -1555,7 +1820,7 @@
             <button type="button" class="ci-close-btn" id="ciCloseBrCycleModalBtn" aria-label="Fechar diagnóstico">✕</button>
           </header>
           <div class="ci-modal-body">
-            ${this.buildBrazilCycleDiagnosticsHtml(node, freshLabel, freshState)}
+            ${this.buildBrazilCycleDiagnosticsHtml(node, freshLabel, freshState, true)}
           </div>
           <footer class="ci-modal-foot">
             <button type="button" class="ci-link-btn" id="ciGoMarketCycleModalBtn">Abrir Ciclo de Mercado →</button>
@@ -1573,7 +1838,7 @@
       });
     }
 
-    buildUsCycleDiagnosticsHtml(node, freshLabel, freshState) {
+    buildUsCycleDiagnosticsHtml(node, freshLabel, freshState, isModal = false) {
       const d = node.usCycleDetail || {};
       const sup = d.supportingIndicators || {};
       const rc = d.relatedContext || {};
@@ -1593,6 +1858,153 @@
       const collectedStr = d.provenance?.collectedAt
         ? new Date(d.provenance.collectedAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
         : '—';
+
+      if (isModal) {
+        return `
+          <div class="ci-modal-grid-2col">
+            <!-- COLUNA 1: DIAGNÓSTICO & EVOLUÇÃO -->
+            <div class="ci-modal-col">
+              <div class="ci-metric-hero">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span class="ci-cycle-regime-pill" style="${d.regimeColor ? `border-color:${esc(d.regimeColor)};` : ''}">
+                    <span class="ci-cycle-regime-dot" style="background:${esc(d.regimeColor || '#3b82f6')};"></span>
+                    ${esc(d.hasOfficialRegime ? d.regimeLabel : 'Classificação EUA Indisponível')}
+                  </span>
+                  <span class="ci-provenance-badge ${freshState === 'atualizado' ? 'is-live' : ''}">${esc(freshLabel)}</span>
+                </div>
+                <div class="ci-cycle-tags-row" style="margin-top:8px;">
+                  ${d.direction ? `<span class="ci-cycle-chip">Direção EUA: ${esc(d.direction)}</span>` : ''}
+                  ${d.volatility ? `<span class="ci-cycle-chip">Volatilidade EUA: ${esc(d.volatility)}</span>` : ''}
+                  ${d.currentPeriod ? `<span class="ci-cycle-chip">${esc(d.currentPeriod.durationTradingDays)}p desde ${esc(fmtShortDate(d.currentPeriod.startDate))}</span>` : ''}
+                </div>
+                <p class="ci-drawer-desc" style="margin-top:8px;font-size:12.5px;color:#cfe0d6;line-height:1.5;">${esc(d.diagnosis?.summary || node.description)}</p>
+                ${d.diagnosis?.confluencyNote ? `
+                  <div class="ci-detail-row" style="margin-top:6px;border-left:3px solid #38bdf8;background:rgba(56,189,248,0.06);padding:6px 10px;border-radius:6px;">
+                    <div class="ci-detail-k" style="color:#7dd3fc;">Confluência S&P 500 × Nasdaq-100</div>
+                    <div class="ci-detail-v">${esc(d.diagnosis.confluencyNote)}</div>
+                  </div>
+                ` : ''}
+              </div>
+
+              ${timeline.length ? `
+                <div class="ci-cycle-timeline-wrap">
+                  <div class="ci-cycle-timeline-head">
+                    <span>Evolução do Regime EUA (${timeline.length} pregões)</span>
+                    <span>SPY · Fechamento NY</span>
+                  </div>
+                  <div class="ci-cycle-timeline-bars" role="img" aria-label="Evolução diária do regime americano nos últimos ${timeline.length} pregões">
+                    ${timeline.map(pt => `
+                      <div class="ci-cycle-bar" style="background:${esc(pt.color || '#3b82f6')};" title="${esc(fmtShortDate(pt.date))} — ${esc(pt.regimeLabel)} (SPY: US$ ${esc(fmtNum(pt.close, 2))})"></div>
+                    `).join('')}
+                  </div>
+                  <div class="ci-cycle-timeline-dates">
+                    <span>${esc(fmtShortDate(timeline[0].date))}</span>
+                    <span>Janela de 21 pregões (EUA)</span>
+                    <span>${esc(fmtShortDate(timeline[timeline.length - 1].date))}</span>
+                  </div>
+                </div>
+              ` : ''}
+
+              ${transitions.length ? `
+                <div>
+                  <div class="ci-conn-section-title" style="font-size:11px;">Transições Recentes de Regime EUA</div>
+                  <div class="ci-cycle-transitions">
+                    ${transitions.slice(0, 4).map(tr => `
+                      <div class="ci-cycle-transition-row">
+                        <span style="display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#ffffff;">
+                          <i style="width:8px;height:8px;border-radius:50%;background:${esc(tr.color)};display:inline-block;"></i>
+                          ${esc(tr.regimeLabel)}
+                        </span>
+                        <span style="color:#9bb8aa;">${esc(fmtShortDate(tr.startDate))} → ${esc(fmtShortDate(tr.endDate))}</span>
+                        <span style="color:#f3d58d;font-weight:700;">${esc(tr.durationTradingDays)}p</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- COLUNA 2: INDICADORES PRINCIPAIS & DETALHAMENTO -->
+            <div class="ci-modal-col">
+              <div class="ci-conn-section-title">Indicadores que Sustentam o Regime EUA (SPY)</div>
+              <div class="ci-kpi-highlight-grid">
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">SPY (Fechamento NY)</span>
+                  <span class="ci-kpi-highlight-val">US$ ${esc(fmtNum(sup.close, 2))}</span>
+                  <span class="ci-kpi-highlight-sub">EMA10: ${esc(fmtNum(sup.ema10, 2))} (${esc(fmtPct(sup.distEma10Pct))})</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Volatilidade ATR%</span>
+                  <span class="ci-kpi-highlight-val" style="color:#f3d58d;">${esc(fmtNum(sup.atrPct, 2))}%</span>
+                  <span class="ci-kpi-highlight-sub">Desvio vs MM252: ${esc(fmtPct(sup.volatilityDeviationPct))}</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Tendência 21 Pregões</span>
+                  <span class="ci-kpi-highlight-val" style="color:${(sup.return21dPct ?? 0) >= 0 ? '#10b981' : '#ef4444'};">${esc(fmtPct(sup.return21dPct))}</span>
+                  <span class="ci-kpi-highlight-sub">63 pregões: ${esc(fmtPct(sup.return63dPct))}</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Alinhamento EMA</span>
+                  <span class="ci-kpi-highlight-val" style="font-size:13.5px;color:#cfe0d6;">${esc(sup.emaStructure || '—')}</span>
+                  <span class="ci-kpi-highlight-sub">ATR(21): US$ ${esc(fmtNum(sup.atr21, 2))}</span>
+                </div>
+              </div>
+
+              <details class="ci-accordion" style="margin-top:10px;">
+                <summary class="ci-accordion-summary">
+                  <span>Benchmarks Americanos & Dimensões Conectadas</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content">
+                  ${benchmarks.length ? `
+                    <div class="ci-cycle-transitions" style="margin-bottom:10px;">
+                      ${benchmarks.map(bm => `
+                        <div class="ci-cycle-transition-row">
+                          <span style="font-weight:700;color:#ffffff;">${esc(bm.symbol)} <span style="font-weight:500;color:#688578;font-size:10px;">${esc(bm.role || '')}</span></span>
+                          <span style="color:${esc(bm.regimeColor || '#9bb8aa')};font-weight:700;">${esc(bm.regimeLabel || (bm.status === 'indisponivel' ? 'Indisponível' : 'Complementar'))}</span>
+                          <span style="color:#9bb8aa;">21p: ${esc(fmtPct(bm.return21dPct))}</span>
+                          <span style="font-size:10px;color:#688578;">${esc(fmtShortDate(bm.asOfDate))}</span>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                  ${ew.interpretation ? `<div class="ci-cycle-note-muted" style="margin-bottom:8px;">Equal-Weight (RSP): ${esc(ew.interpretation)}</div>` : ''}
+                  <div class="ci-cycle-kpi-grid">
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Market Breadth EUA</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">Esfera Independente</span>
+                    </div>
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Rotação Setorial EUA</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">${rc.sectorRotationUs?.leader ? esc(rc.sectorRotationUs.leader.sector) : 'Aguardando feed'}</span>
+                    </div>
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">VIX (21p)</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">${rc.vix?.status !== 'indisponivel' ? esc(fmtNum(rc.vix?.latestValue, 2)) : 'Indisp.'}</span>
+                    </div>
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Independência Brasil</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">${esc(rc.brazilComparison?.brazilRegimeLabel || 'Indisp.')}</span>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <details class="ci-accordion" style="margin-top:8px;">
+                <summary class="ci-accordion-summary">
+                  <span>Metodologia Documentada, Fonte & Timestamp</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content" style="font-size:11px;color:#9bb8aa;line-height:1.45;">
+                  <strong>Motor:</strong> ${esc(meth.engine || 'backend/src/market-regime.js')}<br/>
+                  <strong>Separação:</strong> ${esc(meth.separationGuarantee || 'Operação 100% autônoma entre NY e B3')}<br/>
+                  <strong>Fonte:</strong> ${esc(d.provenance?.provider || node.source)} (${esc(d.provenance?.primaryInstrument || 'SPY')}) · <strong>Ref.:</strong> ${esc(d.provenance?.asOfDate || '—')} · <strong>Coleta:</strong> ${esc(collectedStr)}
+                </div>
+              </details>
+            </div>
+          </div>
+        `;
+      }
 
       return `
         <div class="ci-metric-hero">
@@ -1753,7 +2165,7 @@
             <button type="button" class="ci-close-btn" id="ciCloseUsCycleModalBtn" aria-label="Fechar diagnóstico EUA">✕</button>
           </header>
           <div class="ci-modal-body">
-            ${this.buildUsCycleDiagnosticsHtml(node, freshLabel, freshState)}
+            ${this.buildUsCycleDiagnosticsHtml(node, freshLabel, freshState, true)}
           </div>
           <footer class="ci-modal-foot">
             <button type="button" class="ci-link-btn" id="ciGoUsMarketCycleModalBtn">Abrir Ciclo de Mercado (S&P 500) →</button>
@@ -1827,7 +2239,7 @@
       `;
     }
 
-    buildUsBreadthDiagnosticsHtml(node, freshLabel, freshState) {
+    buildUsBreadthDiagnosticsHtml(node, freshLabel, freshState, isModal = false) {
       const d = node.usBreadthDetail || {};
       const cond = d.condition || {};
       const div = d.divergence || {};
@@ -1847,6 +2259,107 @@
       const collectedStr = d.provenance?.collectedAt
         ? new Date(d.provenance.collectedAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
         : '—';
+
+      if (isModal) {
+        return `
+          <div class="ci-modal-grid-2col">
+            <!-- COLUNA 1: DIAGNÓSTICO & EVOLUÇÃO -->
+            <div class="ci-modal-col">
+              <div class="ci-metric-hero">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span class="ci-cycle-regime-pill" style="border-color:${esc(condColor)};">
+                    <span class="ci-cycle-regime-dot" style="background:${esc(condColor)};"></span>
+                    Condição Ampla: ${esc(cond.label || 'Indisponível')}
+                  </span>
+                  <span class="ci-provenance-badge ${freshState === 'atualizado' ? 'is-live' : ''}">${esc(freshLabel)}</span>
+                </div>
+                ${Array.isArray(cond.pillars) && cond.pillars.length ? `
+                  <div class="ci-cycle-tags-row" style="margin-top:6px;">
+                    ${cond.pillars.map(p => `<span class="ci-cycle-chip">${esc(p.label)}: <strong>${esc(p.valueDisplay)}</strong> (${esc(p.state)})</span>`).join('')}
+                  </div>
+                ` : ''}
+                <div class="ci-detail-row" style="margin-top:8px;border-left:3px solid ${esc(divColor)};background:rgba(2,9,7,0.55);padding:8px 12px;border-radius:6px;">
+                  <div class="ci-detail-k" style="color:${esc(divColor)};">${esc(div.label || 'Divergência Índice × Participação')}</div>
+                  <div class="ci-detail-v" style="font-size:12px;color:#cfe0d6;line-height:1.45;">${esc(div.explanation || 'Amplitude avaliada de forma independente do ciclo do índice.')}</div>
+                  ${div.dateMismatchWarning ? `<div class="ci-cycle-note-muted" style="margin-top:4px;color:#fde68a;">${esc(div.dateMismatchWarning)}</div>` : ''}
+                </div>
+              </div>
+
+              ${hist21.length >= 2 ? `
+                <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+                  <div class="ci-cycle-timeline-wrap">
+                    <div class="ci-cycle-timeline-head">
+                      <span>% > MM50 (roxo) & MM200 (azul) — ${esc(hist21.length)} pregões</span>
+                      <span>Nasdaq-100</span>
+                    </div>
+                    ${this.buildBreadthSvgChart(hist21, 'sma')}
+                  </div>
+                  <div class="ci-cycle-timeline-wrap">
+                    <div class="ci-cycle-timeline-head">
+                      <span>Advance / Decline Line Acumulada</span>
+                      <span>${esc(hist21.length)} pregões</span>
+                    </div>
+                    ${this.buildBreadthSvgChart(hist21, 'adline')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- COLUNA 2: INDICADORES PRINCIPAIS & DETALHAMENTO -->
+            <div class="ci-modal-col">
+              <div class="ci-conn-section-title">Métricas de Participação Interna EUA</div>
+              <div class="ci-kpi-highlight-grid">
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">S&P 500 (% > MM50 / MM200)</span>
+                  <span class="ci-kpi-highlight-val" style="font-size:18px;">${sp500.available ? `${esc(fmtPct(sp500.latest?.aboveSma50Pct))} / ${esc(fmtPct(sp500.latest?.aboveSma200Pct))}` : 'Indisponível'}</span>
+                  <span class="ci-kpi-highlight-sub">${sp500.available ? `Ref: ${esc(sp500.asOfDate)}` : 'Aguardando feed'}</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Nasdaq-100 (% > MM50 / MM200)</span>
+                  <span class="ci-kpi-highlight-val" style="font-size:18px;color:#c084fc;">${ndx.available ? `${esc(fmtPct(ndx.latest?.aboveSma50Pct))} / ${esc(fmtPct(ndx.latest?.aboveSma200Pct))}` : 'Indisponível'}</span>
+                  <span class="ci-kpi-highlight-sub">100/100 ações${ndx.available ? ` · Δ21p: ${esc(fmtDeltaPp(ndx.evolution21d?.deltaAboveSma50Pp))}` : ''}</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Advance / Decline</span>
+                  <span class="ci-kpi-highlight-val">${Number.isFinite(latest.advances) ? `${esc(latest.advances)} ↑ / ${esc(latest.declines)} ↓` : 'Indisponível'}</span>
+                  <span class="ci-kpi-highlight-sub">Razão A/D: ${latest.adRatio != null ? esc(String(latest.adRatio).replace('.', ',')) : '—'}</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Novas Máximas vs Mínimas (52s)</span>
+                  <span class="ci-kpi-highlight-val">${latest.newHighs52w != null ? `${esc(latest.newHighs52w)} Máx / ${esc(latest.newLows52w)} Mín` : 'Indisponível'}</span>
+                  <span class="ci-kpi-highlight-sub">Saldo: ${latest.netNewHighs52w != null ? `${latest.netNewHighs52w > 0 ? '+' : ''}${esc(latest.netNewHighs52w)}` : '—'} · Soma 21p: ${ev21.netHighLowSum != null ? `${ev21.netHighLowSum > 0 ? '+' : ''}${esc(ev21.netHighLowSum)}` : '—'}</span>
+                </div>
+              </div>
+
+              <details class="ci-accordion" style="margin-top:10px;">
+                <summary class="ci-accordion-summary">
+                  <span>Composição, Cobertura & Limitações do Universo</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content">
+                  ${lims.length ? `
+                    <div style="font-size:11px;color:#cfe0d6;line-height:1.45;">
+                      ${lims.map(l => `• ${esc(l)}`).join('<br/>')}
+                    </div>
+                  ` : '<div style="font-size:11px;color:#9bb8aa;">Sem limitações documentadas.</div>'}
+                </div>
+              </details>
+
+              <details class="ci-accordion" style="margin-top:8px;">
+                <summary class="ci-accordion-summary">
+                  <span>Metodologia Multi-Fator, Fontes & Defasagem</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content" style="font-size:11px;color:#9bb8aa;line-height:1.45;">
+                  <strong>Regra:</strong> ${esc(meth.classificationRule || 'Classificação por confluência multi-pilar')}<br/>
+                  <strong>Separação:</strong> ${esc(meth.separationRule || 'Amplitude física separada de índices de mercado')}<br/>
+                  <strong>Fonte Primária:</strong> ${esc(d.provenance?.source || node.source)} (${esc(d.primaryUniverseName || 'Nasdaq-100')}) · <strong>Ref.:</strong> ${esc(d.provenance?.asOfDate || '—')} · <strong>Coleta:</strong> ${esc(collectedStr)}
+                </div>
+              </details>
+            </div>
+          </div>
+        `;
+      }
 
       return `
         <div class="ci-metric-hero">
@@ -1958,7 +2471,7 @@
             <button type="button" class="ci-close-btn" id="ciCloseUsBreadthModalBtn" aria-label="Fechar Market Breadth EUA">✕</button>
           </header>
           <div class="ci-modal-body">
-            ${this.buildUsBreadthDiagnosticsHtml(node, freshLabel, freshState)}
+            ${this.buildUsBreadthDiagnosticsHtml(node, freshLabel, freshState, true)}
           </div>
           <footer class="ci-modal-foot">
             <button type="button" class="ci-link-btn" id="ciCloseUsBreadthFooterBtn">Fechar</button>
@@ -1994,7 +2507,7 @@
       `;
     }
 
-    buildUsSectorRotationDiagnosticsHtml(node, freshLabel, freshState) {
+    buildUsSectorRotationDiagnosticsHtml(node, freshLabel, freshState, isModal = false) {
       const d = node.usSectorRotationDetail || {};
       const bm = d.benchmark || {};
       const counts = d.summaryCounts || { totalCataloged: 12, covered: 0, classified21d: 0, strengthening: 0, neutral: 0, weakening: 0 };
@@ -2029,6 +2542,131 @@
         : counts.weakening > counts.strengthening
           ? '#ef4444'
           : '#38bdf8';
+
+      if (isModal) {
+        return `
+          <div class="ci-modal-grid-2col">
+            <!-- COLUNA 1: DIAGNÓSTICO & CLUSTERS -->
+            <div class="ci-modal-col">
+              <div class="ci-metric-hero">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span class="ci-cycle-regime-pill" style="border-color:${esc(profileColor)};">
+                    <span class="ci-cycle-regime-dot" style="background:${esc(profileColor)};"></span>
+                    ${esc(profile.label || 'Rotação Setorial EUA')}
+                  </span>
+                  <span class="ci-provenance-badge ${freshState === 'atualizado' ? 'is-live' : ''}">${esc(freshLabel)}</span>
+                </div>
+                <div class="ci-cycle-tags-row" style="margin-top:6px;">
+                  <span class="ci-cycle-chip" style="border-color:rgba(16,185,129,0.45);color:#6ee7b7;">↑ Fortalecendo: <strong>${esc(counts.strengthening)}</strong></span>
+                  <span class="ci-cycle-chip">• Neutros: <strong>${esc(counts.neutral)}</strong></span>
+                  <span class="ci-cycle-chip" style="border-color:rgba(239,68,68,0.45);color:#fca5a5;">↓ Enfraquecendo: <strong>${esc(counts.weakening)}</strong></span>
+                  <span class="ci-cycle-chip">Benchmark: <strong>${esc(bm.symbol || 'SPY')}</strong> (${esc(fmtPct(bm.return21dPct))})</span>
+                </div>
+                ${profile.summary ? `<p class="ci-drawer-desc" style="margin-top:8px;font-size:12.5px;color:#cfe0d6;line-height:1.5;">${esc(profile.summary)}</p>` : ''}
+              </div>
+
+              ${clusters.some(c => c.sectorsCount > 0) ? `
+                <div>
+                  <div class="ci-conn-section-title">Comparativo por Blocos Temáticos (Média Δ vs. SPY em 21p)</div>
+                  <div class="ci-sector-cluster-grid">
+                    ${clusters.map(cl => `
+                      <div class="ci-cycle-kpi-card" style="border-color:${esc(cl.color)}40;">
+                        <span class="ci-cycle-kpi-label">${esc(cl.cluster)}</span>
+                        <span class="ci-cycle-kpi-val" style="color:${esc(cl.color)};font-size:18px;">${esc(fmtPct(cl.avgExcessVsSpy21dPct, ' p.p.'))}</span>
+                        <span class="ci-cycle-kpi-sub">${esc(cl.stateLabel)} · ETFs: ${esc(cl.symbols.join(', ') || 'Indisponível')}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <details class="ci-accordion" style="margin-top:10px;">
+                <summary class="ci-accordion-summary">
+                  <span>Distinção Epistemológica (Preço ≠ Fluxo de Fundos)</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content" style="font-size:11px;color:#cfe0d6;line-height:1.45;">
+                  ${esc(d.disclaimerNote || meth.epistemologicalRule || 'Esta dimensão mede desempenho relativo de preço de ETFs setoriais contra o S&P 500 (SPY) e não comprova entrada ou saída líquida de recursos em fundos.')}
+                </div>
+              </details>
+
+              <details class="ci-accordion" style="margin-top:8px;">
+                <summary class="ci-accordion-summary">
+                  <span>Metodologia Documentada & Rastreabilidade</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content" style="font-size:11px;color:#9bb8aa;line-height:1.45;">
+                  <strong>Benchmark:</strong> ${esc(meth.benchmark || 'SPY — S&P 500')}<br/>
+                  <strong>Fórmula RS:</strong> ${esc(meth.relativeStrengthFormula || 'Razão do ETF sobre o SPY normalizada a 100')}<br/>
+                  <strong>Fonte:</strong> ${esc(d.provenance?.provider || node.source)} · <strong>Cobertura:</strong> ${esc(d.provenance?.coverageLabel || `${counts.covered}/${counts.totalCataloged}`)} · <strong>Ref.:</strong> ${esc(d.provenance?.asOfDate || '—')} · <strong>Coleta:</strong> ${esc(collectedStr)}
+                </div>
+              </details>
+            </div>
+
+            <!-- COLUNA 2: TABELA DE FORÇA RELATIVA SETORIAL -->
+            <div class="ci-modal-col">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                <div class="ci-conn-section-title" style="margin:0;">Força Relativa vs. SPY (21 Pregões)</div>
+                <div class="ci-sector-legend" style="margin:0;">
+                  ${legend.map(item => `
+                    <span class="ci-sector-legend-item">
+                      <i class="ci-sector-legend-dot" style="background:${esc(item.color)};"></i>
+                      <span>${esc(item.label.split(' ')[0])}</span>
+                    </span>
+                  `).join('')}
+                </div>
+              </div>
+
+              ${sectors.length ? `
+                <div class="ci-sector-table" role="table" aria-label="Comparativo de rotação setorial americana">
+                  <div class="ci-sector-table-head" role="row">
+                    <span>Setor / ETF</span>
+                    <span>Δ vs SPY (21p) · Barra Relativa</span>
+                    <span>21p Abs.</span>
+                    <span>Δ 63p</span>
+                    <span>Curva 21p</span>
+                    <span>Estado</span>
+                  </div>
+                  ${sectors.map(sec => {
+                    const ex21 = Number.isFinite(sec.excessReturnVsSpy21dPct) ? sec.excessReturnVsSpy21dPct : null;
+                    const widthPct = ex21 !== null ? Math.min(50, (Math.abs(ex21) / maxAbsExcess) * 50) : 0;
+                    const leftPct = ex21 !== null && ex21 < 0 ? (50 - widthPct) : 50;
+                    const barColor = sec.rotationColor || '#94a3b8';
+                    return `
+                      <div class="ci-sector-row" role="row" title="${esc(sec.name)} · ${esc(sec.rsMomentumNote || '')}">
+                        <div class="ci-sector-cell-name">
+                          <span class="ci-sector-name">${esc(sec.sector)}</span>
+                          <span class="ci-sector-sym">${esc(sec.symbol)}</span>
+                        </div>
+                        <div class="ci-sector-bar-col">
+                          <div class="ci-sector-bar-track" aria-hidden="true">
+                            <span class="ci-sector-bar-center"></span>
+                            ${ex21 !== null ? `<span class="ci-sector-bar-fill" style="left:${leftPct.toFixed(1)}%;width:${widthPct.toFixed(1)}%;background:${esc(barColor)};"></span>` : ''}
+                          </div>
+                          <span class="ci-sector-excess-val" style="color:${esc(barColor)};">${esc(fmtPct(ex21, ' p.p.'))}</span>
+                        </div>
+                        <div class="ci-sector-num">${esc(fmtPct(sec.return21dPct))}</div>
+                        <div class="ci-sector-num">${esc(fmtPct(sec.excessReturnVsSpy63dPct, ' p.p.'))}</div>
+                        <div class="ci-sector-spark">${this.buildSectorRsSparklineSvg(sec.rsSeries21d, barColor)}</div>
+                        <div>
+                          <span class="ci-sector-state-badge" style="color:${esc(barColor)};border-color:${esc(barColor)}55;background:${esc(barColor)}18;">
+                            ${esc(sec.rotationLabel || 'Neutro')}
+                          </span>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : `
+                <div class="ci-detail-row">
+                  <div class="ci-detail-k">Série de ETFs Setoriais Indisponível</div>
+                  <div class="ci-detail-v">Aguardando dados históricos dos 12 ETFs setoriais.</div>
+                </div>
+              `}
+            </div>
+          </div>
+        `;
+      }
 
       return `
         <div class="ci-metric-hero">
@@ -2148,6 +2786,646 @@
       `;
     }
 
+    openGoldProtectionModal(node) {
+      const modal = document.getElementById('ciConnectionModal');
+      if (!modal || !node?.goldProtectionDetail) return;
+      this.selectedConnectionId = 'gold_protection_modal';
+
+      const freshState = node.freshnessStatus || 'indisponivel';
+      const freshLabel = freshState === 'atualizado'
+        ? `● Atualizado (${node.asOfDate || '—'})`
+        : freshState === 'atrasado'
+          ? `◐ Atrasado (${node.lagBusinessDays || 1}p · ${node.asOfDate || '—'})`
+          : freshState === 'parcial'
+            ? `◐ Parcial (${node.asOfDate || '—'})`
+            : '○ Indisponível';
+
+      modal.innerHTML = `
+        <div class="ci-modal-card ci-modal-wide">
+          <header class="ci-modal-head">
+            <div>
+              <div class="ci-drawer-eyebrow">GLOBAL · OURO & ATIVOS DE PROTEÇÃO (09)</div>
+              <h2>Ouro Internacional & Ativos de Proteção (Reserva de Valor)</h2>
+            </div>
+            <button type="button" class="ci-close-btn" id="ciCloseGoldModalBtn" aria-label="Fechar modal do ouro">✕</button>
+          </header>
+          <div class="ci-modal-body">
+            ${this.buildGoldProtectionDiagnosticsHtml(node, freshLabel, freshState, true)}
+          </div>
+          <footer class="ci-modal-foot">
+            <button type="button" class="ci-link-btn" id="ciCloseGoldFooterBtn">Fechar</button>
+          </footer>
+        </div>
+      `;
+
+      modal.classList.add('open');
+      document.getElementById('ciCloseGoldModalBtn')?.addEventListener('click', () => this.closeConnectionModal());
+      document.getElementById('ciCloseGoldFooterBtn')?.addEventListener('click', () => this.closeConnectionModal());
+    }
+
+    buildGoldProtectionDiagnosticsHtml(node, freshLabel, freshState, isModal = false) {
+      const gp = node.goldProtectionDetail;
+      if (!gp) {
+        return '<div class="ci-cycle-note-muted">Dados detalhados do ouro indisponíveis no momento.</div>';
+      }
+
+      const pPrice = gp.primaryPrice || {};
+      const trends = gp.historicalTrends || {};
+      const rs = gp.relativeStrength || {};
+      const macro = gp.macroContext || {};
+      const interp = gp.interpretation || {};
+      const other = gp.otherCommodities || {};
+
+      const trendColor = trends.trendDirection === 'up' ? '#10b981' : (trends.trendDirection === 'down' ? '#ef4444' : '#94a3b8');
+      const dayColor = (trends.change1dPct ?? 0) > 0 ? '#10b981' : ((trends.change1dPct ?? 0) < 0 ? '#ef4444' : '#94a3b8');
+      const regimeColor = interp.regimeColor || '#d4af37';
+
+      const fmtSigned = (val, suffix = '%') => {
+        if (!Number.isFinite(val)) return '—';
+        const s = val > 0 ? '+' : '';
+        return `${s}${val.toFixed(2).replace('.', ',')}${suffix}`;
+      };
+
+      const fmtUsd = (val) => {
+        if (!Number.isFinite(val)) return '—';
+        return `$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      };
+
+      const fmtTs = (iso) => {
+        if (!iso) return '—';
+        try {
+          const d = new Date(iso);
+          return `${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+        } catch (_) {
+          return '—';
+        }
+      };
+
+      if (isModal) {
+        return `
+          <div class="ci-modal-grid-2col">
+            <!-- COLUNA 1: DIAGNÓSTICO & FORÇA RELATIVA -->
+            <div class="ci-modal-col">
+              <div class="ci-metric-hero">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span class="ci-cycle-regime-pill" style="border-color:${esc(regimeColor)};">
+                    <span class="ci-cycle-regime-dot" style="background:${esc(regimeColor)};"></span>
+                    ${esc(interp.regimeBadge || 'PROTEÇÃO')}: ${esc(interp.regimeLabel || 'Termômetro de Hedge')}
+                  </span>
+                  <span class="ci-provenance-badge ${freshState === 'atualizado' ? 'is-live' : ''}">${esc(freshLabel)}</span>
+                </div>
+                <p class="ci-drawer-desc" style="margin-top:8px;font-size:12.5px;color:#cfe0d6;line-height:1.5;">
+                  Leitura independente e histórica do ouro como ativo de proteção e reserva de valor nos últimos 21 pregões, sem presumir automaticamente que toda alta seja fuga para segurança.
+                </p>
+                <div style="margin-top:8px;border-left:3px solid ${esc(regimeColor)};background:rgba(2,9,7,0.55);padding:10px 12px;border-radius:6px;">
+                  <p style="margin:0;font-size:12px;color:#cfe0d6;line-height:1.45;">${esc(interp.rationale || 'Aguardando dados.')}</p>
+                  ${interp.flightToSafetyConfirmed ? `
+                    <div style="margin-top:6px;padding:4px 8px;border-radius:4px;background:rgba(16,185,129,0.15);color:#a7f3d0;font-size:11px;font-weight:600;">
+                      ✓ Aversão a risco genuína confirmada: confluência entre alta do ouro, queda acionária e elevação do VIX.
+                    </div>
+                  ` : `
+                    <div style="margin-top:6px;padding:4px 8px;border-radius:4px;background:rgba(56,189,248,0.10);color:#bae6fd;font-size:11px;">
+                      ℹ️ Movimento do ouro decorre de fatores monetários/cambiais — sem pânico generalizado.
+                    </div>
+                  `}
+                </div>
+              </div>
+
+              <div>
+                <div class="ci-conn-section-title">Força Relativa Estrutural (21 Pregões)</div>
+                <div class="ci-cycle-kpi-grid">
+                  <div class="ci-cycle-kpi-card">
+                    <span class="ci-cycle-kpi-label">vs. Ações EUA (S&P 500)</span>
+                    <span class="ci-cycle-kpi-val" style="color:${(rs.vsEquitiesUsPct ?? 0) > 0 ? '#10b981' : '#ef4444'};font-size:18px;">
+                      ${fmtSigned(rs.vsEquitiesUsPct, ' p.p.')}
+                    </span>
+                    <span class="ci-cycle-kpi-sub">${rs.vsEquitiesUsPct > 0 ? 'Alpha defensivo' : 'Mercado acionário superior'}</span>
+                  </div>
+                  <div class="ci-cycle-kpi-card">
+                    <span class="ci-cycle-kpi-label">vs. Dólar (DXY)</span>
+                    <span class="ci-cycle-kpi-val" style="color:${(rs.vsDollarPct ?? 0) > 0 ? '#10b981' : '#ef4444'};font-size:18px;">
+                      ${fmtSigned(rs.vsDollarPct, ' p.p.')}
+                    </span>
+                    <span class="ci-cycle-kpi-sub">${rs.vsDollarPct > 0 ? 'Ganhos reais acima do dólar' : 'Pressão da divisa'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="ci-conn-section-title">Contexto Macro & Volatilidade</div>
+                <div class="ci-cycle-kpi-grid">
+                  <div class="ci-cycle-kpi-card">
+                    <span class="ci-cycle-kpi-label">Volatilidade (VIX)</span>
+                    <span class="ci-cycle-kpi-val">${macro.vixLevel ? Number(macro.vixLevel).toFixed(2).replace('.', ',') : '—'}</span>
+                    <span class="ci-cycle-kpi-sub">Regime: ${esc(macro.vixRegime || '—')}</span>
+                  </div>
+                  <div class="ci-cycle-kpi-card">
+                    <span class="ci-cycle-kpi-label">Petróleo WTI (21p)</span>
+                    <span class="ci-cycle-kpi-val">${fmtSigned(macro.oilTrend21dPct)}</span>
+                    <span class="ci-cycle-kpi-sub">Tendência de energia</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COLUNA 2: INDICADORES PRINCIPAIS & DETALHAMENTO -->
+            <div class="ci-modal-col">
+              <div class="ci-conn-section-title">Comportamento de Preço & Janelas</div>
+              <div class="ci-kpi-highlight-grid">
+                <div class="ci-kpi-highlight-card" style="border-color:rgba(212,175,55,0.4);background:rgba(212,175,55,0.06);">
+                  <span class="ci-kpi-highlight-label" style="color:#f3d58d;">★ Tendência 21 Pregões (DESTAQUE)</span>
+                  <span class="ci-kpi-highlight-val" style="font-size:26px;color:${esc(trendColor)};">${fmtSigned(trends.change21dPct)}</span>
+                  <span class="ci-kpi-highlight-sub">63p: ${fmtSigned(trends.change63dPct)} · ${esc(trends.trendLabel || '—')}</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Preço Internacional (${esc(pPrice.symbol || 'XAU')})</span>
+                  <span class="ci-kpi-highlight-val">${fmtUsd(pPrice.currentPrice)}</span>
+                  <span class="ci-kpi-highlight-sub">${esc(pPrice.name || 'Ouro')} (${esc(pPrice.currency || 'USD')})</span>
+                </div>
+                <div class="ci-kpi-highlight-card" style="border-style:dashed;">
+                  <span class="ci-kpi-highlight-label">Oscilação Diária (SECUNDÁRIA)</span>
+                  <span class="ci-kpi-highlight-val" style="font-size:20px;color:${esc(dayColor)};">${fmtSigned(trends.change1dPct)}</span>
+                  <span class="ci-kpi-highlight-sub">Informativo 1 pregão</span>
+                </div>
+                <div class="ci-kpi-highlight-card">
+                  <span class="ci-kpi-highlight-label">Força vs Ações EUA</span>
+                  <span class="ci-kpi-highlight-val" style="font-size:20px;color:${(rs.vsEquitiesUsPct ?? 0) > 0 ? '#10b981' : '#ef4444'};">${fmtSigned(rs.vsEquitiesUsPct, ' p.p.')}</span>
+                  <span class="ci-kpi-highlight-sub">Diferencial vs SPY em 21p</span>
+                </div>
+              </div>
+
+              <details class="ci-accordion" style="margin-top:10px;">
+                <summary class="ci-accordion-summary">
+                  <span>Cesta de Commodities & Demais Ativos</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content">
+                  <div class="ci-cycle-kpi-grid">
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">${esc(other.oilWti?.name || 'Petróleo WTI')}</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:14px;">${other.oilWti?.currentPrice ? fmtUsd(other.oilWti.currentPrice) : 'Indisponível'}</span>
+                      <span class="ci-cycle-kpi-sub">21p: ${fmtSigned(other.oilWti?.change21dPct)}</span>
+                    </div>
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">${esc(other.broadCommodities?.name || 'Cesta Ampla (DBC)')}</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:14px;">${other.broadCommodities?.currentPrice ? fmtUsd(other.broadCommodities.currentPrice) : 'Indisponível'}</span>
+                      <span class="ci-cycle-kpi-sub">21p: ${fmtSigned(other.broadCommodities?.change21dPct)}</span>
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <details class="ci-accordion" style="margin-top:8px;">
+                <summary class="ci-accordion-summary">
+                  <span>Limitações Analíticas & Princípios Invioláveis</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content" style="font-size:11px;color:#a8c4b7;line-height:1.45;">
+                  <ul style="margin:0;padding-left:16px;">
+                    ${(Array.isArray(interp.limitations) ? interp.limitations : []).map(lim => `<li>${esc(lim)}</li>`).join('')}
+                  </ul>
+                  <div style="margin-top:6px;color:#688578;">
+                    <strong>Fonte:</strong> ${esc(gp.source || 'Benchmarks Globais')} · <strong>Ref.:</strong> ${esc(gp.asOfDate || '—')} · <strong>Coleta:</strong> ${esc(fmtTs(gp.collectedAt))}
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <!-- HERO: REGIME DE PROTEÇÃO E STATUS -->
+        <div class="ci-metric-hero">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <span class="ci-cycle-regime-pill" style="border-color:${esc(regimeColor)};">
+              <span class="ci-cycle-regime-dot" style="background:${esc(regimeColor)};"></span>
+              ${esc(interp.regimeBadge || 'PROTEÇÃO')}: ${esc(interp.regimeLabel || 'Termômetro de Hedge')}
+            </span>
+            <span class="ci-provenance-badge ${freshState === 'atualizado' ? 'is-live' : ''}">${esc(freshLabel)}</span>
+          </div>
+          <p class="ci-drawer-desc" style="margin-top:8px;">
+            Leitura independente e histórica do ouro como ativo de proteção estrutural e reserva de valor. Prioriza a trajetória dos últimos 21 pregões e a força relativa vs. ações e dólar, sem presumir automaticamente que toda alta seja fuga para segurança.
+          </p>
+        </div>
+
+        <!-- BLOCO 1: DESTAQUE PRIMÁRIO (21 PREGÕES) E VARIAÇÃO SECUNDÁRIA (1 PREGÃO) -->
+        <div>
+          <div class="ci-conn-section-title">Comportamento de Preço & Janelas Temporais</div>
+          <div class="ci-cycle-kpi-grid">
+            <!-- Tendência 21 Pregões (DESTAQUE) -->
+            <div class="ci-cycle-kpi-card" style="border-color:rgba(212,175,55,0.34);background:rgba(212,175,55,0.06);">
+              <span class="ci-cycle-kpi-label" style="color:#f3d58d;">★ Tendência Histórica (21 Pregões) — DESTAQUE</span>
+              <span class="ci-cycle-kpi-val" style="font-size:26px;color:${esc(trendColor)};">${fmtSigned(trends.change21dPct)}</span>
+              <span class="ci-cycle-kpi-sub">
+                Janela 63p: <strong>${fmtSigned(trends.change63dPct)}</strong> · ${esc(trends.trendLabel || '—')}
+              </span>
+            </div>
+
+            <!-- Preço Internacional -->
+            <div class="ci-cycle-kpi-card">
+              <span class="ci-cycle-kpi-label">Preço Internacional (${esc(pPrice.symbol || 'XAU')})</span>
+              <span class="ci-cycle-kpi-val">${fmtUsd(pPrice.currentPrice)}</span>
+              <span class="ci-cycle-kpi-sub">
+                ${esc(pPrice.name || 'Ouro Internacional')} (${esc(pPrice.currency || 'USD')})
+              </span>
+            </div>
+
+            <!-- Variação Diária (SECUNDÁRIA) -->
+            <div class="ci-cycle-kpi-card" style="border-style:dashed;">
+              <span class="ci-cycle-kpi-label">Oscilação Diária — SECUNDÁRIA</span>
+              <span class="ci-cycle-kpi-val" style="font-size:20px;color:${esc(dayColor)};">${fmtSigned(trends.change1dPct)}</span>
+              <span class="ci-cycle-kpi-sub" style="font-size:10px;line-height:1.3;color:#8ba598;">
+                Informativo de 1 pregão. Decisões estruturais consideram a janela de 21p.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO 2: FORÇA RELATIVA (RELATIVE STRENGTH) VS AÇÕES E DÓLAR -->
+        <div>
+          <div class="ci-conn-section-title">Força Relativa Estrutural (Janela de 21 Pregões)</div>
+          <div class="ci-cycle-kpi-grid">
+            <div class="ci-cycle-kpi-card">
+              <span class="ci-cycle-kpi-label">Força Relativa vs. Ações EUA (S&P 500 / SPY)</span>
+              <span class="ci-cycle-kpi-val" style="color:${(rs.vsEquitiesUsPct ?? 0) > 0 ? '#10b981' : '#ef4444'};">
+                ${fmtSigned(rs.vsEquitiesUsPct, ' p.p.')}
+              </span>
+              <span class="ci-cycle-kpi-sub">
+                ${rs.vsEquitiesUsPct !== null
+                  ? (rs.vsEquitiesUsPct > 0 ? 'Ouro com alpha defensivo frente ao mercado acionário' : 'Mercado acionário superando o ouro em 21p')
+                  : 'Comparação aguardando histórico suficiente'}
+              </span>
+            </div>
+
+            <div class="ci-cycle-kpi-card">
+              <span class="ci-cycle-kpi-label">Força Relativa vs. Dólar (USD / DXY)</span>
+              <span class="ci-cycle-kpi-val" style="color:${(rs.vsDollarPct ?? 0) > 0 ? '#10b981' : '#ef4444'};">
+                ${fmtSigned(rs.vsDollarPct, ' p.p.')}
+              </span>
+              <span class="ci-cycle-kpi-sub">
+                ${rs.vsDollarPct !== null
+                  ? (rs.vsDollarPct > 0 ? 'Ganhos reais acima da oscilação da divisa fiduciária' : 'Valorização do dólar gerando pressão sobre o ouro')
+                  : 'Comparação aguardando série histórica'}
+              </span>
+            </div>
+          </div>
+          <div class="ci-detail-row" style="margin-top:6px;background:rgba(2,9,7,0.45);border-radius:8px;padding:8px 12px;">
+            <div class="ci-detail-k" style="color:#f3d58d;">Síntese de Desempenho Relativo:</div>
+            <div class="ci-detail-v">${esc(rs.summaryText || 'Aguardando séries para cálculo de força relativa.')}</div>
+          </div>
+        </div>
+
+        <!-- BLOCO 3: CONTEXTO MACROECONÔMICO & VOLATILIDADE -->
+        <div>
+          <div class="ci-conn-section-title">Contexto Macroeconômico & Volatilidade</div>
+          <div class="ci-cycle-kpi-grid">
+            <div class="ci-cycle-kpi-card">
+              <span class="ci-cycle-kpi-label">Volatilidade Acionária (VIX)</span>
+              <span class="ci-cycle-kpi-val">${macro.vixLevel ? Number(macro.vixLevel).toFixed(2).replace('.', ',') : '—'}</span>
+              <span class="ci-cycle-kpi-sub">Regime: <strong>${esc(macro.vixRegime || '—')}</strong> (estresse > 25)</span>
+            </div>
+
+            <div class="ci-cycle-kpi-card">
+              <span class="ci-cycle-kpi-label">Petróleo WTI (Energia / Insumos)</span>
+              <span class="ci-cycle-kpi-val">${fmtSigned(macro.oilTrend21dPct)}</span>
+              <span class="ci-cycle-kpi-sub">Tendência de 21 pregões no setor energético</span>
+            </div>
+
+            <div class="ci-cycle-kpi-card">
+              <span class="ci-cycle-kpi-label">Custo de Oportunidade (Juros)</span>
+              <span class="ci-cycle-kpi-val" style="font-size:14px;color:#cfe0d6;">Juros Reais</span>
+              <span class="ci-cycle-kpi-sub">Ouro não gera yield; juros soberanos altos competem por capital</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO 4: INTERPRETAÇÃO COMPORTAMENTAL CRÍTICA -->
+        <div>
+          <div class="ci-conn-section-title">Interpretação Comportamental & Racional de Regime</div>
+          <div class="ci-detail-row" style="border-left:4px solid ${esc(regimeColor)};background:rgba(2,9,7,0.55);padding:12px 14px;border-radius:8px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span class="ci-sector-state-badge" style="color:${esc(regimeColor)};border-color:${esc(regimeColor)}55;background:${esc(regimeColor)}18;padding:3px 10px;font-size:11px;">
+                ${esc(interp.regimeBadge || 'REGIME')}
+              </span>
+              <strong style="color:#ffffff;font-size:13px;">${esc(interp.regimeLabel || '—')}</strong>
+            </div>
+            <p style="margin:0;font-size:12px;color:#cfe0d6;line-height:1.5;">${esc(interp.rationale || 'Aguardando dados.')}</p>
+            ${interp.flightToSafetyConfirmed ? `
+              <div style="margin-top:8px;padding:6px 10px;border-radius:6px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#a7f3d0;font-size:11px;font-weight:600;">
+                ✓ Aversão a risco genuína confirmada: confluência entre alta do ouro, queda acionária e elevação do VIX.
+              </div>
+            ` : `
+              <div style="margin-top:8px;padding:6px 10px;border-radius:6px;background:rgba(56,189,248,0.10);border:1px solid rgba(56,189,248,0.25);color:#bae6fd;font-size:11px;">
+                ℹ️ Alta do ouro decorre de fatores monetários, cambiais ou de liquidez — não classificar compulsoriamente como crise.
+              </div>
+            `}
+          </div>
+        </div>
+
+        <!-- BLOCO 5: LIMITAÇÕES ANALÍTICAS E PRINCÍPIOS INVIOLÁVEIS -->
+        <div>
+          <div class="ci-conn-section-title">Limitações Analíticas & Princípios Invioláveis</div>
+          <div class="ci-detail-row" style="background:rgba(2,9,7,0.35);padding:10px 14px;border-radius:8px;">
+            <ul style="margin:0;padding-left:18px;font-size:11.5px;color:#a8c4b7;line-height:1.55;">
+              ${(Array.isArray(interp.limitations) ? interp.limitations : []).map(lim => `<li>${esc(lim)}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <!-- BLOCO 6: CESTA DE COMMODITIES (EVOLUÇÃO FUTURA / EM MONITORAMENTO) -->
+        <div>
+          <div class="ci-conn-section-title">Cesta de Commodities (Evolução Futura / Em Monitoramento)</div>
+          <div class="ci-cycle-kpi-grid">
+            <div class="ci-cycle-kpi-card">
+              <span class="ci-cycle-kpi-label">${esc(other.oilWti?.name || 'Petróleo WTI (Proxy USO)')}</span>
+              <span class="ci-cycle-kpi-val">${other.oilWti?.currentPrice ? fmtUsd(other.oilWti.currentPrice) : 'Indisponível'}</span>
+              <span class="ci-cycle-kpi-sub">
+                21p: <strong>${fmtSigned(other.oilWti?.change21dPct)}</strong> · Hoje: ${fmtSigned(other.oilWti?.change1dPct)}
+              </span>
+            </div>
+
+            <div class="ci-cycle-kpi-card">
+              <span class="ci-cycle-kpi-label">${esc(other.broadCommodities?.name || 'Cesta Ampla (Proxy DBC)')}</span>
+              <span class="ci-cycle-kpi-val">${other.broadCommodities?.currentPrice ? fmtUsd(other.broadCommodities.currentPrice) : 'Indisponível'}</span>
+              <span class="ci-cycle-kpi-sub">
+                21p: <strong>${fmtSigned(other.broadCommodities?.change21dPct)}</strong> · Hoje: ${fmtSigned(other.broadCommodities?.change1dPct)}
+              </span>
+            </div>
+          </div>
+          <p class="ci-cycle-note-muted" style="margin-top:6px;font-size:10.5px;">
+            Arquitetura preparada para acoplar feeds primários de commodities agrícolas e metais industriais conforme disponibilidade.
+          </p>
+        </div>
+
+        <!-- BLOCO 7: METADADOS E PROVENIÊNCIA -->
+        <div class="ci-macro-meta-foot" style="margin-top:6px;padding:8px 12px;background:rgba(2,9,7,0.30);border-radius:6px;font-size:10.5px;color:#688578;">
+          <span><strong>Fonte Primária:</strong> ${esc(gp.source || 'Benchmarks Globais')}</span>
+          <span><strong>Data de Referência:</strong> ${esc(gp.asOfDate || '—')} (Defasagem: ${gp.lagBusinessDays != null ? `${esc(gp.lagBusinessDays)} pregões` : '0'}) · <strong>Coleta:</strong> ${esc(fmtTs(gp.collectedAt))}</span>
+        </div>
+      `;
+    }
+
+    openMacroEventsModal(node, filterMode = 'upcoming') {
+      const modal = document.getElementById('ciConnectionModal');
+      if (!modal) return;
+      this.selectedConnectionId = 'macro_events_modal';
+      this.macroEventsFilterMode = filterMode;
+
+      const freshState = node?.freshnessStatus || 'atualizado';
+      const freshLabel = freshState === 'atualizado'
+        ? `● Atualizado (${node?.asOfDate || '—'})`
+        : '◐ Parcial';
+
+      modal.innerHTML = `
+        <div class="ci-modal-card ci-modal-wide">
+          <header class="ci-modal-head">
+            <div>
+              <div class="ci-drawer-eyebrow">GLOBAL · CALENDÁRIO DE EVENTOS MACROECONÔMICOS (10)</div>
+              <h2>Calendário Econômico & Catalisadores de Mercado</h2>
+            </div>
+            <button type="button" class="ci-close-btn" id="ciCloseMacroEventsModalBtn" aria-label="Fechar calendário macroeconômico">✕</button>
+          </header>
+          <div class="ci-modal-body" id="ciMacroEventsModalBody">
+            ${this.buildMacroEventsDiagnosticsHtml(node, this.macroEventsFilterMode, freshLabel, freshState, true)}
+          </div>
+          <footer class="ci-modal-foot">
+            <button type="button" class="ci-link-btn" id="ciCloseMacroEventsFooterBtn">Fechar</button>
+          </footer>
+        </div>
+      `;
+
+      modal.classList.add('open');
+      document.getElementById('ciCloseMacroEventsModalBtn')?.addEventListener('click', () => this.closeConnectionModal());
+      document.getElementById('ciCloseMacroEventsFooterBtn')?.addEventListener('click', () => this.closeConnectionModal());
+
+      this.bindMacroEventsModalEvents(node, freshLabel, freshState);
+    }
+
+    bindMacroEventsModalEvents(node, freshLabel, freshState) {
+      const body = document.getElementById('ciMacroEventsModalBody');
+      if (!body) return;
+
+      // Filtros do Calendário
+      body.querySelectorAll('[data-macro-filter]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetFilter = btn.getAttribute('data-macro-filter') || 'upcoming';
+          this.macroEventsFilterMode = targetFilter;
+          body.innerHTML = this.buildMacroEventsDiagnosticsHtml(node, targetFilter, freshLabel, freshState, true);
+          this.bindMacroEventsModalEvents(node, freshLabel, freshState);
+        });
+      });
+
+      // Navegação para esferas conectadas a partir do evento
+      body.querySelectorAll('[data-navigate-sphere]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const sphereId = btn.getAttribute('data-navigate-sphere');
+          if (sphereId) {
+            this.closeConnectionModal();
+            setTimeout(() => {
+              this.selectNode(sphereId);
+            }, 60);
+          }
+        });
+      });
+
+      // Navegação para playbook histórico
+      body.querySelectorAll('[data-open-playbook]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.closeConnectionModal();
+          if (typeof root.go === 'function') {
+            root.go('eventplaybook');
+          }
+        });
+      });
+    }
+
+    buildMacroEventsDiagnosticsHtml(node, filterMode = 'upcoming', freshLabel, freshState, isModal = false) {
+      const detail = node?.macroEventsDetail || {};
+      const allEvents = Array.isArray(detail.allEvents) && detail.allEvents.length
+        ? detail.allEvents
+        : (Array.isArray(node?.allEvents) && node.allEvents.length ? node.allEvents : (this.model?.upcomingEvents || []));
+      const upcomingEvents = Array.isArray(detail.upcomingEvents) && detail.upcomingEvents.length
+        ? detail.upcomingEvents
+        : (Array.isArray(node?.upcomingEvents) && node.upcomingEvents.length ? node.upcomingEvents : allEvents);
+      const releasedEvents = Array.isArray(detail.releasedEvents) ? detail.releasedEvents : [];
+
+      const counts = detail.counts || {
+        total: allEvents.length,
+        upcoming: upcomingEvents.length,
+        released: releasedEvents.length,
+        highImpact: upcomingEvents.filter(e => e.impact === 'high' || e.impact === 'ALTO').length,
+        brazil: upcomingEvents.filter(e => e.country === 'BR').length,
+        usa: upcomingEvents.filter(e => e.country === 'US').length
+      };
+
+      let filteredList = upcomingEvents;
+      if (filterMode === 'all') {
+        filteredList = allEvents;
+      } else if (filterMode === 'br') {
+        filteredList = allEvents.filter(e => e.country === 'BR');
+      } else if (filterMode === 'us') {
+        filteredList = allEvents.filter(e => e.country === 'US');
+      } else if (filterMode === 'released') {
+        filteredList = releasedEvents.length ? releasedEvents : allEvents.filter(e => e.dynamicStatus === 'released');
+      }
+
+      const listContainerStyle = isModal
+        ? 'display:grid;grid-template-columns:repeat(auto-fill, minmax(460px, 1fr));gap:12px;margin-top:10px;'
+        : 'display:flex;flex-direction:column;gap:12px;margin-top:8px;';
+
+      return `
+        <!-- HERO EXECUTIVO -->
+        <div class="ci-metric-hero">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <span class="ci-cycle-regime-pill" style="border-color:#f59e0b;">
+              <span class="ci-cycle-regime-dot" style="background:#f59e0b;"></span>
+              Catalisadores Oficiais: ${counts.upcoming} Próximos (${counts.highImpact} de Alto Impacto)
+            </span>
+            <span class="ci-provenance-badge is-live">${esc(freshLabel || '● Atualizado')}</span>
+          </div>
+          <p class="ci-drawer-desc" style="margin-top:6px;font-size:12.5px;color:#cfe0d6;line-height:1.5;">
+            Mapeamento determinístico de reuniões de política monetária (Copom e Fed), inflação (IPCA, CPI, PCE) e emprego/atividade (Payroll).
+          </p>
+          <div class="ci-detail-row" style="margin-top:6px;background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;border-color:rgba(245,158,11,0.25);padding:6px 12px;border-radius:6px;">
+            <div class="ci-detail-k" style="color:#fde68a;">🛡️ Salvaguarda de Capital</div>
+            <div class="ci-detail-v" style="font-size:11.5px;color:#fef3c7;line-height:1.45;">
+              A plataforma documenta datas para proteção contra volatilidade binária. O sistema não antecipa nem prevê reações de mercado antes do fechamento.
+            </div>
+          </div>
+        </div>
+
+        <!-- BARRA DE FILTROS -->
+        <div class="sim-period-presets-bar" style="margin:12px 0 8px 0;" role="tablist" aria-label="Filtros do calendário macro">
+          <button type="button" class="sim-preset-btn ${filterMode === 'upcoming' ? 'active' : ''}" data-macro-filter="upcoming">
+            Próximos (${counts.upcoming})
+          </button>
+          <button type="button" class="sim-preset-btn ${filterMode === 'all' ? 'active' : ''}" data-macro-filter="all">
+            Todos (${counts.total})
+          </button>
+          <button type="button" class="sim-preset-btn ${filterMode === 'br' ? 'active' : ''}" data-macro-filter="br">
+            Brasil 🇧🇷 (${counts.brazil})
+          </button>
+          <button type="button" class="sim-preset-btn ${filterMode === 'us' ? 'active' : ''}" data-macro-filter="us">
+            Estados Unidos 🇺🇸 (${counts.usa})
+          </button>
+          <button type="button" class="sim-preset-btn ${filterMode === 'released' ? 'active' : ''}" data-macro-filter="released">
+            Divulgados (${counts.released})
+          </button>
+        </div>
+
+        <!-- LISTA DE CARDS DE EVENTOS EM GRID RESPONSIVO -->
+        <div style="${listContainerStyle}">
+          ${filteredList.length === 0 ? `
+            <div class="ci-cycle-note-muted" style="padding:24px 0;text-align:center;grid-column:1/-1;">
+              Nenhum evento encontrado para o filtro selecionado.
+            </div>
+          ` : filteredList.map(ev => {
+            const isReleased = ev.dynamicStatus === 'released';
+            const isUpcoming = ev.dynamicStatus === 'upcoming' || !ev.dynamicStatus;
+            const isHigh = ev.impact === 'high' || ev.impact === 'ALTO';
+            const impactColor = isHigh ? '#ef4444' : '#f59e0b';
+            const statusColor = isReleased ? '#10b981' : (isUpcoming ? '#38bdf8' : '#94a3b8');
+
+            return `
+              <article class="ci-macro-trend-card" style="border-left:4px solid ${esc(impactColor)};">
+                <!-- CABEÇALHO DO EVENTO -->
+                <div class="ci-macro-trend-head" style="align-items:flex-start;">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
+                      <span style="font-size:16px;">${esc(ev.flag || '🌐')}</span>
+                      <span class="ci-drawer-eyebrow" style="margin:0;font-size:10px;">${esc(ev.countryLabel || ev.country)} · ${esc(ev.categoryLabel || ev.category || 'Macro')}</span>
+                      <span class="ci-sector-state-badge" style="padding:1px 6px;font-size:9.5px;color:${esc(impactColor)};border-color:${esc(impactColor)}44;background:${esc(impactColor)}14;">
+                        ${esc(ev.impactLabel || (isHigh ? 'ALTO IMPACTO' : 'MÉDIO IMPACTO'))}
+                      </span>
+                      <span class="ci-sector-state-badge" style="padding:1px 6px;font-size:9.5px;color:${esc(statusColor)};border-color:${esc(statusColor)}44;background:${esc(statusColor)}14;">
+                        ${esc(ev.statusLabel || (isReleased ? 'Divulgado' : 'Próximo'))}
+                      </span>
+                    </div>
+                    <div class="ci-macro-trend-title" style="font-size:14.5px;">${esc(ev.title || ev.name)}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:11.5px;font-weight:700;color:#ffffff;white-space:nowrap;">
+                      📅 ${esc(ev.dateFormatted || ev.date || ev.dateLabel)}
+                    </div>
+                    <div style="font-size:10px;color:#9bb8aa;margin-top:2px;white-space:nowrap;">
+                      ⏰ ${esc(ev.timezoneLabel || (ev.time ? `${ev.time} BRT` : 'Horário Comercial'))}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- PAINEL DE DADOS NUMÉRICOS (ANTERIOR / CONSENSO / RESULTADO) -->
+                ${ev.numbers ? `
+                  <div class="ci-cycle-kpi-grid" style="margin-top:10px;">
+                    <div class="ci-cycle-kpi-card" style="padding:8px 12px;">
+                      <span class="ci-cycle-kpi-label">Valor Anterior</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:16px;">${esc(ev.numbers.previous || '—')}</span>
+                      <span class="ci-cycle-kpi-sub">Dado prévio publicado</span>
+                    </div>
+
+                    <div class="ci-cycle-kpi-card" style="padding:8px 12px;">
+                      <span class="ci-cycle-kpi-label">Consenso / Projeção</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:16px;color:#f3d58d;">${esc(ev.numbers.consensus || '—')}</span>
+                      <span class="ci-cycle-kpi-sub">Mediana de mercado</span>
+                    </div>
+
+                    <div class="ci-cycle-kpi-card" style="padding:8px 12px;${isReleased ? 'border-color:rgba(16,185,129,0.35);background:rgba(16,185,129,0.06);' : ''}">
+                      <span class="ci-cycle-kpi-label">${isReleased ? 'Resultado Divulgado' : 'Resultado'}</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:16px;color:${isReleased ? '#10b981' : '#94a3b8'};">
+                        ${esc(ev.numbers.actual || (isReleased ? 'Divulgado' : 'Pendente'))}
+                      </span>
+                      <span class="ci-cycle-kpi-sub">${isReleased ? 'Dado oficial confirmado' : 'Aguardando publicação'}</span>
+                    </div>
+                  </div>
+                ` : ''}
+
+                <!-- CANAIS DE TRANSMISSÃO E ESFERAS CONECTADAS -->
+                <div style="margin-top:10px;padding:10px 12px;background:rgba(2,9,7,0.45);border-radius:8px;border:1px solid rgba(167,243,208,0.08);">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                    <div class="ci-conn-section-title" style="margin:0;font-size:11px;">
+                      🔗 Mercados & Esferas Conectadas (${(ev.affectedSpheres || []).length}):
+                    </div>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                      ${(ev.affectedSpheres || []).map(sp => `
+                        <button type="button" class="ci-cycle-chip" style="cursor:pointer;border-color:rgba(212,175,55,0.4);color:#f3d58d;" data-navigate-sphere="${esc(sp.sphereId)}" title="Ver esfera no mapa">
+                          <span>${esc(sp.label)}</span>
+                          <span style="font-size:9px;opacity:0.75;">↗</span>
+                        </button>
+                      `).join('')}
+                    </div>
+                  </div>
+                  <p class="ci-macro-obs-text" style="font-size:11px;color:#cfe0d6;margin:0;">
+                    ${esc(ev.transmissionChannel || 'Catalisador macroeconômico com potencial de reprecificação sobre os mercados conectados.')}
+                  </p>
+                </div>
+
+                <!-- GUARDRAIL COMPORTAMENTAL -->
+                ${ev.behavioralGuardrail ? `
+                  <div style="margin-top:8px;font-size:10.5px;color:#a8c4b7;line-height:1.4;display:flex;align-items:center;gap:6px;">
+                    <span style="color:#f59e0b;">⚠️</span>
+                    <span><strong>Conduta Operacional:</strong> ${esc(ev.behavioralGuardrail)}</span>
+                  </div>
+                ` : ''}
+
+                <!-- RODAPÉ DE PROVENIÊNCIA -->
+                <div class="ci-macro-meta-foot" style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(167,243,208,0.06);font-size:10px;color:#688578;flex-direction:row;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+                  <span><strong>Fonte Oficial:</strong> ${esc(ev.source || 'Calendário Institucional')}</span>
+                  ${ev.hasHistoricalPlaybook ? `
+                    <button type="button" class="ci-link-btn" data-open-playbook="${esc(ev.playbookId || '')}" style="font-size:10px;padding:0;">
+                      Ver Playbook no Registro de Eventos →
+                    </button>
+                  ` : ''}
+                </div>
+              </article>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
     openUsSectorRotationModal(node) {
       const modal = document.getElementById('ciConnectionModal');
       if (!modal || !node?.usSectorRotationDetail) return;
@@ -2172,7 +3450,7 @@
             <button type="button" class="ci-close-btn" id="ciCloseUsSectorModalBtn" aria-label="Fechar rotação setorial EUA">✕</button>
           </header>
           <div class="ci-modal-body">
-            ${this.buildUsSectorRotationDiagnosticsHtml(node, freshLabel, freshState)}
+            ${this.buildUsSectorRotationDiagnosticsHtml(node, freshLabel, freshState, true)}
           </div>
           <footer class="ci-modal-foot">
             <button type="button" class="ci-link-btn" id="ciCloseUsSectorFooterBtn">Fechar</button>
@@ -2226,7 +3504,7 @@
       `;
     }
 
-    buildMacroTrendsDiagnosticsHtml(focusedSatelliteId = null) {
+    buildMacroTrendsDiagnosticsHtml(focusedSatelliteId = null, isModal = false) {
       const mt = this.model?.macroTrendsDetail || {};
       const inds = mt.indicators || {};
       const list = [inds.fx_usd_brl, inds.rate_di_curve, inds.rate_us10y, inds.vol_vix].filter(Boolean);
@@ -2256,10 +3534,130 @@
       const overallLabel = overallStatus === 'atualizado'
         ? '● Todas as séries atualizadas'
         : overallStatus === 'parcial'
-          ? `◐ Cobertura Parcial (${mt.counts?.atualizado || 0} atualizadas · ${mt.counts?.atrasado || 0} atrasadas · ${mt.counts?.indisponivel || 0} indisponíveis)`
+          ? `◐ Cobertura Parcial (${mt.counts?.atualizado || 0} atualizadas · ${mt.counts?.atrasado || 0} atrasadas)`
           : overallStatus === 'atrasado'
-            ? '◐ Séries defasadas frente ao fechamento esperado'
+            ? '◐ Séries defasadas'
             : '○ Séries macro indisponíveis';
+
+      if (isModal) {
+        return `
+          <div class="ci-modal-grid-2col">
+            <!-- COLUNA 1: SÍNTESE, TRANSIÇÃO & POLÍTICA MONETÁRIA -->
+            <div class="ci-modal-col">
+              <div class="ci-metric-hero">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span class="ci-cycle-regime-pill" style="border-color:#d4af37;">
+                    <span class="ci-cycle-regime-dot" style="background:#d4af37;"></span>
+                    Tendências Históricas — 21 Pregões (Unidades Nativas)
+                  </span>
+                  <span class="ci-provenance-badge ${overallStatus === 'atualizado' ? 'is-live' : ''}">${esc(overallLabel)}</span>
+                </div>
+                <p class="ci-drawer-desc" style="margin-top:8px;font-size:12.5px;color:#cfe0d6;line-height:1.5;">
+                  Prioriza a trajetória dos últimos 21 pregões em unidades nativas (%, p.p., bps, pts), sem confundir cotação de 1 dia com reversão de tendência estrutural.
+                </p>
+              </div>
+
+              ${normComp.some(c => Number.isFinite(c.normalizedRangePositionPct)) ? `
+                <div style="background:rgba(2,9,7,0.45);padding:10px 14px;border-radius:8px;border:1px solid rgba(167,243,208,0.08);">
+                  <div class="ci-conn-section-title" style="margin-top:0;">Posição na Faixa de 21p (Normalizada 0% a 100%)</div>
+                  <div class="ci-macro-norm-list">
+                    ${normComp.map(item => `
+                      <div class="ci-macro-norm-row">
+                        <span class="ci-macro-norm-name" style="font-size:11.5px;">${esc(item.shortTitle)} <em style="color:#688578;font-style:normal;font-size:10px;">(${esc(item.nativeUnit)})</em></span>
+                        <div class="ci-macro-norm-track" aria-hidden="true">
+                          ${Number.isFinite(item.normalizedRangePositionPct)
+                            ? `<span class="ci-macro-norm-marker" style="left:${Math.max(4, Math.min(96, item.normalizedRangePositionPct)).toFixed(0)}%;background:${esc(item.trendColor)};"></span>`
+                            : ''}
+                        </div>
+                        <span class="ci-macro-norm-val" style="color:${esc(item.trendColor)};font-size:11px;">${esc(item.primaryDelta21dFormatted)}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              ${selic ? `
+                <div class="ci-policy-context-card" style="margin-top:6px;">
+                  <div class="ci-macro-trend-head">
+                    <div>
+                      <div class="ci-drawer-eyebrow" style="margin-bottom:2px;">POLÍTICA MONETÁRIA vs. CURVA DE JUROS</div>
+                      <div class="ci-macro-trend-title" style="font-size:13.5px;">Taxa Selic Meta Vigente — COPOM (BCB)</div>
+                    </div>
+                    <span class="ci-provenance-badge ${selic.status === 'atualizado' ? 'is-live' : ''}">${esc(fmtFresh(selic).label)}</span>
+                  </div>
+                  <div class="ci-cycle-kpi-grid" style="margin-top:8px;">
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Taxa Básica Vigente</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:18px;">${esc(selic.currentValueFormatted)}</span>
+                      <span class="ci-cycle-kpi-sub">21p: ${esc(selic.primaryDelta21dFormatted)}</span>
+                    </div>
+                    <div class="ci-cycle-kpi-card">
+                      <span class="ci-cycle-kpi-label">Distinção DI × Selic</span>
+                      <span class="ci-cycle-kpi-val" style="font-size:12px;">
+                        ${brDist.diAvailable && brDist.spreadDiVsSelicBps !== null
+                          ? `Spread: ${brDist.spreadDiVsSelicBps > 0 ? '+' : ''}${esc(brDist.spreadDiVsSelicBps)} bps`
+                          : 'Curva DI de mercado autônoma'}
+                      </span>
+                      <span class="ci-cycle-kpi-sub">Selic Meta e DI futuro não se confundem.</span>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <details class="ci-accordion" style="margin-top:10px;">
+                <summary class="ci-accordion-summary">
+                  <span>Regras de Rigor Metodológico & Não-Causalidade</span>
+                  <span class="ci-accordion-chevron">▾</span>
+                </summary>
+                <div class="ci-accordion-content" style="font-size:11px;color:#9bb8aa;line-height:1.45;">
+                  • <strong>Janela Histórica:</strong> ${esc(meth.trendRule || 'Avaliação prioritária em 21 pregões')}<br/>
+                  • <strong>Separação DI × Selic:</strong> ${esc(meth.diVsSelicRule || 'Curva DI negociada e Selic Meta mantidas distintas')}<br/>
+                  • <strong>Leitura Não-Causal:</strong> ${esc(meth.nonCausalityRule || 'Movimentos são confluências descritivas, sem alegação de causa unifatorial')}
+                </div>
+              </details>
+            </div>
+
+            <!-- COLUNA 2: CARDS DE VARIÁVEIS COM GRÁFICOS SVG -->
+            <div class="ci-modal-col">
+              <div class="ci-macro-cards-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+                ${list.map(ind => {
+                  const fresh = fmtFresh(ind);
+                  const isFocused = focusedSatelliteId && ind.satelliteId === focusedSatelliteId;
+                  const trendColor = ind.trend?.color || '#94a3b8';
+                  return `
+                    <article class="ci-macro-trend-card ${isFocused ? 'is-focused' : ''}" style="padding:10px 12px;">
+                      <div class="ci-macro-trend-head" style="margin-bottom:6px;">
+                        <div>
+                          <div class="ci-macro-trend-title" style="font-size:13px;">${esc(ind.title)}</div>
+                          <div class="ci-macro-trend-unit" style="font-size:9.5px;">${esc(ind.unitSpec?.levelUnit || '')} · em ${esc(ind.unitSpec?.primaryDeltaUnit || '')}</div>
+                        </div>
+                        <span class="ci-provenance-badge ${fresh.isLive ? 'is-live' : ''}" style="font-size:9px;padding:2px 6px;">${fresh.isLive ? '●' : '○'}</span>
+                      </div>
+
+                      <div class="ci-macro-trend-metrics" style="margin-bottom:6px;">
+                        <div>
+                          <div class="ci-cycle-kpi-label">Tendência 21p</div>
+                          <div class="ci-macro-trend-primary" style="color:${esc(trendColor)};font-size:18px;">${esc(ind.primaryDelta21dFormatted)}</div>
+                        </div>
+                        <div style="text-align:right;">
+                          <div class="ci-cycle-kpi-label">Nível Atual</div>
+                          <div class="ci-macro-trend-level" style="font-size:14px;">${esc(ind.currentValueFormatted)}</div>
+                        </div>
+                      </div>
+
+                      <div class="ci-macro-chart-box" style="margin:4px 0;">
+                        ${this.buildMacroTrendSvgChart(ind.series21d, ind.unitSpec, trendColor)}
+                      </div>
+
+                      <p class="ci-macro-obs-text" style="font-size:10.5px;margin:4px 0 0 0;line-height:1.35;">${esc(ind.explanation)}</p>
+                    </article>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
 
       return `
         <div class="ci-metric-hero">
@@ -2409,7 +3807,7 @@
             <button type="button" class="ci-close-btn" id="ciCloseMacroTrendsModalBtn" aria-label="Fechar tendências macro">✕</button>
           </header>
           <div class="ci-modal-body">
-            ${this.buildMacroTrendsDiagnosticsHtml(focusedSatelliteId)}
+            ${this.buildMacroTrendsDiagnosticsHtml(focusedSatelliteId, true)}
           </div>
           <footer class="ci-modal-foot">
             <button type="button" class="ci-link-btn" id="ciCloseMacroTrendsFooterBtn">Fechar</button>
@@ -2438,59 +3836,240 @@
       this.isAllocationModalOpen = true;
 
       const scenario = this.model.getIndicativeRebalanceScenario();
+      const compRows = (scenario.comparisonRows && scenario.comparisonRows.length)
+        ? scenario.comparisonRows
+        : scenario.rows;
+
+      const formatBRL = (v) => Number.isFinite(v)
+        ? `R$ ${Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+        : '—';
+
+      const confLevel = String(scenario.confidenceLevel || 'MODERADA').toUpperCase();
+      const confClass = confLevel === 'ALTA'
+        ? 'confidence-high'
+        : confLevel === 'AGUARDAR'
+          ? 'confidence-wait'
+          : 'confidence-mod';
+
+      const totalCurrentPct = compRows.reduce((acc, r) => acc + (Number(r.currentPct) || 0), 0);
+      const totalSuggestedPct = compRows.reduce((acc, r) => acc + (Number(r.suggestedPct) || 0), 0);
+
       modal.innerHTML = `
-        <div class="ci-modal-card">
+        <div class="ci-modal-card ci-allocation-modal-card">
           <header class="ci-modal-head">
             <div>
-              <div class="ci-drawer-eyebrow">${esc(scenario.horizonLabel)}</div>
-              <h2>Análise Detalhada — Sugestão de Alocação</h2>
+              <div class="ci-drawer-eyebrow">${esc(scenario.horizonLabel)} · Trend Following Macro</div>
+              <h2>Sugestão Estratégica de Alocação por Evidências</h2>
             </div>
             <button type="button" class="ci-close-btn" id="ciCloseAllocModalBtn" aria-label="Fechar análise de alocação">✕</button>
           </header>
 
           <div class="ci-modal-body">
-            <div class="ci-metric-hero">
-              <div class="ci-metric-hero-val">${esc(scenario.postureLabel)}</div>
+            <!-- 1. Hero Diagnóstico -->
+            <div class="ci-metric-hero ci-alloc-modal-hero">
+              <div class="ci-alloc-hero-top">
+                <div class="ci-metric-hero-val">${esc(scenario.postureLabel)}</div>
+                <div class="ci-alloc-hero-badges">
+                  <span class="ci-alloc-confidence-badge ${confClass}">Confiança ${esc(confLevel)}</span>
+                  <span class="ci-provenance-badge ${scenario.isLivePortfolio ? 'is-live' : ''}">
+                    ${scenario.isLivePortfolio ? '● Patrimônio reconciliado' : '○ Sincronize na Atualização Diária'}
+                  </span>
+                </div>
+              </div>
+
+              <div class="ci-alloc-hero-desc">
+                ${esc(scenario.shortRationale)}
+              </div>
+
               <div class="ci-metric-hero-meta">
-                <span>Equity de Investimentos: <strong>${esc(scenario.current.equityDisplay)}</strong></span>
-                <span class="ci-provenance-badge ${scenario.isLivePortfolio ? 'is-live' : ''}">
-                  ${scenario.isLivePortfolio ? '● Patrimônio sincronizado' : '○ Sincronize na Atualização Diária'}
-                </span>
+                <span>Equity de Investimentos: <strong>${esc(scenario.current.equityDisplay || formatBRL(scenario.totalEquity))}</strong></span>
+                <span>Horizonte: <strong>21 Pregões (Persistência de Tendência)</strong></span>
+                <span>Rebalanceamento Compulsório: <strong>Desativado (Apoio à Decisão)</strong></span>
               </div>
             </div>
 
-            <table class="ci-alloc-table" aria-label="Comparativo estrutural de alocação por classe">
-              <thead>
-                <tr>
-                  <th>Classe de Capital</th>
-                  <th>Posição Atual</th>
-                  <th>Diretriz Estrutural (21 Pregões)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${scenario.rows.map(r => `
-                  <tr>
-                    <td><strong>${esc(r.label)}</strong></td>
-                    <td>${esc(r.currentDisplay)}</td>
-                    <td>${esc(r.postureGuidance)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-
-            <div class="ci-detail-list">
-              ${scenario.recommendations.map(rec => `
-                <div class="ci-detail-row">
-                  <div class="ci-detail-v">✦ ${esc(rec)}</div>
+            <!-- Alerta de Salvaguarda Binária (quando evento macro iminente) -->
+            ${scenario.hasBinarySuperRisk || scenario.isHoldRecommended ? `
+              <div class="ci-alloc-super-risk-alert">
+                <div class="ci-super-risk-icon">⚠️</div>
+                <div class="ci-super-risk-text">
+                  <strong>Salvaguarda Ativa — Super-Evento Macroeconômico Iminente</strong>
+                  <p>Decisão de taxa de juros (Copom ou Fed) agendada para os próximos 5 dias úteis. Em eventos binários com risco de volatilidade extrema, o método recomenda rigorosamente <strong>manter a alocação atual</strong> e aguardar a definição do ciclo antes de efetuar movimentações de rebalanceamento.</p>
                 </div>
-              `).join('')}
-            </div>
+              </div>
+            ` : ''}
 
-            <div class="ci-disclaimer-box">${esc(scenario.disclaimer)}</div>
+            <!-- 2. Comparativo Estrutural de Alocação por Classe -->
+            <section class="ci-modal-section" aria-label="Comparativo Estrutural de Alocação">
+              <div class="ci-section-header">
+                <div>
+                  <h3 class="ci-section-title">1. Comparativo Estrutural de Alocação</h3>
+                  <p class="ci-section-subtitle">
+                    Todas as sugestões são calibradas em <strong>múltiplos de 5%</strong> e somam estritamente <strong>100%</strong>, eliminando falsa precisão matemática e ruído de 1 único pregão.
+                  </p>
+                </div>
+                <span class="ci-rail-tag">Múltiplos de 5%</span>
+              </div>
+
+              <div class="ci-table-responsive">
+                <table class="ci-alloc-table" aria-label="Comparativo estrutural de alocação por classe de capital">
+                  <thead>
+                    <tr>
+                      <th>Classe de Capital</th>
+                      <th class="ci-col-num">Alocação Atual</th>
+                      <th class="ci-col-num">Sugestão (21p)</th>
+                      <th class="ci-col-num">Delta</th>
+                      <th class="ci-col-action">Ação</th>
+                      <th>Racional Técnico da Diretriz (21 Pregões)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${compRows.map(r => {
+                      const curDisplay = r.currentDisplay || (r.currentPct !== null ? `${r.currentPct.toFixed(1).replace('.', ',')}%` : 'Sincronizar');
+                      const sugDisplay = r.suggestedDisplay || (r.suggestedPct ? `${r.suggestedPct}%` : '—');
+                      const curAmountStr = Number.isFinite(r.currentAmount) ? ` (${formatBRL(r.currentAmount)})` : '';
+                      const sugAmountStr = Number.isFinite(r.suggestedAmount) ? ` (${formatBRL(r.suggestedAmount)})` : '';
+                      const delta = r.deltaPct;
+                      const deltaDisplay = delta !== null && delta !== undefined
+                        ? (delta > 0 ? `+${delta.toFixed(1).replace('.', ',')}%` : `${delta.toFixed(1).replace('.', ',')}%`)
+                        : '—';
+                      const deltaClass = delta > 0 ? 'delta-positive' : delta < 0 ? 'delta-negative' : 'delta-neutral';
+                      const action = r.action || (delta >= 4.0 ? 'increase' : delta <= -4.0 ? 'decrease' : 'maintain');
+                      const actionLabel = r.actionLabel || (action === 'increase' ? 'Aumentar' : action === 'decrease' ? 'Reduzir' : 'Manter');
+                      const actionClass = action === 'increase' ? 'action-increase' : action === 'decrease' ? 'action-decrease' : 'action-maintain';
+
+                      return `
+                        <tr>
+                          <td><strong>${esc(r.label)}</strong></td>
+                          <td class="ci-col-num">
+                            <span class="ci-cell-main">${esc(curDisplay)}</span>
+                            ${curAmountStr ? `<span class="ci-cell-sub">${esc(curAmountStr)}</span>` : ''}
+                          </td>
+                          <td class="ci-col-num">
+                            <span class="ci-cell-main highlight-gold">${esc(sugDisplay)}</span>
+                            ${sugAmountStr ? `<span class="ci-cell-sub">${esc(sugAmountStr)}</span>` : ''}
+                          </td>
+                          <td class="ci-col-num">
+                            <span class="ci-alloc-delta ${deltaClass}">${esc(deltaDisplay)}</span>
+                          </td>
+                          <td class="ci-col-action">
+                            <span class="ci-alloc-action-badge ${actionClass}">${esc(actionLabel)}</span>
+                          </td>
+                          <td class="ci-cell-rationale">${esc(r.postureGuidance || r.rationale || '—')}</td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                  <tfoot>
+                    <tr class="ci-alloc-total-row">
+                      <td><strong>TOTAL DE INVESTIMENTOS</strong></td>
+                      <td class="ci-col-num">
+                        <strong>${totalCurrentPct > 0 ? `${totalCurrentPct.toFixed(1).replace('.', ',')}%` : '100,0%'}</strong>
+                      </td>
+                      <td class="ci-col-num highlight-gold">
+                        <strong>${totalSuggestedPct > 0 ? `${totalSuggestedPct}%` : '100%'}</strong>
+                      </td>
+                      <td class="ci-col-num">
+                        <strong>0,0%</strong>
+                      </td>
+                      <td class="ci-col-action">
+                        <span class="ci-alloc-action-badge action-maintain">Equilibrado</span>
+                      </td>
+                      <td class="ci-cell-rationale">
+                        <em>Soma estritamente calibrada em 100% sem alavancagem ou duplicidade.</em>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </section>
+
+            <!-- 3. Radar de Evidências dos 21 Pregões (7 Dimensões Ponderadas) -->
+            <section class="ci-modal-section" aria-label="Radar de Evidências dos 21 Pregões">
+              <div class="ci-section-header">
+                <div>
+                  <h3 class="ci-section-title">2. Radar de Evidências Macroeconômicas (Janela: 21 Pregões)</h3>
+                  <p class="ci-section-subtitle">
+                    Nenhum indicador isolado comanda a alocação. Cada dimensão contribui com peso documentado e score direcional (-1 a +1) derivado da persistência de tendência.
+                  </p>
+                </div>
+                <span class="ci-rail-tag">7 Dimensões</span>
+              </div>
+
+              <div class="ci-evidence-grid">
+                ${(scenario.evidences && scenario.evidences.length ? scenario.evidences : []).map(ev => {
+                  const score = Number(ev.directionScore ?? 0);
+                  const scoreLabel = score > 0.3 ? 'Favorável' : score < -0.3 ? 'Adverso / Defesa' : 'Neutro / Transição';
+                  const scoreTone = score > 0.3 ? 'tone-good' : score < -0.3 ? 'tone-bad' : 'tone-warn';
+                  const barWidth = Math.min(100, Math.max(10, Math.round(Math.abs(score) * 100)));
+
+                  return `
+                    <div class="ci-evidence-card">
+                      <div class="ci-evidence-head">
+                        <div>
+                          <strong class="ci-evidence-name">${esc(ev.name || ev.factor)}</strong>
+                          <span class="ci-evidence-window">${esc(ev.period || '21 pregões')} · Peso ${esc(ev.weight || 15)}%</span>
+                        </div>
+                        <span class="ci-macro-badge ${scoreTone}">${esc(scoreLabel)}</span>
+                      </div>
+                      <div class="ci-evidence-meter">
+                        <div class="ci-evidence-bar ${scoreTone}" style="width: ${barWidth}%"></div>
+                      </div>
+                      <p class="ci-evidence-summary">${esc(ev.summary || '')}</p>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </section>
+
+            <!-- 3. Detalhamento Expansível: Eventos, Riscos & Salvaguardas -->
+            <details class="ci-accordion" style="margin-top:16px;">
+              <summary class="ci-accordion-summary">
+                <span>Eventos Macroeconômicos, Matriz de Riscos & Salvaguardas</span>
+                <span class="ci-accordion-chevron">▾</span>
+              </summary>
+              <div class="ci-accordion-content">
+                <section class="ci-modal-section" style="margin-top:0;" aria-label="Agenda Macroeconômica e Eventos">
+                  <div class="ci-section-header">
+                    <div>
+                      <h3 class="ci-section-title" style="font-size:13px;">Eventos Macroeconômicos Considerados</h3>
+                      <p class="ci-section-subtitle">Impacto mapeado na volatilidade esperada e nos horizontes de alocação.</p>
+                    </div>
+                  </div>
+                  <div class="ci-events-considered-box">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>${esc(scenario.eventsNote || 'Monitoramento ativo de decisões de juros (Copom/Fed), inflação (IPCA/CPI) e atividade econômica.')}</span>
+                  </div>
+                </section>
+
+                <section class="ci-modal-section" style="margin-top:12px;" aria-label="Salvaguardas e Princípios Regulatórios">
+                  <div class="ci-section-header">
+                    <div>
+                      <h3 class="ci-section-title" style="font-size:13px;">Matriz de Riscos, Premissas e Salvaguardas</h3>
+                      <p class="ci-section-subtitle">Princípios invioláveis de governança e respeito ao perfil do trader.</p>
+                    </div>
+                  </div>
+
+                  <div class="ci-principles-grid">
+                    ${(scenario.recommendations || []).map((rec, idx) => `
+                      <div class="ci-principle-card">
+                        <span class="ci-principle-num">0${idx + 1}</span>
+                        <p class="ci-principle-text">${esc(rec)}</p>
+                      </div>
+                    `).join('')}
+                  </div>
+
+                  <div class="ci-disclaimer-box" style="margin-top:10px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <div>${esc(scenario.disclaimer)}</div>
+                  </div>
+                </section>
+              </div>
+            </details>
           </div>
 
           <footer class="ci-modal-foot">
-            <button type="button" class="ci-link-btn" id="ciCloseAllocFooterBtn">Fechar análise</button>
+            <button type="button" class="ci-btn-secondary" id="ciCloseAllocFooterBtn">Fechar análise</button>
           </footer>
         </div>
       `;
@@ -2506,6 +4085,485 @@
       this.isAllocationModalOpen = false;
     }
 
+    openMyPortfolioModal(node, currentTab = 'overview') {
+      const modal = document.getElementById('ciConnectionModal');
+      if (!modal) return;
+      this.selectedConnectionId = 'my_portfolio_modal';
+      this.portfolioModalTab = currentTab;
+
+      const p = node?.portfolioDetail || this.model?.portfolioDetail || {};
+      const freshState = node?.freshnessStatus || (p.isLive ? 'atualizado' : 'parcial');
+      const freshLabel = freshState === 'atualizado'
+        ? `● Reconciliado (${p.asOfDate || node?.asOfDate || '—'})`
+        : '◐ Parcial';
+
+      modal.innerHTML = `
+        <div class="ci-modal-card ci-modal-wide">
+          <header class="ci-modal-head">
+            <div>
+              <div class="ci-drawer-eyebrow">CARTEIRA & RISCO · INTEGRAÇÃO PATRIMONIAL & EXPOSIÇÃO REAL (11)</div>
+              <h2>Meu Patrimônio, Alocação & Exposição Real</h2>
+            </div>
+            <button type="button" class="ci-close-btn" id="ciClosePortfolioModalBtn" aria-label="Fechar modal do patrimônio">✕</button>
+          </header>
+          <div class="ci-modal-body" id="ciPortfolioModalBody">
+            ${this.buildMyPortfolioDiagnosticsHtml(node, this.portfolioModalTab, freshLabel, freshState, true)}
+          </div>
+          <footer class="ci-modal-foot" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <div style="font-size:10.5px;color:#688578;">
+              Fotografia: <strong>${esc(p.snapshotTimestamp ? new Date(p.snapshotTimestamp).toLocaleString('pt-BR') : 'Tempo Real')}</strong> · Valores reconciliados
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="ci-link-btn" id="ciGoDailyUpdateBtn" style="color:#f3d58d;">Ir para Atualização Diária →</button>
+              <button type="button" class="ci-link-btn" id="ciClosePortfolioFooterBtn">Fechar</button>
+            </div>
+          </footer>
+        </div>
+      `;
+
+      modal.classList.add('open');
+      document.getElementById('ciClosePortfolioModalBtn')?.addEventListener('click', () => this.closeConnectionModal());
+      document.getElementById('ciClosePortfolioFooterBtn')?.addEventListener('click', () => this.closeConnectionModal());
+      document.getElementById('ciGoDailyUpdateBtn')?.addEventListener('click', () => {
+        this.closeConnectionModal();
+        if (typeof root.go === 'function') root.go('dailyupdate');
+      });
+
+      this.bindMyPortfolioModalEvents(node, freshLabel, freshState);
+    }
+
+    bindMyPortfolioModalEvents(node, freshLabel, freshState) {
+      const container = document.getElementById('ciPortfolioModalBody');
+      if (!container) return;
+
+      container.querySelectorAll('[data-portfolio-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-portfolio-tab');
+          this.portfolioModalTab = tab;
+          container.innerHTML = this.buildMyPortfolioDiagnosticsHtml(node, tab, freshLabel, freshState, true);
+          this.bindMyPortfolioModalEvents(node, freshLabel, freshState);
+        });
+      });
+    }
+
+    buildMyPortfolioDiagnosticsHtml(node, currentTab, freshLabel, freshState) {
+      const p = node?.portfolioDetail || this.model?.portfolioDetail || {};
+      const fmtBRL = (v) => (v !== null && v !== undefined && Number.isFinite(Number(v)))
+        ? `R$ ${Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+        : 'R$ 0,00';
+      const fmtPct = (v) => (v !== null && v !== undefined && Number.isFinite(Number(v)))
+        ? `${Number(v).toFixed(2).replace('.', ',')}%`
+        : '0,00%';
+
+      const realWealth = Number(p.realWealth ?? node?.equityValue ?? 0);
+      const operationalEquity = Number(p.operationalEquity ?? node?.equityValue ?? 0);
+      const checkingWealth = Number(p.checkingWealth ?? 0);
+      const totalExposure = Number(p.totalExposure ?? 0);
+      const cashValue = Number(p.cashValue ?? Math.max(0, operationalEquity - totalExposure));
+      const cashPct = operationalEquity > 0 ? (cashValue / operationalEquity) * 100 : 0;
+      const heatPct = Number(p.heatPct ?? node?.heatPct ?? 0);
+      const heatLimitPct = Number(p.heatLimitPct ?? node?.heatLimitPct ?? 5);
+
+      const allocationByClass = Array.isArray(p.allocationByClass) ? p.allocationByClass : [];
+      const exposureByRegion = p.exposureByRegion || { brazil: { percentage: 100, amount: totalExposure }, global: { percentage: 0, amount: 0 } };
+      const exposureByCurrency = p.exposureByCurrency || { brl: { percentage: 100, amount: totalExposure + cashValue }, usd: { percentage: 0, amount: 0, isForeignCurrencyHedge: false } };
+      const exposureBySector = Array.isArray(p.exposureBySector) ? p.exposureBySector : [];
+      const positionsList = Array.isArray(p.positionsList) ? p.positionsList : [];
+      const accountsList = Array.isArray(p.accountsList) ? p.accountsList : [];
+      const concentration = p.concentration || { level: 'Moderada', diagnostic: 'Risco pulverizado conforme política.' };
+      const liquidity = p.liquidity || { status: 'Adequada', cashPercentage: cashPct };
+
+      const tabs = [
+        { id: 'overview', label: 'Visão Geral' },
+        { id: 'classes', label: 'Classes de Ativos' },
+        { id: 'region_currency', label: 'Região & Moeda' },
+        { id: 'sectors', label: 'Setores' },
+        { id: 'concentration', label: 'Concentração & Liquidez' },
+        { id: 'positions', label: `Posições (${positionsList.length})` },
+        { id: 'accounts', label: `Contas (${accountsList.length || '—'})` }
+      ];
+
+      return `
+        <!-- HERO EXECUTIVO PATRIMONIAL -->
+        <div class="ci-metric-hero" style="border-left: 3px solid #e5c158; padding: 14px 16px; margin-bottom: 12px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;">Fotografia Patrimonial Consolidada</div>
+              <div style="font-size:24px;font-weight:900;color:#f8fafc;font-variant-numeric:tabular-nums;margin-top:2px;">
+                ${fmtBRL(realWealth)}
+                <span style="font-size:12px;font-weight:600;color:#a8c4b7;margin-left:8px;">(Patrimônio Total)</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="ci-provenance-badge ${freshState === 'atualizado' ? 'is-live' : ''}">${esc(freshLabel)}</span>
+            </div>
+          </div>
+
+          <!-- GRID RESUMO DAS TRÊS REGRAS DE OURO -->
+          <div class="ci-portfolio-stat-grid" style="margin-top:14px;margin-bottom:0;">
+            <div class="ci-portfolio-stat-card primary">
+              <span class="ci-portfolio-stat-title">Equity da Estratégia</span>
+              <span class="ci-portfolio-stat-val" style="color:#e5c158;">${fmtBRL(operationalEquity)}</span>
+              <span class="ci-portfolio-stat-sub">100% segregada de contas correntes</span>
+            </div>
+
+            <div class="ci-portfolio-stat-card">
+              <span class="ci-portfolio-stat-title">Contas Correntes (Pessoal)</span>
+              <span class="ci-portfolio-stat-val">${fmtBRL(checkingWealth)}</span>
+              <span class="ci-portfolio-stat-sub">Fora da Equity e sem risco de mercado</span>
+            </div>
+
+            <div class="ci-portfolio-stat-card accent">
+              <span class="ci-portfolio-stat-title">Exposição em Risco</span>
+              <span class="ci-portfolio-stat-val" style="color:#38bdf8;">${fmtBRL(totalExposure)}</span>
+              <span class="ci-portfolio-stat-sub">${operationalEquity > 0 ? fmtPct((totalExposure / operationalEquity) * 100) : '0%'} alocado em ${positionsList.length} posições</span>
+            </div>
+
+            <div class="ci-portfolio-stat-card">
+              <span class="ci-portfolio-stat-title">Caixa Livre (Corretoras)</span>
+              <span class="ci-portfolio-stat-val" style="color:#10b981;">${fmtBRL(cashValue)}</span>
+              <span class="ci-portfolio-stat-sub">${fmtPct(cashPct)} da Equity pronto para novos trades</span>
+            </div>
+
+            <div class="ci-portfolio-stat-card">
+              <span class="ci-portfolio-stat-title">Portfolio Heat</span>
+              <span class="ci-portfolio-stat-val" style="color:${heatPct > heatLimitPct * 0.85 ? '#f59e0b' : '#10b981'};">
+                ${heatPct.toFixed(2).replace('.', ',')}% <span style="font-size:12px;color:#64748b;">/ ${heatLimitPct.toFixed(1).replace('.', ',')}%</span>
+              </span>
+              <span class="ci-portfolio-stat-sub">${heatPct <= heatLimitPct ? 'Dentro do limite operacional' : 'Atenção ao teto da política'}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BANNER DE INTEGRIDADE E PRINCÍPIOS CRÍTICOS -->
+        <div class="ci-portfolio-rule-alert">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span>🛡️</span>
+            <strong>Regras Críticas de Conciliação e Carteira Intacta:</strong>
+          </div>
+          <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;">
+            <li><strong>Prevenção de Dupla Contagem:</strong> O saldo das corretoras já engloba as posições custodiadas. NUNCA somar o valor das posições novamente ao patrimônio.</li>
+            <li><strong>Carteira Intacta:</strong> A atualização de cotações recalcula apenas o valor de mercado na fotografia patrimonial. Ela NUNCA altera ordens, quantidades ou planos do usuário sem sua ação explícita.</li>
+            <li><strong>Isolamento de Despesas:</strong> Contas correntes (ex: Bradesco) não participam da estratégia de trading nem impactam métricas de drawdown.</li>
+          </ul>
+        </div>
+
+        <!-- NAVEGAÇÃO DE ABAS DO MODAL -->
+        <div class="ci-macro-filter-bar" style="margin-bottom:14px;overflow-x:auto;">
+          ${tabs.map(t => `
+            <button type="button" class="ci-macro-tab-btn ${currentTab === t.id ? 'is-active' : ''}" data-portfolio-tab="${esc(t.id)}">
+              ${esc(t.label)}
+            </button>
+          `).join('')}
+        </div>
+
+        <!-- CONTEÚDO DINÂMICO CONFORME A ABA SELECIONADA -->
+        ${currentTab === 'overview' ? `
+          <!-- VISÃO GERAL EM 2 COLUNAS: ALOCAÇÃO RESUMIDA E EXPOSIÇÃO / POSIÇÕES -->
+          <div class="ci-modal-grid-2col">
+            <!-- COLUNA 1: CLASSES DE ATIVOS E CONCENTRAÇÃO -->
+            <div class="ci-modal-col">
+              <div class="ci-conn-section-title" style="margin-top:0;">Alocação por Classe de Ativos</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                ${allocationByClass.map(cls => `
+                  <div class="ci-alloc-bar-container">
+                    <div class="ci-alloc-bar-row">
+                      <span style="font-weight:700;display:flex;align-items:center;gap:6px;">
+                        <span style="width:9px;height:9px;border-radius:50%;background:${esc(cls.color)};display:inline-block;"></span>
+                        ${esc(cls.label)}
+                      </span>
+                      <span style="font-weight:800;font-variant-numeric:tabular-nums;">
+                        ${fmtBRL(cls.amount)} <span style="font-size:10.5px;color:#94a3b8;font-weight:600;">(${fmtPct(cls.percentage)})</span>
+                      </span>
+                    </div>
+                    <div class="ci-alloc-track">
+                      <div class="ci-alloc-fill" style="width:${Math.min(100, Math.max(2, cls.percentage))}%;background:${esc(cls.color)};"></div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+                <div class="ci-cycle-kpi-card">
+                  <span class="ci-cycle-kpi-label">Concentração</span>
+                  <span class="ci-cycle-kpi-val" style="color:${concentration.level === 'Alta' ? '#f59e0b' : '#10b981'};font-size:16px;">${esc(concentration.level)}</span>
+                  <span class="ci-cycle-kpi-sub">${esc(concentration.diagnostic)}</span>
+                </div>
+
+                <div class="ci-cycle-kpi-card">
+                  <span class="ci-cycle-kpi-label">Hedge Cambial</span>
+                  <span class="ci-cycle-kpi-val" style="color:#06b6d4;font-size:16px;">${fmtPct(exposureByCurrency.usd?.percentage || 0)}</span>
+                  <span class="ci-cycle-kpi-sub">${exposureByCurrency.usd?.percentage > 0 ? 'Exposição em USD/BDRs' : 'Sem exposição em USD'}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- COLUNA 2: EXPOSIÇÃO GEOGRÁFICA & POSIÇÕES ABERTAS -->
+            <div class="ci-modal-col">
+              <div class="ci-conn-section-title" style="margin-top:0;">Exposição Geográfica</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="ci-cycle-kpi-card">
+                  <span class="ci-cycle-kpi-label">🇧🇷 Brasil (B3)</span>
+                  <span class="ci-cycle-kpi-val" style="font-size:16px;">${fmtBRL(exposureByRegion.brazil?.amount || 0)}</span>
+                  <span class="ci-cycle-kpi-sub">${fmtPct(exposureByRegion.brazil?.percentage || 100)} da exposição</span>
+                </div>
+
+                <div class="ci-cycle-kpi-card">
+                  <span class="ci-cycle-kpi-label">🌐 Global / BDRs</span>
+                  <span class="ci-cycle-kpi-val" style="color:#38bdf8;font-size:16px;">${fmtBRL(exposureByRegion.global?.amount || 0)}</span>
+                  <span class="ci-cycle-kpi-sub">${fmtPct(exposureByRegion.global?.percentage || 0)} da exposição</span>
+                </div>
+              </div>
+
+              <div class="ci-conn-section-title" style="margin-top:10px;">Posições em Aberto (${positionsList.length})</div>
+              ${positionsList.length ? `
+                <div style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;padding-right:4px;">
+                  ${positionsList.map(pos => `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:rgba(2,9,7,0.45);border-radius:6px;border:1px solid rgba(167,243,208,0.06);">
+                      <div>
+                        <strong style="color:#ffffff;font-size:12.5px;">${esc(pos.symbol || pos.ticker)}</strong>
+                        <span style="font-size:10px;color:#94a3b8;margin-left:6px;">${esc(pos.accountName || pos.strategy || 'Trend Following')}</span>
+                      </div>
+                      <div style="text-align:right;">
+                        <span style="font-weight:700;font-size:12px;color:#f8fafc;">${fmtBRL(pos.marketValue || pos.amount)}</span>
+                        ${pos.pnlPercent !== undefined ? `
+                          <span style="font-size:10.5px;color:${pos.pnlPercent >= 0 ? '#10b981' : '#ef4444'};margin-left:6px;font-weight:700;">
+                            ${pos.pnlPercent >= 0 ? '+' : ''}${Number(pos.pnlPercent).toFixed(2).replace('.', ',')}%
+                          </span>
+                        ` : ''}
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : `
+                <div class="ci-cycle-note-muted" style="padding:16px 0;text-align:center;">Nenhuma posição aberta no momento.</div>
+              `}
+            </div>
+          </div>
+        ` : currentTab === 'classes' ? `
+          <!-- ALOCAÇÃO DETALHADA POR CLASSE -->
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="ci-conn-section-title">Distribuição por Classes de Ativos na Carteira</div>
+            <p class="ci-cycle-note-muted" style="margin-top:0;">
+              Proporções calculadas sobre a Equity de Investimentos (R$ ${fmtBRL(operationalEquity)}), garantindo conformidade com a Política de Risco.
+            </p>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              ${allocationByClass.map(cls => `
+                <div class="ci-alloc-bar-container">
+                  <div class="ci-alloc-bar-row">
+                    <span style="font-weight:700;display:flex;align-items:center;gap:6px;">
+                      <span style="width:10px;height:10px;border-radius:50%;background:${esc(cls.color)};display:inline-block;"></span>
+                      ${esc(cls.label)}
+                    </span>
+                    <span style="font-weight:800;font-variant-numeric:tabular-nums;">
+                      ${fmtBRL(cls.amount)} · <span style="color:${esc(cls.color)};">${fmtPct(cls.percentage)}</span>
+                    </span>
+                  </div>
+                  <div class="ci-alloc-track">
+                    <div class="ci-alloc-fill" style="width:${Math.min(100, Math.max(1, cls.percentage))}%;background:${esc(cls.color)};"></div>
+                  </div>
+                  <div style="font-size:10px;color:#94a3b8;line-height:1.35;margin-top:2px;">
+                    ${esc(cls.description)} · <strong>${cls.count} ${cls.count === 1 ? 'item' : 'itens'}</strong>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : currentTab === 'region_currency' ? `
+          <!-- REGIÃO E MOEDA (EXPOSIÇÃO CAMBIAL) -->
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="ci-conn-section-title">Exposição por Região Geográfica</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div class="ci-cycle-kpi-card">
+                <span class="ci-cycle-kpi-label">🇧🇷 Brasil (B3 / Mercado Doméstico)</span>
+                <span class="ci-cycle-kpi-val">${fmtBRL(exposureByRegion.brazil?.amount || 0)}</span>
+                <span class="ci-cycle-kpi-sub">${fmtPct(exposureByRegion.brazil?.percentage || 100)} da exposição total</span>
+              </div>
+
+              <div class="ci-cycle-kpi-card">
+                <span class="ci-cycle-kpi-label">🌐 Internacional / EUA (BDRs & Global)</span>
+                <span class="ci-cycle-kpi-val" style="color:#38bdf8;">${fmtBRL(exposureByRegion.global?.amount || 0)}</span>
+                <span class="ci-cycle-kpi-sub">${fmtPct(exposureByRegion.global?.percentage || 0)} da exposição total</span>
+              </div>
+            </div>
+
+            <div class="ci-conn-section-title" style="margin-top:8px;">Exposição por Moeda & Proteção Cambial</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div class="ci-cycle-kpi-card">
+                <span class="ci-cycle-kpi-label">Moeda Local — Real (BRL)</span>
+                <span class="ci-cycle-kpi-val">${fmtBRL(exposureByCurrency.brl?.amount || 0)}</span>
+                <span class="ci-cycle-kpi-sub">${fmtPct(exposureByCurrency.brl?.percentage || 100)} do capital total</span>
+              </div>
+
+              <div class="ci-cycle-kpi-card" style="border-color:rgba(6,182,212,0.35);background:rgba(6,182,212,0.05);">
+                <span class="ci-cycle-kpi-label" style="display:flex;align-items:center;justify-content:space-between;">
+                  <span>Dólar & Ativos Dolarizados (USD)</span>
+                  ${exposureByCurrency.usd?.percentage > 0 ? `<span class="ci-hedge-badge">Hedge Ativo</span>` : ''}
+                </span>
+                <span class="ci-cycle-kpi-val" style="color:#06b6d4;">${fmtBRL(exposureByCurrency.usd?.amount || 0)}</span>
+                <span class="ci-cycle-kpi-sub">${fmtPct(exposureByCurrency.usd?.percentage || 0)} — Proteção contra desvalorização do Real</span>
+              </div>
+            </div>
+          </div>
+        ` : currentTab === 'sectors' ? `
+          <!-- EXPOSIÇÃO SETORIAL FIDEDIGNA -->
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="ci-conn-section-title">Exposição por Setores Econômicos (B3 & Internacional)</div>
+            <p class="ci-cycle-note-muted" style="margin-top:0;">
+              Mapeamento estrito com base na taxonomia oficial da B3 e dados de mercado. Tickers sem classificação confiável são categorizados como "Outros / A Classificar".
+            </p>
+            ${exposureBySector.length === 0 ? `
+              <div class="ci-cycle-note-muted" style="text-align:center;padding:20px;">Nenhuma posição aberta no momento.</div>
+            ` : `
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                ${exposureBySector.map(sec => `
+                  <div class="ci-alloc-bar-container">
+                    <div class="ci-alloc-bar-row">
+                      <span style="font-weight:700;display:flex;align-items:center;gap:6px;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:${esc(sec.color)};display:inline-block;"></span>
+                        ${esc(sec.sector)}
+                      </span>
+                      <span style="font-weight:800;font-variant-numeric:tabular-nums;">
+                        ${fmtBRL(sec.amount)} · <span style="color:${esc(sec.color)};">${fmtPct(sec.percentage)}</span>
+                      </span>
+                    </div>
+                    <div class="ci-alloc-track">
+                      <div class="ci-alloc-fill" style="width:${Math.min(100, Math.max(1, sec.percentage))}%;background:${esc(sec.color)};"></div>
+                    </div>
+                    <div style="font-size:10px;color:#94a3b8;line-height:1.35;margin-top:2px;">
+                      Ativos alocados: <strong>${sec.tickers?.length ? sec.tickers.join(', ') : 'Nenhum'}</strong>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+        ` : currentTab === 'concentration' ? `
+          <!-- CONCENTRAÇÃO E LIQUIDEZ -->
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="ci-conn-section-title">Métricas de Concentração de Carteira</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div class="ci-cycle-kpi-card">
+                <span class="ci-cycle-kpi-label">Maior Posição (Top 1)</span>
+                <span class="ci-cycle-kpi-val" style="color:#e5c158;">
+                  ${concentration.top1 ? `${esc(concentration.top1.ticker)} (${fmtPct(concentration.top1.percentage)})` : 'Nenhuma'}
+                </span>
+                <span class="ci-cycle-kpi-sub">${concentration.top1 ? fmtBRL(concentration.top1.volume) : 'Sem risco alocado'}</span>
+              </div>
+
+              <div class="ci-cycle-kpi-card">
+                <span class="ci-cycle-kpi-label">3 Maiores Posições (Top 3)</span>
+                <span class="ci-cycle-kpi-val">
+                  ${concentration.top3?.percentage ? fmtPct(concentration.top3.percentage) : '0,00%'}
+                </span>
+                <span class="ci-cycle-kpi-sub">${concentration.top3?.tickers?.length ? concentration.top3.tickers.join(', ') : 'Nenhum'}</span>
+              </div>
+            </div>
+
+            <div class="ci-conn-section-title" style="margin-top:8px;">Liquidez e Caixa Livre Disponível</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div class="ci-cycle-kpi-card">
+                <span class="ci-cycle-kpi-label">Caixa Livre nas Corretoras</span>
+                <span class="ci-cycle-kpi-val" style="color:#10b981;">${fmtBRL(cashValue)}</span>
+                <span class="ci-cycle-kpi-sub">${fmtPct(cashPct)} de reserva operacional imediata</span>
+              </div>
+
+              <div class="ci-cycle-kpi-card">
+                <span class="ci-cycle-kpi-label">Status de Liquidez</span>
+                <span class="ci-cycle-kpi-val" style="color:#38bdf8;">${esc(liquidity.status)}</span>
+                <span class="ci-cycle-kpi-sub">Garante fôlego para entradas quando o mercado der permissão</span>
+              </div>
+            </div>
+          </div>
+        ` : currentTab === 'positions' ? `
+          <!-- TABELA DE POSIÇÕES EM ABERTO -->
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="ci-conn-section-title">Posições em Aberto Registradas</div>
+            ${positionsList.length === 0 ? `
+              <div class="ci-cycle-note-muted" style="text-align:center;padding:20px;">Nenhuma posição aberta no momento.</div>
+            ` : `
+              <div style="overflow-x:auto;">
+                <table class="ci-portfolio-table">
+                  <thead>
+                    <tr>
+                      <th>Ativo</th>
+                      <th>Estratégia</th>
+                      <th>Setor</th>
+                      <th>Qtd</th>
+                      <th>Preço Entrada</th>
+                      <th>Preço Atual</th>
+                      <th>Volume (R$)</th>
+                      <th>Resultado R$</th>
+                      <th>Peso Equity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${positionsList.map(pos => `
+                      <tr>
+                        <td><strong>${esc(pos.ticker)}</strong></td>
+                        <td>${esc(pos.strategy)}</td>
+                        <td><span style="font-size:10px;color:#94a3b8;">${esc(pos.sector)}</span></td>
+                        <td>${Number(pos.quantity).toLocaleString('pt-BR')}</td>
+                        <td>${fmtBRL(pos.entryPrice)}</td>
+                        <td>${fmtBRL(pos.currentPrice)}</td>
+                        <td style="font-weight:700;">${fmtBRL(pos.volume)}</td>
+                        <td style="color:${(pos.unrealizedResultBrl || 0) >= 0 ? '#10b981' : '#ef4444'};font-weight:700;">
+                          ${fmtBRL(pos.unrealizedResultBrl)} (${fmtPct(pos.unrealizedResultPct)})
+                        </td>
+                        <td>${fmtPct(pos.equityWeightPct)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+        ` : `
+          <!-- CONTAS E RECONCILIAÇÃO CONTÁBIL -->
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="ci-conn-section-title">Contas Reconciliadas e Segregação Contábil</div>
+            <p class="ci-cycle-note-muted" style="margin-top:0;">
+              Auditoria em tempo real: contas de investimento compõem a Equity da estratégia; contas correntes (despesas) compõem exclusivamente o Patrimônio Total.
+            </p>
+            ${accountsList.length === 0 ? `
+              <div class="ci-cycle-note-muted" style="text-align:center;padding:20px;">Nenhuma conta sincronizada no momento. Atualize na tela Atualização Diária.</div>
+            ` : `
+              <div style="overflow-x:auto;">
+                <table class="ci-portfolio-table">
+                  <thead>
+                    <tr>
+                      <th>Conta / Instituição</th>
+                      <th>Classificação</th>
+                      <th>Moeda</th>
+                      <th>Saldo</th>
+                      <th>Impacto na Equity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${accountsList.map(acc => `
+                      <tr>
+                        <td><strong>${esc(acc.name)}</strong></td>
+                        <td>
+                          <span style="font-size:9.5px;padding:2px 6px;border-radius:4px;font-weight:700;text-transform:uppercase;background:${acc.isChecking ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)'};color:${acc.isChecking ? '#fbbf24' : '#34d399'};">
+                            ${acc.isChecking ? 'Conta Corrente' : 'Conta de Investimentos'}
+                          </span>
+                        </td>
+                        <td>${esc(acc.currency)}</td>
+                        <td style="font-weight:700;">${fmtBRL(acc.balance)}</td>
+                        <td style="color:${acc.isChecking ? '#64748b' : '#34d399'};">
+                          ${acc.isChecking ? 'Excluído da Equity' : 'Compõe Equity'}
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+        `}
+      `;
+    }
+
     openConnectionModal(connId) {
       const modal = document.getElementById('ciConnectionModal');
       if (!modal || !this.model) return;
@@ -2518,7 +4576,7 @@
       const typeLabel = conn.type === 'economic' ? 'Fluxo Econômico' : conn.type === 'correlation' ? 'Correlação Estrutural' : 'Alocação Patrimonial';
 
       modal.innerHTML = `
-        <div class="ci-modal-card">
+        <div class="ci-modal-card ci-modal-wide">
           <header class="ci-modal-head">
             <div>
               <div class="ci-drawer-eyebrow">${esc(typeLabel)} · ${esc(conn.timeframe)}</div>
@@ -2528,26 +4586,38 @@
           </header>
 
           <div class="ci-modal-body">
-            <div class="ci-metric-hero">
-              <div class="ci-metric-hero-meta" style="font-size:13px;color:#ffffff;font-weight:700;">
-                <span>${esc(src ? src.shortLabel : conn.source)}</span>
-                <span style="color:#f3d58d;">⟷</span>
-                <span>${esc(tgt ? tgt.shortLabel : conn.target)}</span>
-              </div>
-            </div>
+            <div class="ci-modal-grid-2col">
+              <!-- COLUNA 1: RELAÇÃO E HORIZONTE -->
+              <div class="ci-modal-col">
+                <div class="ci-metric-hero">
+                  <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Canal de Transmissão Conectado</div>
+                  <div style="display:flex;align-items:center;gap:12px;font-size:16px;color:#ffffff;font-weight:800;flex-wrap:wrap;">
+                    <span style="padding:4px 10px;background:rgba(255,255,255,0.06);border-radius:6px;border:1px solid rgba(255,255,255,0.12);">${esc(src ? src.shortLabel : conn.source)}</span>
+                    <span style="color:#f3d58d;font-size:18px;">⟷</span>
+                    <span style="padding:4px 10px;background:rgba(255,255,255,0.06);border-radius:6px;border:1px solid rgba(255,255,255,0.12);">${esc(tgt ? tgt.shortLabel : conn.target)}</span>
+                  </div>
+                  <div class="ci-cycle-tags-row" style="margin-top:10px;">
+                    <span class="ci-cycle-chip" style="border-color:#f3d58d;color:#f3d58d;">Tipo: ${esc(typeLabel)}</span>
+                    <span class="ci-cycle-chip">Horizonte: ${esc(conn.timeframe)}</span>
+                  </div>
+                </div>
 
-            <div class="ci-detail-list">
-              <div class="ci-detail-row">
-                <div class="ci-detail-k">Fundamentação Estrutural</div>
-                <div class="ci-detail-v">${esc(conn.explanation)}</div>
+                <div class="ci-cycle-kpi-card" style="margin-top:4px;">
+                  <span class="ci-cycle-kpi-label">Evidência / Métrica Observada</span>
+                  <span class="ci-cycle-kpi-val" style="font-size:14px;color:#cfe0d6;font-weight:700;">${esc(conn.supportingData)}</span>
+                  <span class="ci-cycle-kpi-sub">Dado histórico de sustentação</span>
+                </div>
               </div>
-              <div class="ci-detail-row">
-                <div class="ci-detail-k">Evidência / Métrica Observada</div>
-                <div class="ci-detail-v">${esc(conn.supportingData)}</div>
-              </div>
-              <div class="ci-detail-row">
-                <div class="ci-detail-k">Horizonte de Observação</div>
-                <div class="ci-detail-v">${esc(conn.timeframe)}</div>
+
+              <!-- COLUNA 2: FUNDAMENTAÇÃO E METODOLOGIA -->
+              <div class="ci-modal-col">
+                <div class="ci-conn-section-title" style="margin-top:0;">Fundamentação Estrutural</div>
+                <div style="background:rgba(2,9,7,0.55);padding:14px 16px;border-radius:8px;border:1px solid rgba(167,243,208,0.08);line-height:1.6;font-size:13px;color:#cfe0d6;">
+                  ${esc(conn.explanation)}
+                </div>
+                <div class="ci-epistemic-box" style="margin-top:10px;font-size:11px;">
+                  <strong>Rigor Epistêmico:</strong> Conexões refletem dinâmicas financeiras documentadas (fluxo de capital, paridade cambial e precificação de risco). Nenhuma conexão pressupõe causa mecânica unifatorial em 1 único pregão.
+                </div>
               </div>
             </div>
           </div>

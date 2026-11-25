@@ -846,18 +846,23 @@ test('Ajustes do Simulador — 17. Período padrão 24 meses, botão unificado "
   assert.equal(st.volatilityState.period, '730', 'Volatility Trading deve iniciar com Últimos 24 meses (730) por padrão');
   assert.equal(st.massConfig.period, 730, 'massConfig deve iniciar com período 730 (Últimos 24 meses)');
 
-  // 2. Cabeçalhos unificados: sem botão independente "Executar Simulação" e com botão "Configurar e Executar Simulação"
+  // 2. Cabeçalhos unificados e limpos: controles soltos centralizados no drawer "Configurar e Executar Simulação"
   const tfHeaderHtml = sim.renderHeader();
   assert.ok(!tfHeaderHtml.includes('id="simBtnExecute"'), 'Cabeçalho de Trend Following NÃO deve ter botão independente #simBtnExecute');
   assert.ok(tfHeaderHtml.includes('id="simBtnOpenAdvConfig"'), 'Cabeçalho de Trend Following deve ter #simBtnOpenAdvConfig');
   assert.ok(tfHeaderHtml.includes('Configurar e Executar Simulação'), 'Botão principal de Trend Following deve exibir "Configurar e Executar Simulação"');
-  assert.ok(tfHeaderHtml.includes('<option value="730" selected>Últimos 24 meses</option>'), 'Seletor de período do Trend Following deve iniciar com Últimos 24 meses selecionado');
+  assert.ok(tfHeaderHtml.includes('sim-active-config-summary'), 'Cabeçalho de Trend Following deve exibir a barra de resumo de configurações');
 
   const volHeaderHtml = sim.renderVolatilityHeader();
   assert.ok(!volHeaderHtml.includes('id="volBtnExecuteHeader"'), 'Cabeçalho de Volatility Trading NÃO deve ter botão independente #volBtnExecuteHeader');
   assert.ok(volHeaderHtml.includes('id="simBtnOpenAdvConfig"'), 'Cabeçalho de Volatility Trading deve ter #simBtnOpenAdvConfig');
   assert.ok(volHeaderHtml.includes('Configurar e Executar Simulação'), 'Botão principal de Volatility Trading deve exibir "Configurar e Executar Simulação"');
-  assert.ok(volHeaderHtml.includes('<option value="730" selected>Últimos 24 meses</option>'), 'Seletor de período do Volatility Trading deve iniciar com Últimos 24 meses selecionado');
+  assert.ok(volHeaderHtml.includes('sim-active-config-summary'), 'Cabeçalho de Volatility Trading deve exibir a barra de resumo de configurações');
+
+  // Configuração centralizada dentro do drawer
+  const advDrawerHtml = sim.renderAdvancedConfigDrawer(null, 'TREND_FOLLOWING');
+  assert.ok(advDrawerHtml.includes('Período do backtest') || advDrawerHtml.includes('A. Período'), 'Drawer de configuração deve conter a Seção de Período');
+  assert.ok(advDrawerHtml.includes('simConfigStartDate'), 'Drawer de configuração deve conter seleção personalizada de datas');
 
   // 3. Loading obrigatório durante toda a execução e bloqueio de disparos duplicados (Trend Following)
   st.generatingMass = true;
