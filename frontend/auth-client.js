@@ -147,6 +147,10 @@
   }
   function heartbeatPlatformAccess() {
     if (!platformAccessStarted || !token()) return;
+    // Do not count closed-market time as operational trading screen time
+    if (window.FocusGuardianModel?.isMarketOpen && !window.FocusGuardianModel.isMarketOpen()) {
+      return;
+    }
     request(`/api/platform-access/sessions/${accessSessionId()}/heartbeat`, { method: 'POST', body: '{}' }).catch(() => { if (token()) { platformAccessStarted = false; sessionStorage.removeItem(ACCESS_SESSION_KEY); startPlatformAccess().catch(() => {}); } });
   }
   function closePlatformAccess() {

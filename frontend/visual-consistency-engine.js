@@ -172,7 +172,7 @@
     { id: 'relativestrength', page: 'relativestrength', name: 'Força Relativa', category: 'Análise de Mercado' },
     { id: 'marketcycle', page: 'marketcycle', name: 'Ciclo de Mercado', category: 'Análise de Mercado' },
     { id: 'marketcentral', page: 'marketcentral', name: 'Central de Mercado', category: 'Análise de Mercado' },
-    { id: 'capitalintelligence', page: 'capitalintelligence', name: 'Capital Intelligence', category: 'Análise de Mercado' },
+    { id: 'capitalintelligence', page: 'capitalintelligence', name: 'Visão Sistêmica', category: 'Análise de Mercado' },
     { id: 'fundamentals', page: 'fundamentals', name: 'Análise Fundamentalista', category: 'Análise de Mercado' },
     { id: 'charts', page: 'charts', name: 'Gráficos', category: 'Análise de Mercado' },
     { id: 'markettreemap', page: 'markettreemap', name: 'Setores', category: 'Análise de Mercado' },

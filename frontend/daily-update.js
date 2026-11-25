@@ -43,8 +43,10 @@
   };
 
   class DailyUpdateHubController {
-    constructor() {
-      this.model = new (root.DailyUpdateModel || Object)();
+    constructor(options = {}) {
+      this.root = options.root || (typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : root));
+      const r = this.root;
+      this.model = options.model || (r?.DailyUpdateModel ? new r.DailyUpdateModel() : (root?.DailyUpdateModel ? new root.DailyUpdateModel() : new Object()));
       this.isLoading = false;
       this.isInitialized = false;
       this.equityPeriod = 'all';
@@ -56,39 +58,297 @@
       this._domCache = null;
       this._equityBroadcastRaf = null;
       this._draftSaveTimer = null;
+      this._syncSeq = 0;
+      this._batchQuoteSeq = 0;
+      this._priceSeqMap = new Map();
+      this._accountLinkSeqMap = new Map();
+      this._dirtyPositions = new Map();
+      this._lifecycleListenersBound = false;
+    }
+
+    bindLifecycleListeners() {
+      if (this._lifecycleListenersBound) return;
+      this._lifecycleListenersBound = true;
+      const r = this.root || root;
+      if (typeof r?.addEventListener !== 'function') return;
+
+      const isPageActive = () => {
+        if (typeof document === 'undefined' || typeof document.getElementById !== 'function') return false;
+        const sec = document.getElementById('dailyupdate');
+        return Boolean(sec && sec.classList && sec.classList.contains('active'));
+      };
+
+      r.addEventListener('healthyTrend:workspaceLoaded', () => {
+        this.loadSavedState();
+        if (typeof this.syncFromOperationalState === 'function') {
+          this.syncFromOperationalState();
+        }
+        if (isPageActive()) this.render();
+      });
+
+      r.addEventListener('healthyTrend:authenticated', async () => {
+        if (typeof this.syncFromOperationalState === 'function') {
+          this.syncFromOperationalState();
+        }
+        await this.syncWithBackend();
+        if (isPageActive()) this.render();
+      });
+
+      r.addEventListener('healthyTrend:tradesUpdated', async () => {
+        if (typeof this.syncFromOperationalState === 'function') {
+          this.syncFromOperationalState();
+        }
+        if (r.healthyTrendApi?.isAuthenticated?.()) {
+          await this.syncWithBackend();
+        }
+        if (isPageActive()) this.render();
+      });
+
+      r.addEventListener('healthyTrend:positionDeleted', (e) => {
+        const delId = e.detail?.id;
+        if (delId && Array.isArray(this.model.positions)) {
+          this.model.positions = this.model.positions.filter(p => String(p.id) !== String(delId));
+          if (typeof this.model.saveDraft === 'function') this.model.saveDraft();
+          this.model.updateClosingReadiness();
+          if (isPageActive()) this.render();
+        }
+      });
     }
 
     async init() {
+      this.bindLifecycleListeners();
       if (this.isInitialized) return;
       this.isInitialized = true;
 
-      // 1. Load draft or saved workspace accounts
+      // 1. Load durable saved accounts, position meta (links/prices), and draft
       this.loadSavedState();
 
-      // 2. Sync with existing backend endpoints
+      // 2. Synchronize in-memory operational state if available
+      if (typeof this.syncFromOperationalState === 'function') {
+        this.syncFromOperationalState();
+      }
+
+      // 3. Sync with existing backend endpoints
       await this.syncWithBackend();
+
+      // 4. Re-render if the user is already viewing Atualização Diária
+      if (typeof document !== 'undefined' && typeof document.getElementById === 'function') {
+        const sec = document.getElementById('dailyupdate');
+        if (sec && sec.classList && sec.classList.contains('active')) {
+          this.render();
+        }
+      }
     }
 
-    loadSavedState() {
-      // 1. Prioritize saved accounts in workspace-state
-      let workspaceAccountsLoaded = false;
+    syncFromOperationalState() {
+      const r = this.root || root;
+      if (!r || !r.operationalState) return;
+      const oppPositions = Array.isArray(r.operationalState.positions) ? r.operationalState.positions : [];
+      const oppClosed = Array.isArray(r.operationalState.closedPositions) ? r.operationalState.closedPositions : [];
+
+      const activeOppMap = new Map();
+      oppPositions.forEach(p => {
+        if (p.id) activeOppMap.set(String(p.id), p);
+        if (p.databaseId) activeOppMap.set(String(p.databaseId), p);
+      });
+
+      const closedOppMap = new Map();
+      oppClosed.forEach(p => {
+        if (p.id) closedOppMap.set(String(p.id), p);
+        if (p.databaseId) closedOppMap.set(String(p.databaseId), p);
+      });
+
+      const savedMetaMap = typeof this.getMergedPositionMetaMap === 'function' ? this.getMergedPositionMetaMap() : {};
+
+      // 1. Reconcile existing model positions against operationalState
+      const remainingPositions = [];
+      (this.model.positions || []).forEach(pos => {
+        const idStr = String(pos.id);
+        const isClosedInOpp = closedOppMap.has(idStr);
+        const isActiveInOpp = activeOppMap.has(idStr);
+
+        if (isClosedInOpp || (oppPositions.length > 0 && !isActiveInOpp && (/^[0-9a-f-]{36}$/i.test(idStr) || idStr.startsWith('trade-')))) {
+          pos.closed = true;
+          pos.status = 'encerrada';
+          pos.quantity = 0;
+          if (!this.model.closedPositions.some(c => String(c.id) === idStr)) {
+            this.model.closedPositions.unshift(pos);
+          }
+        } else {
+          const opp = activeOppMap.get(idStr);
+          if (opp) {
+            if (opp.currentPrice && Number(opp.currentPrice) > 0) pos.currentPrice = Number(opp.currentPrice);
+            if (opp.currentStop) pos.trailingStop = Number(opp.currentStop);
+            if (opp.remaining !== undefined) pos.quantity = Number(opp.remaining);
+            else if (opp.initialQty !== undefined && !pos.isPartial) pos.quantity = Number(opp.initialQty);
+            const strat = opp.strategy || opp.strategyType || opp.strategy_type;
+            if (strat) pos.strategy = (String(strat).toUpperCase().includes('VOL')) ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
+            if (opp.accountId && !pos.accountId) {
+              pos.accountId = opp.accountId;
+              if (opp.accountId === 'paper' || opp.mode === 'paper') {
+                pos.broker = 'Paper Trading';
+              } else {
+                const acc = this.model.accounts.find(a => a.id === opp.accountId);
+                if (acc) pos.broker = acc.label;
+              }
+            }
+          }
+          remainingPositions.push(pos);
+        }
+      });
+
+      // 2. Add new positions present in operationalState that were not in model
+      oppPositions.forEach(opp => {
+        const idStr = String(opp.id || opp.databaseId || '');
+        if (!idStr) return;
+        const exists = remainingPositions.some(p => String(p.id) === idStr);
+        if (!exists && opp.status !== 'closed' && !opp.isPending && opp.status !== 'pending') {
+          const entry = Number(opp.entry || opp.averageEntry || opp.currentPrice || 0);
+          const curr = Number(opp.currentPrice || entry);
+          const qty = Number(opp.remaining ?? opp.initialQty ?? opp.totalQty ?? 0);
+          const rawStrat = opp.strategy || opp.strategyType || opp.strategy_type || 'TREND_FOLLOWING';
+          const resolvedStrat = (String(rawStrat).toUpperCase().includes('VOL')) ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
+
+          const savedMeta = savedMetaMap[idStr] || null;
+          const isPaper = opp.mode === 'paper' || opp.accountId === 'paper';
+          let resolvedAccountId = isPaper ? 'paper' : (opp.accountId || savedMeta?.accountId || null);
+          let resolvedBroker = isPaper ? 'Paper Trading' : (opp.broker || savedMeta?.broker || 'Pendente de conferência');
+          if (!isPaper && resolvedAccountId) {
+            const acc = this.model.accounts.find(a => a.id === resolvedAccountId);
+            if (acc) resolvedBroker = acc.label;
+          }
+
+          const newPos = {
+            id: idStr,
+            ticker: opp.asset || opp.ticker,
+            mode: opp.mode || (isPaper ? 'paper' : 'real'),
+            assetClass: opp.market || 'Ações',
+            market: opp.market || 'Ações',
+            direction: opp.direction || 'long',
+            side: (opp.direction === 'short' || opp.side === 'Venda') ? 'Venda' : 'Compra',
+            strategy: resolvedStrat,
+            currency: opp.currency || 'BRL',
+            fxRate: Number(opp.fxRate || 1),
+            accountId: resolvedAccountId,
+            broker: resolvedBroker,
+            quantity: qty,
+            initialQuantity: Number(opp.initialQty ?? opp.totalQty ?? qty),
+            contractMult: Number(opp.contractMult || 1),
+            mult: Number(opp.contractMult || 1),
+            isPartial: Array.isArray(opp.events) && opp.events.some(e => e.type === 'peeloff'),
+            partialCount: Array.isArray(opp.events) ? opp.events.filter(e => e.type === 'peeloff').length : 0,
+            entryDate: opp.entryDate || (opp.openedAt ? opp.openedAt.slice(0, 10) : new Date().toISOString().slice(0, 10)),
+            openedAt: opp.openedAt || new Date().toISOString(),
+            events: Array.isArray(opp.events) ? opp.events.slice() : [],
+            entryPrice: entry,
+            stopPrice: Number(opp.initialStop || opp.currentStop || 0),
+            trailingStop: Number(opp.currentStop || opp.initialStop || 0),
+            currentPrice: curr,
+            priceUpdatedAt: new Date().toISOString(),
+            priceSource: 'operational_sync',
+            priceStale: false,
+            status: 'conferida',
+            checked: true,
+            hasDivergence: false,
+            divergence: null,
+            checkedAt: new Date().toISOString()
+          };
+          remainingPositions.unshift(newPos);
+        }
+      });
+
+      this.model.positions = remainingPositions;
+      if (typeof this.model.saveDraft === 'function') {
+        this.model.saveDraft();
+      }
+      this.model.updateClosingReadiness();
+    }
+
+    getMergedPositionMetaMap() {
+      const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+      const key = root.DailyUpdateModel?.STORAGE_KEY_POSITION_META || 'healthy-daily-update-position-meta';
+      const localMap = typeof this.model.loadPositionMeta === 'function' ? this.model.loadPositionMeta(storage) : {};
+      let wsMap = {};
       try {
         if (root.healthyTrendWorkspace?.raw) {
-          const rawAccounts = root.healthyTrendWorkspace.raw('healthy-daily-update-accounts');
-          if (rawAccounts) {
-            const parsed = typeof rawAccounts === 'string' ? JSON.parse(rawAccounts) : rawAccounts;
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              this.model.accounts = parsed;
-              this.model.updateClosingReadiness();
-              workspaceAccountsLoaded = true;
-            }
+          const rawWs = root.healthyTrendWorkspace.raw(key);
+          if (rawWs) {
+            const parsed = typeof rawWs === 'string' ? JSON.parse(rawWs) : rawWs;
+            if (parsed && typeof parsed === 'object') wsMap = parsed;
           }
         }
       } catch (_) {}
 
+      const merged = { ...wsMap };
+      Object.entries(localMap || {}).forEach(([id, loc]) => {
+        const existing = merged[id];
+        if (!existing) {
+          merged[id] = loc;
+          return;
+        }
+        const locTs = loc?.updatedAt ? Date.parse(loc.updatedAt) : 0;
+        const exTs = existing?.updatedAt ? Date.parse(existing.updatedAt) : 0;
+        if (locTs >= exTs) {
+          merged[id] = {
+            ...existing,
+            ...loc,
+            accountId: loc.accountId !== undefined ? loc.accountId : existing.accountId,
+            broker: loc.broker !== undefined ? loc.broker : existing.broker,
+            currentPrice: (Number.isFinite(Number(loc.currentPrice)) && Number(loc.currentPrice) > 0)
+              ? Number(loc.currentPrice)
+              : existing.currentPrice
+          };
+        }
+      });
+      return merged;
+    }
+
+    loadSavedState() {
+      const storage = typeof localStorage !== 'undefined' ? localStorage : null;
+      const r = this.root || root;
+      const accountsKey = r?.DailyUpdateModel?.STORAGE_KEY_ACCOUNTS || root?.DailyUpdateModel?.STORAGE_KEY_ACCOUNTS || 'healthy-daily-update-accounts';
+      const draftKey = r?.DailyUpdateModel?.STORAGE_KEY_DRAFT || root?.DailyUpdateModel?.STORAGE_KEY_DRAFT || 'healthy-daily-update-draft-v1';
+
+      // 1. Load saved accounts comparing workspace-state vs localStorage by freshest timestamp
+      let workspaceAccounts = null;
+      try {
+        if (r?.healthyTrendWorkspace?.raw) {
+          const rawAccounts = r.healthyTrendWorkspace.raw(accountsKey);
+          if (rawAccounts) {
+            const parsed = typeof rawAccounts === 'string' ? JSON.parse(rawAccounts) : rawAccounts;
+            if (Array.isArray(parsed) && parsed.length > 0) workspaceAccounts = parsed;
+          }
+        }
+      } catch (_) {}
+
+      let localAccounts = null;
+      try {
+        const rawLocalAcc = storage ? storage.getItem(accountsKey) : null;
+        if (rawLocalAcc) {
+          const parsed = JSON.parse(rawLocalAcc);
+          if (Array.isArray(parsed) && parsed.length > 0) localAccounts = parsed;
+        }
+      } catch (_) {}
+
+      const newestTs = (list) => {
+        if (!Array.isArray(list)) return 0;
+        return list.reduce((mx, a) => {
+          const t = a?.updatedAt ? Date.parse(a.updatedAt) : 0;
+          return Number.isFinite(t) && t > mx ? t : mx;
+        }, 0);
+      };
+
+      const chosenAccounts = (workspaceAccounts && localAccounts)
+        ? (newestTs(localAccounts) > newestTs(workspaceAccounts) ? localAccounts : workspaceAccounts)
+        : (workspaceAccounts || localAccounts);
+
+      if (chosenAccounts) {
+        this.model.accounts = JSON.parse(JSON.stringify(chosenAccounts));
+      }
+
       // Ensure all loaded accounts have type, subtitle and merge newly introduced official accounts
-      const defAccounts = root.DailyUpdateModel?.DEFAULT_ACCOUNTS || [];
-      this.model.accounts.forEach(acc => {
+      const defAccounts = r?.DailyUpdateModel?.DEFAULT_ACCOUNTS || root?.DailyUpdateModel?.DEFAULT_ACCOUNTS || [];
+      (this.model.accounts || []).forEach(acc => {
         if (!acc.type) {
           const match = defAccounts.find(d => d.id === acc.id);
           acc.type = match ? match.type : 'INVESTMENT';
@@ -109,25 +369,39 @@
       });
       this.model.updateClosingReadiness();
 
-      // 2. Draft in localStorage (discard if it contains obsolete legacy mock balances)
+      // 2. Load draft (without skipping positions when workspace accounts were already loaded!)
       try {
-        const rawDraft = typeof localStorage !== 'undefined' ? localStorage.getItem(root.DailyUpdateModel?.STORAGE_KEY_DRAFT || 'healthy-daily-update-draft-v1') : null;
+        const rawDraft = storage ? storage.getItem(draftKey) : null;
         if (rawDraft) {
           const parsedDraft = JSON.parse(rawDraft);
           const hasLegacyMock = Array.isArray(parsedDraft?.accounts) && parsedDraft.accounts.some(a => a.id === 'genial_natalia' && (a.newBalance > 300000 || a.previousBalance > 300000));
           if (hasLegacyMock) {
             this.model.clearDraft();
-          } else if (!workspaceAccountsLoaded) {
-            this.model.loadDraft();
+          } else {
+            const savedAccountsSnapshot = chosenAccounts ? JSON.parse(JSON.stringify(this.model.accounts)) : null;
+            this.model.loadDraft(storage);
+            // If durable accounts were newer than draft accounts, restore them while keeping draft positions
+            if (savedAccountsSnapshot && newestTs(savedAccountsSnapshot) >= newestTs(this.model.accounts)) {
+              this.model.accounts = savedAccountsSnapshot;
+              this.model.updateClosingReadiness();
+            }
           }
         }
       } catch (_) {}
 
-      // 3. History in localStorage and workspace-state (sanitize if containing obsolete legacy mock snapshots)
+      // 3. ALWAYS overlay durable position metadata (account links + last valid prices) from workspace + localStorage
       try {
-        const historyKey = root.DailyUpdateModel?.STORAGE_KEY_HISTORY || 'healthy-daily-update-history';
-        if (typeof localStorage !== 'undefined') {
-          const rawHist = localStorage.getItem(historyKey);
+        const mergedMeta = this.getMergedPositionMetaMap();
+        if (typeof this.model.applyPositionMetaMap === 'function') {
+          this.model.applyPositionMetaMap(mergedMeta, { forceAccount: false });
+        }
+      } catch (_) {}
+
+      // 4. History in localStorage and workspace-state (sanitize if containing obsolete legacy mock snapshots)
+      try {
+        const historyKey = r?.DailyUpdateModel?.STORAGE_KEY_HISTORY || root?.DailyUpdateModel?.STORAGE_KEY_HISTORY || 'healthy-daily-update-history';
+        if (storage) {
+          const rawHist = storage.getItem(historyKey);
           if (rawHist) {
             const parsedHist = JSON.parse(rawHist);
             const hasLegacyMock = Array.isArray(parsedHist) && parsedHist.some(s => {
@@ -137,9 +411,9 @@
             });
             if (hasLegacyMock) {
               const clean = this.model.getHistory();
-              localStorage.setItem(historyKey, JSON.stringify(clean));
-              if (root.healthyTrendWorkspace?.save) {
-                root.healthyTrendWorkspace.save(historyKey, clean);
+              storage.setItem(historyKey, JSON.stringify(clean));
+              if (r?.healthyTrendWorkspace?.save) {
+                r.healthyTrendWorkspace.save(historyKey, clean);
               }
             }
           }
@@ -148,11 +422,14 @@
     }
 
     async syncWithBackend() {
+      const seq = ++this._syncSeq;
       try {
-        if (!root.healthyTrendApi?.request) return;
+        const r = this.root || root;
+        if (!r?.healthyTrendApi?.request) return;
 
         // Fetch current wealth summary from /api/wealth
-        const wealthRes = await root.healthyTrendApi.request('/api/wealth').catch(() => null);
+        const wealthRes = await r.healthyTrendApi.request('/api/wealth').catch(() => null);
+        if (seq !== this._syncSeq) return; // Discard out-of-order stale sync
         if (wealthRes?.summary) {
           if (wealthRes.summary.strategyEquity) {
             this.model.strategyEquity = Number(wealthRes.summary.strategyEquity);
@@ -163,18 +440,33 @@
         }
 
         // Fetch current open trades from /api/trades?status=open
-        const tradesRes = await root.healthyTrendApi.request('/api/trades?status=open').catch(() => null);
+        const tradesRes = await r.healthyTrendApi.request('/api/trades?status=open').catch(() => null);
+        if (seq !== this._syncSeq) return; // Discard out-of-order stale sync
+
         const list = Array.isArray(tradesRes) ? tradesRes : (tradesRes?.trades || []);
         const openTrades = list.filter(t => t.status === 'open');
+        const existingPositionsSnapshot = [...(this.model.positions || [])];
         if (openTrades.length > 0) {
+          const savedMetaMap = this.getMergedPositionMetaMap();
+
           this.model.positions = openTrades.map((t, idx) => {
-            const entry = Number(t.average_entry_price || t.execution_price || t.entry_price || 0);
+            const posId = String(t.id || `pos_${idx}`);
+            const existingPos = this.model.positions.find(p => String(p.id) === posId);
+            const savedMeta = savedMetaMap[posId] || null;
+            const dirty = this._dirtyPositions.get(posId) || null;
+
+            const backendEntry = Number(t.average_entry_price || t.execution_price || t.entry_price || 0);
+            const backendUpdatedMs = t.updated_at ? Date.parse(t.updated_at) : 0;
+            const entry = (dirty?.entryPrice && dirty.entryUpdatedAt >= backendUpdatedMs)
+              ? Number(dirty.entryPrice)
+              : backendEntry;
+
             const initialStop = Number(t.stop_price || 0);
-            const currentPrice = Number(t.current_price || t.metadata?.currentPrice || entry);
-            const events = t.events || [];
+            const events = Array.isArray(t.events) ? t.events : [];
             const entryEvent = events.find(e => e.type === 'entry');
-            const updateEvents = events.filter(e => e.type === 'update' && e.stop);
+            const updateEvents = events.filter(e => e.type === 'update' && Number(e.stop) > 0);
             const trailingStop = updateEvents.length ? Number(updateEvents[updateEvents.length - 1].stop) : initialStop;
+            const latestPriceEvent = events.filter(e => e.type === 'update' && Number.isFinite(Number(e.price)) && Number(e.price) > 0).pop();
             const peeloffs = events.filter(e => e.type === 'peeloff');
             const totalBought = Number(t.total_quantity || t.executed_quantity || t.planned_quantity || 0);
             const closedQty = events.filter(e => e.type === 'peeloff' || e.type === 'close').reduce((s, e) => s + Number(e.qty || 0), 0);
@@ -183,7 +475,75 @@
             const sign = (t.direction === 'short' || t.side === 'Venda') ? -1 : 1;
             const realizedFromEvents = peeloffs.reduce((s, e) => s + ((Number(e.price || entry) - entry) * sign * Number(e.qty || 0) * contractMult), 0);
 
-            const existingPos = this.model.positions.find(p => p.id === t.id);
+            // Resolve durable account/broker link (never reset to null when persisted locally or in backend)
+            let resolvedAccountId = null;
+            if (dirty && dirty.accountId !== undefined) {
+              resolvedAccountId = dirty.accountId || null;
+            } else {
+              resolvedAccountId =
+                t.account_id ||
+                t.accountId ||
+                t.metadata?.accountId ||
+                savedMeta?.accountId ||
+                existingPos?.accountId ||
+                null;
+            }
+            const isPaper = (t.mode === 'paper' || t.metadata?.mode === 'paper' || resolvedAccountId === 'paper' || existingPos?.mode === 'paper');
+            const resolvedMode = isPaper ? 'paper' : 'real';
+            if (isPaper && !resolvedAccountId) resolvedAccountId = 'paper';
+
+            const matchedAcc = resolvedAccountId && resolvedAccountId !== 'paper'
+              ? this.model.accounts.find(a => a.id === resolvedAccountId)
+              : null;
+            let resolvedBroker =
+              (dirty && dirty.accountId !== undefined ? (dirty.broker || matchedAcc?.label || (resolvedAccountId === 'paper' ? 'Paper Trading' : 'Não vinculada')) : null) ||
+              (resolvedAccountId === 'paper' ? 'Paper Trading' : null) ||
+              matchedAcc?.label ||
+              t.broker ||
+              t.metadata?.broker ||
+              t.metadata?.account ||
+              savedMeta?.broker ||
+              existingPos?.broker ||
+              'Pendente de conferência';
+
+            // Resolve most recent valid positive currentPrice (NEVER overwrite valid price with null/0/entry fallback)
+            const priceCandidates = [];
+            const pushCandidate = (priceVal, tsVal, sourceVal, priority) => {
+              const n = Number(priceVal);
+              if (!Number.isFinite(n) || n <= 0) return;
+              const ts = tsVal ? Date.parse(tsVal) : 0;
+              priceCandidates.push({
+                price: n,
+                ts: Number.isFinite(ts) ? ts : 0,
+                iso: Number.isFinite(ts) && ts > 0 ? new Date(ts).toISOString() : null,
+                source: sourceVal || 'persisted',
+                priority
+              });
+            };
+
+            if (dirty?.currentPrice) {
+              pushCandidate(dirty.currentPrice, dirty.priceUpdatedAt, dirty.priceSource || 'manual', 5);
+            }
+            pushCandidate(t.current_price ?? t.currentPrice ?? t.metadata?.currentPrice, t.price_updated_at ?? t.priceUpdatedAt ?? t.metadata?.priceUpdatedAt ?? t.updated_at, t.price_source ?? t.priceSource ?? t.metadata?.priceSource ?? 'backend', 4);
+            if (latestPriceEvent) {
+              pushCandidate(latestPriceEvent.price, latestPriceEvent.at || latestPriceEvent.createdAt, 'event_update', 3);
+            }
+            if (savedMeta?.currentPrice) {
+              pushCandidate(savedMeta.currentPrice, savedMeta.priceUpdatedAt || savedMeta.updatedAt, savedMeta.priceSource || 'persisted', 2);
+            }
+            if (existingPos?.currentPrice && existingPos.priceUpdatedAt) {
+              pushCandidate(existingPos.currentPrice, existingPos.priceUpdatedAt, existingPos.priceSource || 'local', 1);
+            } else if (existingPos?.currentPrice && Math.abs(Number(existingPos.currentPrice) - entry) > 0.0001) {
+              pushCandidate(existingPos.currentPrice, existingPos.checkedAt, existingPos.priceSource || 'local', 1);
+            }
+
+            priceCandidates.sort((a, b) => (b.ts - a.ts) || (b.priority - a.priority));
+            const bestPrice = priceCandidates[0] || null;
+            const resolvedCurrentPrice = bestPrice ? bestPrice.price : entry;
+            const resolvedPriceUpdatedAt = bestPrice ? bestPrice.iso : null;
+            const resolvedPriceSource = bestPrice ? bestPrice.source : 'entry_fallback';
+            const resolvedPriceStale = bestPrice ? Boolean(savedMeta?.priceStale && !dirty?.currentPrice && bestPrice.source === savedMeta?.priceSource) : true;
+
             const resolvedEntryDate = root.DailyUpdateModel?.resolvePositionEntryDate
               ? root.DailyUpdateModel.resolvePositionEntryDate({
                   entryDate: t.metadata?.entryDate || existingPos?.entryDate,
@@ -195,8 +555,9 @@
               : (t.metadata?.entryDate || entryEvent?.at || t.executed_at || t.created_at || existingPos?.entryDate || null);
 
             return {
-              id: t.id || `pos_${idx}`,
+              id: posId,
               ticker: t.ticker || t.asset,
+              mode: resolvedMode,
               assetClass: t.asset_class || t.assetClass || t.metadata?.assetClass || t.market || existingPos?.assetClass || null,
               market: t.market || t.metadata?.market || existingPos?.market || null,
               direction: t.direction || t.metadata?.direction || existingPos?.direction || 'long',
@@ -204,8 +565,8 @@
               strategy: t.strategy_type || t.strategyType || t.strategy || t.metadata?.strategyType || t.metadata?.strategy || existingPos?.strategy || null,
               currency: t.currency || t.metadata?.currency || existingPos?.currency || 'BRL',
               fxRate: Number(t.fx_rate || t.fxRate || t.metadata?.fxRate || existingPos?.fxRate || 1),
-              accountId: t.account_id || t.accountId || t.metadata?.accountId || existingPos?.accountId || null,
-              broker: t.broker || t.metadata?.account || t.account || (t.metadata?.broker || existingPos?.broker || 'Pendente de conferência'),
+              accountId: resolvedAccountId,
+              broker: resolvedBroker,
               quantity: remaining || totalBought,
               initialQuantity: totalBought,
               contractMult: contractMult,
@@ -220,18 +581,62 @@
               entryPrice: entry,
               stopPrice: initialStop,
               trailingStop: trailingStop,
-              currentPrice: existingPos?.currentPrice ? Number(existingPos.currentPrice) : currentPrice,
+              currentPrice: resolvedCurrentPrice,
+              priceUpdatedAt: resolvedPriceUpdatedAt,
+              priceSource: resolvedPriceSource,
+              priceStale: resolvedPriceStale,
               status: existingPos?.status || 'conferida',
               checked: existingPos ? existingPos.checked : true,
               hasDivergence: existingPos ? Boolean(existingPos.hasDivergence) : false,
               divergence: existingPos?.divergence || null,
-              checkedAt: existingPos?.checkedAt || new Date().toISOString()
+              checkedAt: resolvedPriceUpdatedAt || existingPos?.checkedAt || new Date().toISOString()
             };
           });
+
+          // Move previously open positions that are no longer in openTrades to closedPositions
+          const openIds = new Set(openTrades.map((t, idx) => String(t.id || `pos_${idx}`)));
+          (existingPositionsSnapshot || []).forEach(p => {
+            const pid = String(p.id);
+            if (!openIds.has(pid) && /^[0-9a-f-]{36}$/i.test(pid)) {
+              p.closed = true;
+              p.status = 'encerrada';
+              p.quantity = 0;
+              if (!this.model.closedPositions.some(c => String(c.id) === pid)) {
+                this.model.closedPositions.unshift(p);
+              }
+            }
+          });
+
+          if (typeof this.model.savePositionMeta === 'function') {
+            this.model.savePositionMeta();
+          }
+          if (typeof this.model.saveDraft === 'function') {
+            this.model.saveDraft();
+          }
+          this.model.updateClosingReadiness();
+        } else if (Array.isArray(tradesRes) || Array.isArray(tradesRes?.trades)) {
+          // Backend confirmed zero open trades: clear open positions and mirror to closedPositions
+          (this.model.positions || []).forEach(p => {
+            p.closed = true;
+            p.status = 'encerrada';
+            p.quantity = 0;
+            if (!this.model.closedPositions.some(c => String(c.id) === String(p.id))) {
+              this.model.closedPositions.unshift(p);
+            }
+          });
+          this.model.positions = [];
+          if (typeof this.model.savePositionMeta === 'function') {
+            this.model.savePositionMeta();
+          }
+          if (typeof this.model.saveDraft === 'function') {
+            this.model.saveDraft();
+          }
+          this.model.updateClosingReadiness();
         }
 
         // Fetch risk policy for heat limit from /api/risk-policy
-        const policyRes = await root.healthyTrendApi.request('/api/risk-policy').catch(() => null);
+        const policyRes = await r.healthyTrendApi.request('/api/risk-policy').catch(() => null);
+        if (seq !== this._syncSeq) return;
         if (policyRes) {
           const profileKey = policyRes.selectedProfile || 'standard';
           const profile = policyRes.profiles?.[profileKey] || policyRes.profiles?.standard;
@@ -239,11 +644,11 @@
             this.model.heatLimit = Number(profile.maximumPortfolioRiskPct) * 100;
           }
         }
-        if (typeof root.portfolioHeatLimitPct === 'function') {
-          this.model.heatLimit = root.portfolioHeatLimitPct();
+        if (typeof r.portfolioHeatLimitPct === 'function') {
+          this.model.heatLimit = r.portfolioHeatLimitPct();
         }
-        if (typeof root.portfolioHeatSnapshot === 'function') {
-          const snap = root.portfolioHeatSnapshot();
+        if (typeof r.portfolioHeatSnapshot === 'function') {
+          const snap = r.portfolioHeatSnapshot();
           if (snap && Number.isFinite(snap.heat)) {
             this.model.portfolioHeat = snap.heat;
           }
@@ -417,6 +822,16 @@
                   <span class="account-legend-badge checking" title="Participa do Patrimônio Total, mas não interfere na estratégia">
                     <span class="legend-icon">🏛️</span> Conta Corrente <span class="legend-note">(não compõe a Equity)</span>
                   </span>
+                  ${(() => {
+                    const usdAcc = (model.accounts || []).find(a => a.currency === 'USD');
+                    if (!usdAcc) return '';
+                    const fxDisplay = Number(usdAcc.fxRate || 5.95).toFixed(2).replace('.', ',');
+                    return `
+                      <span class="account-legend-badge fx-ref font-numeric" data-nomad-header-fx="true" title="Cotação USD/BRL de referência usada na conversão da conta Nomad para BRL">
+                        <span class="legend-icon">🇺🇸</span> Câmbio USD/BRL: <strong>R$ ${fxDisplay}</strong>
+                      </span>
+                    `;
+                  })()}
                 </div>
               </header>
 
@@ -481,6 +896,10 @@
                                 }
 
                                 const brokerInitial = acc.broker === 'nomad' ? 'N' : acc.broker === 'genial' ? 'g' : acc.broker === 'clear' ? 'C' : acc.broker === 'eqseed' ? 'E' : acc.broker === 'bradesco' ? 'B' : 'xp';
+                                const usdVarPct = isNomad ? model.getAccountUsdVariationPct(acc) : 0;
+                                const linkedPositions = typeof model.getPositionsByAccount === 'function'
+                                  ? model.getPositionsByAccount(acc.id).filter(p => !p.closed && p.status !== 'encerrada')
+                                  : (model.positions || []).filter(p => p.accountId === acc.id && !p.closed && p.status !== 'encerrada');
 
                                 return `
                                   <tr class="account-row ${hasError ? 'error' : ''}" data-account-id="${acc.id}">
@@ -488,31 +907,30 @@
                                       <div class="account-name-cell">
                                         <span class="broker-pill ${acc.broker}">${brokerInitial}</span>
                                         <div class="account-labels">
-                                          <span class="account-label-title">${acc.label}</span>
-                                          <span class="account-meta-time">${acc.subtitle || fmtTime(acc.updatedAt)}</span>
-                                          ${(() => {
-                                            const linkedPositions = typeof model.getPositionsByAccount === 'function'
-                                              ? model.getPositionsByAccount(acc.id)
-                                              : (model.positions || []).filter(p => p.accountId === acc.id);
-                                            if (linkedPositions.length === 0) return '';
-                                            return `
-                                              <span class="account-positions-pill" title="Posições vinculadas: ${linkedPositions.map(p => p.ticker).join(', ')}">
-                                                💼 ${linkedPositions.length} ${linkedPositions.length === 1 ? 'posição' : 'posições'}
+                                          <div class="account-title-line">
+                                            <span class="account-label-title">${acc.label}</span>
+                                            ${isNomad ? `
+                                              <button type="button" class="btn-currency-toggle btn-currency-toggle-inline" onclick="window.DailyUpdateHub.toggleNomadCurrency('${acc.id}')" title="Moeda da conta: USD — clique para alternar a digitação entre BRL e USD">
+                                                <strong>${inputCurrency}</strong>
+                                              </button>
+                                            ` : ''}
+                                          </div>
+                                          <div class="account-meta-line">
+                                            ${isNomad ? `
+                                              <span class="account-meta-time nomad-inline-fx font-numeric" data-nomad-fx-badge="${acc.id}" title="Saldo em dólar (${fmtUSD(acc.newBalanceUSD || 0)}) convertido pelo câmbio R$ ${(acc.fxRate || 5.95).toFixed(2).replace('.', ',')}">
+                                                ${fmtUSD(acc.newBalanceUSD || 0)} | Câmbio: R$ ${(acc.fxRate || 5.95).toFixed(2).replace('.', ',')}
                                               </span>
-                                            `;
-                                          })()}
+                                            ` : `
+                                              <span class="account-meta-time">${acc.subtitle || fmtTime(acc.updatedAt)}</span>
+                                            `}
+                                            ${linkedPositions.length > 0 ? `
+                                              <span class="account-positions-pill" title="Posições vinculadas: ${linkedPositions.map(p => p.ticker).join(', ')}">
+                                                💼 ${linkedPositions.length}
+                                              </span>
+                                            ` : ''}
+                                          </div>
                                         </div>
                                       </div>
-                                      ${isNomad ? `
-                                        <div class="nomad-fx-strip">
-                                          <span class="nomad-fx-badge font-numeric" data-nomad-fx-badge="${acc.id}" title="Cotação cambial de referência para conversão em BRL">
-                                            ${fmtUSD(acc.newBalanceUSD || 0)} @ R$ ${(acc.fxRate || 5.73).toFixed(2).replace('.', ',')}
-                                          </span>
-                                          <button type="button" class="btn-currency-toggle" onclick="window.DailyUpdateHub.toggleNomadCurrency('${acc.id}')" title="Alternar digitação entre Real (BRL) e Dólar (USD)">
-                                            Modo: <strong>${inputCurrency}</strong>
-                                          </button>
-                                        </div>
-                                      ` : ''}
                                     </td>
                                     <td class="td-acc-type">
                                       <span class="acc-type-pill ${acc.type === 'CHECKING' ? 'checking' : 'investment'}" title="${acc.type === 'CHECKING' ? 'Conta Corrente pessoal (não participa da Equity)' : 'Conta de investimentos (participa da Equity)'}">
@@ -521,8 +939,7 @@
                                     </td>
                                     <td class="td-acc-prev" style="text-align: right;">
                                       <div class="account-prev-stack">
-                                        <span class="prev-amount font-numeric">${fmtBRL(acc.previousBalance)}</span>
-                                        ${isNomad ? `<small class="prev-usd-hint font-numeric">${fmtUSD(acc.previousBalanceUSD || 0)}</small>` : ''}
+                                        <span class="prev-amount font-numeric" title="${isNomad ? `Saldo anterior: ${fmtBRL(acc.previousBalance)} (${fmtUSD(acc.previousBalanceUSD || 0)})` : ''}">${fmtBRL(acc.previousBalance)}</span>
                                       </div>
                                     </td>
                                     <td class="td-acc-new" style="text-align: right;">
@@ -535,6 +952,7 @@
                                           data-account-input="${acc.id}" 
                                           value="${inputValue}" 
                                           aria-label="Novo saldo para ${acc.label}"
+                                          title="${isNomad ? `Equivalente em BRL: ${fmtBRL(acc.newBalance)} | USD: ${fmtUSD(acc.newBalanceUSD || 0)} @ R$ ${(acc.fxRate || 5.95).toFixed(2).replace('.', ',')}` : `Novo saldo para ${acc.label}`}"
                                           placeholder="0,00"
                                         />
                                         <span class="account-error-msg" data-account-error-for="${acc.id}" style="display: ${hasError ? 'block' : 'none'};">${hasError ? acc.error : ''}</span>
@@ -542,14 +960,9 @@
                                     </td>
                                     <td class="td-acc-var" style="text-align: right;">
                                       <div class="variation-stack">
-                                        <span class="variation-tag font-numeric ${varClass}" data-account-var-for="${acc.id}">
+                                        <span class="variation-tag font-numeric ${varClass}" data-account-var-for="${acc.id}" title="${isNomad ? `Variação BRL: ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}% | Variação USD: ${usdVarPct > 0 ? '+' : ''}${usdVarPct.toFixed(2).replace('.', ',')}%` : ''}">
                                           ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
                                         </span>
-                                        ${isNomad ? `
-                                          <small class="usd-var-hint font-numeric ${model.getAccountUsdVariationPct(acc) >= 0 ? 'positive' : 'negative'}" data-account-usd-var-for="${acc.id}">
-                                            ${model.getAccountUsdVariationPct(acc) >= 0 ? '+' : ''}${model.getAccountUsdVariationPct(acc).toFixed(2).replace('.', ',')}% USD
-                                          </small>
-                                        ` : ''}
                                       </div>
                                     </td>
                                     <td class="td-acc-share" style="text-align: right;">
@@ -839,12 +1252,18 @@
                                       <td class="td-pos-price" style="text-align: right;">
                                         <input 
                                           type="text" 
-                                          class="pos-price-clean-input font-numeric ${pos.error ? 'input-error' : ''}" 
+                                          inputmode="decimal"
+                                          autocomplete="off"
+                                          class="pos-price-clean-input font-numeric ${pos.error ? 'input-error' : ''} ${pos.priceStale ? 'price-stale' : ''}" 
                                           data-position-id="${pos.id}"
                                           data-index="${pIdx}"
+                                          data-price-source="${pos.priceSource || ''}"
+                                          data-price-stale="${pos.priceStale ? 'true' : 'false'}"
                                           value="${fmtBRL(curr)}"
                                           placeholder="R$ 0,00"
-                                          title="Digite o preço atual na corretora (Enter ou setas navegam)"
+                                          title="${pos.priceStale
+                                            ? `Último preço válido preservado (${pos.priceSource || 'cache'}${pos.priceUpdatedAt ? ` • ${fmtTime(pos.priceUpdatedAt)}` : ''}). Cotação mais recente indisponível no momento.`
+                                            : `Preço atual${pos.priceSource ? ` (${pos.priceSource}` : ''}${pos.priceUpdatedAt ? ` • ${fmtTime(pos.priceUpdatedAt)}` : ''}${pos.priceSource ? ')' : ''} — digite para ajustar`}"
                                           aria-label="Preço atual de ${pos.ticker}"
                                         />
                                         ${pos.error ? `<span class="account-error-msg">${pos.error}</span>` : ''}
@@ -1121,12 +1540,24 @@
         this._draftSaveTimer = null;
       }
       this.model.saveDraft();
+      if (typeof this.model.saveAccounts === 'function') {
+        this.model.saveAccounts();
+      }
+      if (typeof this.model.savePositionMeta === 'function') {
+        this.model.savePositionMeta();
+      }
       if (root.healthyTrendWorkspace?.save) {
         try {
           root.healthyTrendWorkspace.save(
             root.DailyUpdateModel?.STORAGE_KEY_ACCOUNTS || 'healthy-daily-update-accounts',
             this.model.accounts
           );
+          if (typeof this.model.exportPositionMetaMap === 'function') {
+            root.healthyTrendWorkspace.save(
+              root.DailyUpdateModel?.STORAGE_KEY_POSITION_META || 'healthy-daily-update-position-meta',
+              this.model.exportPositionMetaMap()
+            );
+          }
         } catch (_) {}
       }
     }
@@ -1343,11 +1774,18 @@
           }
         });
 
-        // Change event to format and persist
+        // Change event to format and persist (preserving last valid price if cleared/invalid)
         input.addEventListener('change', async (e) => {
           const posId = input.dataset.positionId;
           const val = e.target.value;
-          await this.updatePositionPrice(posId, val);
+          const res = await this.updatePositionPrice(posId, val, { source: 'manual', markStaleOnFailure: false });
+          if (!res?.success && res?.preservedPrice) {
+            const pos = this.model.positions.find(p => p.id === posId);
+            if (pos) {
+              pos.currentPrice = res.preservedPrice;
+              pos.error = null;
+            }
+          }
           this.render();
         });
       });
@@ -1587,7 +2025,7 @@
           if (acc.currency === 'USD') {
             const nomadBadge = queryEl(cachedAcc?.nomadFxBadge, `[data-nomad-fx-badge="${acc.id}"]`);
             if (nomadBadge) {
-              nomadBadge.textContent = `${fmtUSD(acc.newBalanceUSD || 0)} @ R$ ${(acc.fxRate || 5.73).toFixed(2).replace('.', ',')}`;
+              nomadBadge.textContent = `${fmtUSD(acc.newBalanceUSD || 0)} | Câmbio: R$ ${(acc.fxRate || 5.95).toFixed(2).replace('.', ',')}`;
             }
             const usdVarTag = queryEl(cachedAcc?.usdVarTag, `[data-account-usd-var-for="${acc.id}"]`);
             if (usdVarTag) {
@@ -1759,6 +2197,8 @@
       const acc = this.model.accounts.find(a => a.id === accountId);
       if (acc && acc.currency === 'USD') {
         acc.inputCurrency = acc.inputCurrency === 'USD' ? 'BRL' : 'USD';
+        acc.updatedAt = new Date().toISOString();
+        this.persistDraftNonBlocking();
         this.render();
       }
     }
@@ -1843,32 +2283,70 @@
       this.render();
     }
 
-    async updatePositionPrice(positionId, newPrice) {
-      const res = this.model.updatePositionPrice(positionId, newPrice);
-      if (res.success) {
-        this.model.saveDraft();
+    async updatePositionPrice(positionId, newPrice, options = {}) {
+      const posSeq = (this._priceSeqMap.get(String(positionId)) || 0) + 1;
+      this._priceSeqMap.set(String(positionId), posSeq);
 
-        // 1. If real backend trade, record update event
+      const res = this.model.updatePositionPrice(positionId, newPrice, {
+        source: options.source || 'manual',
+        updatedAt: options.updatedAt || new Date().toISOString(),
+        stale: Boolean(options.stale),
+        syncAccount: options.syncAccount,
+        markStaleOnFailure: Boolean(options.markStaleOnFailure)
+      });
+      if (res.success) {
         const pos = this.model.positions.find(p => p.id === positionId);
+        if (pos) {
+          const prevDirty = this._dirtyPositions.get(String(pos.id)) || {};
+          this._dirtyPositions.set(String(pos.id), {
+            ...prevDirty,
+            currentPrice: Number(pos.currentPrice),
+            priceUpdatedAt: pos.priceUpdatedAt || new Date().toISOString(),
+            priceSource: pos.priceSource || 'manual'
+          });
+        }
+
+        this.persistDraftNonBlocking();
+
+        // 1. If real backend trade, persist currentPrice durably in metadata AND record update event
         if (pos && /^[0-9a-f-]{36}$/i.test(String(pos.id)) && root.healthyTrendApi?.request && root.healthyTrendApi.isAuthenticated?.()) {
+          const isLatest = () => this._priceSeqMap.get(String(positionId)) === posSeq;
           try {
-            await root.healthyTrendApi.request(`/api/trades/${pos.id}/events`, {
-              method: 'POST',
-              body: {
-                type: 'update',
-                price: Number(pos.currentPrice),
-                stop: Number(pos.trailingStop || pos.stopPrice),
-                note: 'Conferência diária de posição aberta'
-              }
+            await root.healthyTrendApi.request(`/api/trades/${pos.id}`, {
+              method: 'PATCH',
+              body: JSON.stringify({
+                currentPrice: Number(pos.currentPrice),
+                priceSource: pos.priceSource || 'manual',
+                priceUpdatedAt: pos.priceUpdatedAt || new Date().toISOString(),
+                priceStale: Boolean(pos.priceStale)
+              })
             });
           } catch (e) {
-            console.warn('[DailyUpdateHub] Event persistence note:', e.message);
+            console.warn('[DailyUpdateHub] Current price metadata persistence note:', e.message);
+          }
+
+          if (isLatest()) {
+            try {
+              const stopVal = Number(pos.trailingStop || pos.stopPrice || 0);
+              await root.healthyTrendApi.request(`/api/trades/${pos.id}/events`, {
+                method: 'POST',
+                body: {
+                  type: 'update',
+                  price: Number(pos.currentPrice),
+                  stop: stopVal > 0 ? stopVal : 0,
+                  priceSource: pos.priceSource || 'manual',
+                  note: 'Conferência diária de posição aberta'
+                }
+              });
+            } catch (e) {
+              console.warn('[DailyUpdateHub] Event persistence note:', e.message);
+            }
           }
         }
 
         // 2. Also update in-memory operationalState
-        if (root.operationalState?.positions) {
-          const opp = root.operationalState.positions.find(x => x.id === positionId || x.asset === pos?.ticker);
+        if (root.operationalState?.positions && pos) {
+          const opp = root.operationalState.positions.find(x => x.id === positionId || x.asset === pos.ticker);
           if (opp) {
             opp.currentPrice = Number(pos.currentPrice);
           }
@@ -1891,9 +2369,16 @@
     async updatePositionEntryPrice(positionId, newEntryPrice) {
       const res = this.model.updatePositionEntryPrice(positionId, newEntryPrice);
       if (res.success) {
-        this.persistDraftNonBlocking();
-
         const pos = this.model.positions.find(p => p.id === positionId);
+        if (pos) {
+          const prevDirty = this._dirtyPositions.get(String(pos.id)) || {};
+          this._dirtyPositions.set(String(pos.id), {
+            ...prevDirty,
+            entryPrice: Number(pos.entryPrice),
+            entryUpdatedAt: Date.now()
+          });
+        }
+        this.persistDraftNonBlocking();
 
         // 1. Persist entry price correction to backend for open UUID trades
         if (pos && /^[0-9a-f-]{36}$/i.test(String(pos.id)) && root.healthyTrendApi?.request && root.healthyTrendApi.isAuthenticated?.()) {
@@ -2351,34 +2836,129 @@
       return res;
     }
 
-    async handleBatchPrices() {
+    async handleBatchPrices(providedQuotesMap = null) {
+      const batchSeq = ++this._batchQuoteSeq;
       if (typeof root.showToast === 'function') {
         root.showToast('Atualizando cotações das posições abertas...');
       }
-      this.model.positions.forEach(p => {
-        const newPrice = Math.round(Number(p.currentPrice) * 1.002 * 100) / 100;
-        this.model.updatePositionPrice(p.id, newPrice);
-      });
-      this.model.saveDraft();
+
+      const openPositions = (this.model.positions || []).filter(p => !p.closed && p.status !== 'encerrada');
+      let quoteMap = providedQuotesMap && typeof providedQuotesMap === 'object' ? providedQuotesMap : null;
+
+      if (!quoteMap && root.healthyTrendApi?.request) {
+        quoteMap = {};
+        await Promise.all(openPositions.map(async (pos) => {
+          try {
+            const data = await root.healthyTrendApi.request(`/api/market-data/ticker-chart?ticker=${encodeURIComponent(pos.ticker)}`);
+            const candles = Array.isArray(data?.candles) ? data.candles : [];
+            const lastCandle = candles.length ? candles[candles.length - 1] : null;
+            const rawQuote = data?.lastPrice ?? data?.price ?? data?.close ?? lastCandle?.close ?? null;
+            const numQuote = (rawQuote !== null && rawQuote !== undefined && rawQuote !== '') ? Number(rawQuote) : NaN;
+            if (Number.isFinite(numQuote) && numQuote > 0) {
+              quoteMap[pos.ticker] = {
+                price: numQuote,
+                source: data?.source || data?.provider || 'market_cache',
+                updatedAt: data?.updatedAt || lastCandle?.date || new Date().toISOString()
+              };
+            }
+          } catch (_) {
+            // Failure on one ticker preserves last valid price as stale — never erases it
+          }
+        }));
+      }
+
+      // Discard stale concurrent batch result
+      if (batchSeq !== this._batchQuoteSeq) return { ignored: true };
+
+      if (quoteMap) {
+        this.model.batchUpdatePrices(quoteMap, { source: 'market_cache' });
+      } else {
+        // Offline/local fallback without API: preserve existing valid prices and confirm positions
+        openPositions.forEach(p => {
+          p.checked = true;
+          if (!p.hasDivergence) p.status = 'conferida';
+        });
+        this.model.lastBatchQuoteStatus = {
+          updatedCount: 0,
+          staleCount: openPositions.length,
+          updatedTickers: [],
+          preservedTickers: openPositions.map(p => p.ticker),
+          at: new Date().toISOString()
+        };
+        this.model.updateClosingReadiness();
+      }
+
+      this.persistDraftNonBlocking();
+
+      // Persist valid updated quotes to backend for UUID trades
+      const status = this.model.lastBatchQuoteStatus || { updatedCount: 0, staleCount: 0, updatedTickers: [], preservedTickers: [] };
+      if (root.healthyTrendApi?.request && root.healthyTrendApi.isAuthenticated?.() && status.updatedTickers.length > 0) {
+        await Promise.all(openPositions
+          .filter(p => status.updatedTickers.includes(p.ticker) && /^[0-9a-f-]{36}$/i.test(String(p.id)))
+          .map(p => root.healthyTrendApi.request(`/api/trades/${p.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({
+              currentPrice: Number(p.currentPrice),
+              priceSource: p.priceSource || 'market_cache',
+              priceUpdatedAt: p.priceUpdatedAt || new Date().toISOString(),
+              priceStale: false
+            })
+          }).catch(() => null))
+        );
+      }
+
       try {
         if (typeof root.renderTopHeat === 'function') root.renderTopHeat();
         if (typeof root.renderPortfolioHeat === 'function') root.renderPortfolioHeat();
       } catch (_) {}
       this.render();
+
       if (typeof root.showToast === 'function') {
-        root.showToast('Preços atualizados com sucesso e refletidos nas contas vinculadas.');
+        if (status.updatedCount > 0 && status.staleCount > 0) {
+          root.showToast(`${status.updatedCount} cotação(ões) atualizada(s). ${status.staleCount} mantiveram o último preço válido.`);
+        } else if (status.updatedCount > 0) {
+          root.showToast(`${status.updatedCount} cotação(ões) atualizada(s) com sucesso.`);
+        } else {
+          root.showToast('Sem novas cotações disponíveis — últimos preços válidos preservados.');
+        }
       }
+      return status;
     }
 
-    handlePositionAccountChange(positionId, accountId) {
+    async handlePositionAccountChange(positionId, accountId) {
+      const linkSeq = (this._accountLinkSeqMap.get(String(positionId)) || 0) + 1;
+      this._accountLinkSeqMap.set(String(positionId), linkSeq);
+
       const res = this.model.linkPositionToAccount(positionId, accountId);
-      this.model.saveDraft();
+      const pos = res?.position || this.model.positions.find(p => p.id === positionId);
+      if (pos) {
+        const prevDirty = this._dirtyPositions.get(String(pos.id)) || {};
+        this._dirtyPositions.set(String(pos.id), {
+          ...prevDirty,
+          accountId: pos.accountId || null,
+          broker: pos.broker || null,
+          accountUpdatedAt: Date.now()
+        });
+      }
+
+      // 1. Durable local + workspace-state persistence (survives saveDailyClosing, clearDraft, reload, navigation)
+      this.persistDraftNonBlocking();
       if (root.healthyTrendWorkspace?.save) {
         root.healthyTrendWorkspace.save(
           root.DailyUpdateModel?.STORAGE_KEY_DRAFT || 'healthy-daily-update-draft-v1',
           { accounts: this.model.accounts, positions: this.model.positions, closingDate: this.model.closingDate }
         );
       }
+
+      // 2. Sync operationalState in memory
+      if (root.operationalState?.positions && pos) {
+        const opp = root.operationalState.positions.find(x => String(x.id) === String(pos.id) || x.asset === pos.ticker);
+        if (opp) {
+          opp.accountId = pos.accountId || null;
+          opp.broker = pos.broker || null;
+        }
+      }
+
       if (typeof root.showToast === 'function') {
         if (res?.account) {
           root.showToast(`Posição vinculada à conta ${res.account.label}.`);
@@ -2387,6 +2967,23 @@
         }
       }
       this.render();
+
+      // 3. Persist permanently to PostgreSQL backend for UUID trades
+      if (pos && /^[0-9a-f-]{36}$/i.test(String(pos.id)) && root.healthyTrendApi?.request && root.healthyTrendApi.isAuthenticated?.()) {
+        try {
+          if (this._accountLinkSeqMap.get(String(positionId)) !== linkSeq) return res;
+          await root.healthyTrendApi.request(`/api/trades/${pos.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({
+              accountId: pos.accountId || null,
+              broker: res?.account?.label || null
+            })
+          });
+        } catch (e) {
+          console.warn('[DailyUpdateHub] Account link persistence note:', e.message);
+        }
+      }
+      return res;
     }
 
     saveDraftAction() {
@@ -2481,10 +3078,22 @@
           }
         } catch (_) {}
 
-        // 5. Persist account balances and closing history to workspace-state
+        // 5. Persist account balances, durable position metadata (links & prices) and closing history to workspace-state & localStorage
+        if (typeof this.model.saveAccounts === 'function') {
+          this.model.saveAccounts(storage);
+        }
+        if (typeof this.model.savePositionMeta === 'function') {
+          this.model.savePositionMeta(storage);
+        }
         if (root.healthyTrendWorkspace?.save) {
           root.healthyTrendWorkspace.save('healthy-daily-update-accounts', this.model.accounts);
           root.healthyTrendWorkspace.save('healthy-daily-update-history', this.model.getHistory());
+          if (typeof this.model.exportPositionMetaMap === 'function') {
+            root.healthyTrendWorkspace.save(
+              root.DailyUpdateModel?.STORAGE_KEY_POSITION_META || 'healthy-daily-update-position-meta',
+              this.model.exportPositionMetaMap()
+            );
+          }
         }
 
         // 6. Notify all other screens and models via official custom events with centralized financials
@@ -2626,10 +3235,18 @@
           root.setOperationalEquity(operationalEquity);
         }
 
-        // Persist history to workspace
+        // Persist history, accounts & durable position metadata to workspace & localStorage
+        if (typeof this.model.saveAccounts === 'function') this.model.saveAccounts(storage);
+        if (typeof this.model.savePositionMeta === 'function') this.model.savePositionMeta(storage);
         if (root.healthyTrendWorkspace?.save) {
           root.healthyTrendWorkspace.save('healthy-daily-update-history', this.model.getHistory());
           root.healthyTrendWorkspace.save('healthy-daily-update-accounts', this.model.accounts);
+          if (typeof this.model.exportPositionMetaMap === 'function') {
+            root.healthyTrendWorkspace.save(
+              root.DailyUpdateModel?.STORAGE_KEY_POSITION_META || 'healthy-daily-update-position-meta',
+              this.model.exportPositionMetaMap()
+            );
+          }
         }
 
         // Dispatch events
@@ -2757,10 +3374,18 @@
           root.setOperationalEquity(res.snapshot.realWealth);
         }
 
-        // Persist history to workspace
+        // Persist history, accounts & durable position metadata to workspace & localStorage
+        if (typeof this.model.saveAccounts === 'function') this.model.saveAccounts(storage);
+        if (typeof this.model.savePositionMeta === 'function') this.model.savePositionMeta(storage);
         if (root.healthyTrendWorkspace?.save) {
           root.healthyTrendWorkspace.save('healthy-daily-update-history', this.model.getHistory());
           root.healthyTrendWorkspace.save('healthy-daily-update-accounts', this.model.accounts);
+          if (typeof this.model.exportPositionMetaMap === 'function') {
+            root.healthyTrendWorkspace.save(
+              root.DailyUpdateModel?.STORAGE_KEY_POSITION_META || 'healthy-daily-update-position-meta',
+              this.model.exportPositionMetaMap()
+            );
+          }
         }
 
         // Dispatch events
@@ -3817,6 +4442,7 @@
 
   root.DailyUpdateHub = new DailyUpdateHubController();
   root.DailyUpdateHubController = DailyUpdateHubController;
+  root.DailyUpdateHub.bindLifecycleListeners();
 
   // Auto-init on page load or navigation
   if (typeof document !== 'undefined') {
@@ -3824,4 +4450,8 @@
       root.DailyUpdateHub.init();
     });
   }
-}(typeof self !== 'undefined' ? self : this));
+
+  if (typeof module === 'object' && module.exports) {
+    module.exports = { DailyUpdateHubController, DailyUpdateHub: root.DailyUpdateHub };
+  }
+}(typeof self !== 'undefined' ? self : (typeof window !== 'undefined' ? window : this)));

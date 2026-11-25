@@ -21,6 +21,7 @@ const strategyConfigs = require('./strategy-configs');
 const VolatilitySimulatorModel = require('../../frontend/volatility-trade-simulator-model');
 const VolatilityEngineModel = require('../../frontend/volatility-trading-engine-model');
 const StrategyConfigModel = require('../../frontend/strategy-configuration-model');
+const TradeSimulatorModel = require('../../frontend/trade-simulator-model');
 
 function invalid(message, status = 400) {
   const error = new Error(message);
@@ -32,38 +33,38 @@ function invalid(message, status = 400) {
 const inMemoryExperiments = new Map();
 
 /**
- * Carrega o mapa de candles do universo solicitado.
+ * Carrega o mapa de candles do universo solicitado (suporta classes de ativos multiclasse e seleção por tickers).
  */
-function loadUniverseCandles(universe = 'IBOV', market = 'B3') {
+function loadUniverseCandles(universe = 'IBOV', market = 'B3', options = {}) {
   const u = String(universe || 'IBOV').toUpperCase().trim();
   const m = String(market || 'B3').toUpperCase().trim();
+  const assetClasses = options.assetClasses || null;
+  const explicitSymbols = Array.isArray(options.symbols) && options.symbols.length > 0
+    ? Array.from(new Set(options.symbols.map(s => String(s || '').toUpperCase().trim()).filter(s => s && s !== 'ALL')))
+    : null;
 
-  let candlesMap;
+  const normalizedClasses = Array.isArray(assetClasses)
+    ? assetClasses.map(c => String(c || '').toUpperCase().trim()).filter(Boolean)
+    : (typeof assetClasses === 'string' && assetClasses.trim() ? assetClasses.split(',').map(c => c.trim().toUpperCase()) : []);
+  const hasMultiOrCustomClasses = normalizedClasses.length > 0 && !normalizedClasses.includes('ALL');
+  const isAllClasses = normalizedClasses.includes('ALL') || u === 'ALL' || u === 'MULTI';
+
+  const needsUs = m === 'US' || u === 'NASDAQ' || u === 'STOCK_US' || isAllClasses ||
+    normalizedClasses.includes('STOCK_US') || normalizedClasses.includes('ETF_INTL') ||
+    (Array.isArray(explicitSymbols) && explicitSymbols.some(s => /^[A-Z]{1,5}$/.test(s) && !['IBOV', 'IFIX', 'SMLL', 'BDRX'].includes(s)));
+  const needsB3 = (m !== 'US' && u !== 'NASDAQ') || isAllClasses || hasMultiOrCustomClasses ||
+    (Array.isArray(explicitSymbols) && explicitSymbols.some(s => /\d/.test(s) || ['IBOV', 'IFIX', 'SMLL', 'BDRX'].includes(s)));
+
+  const combinedMap = new Map();
   const metadataMap = {};
-  let universeSymbols = null;
+  const b3StocksByClass = { stock_ibov: [], stock_all: [], fii: [], bdr: [] };
+  let nasdaqSymbols = [];
 
-  if (m === 'US' || u === 'NASDAQ') {
-    candlesMap = tickerChart.loadNasdaqHistory();
-    const nasdaqCacheFile = path.join(__dirname, '..', 'data', 'nasdaq-market-cache.json');
-    if (fs.existsSync(nasdaqCacheFile)) {
-      try {
-        const raw = JSON.parse(fs.readFileSync(nasdaqCacheFile, 'utf8'));
-        if (Array.isArray(raw.ranking)) {
-          raw.ranking.forEach(item => {
-            if (item.symbol) {
-              metadataMap[item.symbol] = {
-                name: item.name || item.symbol,
-                sector: 'Tecnologia'
-              };
-            }
-          });
-          universeSymbols = raw.ranking.map(r => r.symbol);
-        }
-      } catch (_) {}
+  if (needsB3) {
+    const b3Map = tickerChart.loadB3History();
+    if (b3Map instanceof Map) {
+      for (const [k, v] of b3Map.entries()) combinedMap.set(k, v);
     }
-  } else {
-    // Universo B3
-    candlesMap = tickerChart.loadB3History();
     const marketCacheFile = path.join(__dirname, '..', 'data', 'market-cache.json');
     if (fs.existsSync(marketCacheFile)) {
       try {
@@ -73,24 +74,134 @@ function loadUniverseCandles(universe = 'IBOV', market = 'B3') {
             if (item.symbol) {
               metadataMap[item.symbol] = {
                 name: item.name || item.symbol,
-                sector: item.sector || 'Geral'
+                sector: item.sector || 'Geral',
+                assetClass: 'STOCK_BR'
+              };
+              b3StocksByClass.stock_all.push(item.symbol);
+              if (item.assetClass === 'stock_ibov') {
+                b3StocksByClass.stock_ibov.push(item.symbol);
+              }
+            }
+          });
+        }
+        const fiiItems = raw.relativeStrengthByClass?.fii?.items || [];
+        fiiItems.forEach(item => {
+          if (item.symbol) {
+            metadataMap[item.symbol] = {
+              name: item.name || item.symbol,
+              sector: item.sector || 'Fundos Imobiliários',
+              assetClass: 'FII'
+            };
+            b3StocksByClass.fii.push(item.symbol);
+          }
+        });
+        const bdrItems = raw.relativeStrengthByClass?.bdr?.items || [];
+        bdrItems.forEach(item => {
+          if (item.symbol) {
+            metadataMap[item.symbol] = {
+              name: item.name || item.symbol,
+              sector: item.sector || 'BDRs',
+              assetClass: 'BDR'
+            };
+            b3StocksByClass.bdr.push(item.symbol);
+          }
+        });
+      } catch (_) {}
+    }
+  }
+
+  if (needsUs) {
+    const usMap = tickerChart.loadNasdaqHistory();
+    if (usMap instanceof Map) {
+      for (const [k, v] of usMap.entries()) {
+        if (!combinedMap.has(k)) combinedMap.set(k, v);
+      }
+    }
+    const nasdaqCacheFile = path.join(__dirname, '..', 'data', 'nasdaq-market-cache.json');
+    if (fs.existsSync(nasdaqCacheFile)) {
+      try {
+        const raw = JSON.parse(fs.readFileSync(nasdaqCacheFile, 'utf8'));
+        if (Array.isArray(raw.ranking)) {
+          raw.ranking.forEach(item => {
+            if (item.symbol) {
+              const isUsEtf = ['QQQ', 'SPY', 'IWM', 'DIA', 'VTI', 'VOO', 'EWZ'].includes(String(item.symbol).toUpperCase());
+              metadataMap[item.symbol] = {
+                name: item.name || item.companyName || item.symbol,
+                sector: item.sector || 'Tecnologia',
+                assetClass: isUsEtf ? 'ETF_INTL' : 'STOCK_US',
+                market: 'US'
               };
             }
           });
-          if (u === 'IBOV') {
-            universeSymbols = raw.relativeStrength
-              .filter(s => s.assetClass === 'stock_ibov')
-              .map(s => s.symbol);
-          } else if (u === 'LIQUID_B3' || u === 'LIQUID') {
-            universeSymbols = raw.relativeStrength.map(s => s.symbol);
-          }
+          nasdaqSymbols = raw.ranking.map(r => r.symbol);
         }
       } catch (_) {}
     }
   }
 
+  if (TradeSimulatorModel && typeof TradeSimulatorModel.getAvailableSimulatorAssetsCatalog === 'function') {
+    const refCatalog = TradeSimulatorModel.getAvailableSimulatorAssetsCatalog();
+    for (const item of refCatalog.assets) {
+      if (!metadataMap[item.symbol]) {
+        metadataMap[item.symbol] = {
+          name: item.name,
+          sector: item.sector,
+          assetClass: item.assetClass,
+          market: item.market
+        };
+      }
+    }
+  }
+
+  let universeSymbols = explicitSymbols;
+  if (!universeSymbols || universeSymbols.length === 0) {
+    if (hasMultiOrCustomClasses || isAllClasses) {
+      const classesToLoad = isAllClasses
+        ? (TradeSimulatorModel.SIMULATOR_ASSET_CLASS_ORDER || ['STOCK_BR', 'FII', 'BDR', 'ETF_BR', 'ETF_INTL', 'STOCK_US', 'OTHER'])
+        : normalizedClasses;
+      const refCatalog = TradeSimulatorModel && typeof TradeSimulatorModel.getAvailableSimulatorAssetsCatalog === 'function'
+        ? TradeSimulatorModel.getAvailableSimulatorAssetsCatalog()
+        : { byClass: {} };
+      const resolvedSet = new Set();
+
+      for (const cls of classesToLoad) {
+        if (cls === 'STOCK_BR') {
+          const pool = u === 'IBOV' && b3StocksByClass.stock_ibov.length > 0
+            ? b3StocksByClass.stock_ibov
+            : (b3StocksByClass.stock_all.length > 0 ? b3StocksByClass.stock_all : (refCatalog.byClass?.STOCK_BR?.assets || []).map(a => a.symbol));
+          pool.forEach(s => resolvedSet.add(s));
+        } else if (cls === 'FII') {
+          const pool = b3StocksByClass.fii.length > 0
+            ? b3StocksByClass.fii
+            : (refCatalog.byClass?.FII?.assets || []).map(a => a.symbol);
+          pool.forEach(s => resolvedSet.add(s));
+        } else if (cls === 'BDR') {
+          const pool = b3StocksByClass.bdr.length > 0
+            ? b3StocksByClass.bdr
+            : (refCatalog.byClass?.BDR?.assets || []).map(a => a.symbol);
+          pool.forEach(s => resolvedSet.add(s));
+        } else if (cls === 'STOCK_US') {
+          const pool = nasdaqSymbols.length > 0
+            ? nasdaqSymbols.filter(s => s !== 'QQQ')
+            : (refCatalog.byClass?.STOCK_US?.assets || []).map(a => a.symbol);
+          pool.forEach(s => resolvedSet.add(s));
+        } else {
+          const classAssets = (refCatalog.byClass?.[cls]?.assets || []).map(a => a.symbol);
+          classAssets.forEach(s => resolvedSet.add(s));
+        }
+      }
+      universeSymbols = Array.from(resolvedSet);
+    } else if (m === 'US' || u === 'NASDAQ') {
+      universeSymbols = nasdaqSymbols;
+    } else if (u === 'IBOV') {
+      universeSymbols = b3StocksByClass.stock_ibov;
+    } else if (u === 'LIQUID_B3' || u === 'LIQUID') {
+      universeSymbols = b3StocksByClass.stock_all;
+    }
+  }
+
   return {
-    candlesMap: candlesMap || new Map(),
+    candlesMap: combinedMap,
     metadataMap,
     universeSymbols
   };
@@ -104,6 +215,8 @@ async function runUniverseSimulation({
   name = null,
   universe = 'IBOV',
   market = 'B3',
+  assetClasses = null,
+  symbols = null,
   profileId = null,
   customParameters = null,
   period = '120',
@@ -126,6 +239,10 @@ async function runUniverseSimulation({
   slippagePct = 0,
   persist = true
 } = {}, client = database) {
+  if (startDate && endDate && String(startDate).slice(0, 10) > String(endDate).slice(0, 10)) {
+    throw invalid('A Data Inicial não pode ser maior que a Data Final.', 400);
+  }
+
   // Resolve perfil de configuração
   let profile = null;
   if (profileId) {
@@ -144,7 +261,7 @@ async function runUniverseSimulation({
   const rawParams = customParameters ? { ...baseParams, ...customParameters } : baseParams;
   const validatedParams = StrategyConfigModel.validateParameters(VolatilityEngineModel.STRATEGY_TYPE, rawParams);
 
-  const { candlesMap, metadataMap, universeSymbols } = loadUniverseCandles(universe, market);
+  const { candlesMap, metadataMap, universeSymbols } = loadUniverseCandles(universe, market, { assetClasses, symbols });
 
   if (!candlesMap || (candlesMap instanceof Map ? candlesMap.size === 0 : Object.keys(candlesMap).length === 0)) {
     throw invalid('Dados históricos de mercado indisponíveis para o universo solicitado.', 503);

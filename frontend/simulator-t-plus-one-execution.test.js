@@ -59,8 +59,10 @@ test('Cenário B — Entrada não executada no candle seguinte (T+1): ordem canc
   assert.ok(evaluated.timeline.some(e => e.type === 'NOT_TRIGGERED' && e.date === '2026-06-02'));
 });
 
-test('Cenário C — Rompimento tardio: candle T+1 não executa, mas candle T+2 rompe máxima planejada', () => {
-  const baseSim = {
+test('Cenário C — Rompimento após invalidação do 1-2-3 (perda da mínima do Candle 3) ou expiração T+1 de Inside Bar não executa', () => {
+  // 1. No padrão 1-2-3 de Compra: se o Candle 4 perder a mínima do Candle 3 (81.10), o setup é invalidado definitivamente (INVALIDATED),
+  // e mesmo que o Candle 5 rompa a máxima planejada (83.57), nenhuma entrada pode ser executada.
+  const baseSim123 = {
     symbol: 'MILL11',
     triggerName: '1-2-3 de Compra',
     grade: 'A',
@@ -71,25 +73,35 @@ test('Cenário C — Rompimento tardio: candle T+1 não executa, mas candle T+2 
     managementScenario: '2R'
   };
 
-  const candles = [
-    { date: '2025-11-10', open: 81.50, high: 83.56, low: 81.10, close: 82.00 }, // Candle T (Sinal)
-    { date: '2025-11-11', open: 82.00, high: 82.50, low: 81.80, close: 82.20 }, // Candle T+1: não rompeu 83.57!
-    { date: '2025-11-12', open: 82.30, high: 84.50, low: 82.10, close: 83.90 }, // Candle T+2: rompeu 83.57 tardiamente!
-    { date: '2025-11-13', open: 83.90, high: 84.00, low: 80.50, close: 80.80 }  // Candle T+3: tocou stop 81.05
+  const candlesInvalidated123 = [
+    { date: '2025-11-10', open: 81.50, high: 83.56, low: 81.10, close: 82.00 }, // Candle 3 (Sinal): mínima 81.10
+    { date: '2025-11-11', open: 82.00, high: 82.50, low: 81.08, close: 82.20 }, // Candle 4: perdeu a mínima do Candle 3 (81.08 < 81.10) -> INVALIDATED!
+    { date: '2025-11-12', open: 82.30, high: 84.50, low: 82.10, close: 83.90 }, // Candle 5: rompeu 83.57 após invalidação -> NÃO executa!
+    { date: '2025-11-13', open: 83.90, high: 84.00, low: 80.50, close: 80.80 }
   ];
 
-  const evaluated = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim, candles);
+  const evaluated123 = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim123, candlesInvalidated123);
 
-  // Proibição categórica de execução tardia:
-  // Como T+1 (11/11/2025) não acionou a entrada, a ordem foi definitivamente cancelada.
-  // O rompimento tardio de T+2 (12/11/2025) NUNCA deve ser executado e o trade NÃO vira loss.
-  assert.equal(evaluated.status, TradeSimulatorModel.STATUS.NOT_TRIGGERED);
-  assert.equal(evaluated.executedEntryPrice, null, 'Ordem original não pode ser executada tardiamente em T+2');
-  assert.equal(evaluated.entryDate, null);
-  assert.equal(evaluated.resultR, null);
-  assert.equal(evaluated.exitDate, '2025-11-11');
-  assert.ok(evaluated.timeline.some(e => e.type === 'NOT_TRIGGERED'));
-  assert.ok(!evaluated.timeline.some(e => e.type === 'ENTRY_EXECUTED'), 'Não deve existir evento de entrada executada');
+  assert.equal(evaluated123.status, TradeSimulatorModel.STATUS.NOT_TRIGGERED);
+  assert.equal(evaluated123.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.INVALIDATED);
+  assert.equal(evaluated123.executedEntryPrice, null, 'Padrão 1-2-3 invalidado jamais pode executar entrada em candle posterior');
+  assert.equal(evaluated123.entryDate, null);
+  assert.equal(evaluated123.resultR, null);
+  assert.equal(evaluated123.exitDate, '2025-11-11');
+  assert.ok(evaluated123.timeline.some(e => e.type === 'NOT_TRIGGERED'));
+  assert.ok(!evaluated123.timeline.some(e => e.type === 'ENTRY_EXECUTED'), 'Não deve existir evento de entrada executada');
+
+  // 2. Já se o Candle 4 do 1-2-3 NÃO perder a mínima do Candle 3 (81.80 >= 81.10) e não romper a máxima, o sinal permanece ACTIVE
+  // e executa normalmente quando o Candle 5 rompe 83.57!
+  const candlesActiveToExecuted123 = [
+    { date: '2025-11-10', open: 81.50, high: 83.56, low: 81.10, close: 82.00 }, // Candle 3 (Sinal)
+    { date: '2025-11-11', open: 82.00, high: 82.50, low: 81.80, close: 82.20 }, // Candle 4: mantém sinal ACTIVE (low 81.80 >= 81.10)
+    { date: '2025-11-12', open: 82.30, high: 84.50, low: 82.10, close: 83.90 }  // Candle 5: rompe 83.57 enquanto ACTIVE -> EXECUTED!
+  ];
+  const evalActive123 = TradeSimulatorModel.evaluateSimulationOnCandles(baseSim123, candlesActiveToExecuted123);
+  assert.equal(evalActive123.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.EXECUTED);
+  assert.equal(evalActive123.entryDate, '2025-11-12');
+  assert.equal(evalActive123.executedEntryPrice, 83.57);
 });
 
 test('Cenário D — Novo sinal independente após expiração do sinal anterior', () => {
@@ -139,15 +151,14 @@ test('Cenário D — Novo sinal independente após expiração do sinal anterior
   assert.equal(eval2.executedEntryPrice, 24.41);
 });
 
-test('Cenário E — Validade temporal em T+1 para TODOS os 4 gatilhos canônicos', () => {
-  const triggers = [
-    { id: '123_COMPRA', name: '1-2-3 de Compra', entry: 50.01, stop: 47.99 },
+test('Cenário E — Validade temporal em T+1 para gatilhos de barra única e validade multi-candle ACTIVE para 1-2-3 de Compra', () => {
+  const singleBarTriggers = [
     { id: 'INSIDE_BAR', name: 'Inside Bar', entry: 25.01, stop: 23.99 },
     { id: 'PFR_COMPRA', name: 'PFR de Compra', entry: 40.01, stop: 38.49 },
     { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)', entry: 35.01, stop: 33.99 }
   ];
 
-  for (const trig of triggers) {
+  for (const trig of singleBarTriggers) {
     const sim = {
       symbol: 'TEST3',
       triggerName: trig.name,
@@ -193,6 +204,27 @@ test('Cenário E — Validade temporal em T+1 para TODOS os 4 gatilhos canônico
     assert.equal(evalLate.entryDate, null);
     assert.equal(evalLate.resultR, null);
   }
+
+  // Para 1-2-3 de Compra:
+  // - Permanece ACTIVE se Candle 4 não romper máxima e não perder mínima do Candle 3
+  // - Invalida definitivamente (INVALIDATED / NOT_TRIGGERED) se perder a mínima do Candle 3
+  const sim123 = {
+    symbol: 'TEST3',
+    triggerName: '1-2-3 de Compra',
+    grade: 'A',
+    signalDate: '2026-05-04',
+    entryPrice: 50.01,
+    stopLoss: 47.99,
+    status: TradeSimulatorModel.STATUS.WAITING_ENTRY,
+    managementScenario: '2R'
+  };
+  const candles123StillActive = [
+    { date: '2026-05-04', open: 49.00, high: 50.00, low: 48.50, close: 49.80 }, // Candle 3 (Sinal): low = 48.50
+    { date: '2026-05-05', open: 49.50, high: 49.90, low: 48.60, close: 49.70 }  // Candle 4: não rompe 50.01 e não perde 48.50 -> ACTIVE
+  ];
+  const eval123Active = TradeSimulatorModel.evaluateSimulationOnCandles(sim123, candles123StillActive);
+  assert.equal(eval123Active.status, TradeSimulatorModel.STATUS.WAITING_ENTRY);
+  assert.equal(eval123Active.patternState, TradeSimulatorModel.ONE_TWO_THREE_STATES.ACTIVE);
 });
 
 test('Cenário F — validateSimulation e Auditoria barram categoricamente execuções tardias em T+2+', () => {

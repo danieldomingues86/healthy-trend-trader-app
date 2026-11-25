@@ -24,6 +24,7 @@
   const STORAGE_KEY_DRAFT = 'healthy-daily-update-draft-v1';
   const STORAGE_KEY_ACCOUNTS = 'healthy-daily-update-accounts';
   const STORAGE_KEY_HISTORY = 'healthy-daily-update-history';
+  const STORAGE_KEY_POSITION_META = 'healthy-daily-update-position-meta';
 
   // Default accounts structure matching the official portfolio configuration
   const DEFAULT_ACCOUNTS = [
@@ -1686,11 +1687,35 @@ const DEFAULT_HISTORY = [
       const pos = this.positions.find(p => p.id === positionId);
       if (!pos) return { success: false, error: 'Posição não encontrada.' };
 
+      const lastValidPrice = Number.isFinite(Number(pos.currentPrice)) && Number(pos.currentPrice) > 0
+        ? Number(pos.currentPrice)
+        : null;
+
+      // Never erase or overwrite a valid price with null, undefined, empty string, NaN or <= 0
+      if (newPrice === null || newPrice === undefined || (typeof newPrice === 'string' && newPrice.trim() === '')) {
+        if (options.markStaleOnFailure && lastValidPrice !== null) {
+          pos.priceStale = true;
+        }
+        return Object.assign({ success: false, error: 'Preço inválido — último preço válido preservado.', preservedPrice: lastValidPrice, position: pos }, pos);
+      }
+
       const validation = validateBalanceInput(newPrice, false);
       if (!validation.valid) {
+        if (options.markStaleOnFailure && lastValidPrice !== null) {
+          pos.priceStale = true;
+          return Object.assign({ success: false, error: validation.error, preservedPrice: lastValidPrice, position: pos }, pos);
+        }
         pos.error = validation.error;
         this.updateClosingReadiness();
-        return Object.assign({ success: false, error: validation.error, position: pos }, pos);
+        return Object.assign({ success: false, error: validation.error, preservedPrice: lastValidPrice, position: pos }, pos);
+      }
+
+      // Guard against out-of-order delayed responses overwriting a more recent quote
+      const incomingUpdatedAt = options.updatedAt || new Date().toISOString();
+      const incomingTs = Date.parse(incomingUpdatedAt);
+      const existingTs = pos.priceUpdatedAt ? Date.parse(pos.priceUpdatedAt) : 0;
+      if (!options.force && options.updatedAt && Number.isFinite(incomingTs) && Number.isFinite(existingTs) && existingTs > 0 && incomingTs < existingTs) {
+        return Object.assign({ success: false, staleIgnored: true, error: 'Cotação mais antiga ignorada.', preservedPrice: lastValidPrice, position: pos }, pos);
       }
 
       const oldPrice = Number(pos.currentPrice || pos.entryPrice || 0);
@@ -1706,11 +1731,15 @@ const DEFAULT_HISTORY = [
       pos.error = null;
       pos.previousCheckedPrice = oldPrice;
       pos.currentPrice = newPriceNum;
+      pos.priceUpdatedAt = Number.isFinite(incomingTs) ? new Date(incomingTs).toISOString() : new Date().toISOString();
+      pos.priceSource = options.source || pos.priceSource || 'manual';
+      pos.priceStale = Boolean(options.stale);
       pos.checked = true;
       if (!pos.hasDivergence) {
         pos.status = 'conferida';
       }
-      pos.checkedAt = new Date().toISOString();
+      pos.checkedAt = pos.priceUpdatedAt;
+      pos.updatedAt = pos.priceUpdatedAt;
 
       // Reflect price change in linked account balance
       let affectedAccount = null;
@@ -2071,6 +2100,13 @@ const DEFAULT_HISTORY = [
       const pos = this.positions.find(p => p.id === positionId);
       if (!pos) return null;
       const oldAccountId = pos.accountId;
+      if (accountId === 'paper') {
+        pos.accountId = 'paper';
+        pos.broker = 'Paper Trading';
+        pos.accountLabel = 'Paper Trading';
+        this.updateClosingReadiness();
+        return { position: pos, account: { id: 'paper', label: 'Paper Trading' }, oldAccountId };
+      }
       const acc = this.accounts.find(a => a.id === accountId);
       if (acc && acc.type === 'CHECKING') {
         return { success: false, error: 'Posições só podem ser vinculadas a contas de investimentos.', position: pos };
@@ -2488,36 +2524,209 @@ const DEFAULT_HISTORY = [
 
     /**
      * Updates prices of open positions in batch (e.g. from market data feed).
+     * Strictly preserves the last valid price whenever a quote is missing, null, empty,
+     * invalid, or older than the current price — flagging it as stale instead of erasing.
      */
-    batchUpdatePrices(priceMap = {}) {
+    batchUpdatePrices(priceMap = {}, options = {}) {
+      const nowIso = options.updatedAt || new Date().toISOString();
+      const defaultSource = options.source || 'market_quote';
+      const updatedTickers = [];
+      const preservedTickers = [];
+
       this.positions.forEach(pos => {
-        const quote = priceMap[pos.ticker];
-        if (quote && Number.isFinite(Number(quote)) && Number(quote) > 0) {
-          pos.currentPrice = Number(quote);
+        if (pos.closed || pos.status === 'encerrada') return;
+        const rawEntry = priceMap ? (priceMap[pos.ticker] ?? priceMap[pos.id]) : undefined;
+        const quoteVal = rawEntry && typeof rawEntry === 'object' ? (rawEntry.price ?? rawEntry.close ?? rawEntry.regularMarketPrice) : rawEntry;
+        const quoteSource = rawEntry && typeof rawEntry === 'object' ? (rawEntry.source || defaultSource) : defaultSource;
+        const quoteUpdatedAt = rawEntry && typeof rawEntry === 'object' ? (rawEntry.updatedAt || nowIso) : nowIso;
+
+        const num = (quoteVal !== null && quoteVal !== undefined && quoteVal !== '') ? Number(quoteVal) : NaN;
+        if (Number.isFinite(num) && num > 0) {
+          const incomingTs = Date.parse(quoteUpdatedAt);
+          const existingTs = pos.priceUpdatedAt ? Date.parse(pos.priceUpdatedAt) : 0;
+          if (!options.force && Number.isFinite(incomingTs) && Number.isFinite(existingTs) && existingTs > 0 && incomingTs < existingTs) {
+            preservedTickers.push(pos.ticker);
+            return;
+          }
+          pos.currentPrice = num;
+          pos.priceUpdatedAt = Number.isFinite(incomingTs) ? new Date(incomingTs).toISOString() : nowIso;
+          pos.priceSource = quoteSource;
+          pos.priceStale = false;
+          pos.error = null;
           pos.checked = true;
           if (!pos.hasDivergence) pos.status = 'conferida';
-          pos.checkedAt = new Date().toISOString();
+          pos.checkedAt = pos.priceUpdatedAt;
+          pos.updatedAt = pos.priceUpdatedAt;
+          updatedTickers.push(pos.ticker);
+        } else {
+          // Missing or invalid quote: preserve last valid price and mark stale
+          if (Number.isFinite(Number(pos.currentPrice)) && Number(pos.currentPrice) > 0) {
+            pos.priceStale = true;
+          }
+          preservedTickers.push(pos.ticker);
         }
       });
+
+      this.lastBatchQuoteStatus = {
+        updatedCount: updatedTickers.length,
+        staleCount: preservedTickers.length,
+        updatedTickers,
+        preservedTickers,
+        at: nowIso
+      };
       this.updateClosingReadiness();
       return this.positions;
     }
 
     /**
-     * Saves draft to localStorage.
+     * Exports durable per-position metadata (account link, last valid price & quote timestamps)
+     * that must survive daily closing, clearDraft(), navigation, and page reloads.
+     */
+    exportPositionMetaMap() {
+      const map = {};
+      (this.positions || []).forEach(pos => {
+        if (!pos || !pos.id) return;
+        const validPrice = Number.isFinite(Number(pos.currentPrice)) && Number(pos.currentPrice) > 0
+          ? Number(pos.currentPrice)
+          : null;
+        const validEntry = Number.isFinite(Number(pos.entryPrice)) && Number(pos.entryPrice) > 0
+          ? Number(pos.entryPrice)
+          : null;
+        map[String(pos.id)] = {
+          id: String(pos.id),
+          ticker: pos.ticker || null,
+          accountId: pos.accountId || null,
+          broker: pos.broker || null,
+          currentPrice: validPrice,
+          priceUpdatedAt: pos.priceUpdatedAt || pos.checkedAt || null,
+          priceSource: pos.priceSource || null,
+          priceStale: Boolean(pos.priceStale),
+          entryPrice: validEntry,
+          updatedAt: pos.updatedAt || pos.priceUpdatedAt || pos.checkedAt || new Date().toISOString()
+        };
+      });
+      return map;
+    }
+
+    /**
+     * Applies durable persisted position metadata onto currently loaded open positions
+     * without overwriting newer valid prices or valid account links.
+     */
+    applyPositionMetaMap(metaMap = {}, options = {}) {
+      if (!metaMap || typeof metaMap !== 'object') return false;
+      let changed = false;
+      const forceAccount = Boolean(options.forceAccount);
+
+      (this.positions || []).forEach(pos => {
+        if (!pos || !pos.id) return;
+        const saved = metaMap[String(pos.id)];
+        if (!saved || typeof saved !== 'object') return;
+
+        // 1. Restore account/broker link if missing or forced
+        if (saved.accountId && (!pos.accountId || forceAccount)) {
+          const acc = this.accounts.find(a => a.id === saved.accountId && a.type !== 'CHECKING');
+          if (acc) {
+            pos.accountId = acc.id;
+            pos.broker = acc.label;
+            pos.accountLabel = acc.label;
+            changed = true;
+          } else {
+            pos.accountId = saved.accountId;
+            if (saved.broker) pos.broker = saved.broker;
+            changed = true;
+          }
+        }
+
+        // 2. Restore last valid currentPrice if newer or if current position lacks a valid price
+        const savedPrice = Number(saved.currentPrice);
+        if (Number.isFinite(savedPrice) && savedPrice > 0) {
+          const curPrice = Number(pos.currentPrice);
+          const curValid = Number.isFinite(curPrice) && curPrice > 0;
+          const savedTs = saved.priceUpdatedAt ? Date.parse(saved.priceUpdatedAt) : 0;
+          const curTs = pos.priceUpdatedAt ? Date.parse(pos.priceUpdatedAt) : 0;
+          const curIsOnlyEntryFallback = !pos.priceUpdatedAt && curValid && Math.abs(curPrice - Number(pos.entryPrice || 0)) < 0.0001;
+
+          if (!curValid || curIsOnlyEntryFallback || (Number.isFinite(savedTs) && savedTs > curTs)) {
+            pos.currentPrice = savedPrice;
+            pos.priceUpdatedAt = saved.priceUpdatedAt || pos.priceUpdatedAt || null;
+            pos.priceSource = saved.priceSource || pos.priceSource || 'persisted';
+            pos.priceStale = Boolean(saved.priceStale);
+            changed = true;
+          }
+        }
+      });
+
+      if (changed) this.updateClosingReadiness();
+      return changed;
+    }
+
+    /**
+     * Persists durable position metadata map (NEVER wiped by clearDraft).
+     */
+    savePositionMeta(storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+      if (!storage) return false;
+      try {
+        let existing = {};
+        const raw = storage.getItem(STORAGE_KEY_POSITION_META);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') existing = parsed;
+        }
+        const current = this.exportPositionMetaMap();
+        const merged = { ...existing, ...current };
+        storage.setItem(STORAGE_KEY_POSITION_META, JSON.stringify(merged));
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    /**
+     * Loads durable position metadata map from storage.
+     */
+    loadPositionMeta(storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+      if (!storage) return {};
+      try {
+        const raw = storage.getItem(STORAGE_KEY_POSITION_META);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === 'object' ? parsed : {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    /**
+     * Persists accounts durably to localStorage.
+     */
+    saveAccounts(storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
+      if (!storage) return false;
+      try {
+        storage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(this.accounts));
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    /**
+     * Saves draft to localStorage (and mirrors durable position meta so links/prices never vanish).
+     * Only active open positions are stored in draft positions; closed positions belong to closedPositions.
      */
     saveDraft(storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
       if (!storage) return false;
       try {
+        const activePositions = (this.positions || []).filter(p => !p.closed && p.status !== 'encerrada' && Number(p.quantity ?? 1) > 0);
         const payload = {
           accounts: this.accounts,
-          positions: this.positions,
+          positions: activePositions,
           closedPositions: this.closedPositions,
           closingDate: this.closingDate,
           previousClosingWealth: this.previousClosingWealth,
           savedAt: new Date().toISOString()
         };
         storage.setItem(STORAGE_KEY_DRAFT, JSON.stringify(payload));
+        this.savePositionMeta(storage);
         return true;
       } catch (_) {
         return false;
@@ -2534,24 +2743,50 @@ const DEFAULT_HISTORY = [
         if (!raw) return false;
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed.accounts)) this.accounts = parsed.accounts;
-        if (Array.isArray(parsed.positions)) {
-          this.positions = parsed.positions.map(p => {
-            const defPos = DEFAULT_POSITIONS.find(d => d.id === p.id || d.ticker === p.ticker);
-            if (defPos) {
-              if (!p.direction && defPos.direction) p.direction = defPos.direction;
-              if (!p.side && defPos.side) p.side = defPos.side;
-              if (!p.assetClass && defPos.assetClass) p.assetClass = defPos.assetClass;
-              if (!p.contractMult && defPos.contractMult) p.contractMult = defPos.contractMult;
-              if (!p.mult && defPos.mult) p.mult = defPos.mult;
-              if (!p.entryDate && defPos.entryDate) p.entryDate = defPos.entryDate;
-              if (defPos.id === p.id && p.strategy === undefined && p.strategyType === undefined && p.strategy_type === undefined && defPos.strategy) {
-                p.strategy = defPos.strategy;
-              }
-            }
-            return p;
-          });
-        }
         if (Array.isArray(parsed.closedPositions)) this.closedPositions = parsed.closedPositions;
+
+        if (Array.isArray(parsed.positions)) {
+          const knownClosedIds = new Set(
+            (this.closedPositions || [])
+              .map(c => String(c.id || c.databaseId || ''))
+              .filter(Boolean)
+          );
+          if (typeof root !== 'undefined' && Array.isArray(root.operationalState?.closedPositions)) {
+            root.operationalState.closedPositions.forEach(c => {
+              if (c.id) knownClosedIds.add(String(c.id));
+              if (c.databaseId) knownClosedIds.add(String(c.databaseId));
+            });
+          }
+
+          const activeList = [];
+          parsed.positions.forEach(p => {
+            const idStr = String(p.id || '');
+            const isClosed = p.closed || p.status === 'encerrada' || Number(p.quantity ?? 1) <= 0 || knownClosedIds.has(idStr);
+            if (isClosed) {
+              p.closed = true;
+              p.status = 'encerrada';
+              p.quantity = 0;
+              if (!this.closedPositions.some(c => String(c.id) === idStr)) {
+                this.closedPositions.push(p);
+              }
+            } else {
+              const defPos = DEFAULT_POSITIONS.find(d => d.id === p.id || d.ticker === p.ticker);
+              if (defPos) {
+                if (!p.direction && defPos.direction) p.direction = defPos.direction;
+                if (!p.side && defPos.side) p.side = defPos.side;
+                if (!p.assetClass && defPos.assetClass) p.assetClass = defPos.assetClass;
+                if (!p.contractMult && defPos.contractMult) p.contractMult = defPos.contractMult;
+                if (!p.mult && defPos.mult) p.mult = defPos.mult;
+                if (!p.entryDate && defPos.entryDate) p.entryDate = defPos.entryDate;
+                if (defPos.id === p.id && p.strategy === undefined && p.strategyType === undefined && p.strategy_type === undefined && defPos.strategy) {
+                  p.strategy = defPos.strategy;
+                }
+              }
+              activeList.push(p);
+            }
+          });
+          this.positions = activeList;
+        }
         if (parsed.previousClosingWealth) this.previousClosingWealth = Number(parsed.previousClosingWealth);
         this.updateClosingReadiness();
         return true;
@@ -3253,6 +3488,7 @@ const DEFAULT_HISTORY = [
   DailyUpdateModel.STORAGE_KEY_DRAFT = STORAGE_KEY_DRAFT;
   DailyUpdateModel.STORAGE_KEY_ACCOUNTS = STORAGE_KEY_ACCOUNTS;
   DailyUpdateModel.STORAGE_KEY_HISTORY = STORAGE_KEY_HISTORY;
+  DailyUpdateModel.STORAGE_KEY_POSITION_META = STORAGE_KEY_POSITION_META;
   DailyUpdateModel.parseNumber = parseNumber;
   DailyUpdateModel.formatEditableNumber = formatEditableNumber;
   DailyUpdateModel.validateBalanceInput = validateBalanceInput;

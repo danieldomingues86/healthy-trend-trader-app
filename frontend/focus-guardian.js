@@ -37,20 +37,43 @@
     try {
       const stored = localStorage.getItem(Model.STORAGE_KEY_CONFIG);
       if (stored) {
-        currentConfig = { ...Model.DEFAULT_CONFIG, ...JSON.parse(stored) };
+        currentConfig = { ...Model.DEFAULT_CONFIG, ...JSON.parse(stored), soundEnabled: false, soundVolume: 0 };
         return currentConfig;
       }
     } catch (_) {}
-    currentConfig = { ...Model.DEFAULT_CONFIG };
+    currentConfig = { ...Model.DEFAULT_CONFIG, soundEnabled: false, soundVolume: 0 };
     return currentConfig;
   }
 
   function saveConfig(nextConfig) {
-    currentConfig = { ...Model.DEFAULT_CONFIG, ...nextConfig };
+    currentConfig = { ...Model.DEFAULT_CONFIG, ...nextConfig, soundEnabled: false, soundVolume: 0 };
     try {
       localStorage.setItem(Model.STORAGE_KEY_CONFIG, JSON.stringify(currentConfig));
     } catch (_) {}
     evaluateAndNotify();
+  }
+
+  function resolveActiveMarketConfig() {
+    const cfg = getConfig();
+    let marketFocus = null;
+    try {
+      if (root.marketFocusConfig && typeof root.marketFocusConfig === 'object') {
+        marketFocus = root.marketFocusConfig;
+      } else {
+        const raw = (root.healthyTrendWorkspace?.raw && root.healthyTrendWorkspace.raw(Model.STORAGE_KEY_MARKET_FOCUS || 'healthy-trend-market-focus-v1'))
+          || (typeof localStorage !== 'undefined' ? localStorage.getItem(Model.STORAGE_KEY_MARKET_FOCUS || 'healthy-trend-market-focus-v1') : null);
+        if (raw) {
+          marketFocus = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        }
+      }
+    } catch (_) {}
+
+    return {
+      start: marketFocus?.start || cfg.marketOpenTime || Model.DEFAULT_CONFIG.marketOpenTime || '10:00',
+      end: marketFocus?.end || cfg.marketCloseTime || Model.DEFAULT_CONFIG.marketCloseTime || '17:55',
+      days: marketFocus?.days || 'weekdays',
+      ...(typeof cfg.isMarketOpen === 'boolean' ? { isOpen: cfg.isMarketOpen } : {})
+    };
   }
 
   function loadSavedState() {
@@ -74,71 +97,33 @@
   }
 
   /**
-   * Plays a gentle, harmonic Web Audio chime alert.
-   * Gracefully ignores autoplay restrictions without errors.
-   */
-  function playAlertChime(customVolume = null) {
-    const config = getConfig();
-    if (!config.soundEnabled && customVolume === null) return;
-    const volume = customVolume !== null ? Number(customVolume) : (config.soundVolume ?? 0.5);
-
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      if (ctx.state === 'suspended') {
-        ctx.resume().catch(() => {});
-      }
-
-      const now = ctx.currentTime;
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(587.33, now); // D5
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(880.00, now); // A5
-
-      const targetVol = Math.max(0.01, Math.min(1, volume)) * 0.25;
-      gainNode.gain.setValueAtTime(targetVol, now);
-      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-
-      osc1.connect(gainNode);
-      osc2.connect(gainNode);
-      gainNode.connect(ctx.destination);
-
-      osc1.start(now);
-      osc2.start(now);
-      osc1.stop(now + 1.2);
-      osc2.stop(now + 1.2);
-    } catch (err) {
-      console.warn('[FocusGuardian] Audio playback not available or blocked by browser:', err.message);
-    }
-  }
-
-  /**
-   * Evaluates the current state and triggers modal if critical threshold is reached.
+   * Evaluates the current state and triggers modal ONLY when market is OPEN and critical threshold is reached.
+   * Purely visual experience — zero audio or sound effects.
    */
   function evaluateAndNotify() {
     const config = getConfig();
+    const marketConfig = resolveActiveMarketConfig();
+    const nowTs = currentState.nowOverride || Date.now();
     const evalResult = Model.evaluateFocusState({
       monitor: currentState.monitor,
       sessions: currentState.sessions,
       config,
+      marketConfig,
       lastAcknowledgedAt: currentState.lastAcknowledgedAt,
-      now: Date.now()
+      now: nowTs
     });
 
     currentState.evalResult = evalResult;
 
-    // Trigger intervention modal if needed
-    if (evalResult.shouldShowModal) {
+    // Never show modal or keep pending modal open when market is closed
+    if (!evalResult.isMarketOpen) {
+      closeInterventionModal();
+    } else if (evalResult.shouldShowModal) {
       showInterventionModal(evalResult);
     }
 
     // Refresh widget if visible
-    if (typeof window.renderTodayCockpit === 'function' && document.getElementById('today')?.classList.contains('active')) {
+    if (typeof window !== 'undefined' && typeof window.renderTodayCockpit === 'function' && document.getElementById('today')?.classList.contains('active')) {
       const widgetEl = document.querySelector('[data-focus-guardian-root]');
       if (widgetEl) {
         widgetEl.innerHTML = renderWidgetContent(evalResult);
@@ -200,10 +185,19 @@
   }
 
   /**
-   * Injects and displays the intervention modal in the DOM.
+   * Injects and displays the cinematic Spartan Focus Guardian intervention modal in the DOM.
+   * Strictly blocked whenever the market is closed (weekends, B3 holidays, or outside trading hours).
+   * Purely visual experience — zero sound or audio calls.
    */
   function showInterventionModal(evalResult) {
-    if (evalResult?.isWeekend || Model?.isWeekend?.(Date.now())) {
+    const nowTs = currentState.nowOverride || Date.now();
+    const marketConfig = resolveActiveMarketConfig();
+    const marketOpen = evalResult && typeof evalResult.isMarketOpen === 'boolean'
+      ? evalResult.isMarketOpen
+      : (Model?.isMarketOpen ? Model.isMarketOpen(nowTs, marketConfig) : !Model?.isWeekend?.(nowTs));
+
+    if (!marketOpen || evalResult?.isWeekend || evalResult?.isHoliday) {
+      closeInterventionModal();
       return;
     }
 
@@ -218,62 +212,104 @@
       document.body.appendChild(backdrop);
     }
 
-    const triggerReason = evalResult.triggers?.[0] || 'Limite de atenção atingido';
-    const soundActive = getConfig().soundEnabled;
+    const triggerReason = evalResult?.triggers?.[0] || 'Frequência impulsiva: 3+ aberturas em menos de 15 min';
 
     backdrop.innerHTML = `
-      <div class="focus-guardian-modal" id="focusGuardianModal">
-        <header class="focus-guardian-modal-header">
-          <div>
-            <span class="focus-guardian-modal-eyebrow">🛡️ Intervenção Comportamental</span>
-            <h2 id="focusGuardianModalTitle">Guardião do Foco</h2>
-          </div>
-          <button type="button" class="focus-guardian-modal-close" aria-label="Fechar alerta" onclick="FocusGuardianController.acknowledgeAlert('close')">×</button>
-        </header>
+      <div class="focus-guardian-modal focus-guardian-cinematic" id="focusGuardianModal">
+        <button type="button" class="focus-guardian-modal-close" aria-label="Fechar alerta" onclick="FocusGuardianController.acknowledgeAlert('close')">✕</button>
 
-        <h3 class="focus-guardian-question">“Você está operando ou apenas procurando oportunidades?”</h3>
-        <p class="focus-guardian-lead">O mercado não precisa da sua atenção o tempo todo. Seu capital precisa que você tome decisões de qualidade.</p>
+        <div class="focus-guardian-split-layout">
+          <div class="focus-guardian-content-col">
+            <header class="focus-guardian-modal-header">
+              <div class="focus-guardian-title-block">
+                <span class="focus-guardian-modal-eyebrow">
+                  <svg class="fg-shield-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.6 12 23C16.6 21.6 20 16.8 20 11.5V5.5L12 2Z" stroke="currentColor" stroke-width="1.8" fill="rgba(218,176,84,0.14)"/>
+                    <path d="M12 7.2L13.3 9.9L16.2 10.3L14.1 12.3L14.6 15.2L12 13.8L9.4 15.2L9.9 12.3L7.8 10.3L10.7 9.9L12 7.2Z" fill="currentColor"/>
+                  </svg>
+                  INTERVENÇÃO COMPORTAMENTAL
+                </span>
+                <h2 id="focusGuardianModalTitle">GUARDIÃO DO FOCO</h2>
+                <div class="focus-guardian-title-flare" aria-hidden="true"></div>
+              </div>
+            </header>
 
-        <div class="focus-guardian-modal-data">
-          <div class="metric-block">
-            <small>Aberturas Hoje</small>
-            <b>${safeEsc(evalResult.openingsCount)}</b>
-          </div>
-          <div class="metric-block">
-            <small>Tempo de Tela Hoje</small>
-            <b>${safeEsc(evalResult.totalDurationFormatted)}</b>
-          </div>
-          <div class="focus-guardian-modal-reason">
-            ⚠️ Motivo: ${safeEsc(triggerReason)}
-          </div>
-        </div>
+            <h3 class="focus-guardian-question">
+              “Você está <strong>operando</strong> ou apenas <span class="fg-gold-accent">procurando oportunidades?</span>”
+            </h3>
+            <p class="focus-guardian-lead">
+              O mercado não precisa da sua atenção o tempo todo. Seu capital precisa que você tome decisões de qualidade.
+            </p>
 
-        <div class="focus-guardian-reflections">
-          <strong>Perguntas de reflexão antes da próxima ação:</strong>
-          <ul>
-            <li>Tenho um setup válido segundo meu plano operacional?</li>
-            <li>Estou buscando uma oportunidade ou tentando satisfazer a vontade de operar?</li>
-            <li>Minha próxima decisão respeita rigorosamente meu gerenciamento de risco?</li>
-          </ul>
-        </div>
+            <div class="focus-guardian-modal-data">
+              <div class="metric-block">
+                <span class="metric-icon" aria-hidden="true">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    <rect x="4" y="13" width="3.5" height="7" rx="1" fill="currentColor" opacity="0.65"/>
+                    <rect x="10.25" y="9" width="3.5" height="11" rx="1" fill="currentColor" opacity="0.85"/>
+                    <rect x="16.5" y="4" width="3.5" height="16" rx="1" fill="currentColor"/>
+                  </svg>
+                </span>
+                <div class="metric-copy">
+                  <small>Aberturas Hoje</small>
+                  <b>${safeEsc(evalResult?.openingsCount ?? 0)}</b>
+                </div>
+              </div>
+              <div class="metric-block">
+                <span class="metric-icon" aria-hidden="true">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.9"/>
+                    <path d="M12 7.5V12L15 13.8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <div class="metric-copy">
+                  <small>Tempo de Tela Hoje</small>
+                  <b>${safeEsc(evalResult?.totalDurationFormatted || '0min')}</b>
+                </div>
+              </div>
+              <div class="focus-guardian-modal-reason">
+                <span class="reason-warn-icon" aria-hidden="true">⚠️</span>
+                <span><strong>Motivo:</strong> ${safeEsc(triggerReason)}</span>
+              </div>
+            </div>
 
-        <div class="focus-guardian-modal-actions">
-          <button type="button" class="focus-guardian-btn-primary" onclick="FocusGuardianController.acknowledgeAlert('plan')">
-            ✓ Reconhecer e seguir meu plano
-          </button>
-          <button type="button" class="focus-guardian-btn-secondary" onclick="FocusGuardianController.acknowledgeAlert('pause')">
-            ☕ Vou fazer uma pausa (Trader Zen)
-          </button>
+            <div class="focus-guardian-reflections">
+              <div class="focus-guardian-reflections-head">
+                <span class="reflections-brain-icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M9.5 4C7.6 4 6 5.5 6 7.4C6 7.7 6.05 8 6.12 8.28C4.88 8.78 4 10 4 11.4C4 12.9 4.95 14.16 6.28 14.6C6.1 15.05 6 15.54 6 16.05C6 18.23 7.77 20 9.95 20H11V4H9.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                    <path d="M14.5 4C16.4 4 18 5.5 18 7.4C18 7.7 17.95 8 17.88 8.28C19.12 8.78 20 10 20 11.4C20 12.9 19.05 14.16 17.72 14.6C17.9 15.05 18 15.54 18 16.05C18 18.23 16.23 20 14.05 20H13V4H14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <strong>Perguntas de reflexão antes da próxima ação:</strong>
+              </div>
+              <ul>
+                <li>Tenho um setup válido segundo meu plano operacional?</li>
+                <li>Estou buscando uma oportunidade ou tentando satisfazer a vontade de operar?</li>
+                <li>Minha próxima decisão respeita rigorosamente meu gerenciamento de risco?</li>
+              </ul>
+            </div>
+
+            <div class="focus-guardian-modal-actions">
+              <button type="button" class="focus-guardian-btn-primary" onclick="FocusGuardianController.acknowledgeAlert('plan')">
+                <span class="btn-icon" aria-hidden="true">✓</span>
+                <span>Reconhecer e seguir meu plano</span>
+              </button>
+              <button type="button" class="focus-guardian-btn-secondary" onclick="FocusGuardianController.acknowledgeAlert('pause')">
+                <span class="btn-icon" aria-hidden="true">☕</span>
+                <span>Vou fazer uma pausa (Trader Zen)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="focus-guardian-art-col" aria-hidden="true">
+            <div class="focus-guardian-art-glow"></div>
+          </div>
         </div>
       </div>
     `;
 
     backdrop.style.display = 'grid';
-
-    // Play chime sound
-    if (soundActive) {
-      playAlertChime();
-    }
   }
 
   function closeInterventionModal() {
@@ -333,14 +369,6 @@
               <label for="cfgCooldownMinutes">Intervalo entre alertas / Cooldown (minutos):</label>
               <input type="number" id="cfgCooldownMinutes" min="5" max="180" step="5" value="${cfg.cooldownMinutes}">
             </div>
-
-            <div class="focus-guardian-sound-row">
-              <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-                <input type="checkbox" id="cfgSoundEnabled" ${cfg.soundEnabled ? 'checked' : ''}>
-                <span>Alerta sonoro suave</span>
-              </label>
-              <button type="button" class="focus-guardian-cfg-btn" onclick="FocusGuardianController.testChime()">♫ Testar som</button>
-            </div>
           </div>
 
           <div style="display:flex; justify-content:space-between; gap:10px; margin-top:20px;">
@@ -373,7 +401,8 @@
       maxDurationWarningMinutes: Number(form.querySelector('#cfgMaxDurationWarningMinutes').value) || 120,
       maxDurationCriticalMinutes: Number(form.querySelector('#cfgMaxDurationCriticalMinutes').value) || 240,
       cooldownMinutes: Number(form.querySelector('#cfgCooldownMinutes').value) || 30,
-      soundEnabled: form.querySelector('#cfgSoundEnabled').checked
+      soundEnabled: false,
+      soundVolume: 0
     };
     saveConfig(next);
     closeSettingsModal();
@@ -397,7 +426,9 @@
     const res = evalResult || Model.evaluateFocusState({
       monitor: currentState.monitor,
       sessions: currentState.sessions,
-      config: getConfig()
+      config: getConfig(),
+      marketConfig: resolveActiveMarketConfig(),
+      now: currentState.nowOverride || Date.now()
     });
 
     const badgeClass = res.badgeClass || 'neutral';
@@ -449,6 +480,9 @@
 
     // Auto-refresh periodically (every 30s)
     refreshTimer = setInterval(refreshData, 30000);
+    if (refreshTimer && typeof refreshTimer.unref === 'function') {
+      refreshTimer.unref();
+    }
 
     // Listen to platform access updates
     window.addEventListener('healthyTrend:accessUpdated', refreshData);
@@ -481,7 +515,8 @@
     resetDefaultSettings,
     renderWidget,
     renderWidgetContent,
-    testChime: () => playAlertChime(1.0),
+    resolveActiveMarketConfig,
+    testChime: () => {},
     _setMockDataForTesting: (mock) => {
       currentState = { ...currentState, ...mock };
     }

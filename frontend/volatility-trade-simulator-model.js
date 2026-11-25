@@ -356,17 +356,53 @@
     const onProgress = typeof options.onProgress === 'function' ? options.onProgress : null;
     const perfStart = typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now();
 
-    // Prepara séries pré-calculadas com indicadores para cada ativo elegível
+    // Prepara séries pré-calculadas com indicadores para cada ativo elegível (deduplicando tickers)
     const precomputed = new Map();
     let minDatasetDate = null;
     let maxDatasetDate = null;
     let skippedAssetsCount = 0;
+    const excludedAssets = [];
+    const uniqueSymbols = Array.from(new Set((Array.isArray(symbols) ? symbols : []).map(s => String(s || '').toUpperCase().trim()).filter(Boolean)));
 
-    for (const sym of symbols) {
+    for (const symKey of uniqueSymbols) {
       try {
-        const symKey = String(sym).toUpperCase().trim();
-        const rawCandles = rawMap.get(symKey);
-        if (!Array.isArray(rawCandles) || rawCandles.length < longMaPeriod) continue;
+        const rawCandlesAll = rawMap.get(symKey);
+        if (!Array.isArray(rawCandlesAll) || rawCandlesAll.length === 0) {
+          skippedAssetsCount++;
+          excludedAssets.push({ symbol: symKey, reason: 'Sem série histórica disponível na base de dados' });
+          continue;
+        }
+        // Jamais utilizar candles posteriores à Data Final (endDate)
+        const rawCandles = endDate
+          ? rawCandlesAll.filter(c => {
+              const d = toIsoDate(c && (c.time || c.date));
+              return Boolean(d && d <= endDate);
+            })
+          : rawCandlesAll;
+
+        if (rawCandles.length < longMaPeriod) {
+          skippedAssetsCount++;
+          excludedAssets.push({
+            symbol: symKey,
+            reason: `Histórico insuficiente até a Data Final (${rawCandles.length} pregões < ${longMaPeriod} necessários para SMA longa)`
+          });
+          continue;
+        }
+
+        if (startDate) {
+          const hasBarInWindow = rawCandles.some(c => {
+            const d = toIsoDate(c && (c.time || c.date));
+            return Boolean(d && d >= startDate && (!endDate || d <= endDate));
+          });
+          if (!hasBarInWindow) {
+            skippedAssetsCount++;
+            excludedAssets.push({
+              symbol: symKey,
+              reason: 'Sem candles históricos no intervalo de datas selecionado'
+            });
+            continue;
+          }
+        }
 
         const series = VolatilityTradingEngineModel.computeIndicators(rawCandles, {
           shortMaPeriod,
@@ -375,7 +411,11 @@
           rsiMethod: options.rsiMethod || 'WILDER'
         });
 
-        if (series.length < longMaPeriod) continue;
+        if (series.length < longMaPeriod) {
+          skippedAssetsCount++;
+          excludedAssets.push({ symbol: symKey, reason: 'Histórico insuficiente após cálculo dos indicadores' });
+          continue;
+        }
 
         precomputed.set(symKey, {
           symbol: symKey,
@@ -389,6 +429,7 @@
         if (lastDate && (!maxDatasetDate || lastDate > maxDatasetDate)) maxDatasetDate = lastDate;
       } catch {
         skippedAssetsCount++;
+        excludedAssets.push({ symbol: symKey, reason: 'Falha ao processar série histórica do ativo' });
       }
     }
 
@@ -1327,7 +1368,18 @@
         universe: universeName,
         market,
         assetsProcessedCount: precomputed.size,
+        participatingAssetsCount: precomputed.size,
         skippedAssetsCount,
+        excludedAssetsCount: excludedAssets.length,
+        excludedAssets,
+        dataIntegrity: {
+          requestedAssetsCount: uniqueSymbols.length,
+          participatingAssetsCount: precomputed.size,
+          excludedAssetsCount: excludedAssets.length,
+          excludedAssets,
+          startDate: effectiveStartDate,
+          endDate: effectiveEndDate
+        },
         elapsedMs: totalElapsedMs,
         period: {
           label: requestedPeriod,

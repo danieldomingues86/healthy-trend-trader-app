@@ -153,6 +153,10 @@ function normalizePlan(payload = {}) {
       entrySetup,
       rubricVersion,
       mode: payload.mode === 'paper' ? 'paper' : 'real',
+      accountId: payload.mode === 'paper' ? 'paper' : (payload.accountId || payload.account_id ? String(payload.accountId || payload.account_id).trim().slice(0, 100) : null),
+      account_id: payload.mode === 'paper' ? 'paper' : (payload.accountId || payload.account_id ? String(payload.accountId || payload.account_id).trim().slice(0, 100) : null),
+      broker: payload.mode === 'paper' ? 'Paper Trading' : (payload.broker || payload.accountLabel ? String(payload.broker || payload.accountLabel).trim().slice(0, 100) : null),
+      accountLabel: payload.mode === 'paper' ? 'Paper Trading' : (payload.broker || payload.accountLabel ? String(payload.broker || payload.accountLabel).trim().slice(0, 100) : null),
       thesis: String(payload.thesis || '').slice(0, 4000),
       executedQuantity: number(payload.executedQty, 'Quantidade da operação', { minimum: 1, required: true }),
       entryDate: String(payload.entryDate || '').slice(0, 10) || null,
@@ -701,26 +705,77 @@ async function listPlans(userId, options = {}) {
        WHERE t.user_id = $1${strategyFilterClause} ORDER BY t.created_at DESC`,
     queryParams
   );
-  return result.rows.map(row => ({
-    ...row,
-    strategyType: (row.strategy_type || row.metadata?.strategyType || 'TREND_FOLLOWING').toUpperCase(),
-    strategy_type: (row.strategy_type || row.metadata?.strategyType || 'TREND_FOLLOWING').toUpperCase(),
-    strategyConfigId: row.strategy_config_id || row.metadata?.strategyConfigId || null,
-    strategyConfigVersion: row.strategy_config_version || row.metadata?.strategyConfigVersion || null,
-    entrySetup: row.entry_setup || row.setup_trigger || row.setup || 'MANUAL',
-    exitReason: row.exit_reason || row.metadata?.exitReason || null,
-    rubricVersion: String(row.rubric_version || row.metadata?.gradingVersion || '2'),
-    setupTrigger: row.setup_trigger || setupTriggers.normalizeKey(row.setup) || null,
-    pending_snapshot: row.pending_snapshot || row.metadata?.pendingSnapshot || null,
-    discard_reason: row.discard_reason || null,
-    verified_at: row.verified_at || null,
-    scale_in_enabled: row.scale_in_enabled !== false,
-    scale_in_count: Number(row.scale_in_count || 0),
-    total_quantity: Number(row.total_quantity || row.executed_quantity || row.planned_quantity || 0),
-    average_entry_price: Number(row.average_entry_price || row.execution_price || row.entry_price || 0),
-    total_allocated_capital: Number(row.total_allocated_capital || 0),
-    current_risk_percent: Number(row.current_risk_percent || row.risk_pct || 0)
-  }));
+  return result.rows.map(row => {
+    const meta = row.metadata && typeof row.metadata === 'object' ? row.metadata : {};
+    const eventsList = Array.isArray(row.events) ? row.events : [];
+    const latestPriceEvent = eventsList
+      .filter(ev => ev && ev.type === 'update' && Number.isFinite(Number(ev.price)) && Number(ev.price) > 0)
+      .pop();
+
+    const metaPrice = Number(meta.currentPrice ?? meta.current_price);
+    const metaPriceValid = Number.isFinite(metaPrice) && metaPrice > 0;
+    const metaTs = meta.priceUpdatedAt ? Date.parse(meta.priceUpdatedAt) : 0;
+
+    const evPrice = latestPriceEvent ? Number(latestPriceEvent.price) : NaN;
+    const evPriceValid = Number.isFinite(evPrice) && evPrice > 0;
+    const evTs = latestPriceEvent ? Date.parse(latestPriceEvent.at || latestPriceEvent.createdAt || '') || 0 : 0;
+
+    let resolvedCurrentPrice = null;
+    let resolvedPriceUpdatedAt = null;
+    let resolvedPriceSource = null;
+    if (metaPriceValid && evPriceValid) {
+      if (metaTs >= evTs) {
+        resolvedCurrentPrice = metaPrice;
+        resolvedPriceUpdatedAt = meta.priceUpdatedAt || null;
+        resolvedPriceSource = meta.priceSource || 'manual';
+      } else {
+        resolvedCurrentPrice = evPrice;
+        resolvedPriceUpdatedAt = latestPriceEvent.at || latestPriceEvent.createdAt || null;
+        resolvedPriceSource = 'event_update';
+      }
+    } else if (metaPriceValid) {
+      resolvedCurrentPrice = metaPrice;
+      resolvedPriceUpdatedAt = meta.priceUpdatedAt || null;
+      resolvedPriceSource = meta.priceSource || 'manual';
+    } else if (evPriceValid) {
+      resolvedCurrentPrice = evPrice;
+      resolvedPriceUpdatedAt = latestPriceEvent.at || latestPriceEvent.createdAt || null;
+      resolvedPriceSource = 'event_update';
+    }
+
+    const resolvedAccountId = meta.accountId ?? meta.account_id ?? null;
+    const resolvedBroker = meta.broker ?? meta.accountLabel ?? meta.account ?? null;
+
+    return {
+      ...row,
+      strategyType: (row.strategy_type || meta.strategyType || 'TREND_FOLLOWING').toUpperCase(),
+      strategy_type: (row.strategy_type || meta.strategyType || 'TREND_FOLLOWING').toUpperCase(),
+      strategyConfigId: row.strategy_config_id || meta.strategyConfigId || null,
+      strategyConfigVersion: row.strategy_config_version || meta.strategyConfigVersion || null,
+      entrySetup: row.entry_setup || row.setup_trigger || row.setup || 'MANUAL',
+      exitReason: row.exit_reason || meta.exitReason || null,
+      rubricVersion: String(row.rubric_version || meta.gradingVersion || '2'),
+      setupTrigger: row.setup_trigger || setupTriggers.normalizeKey(row.setup) || null,
+      pending_snapshot: row.pending_snapshot || meta.pendingSnapshot || null,
+      discard_reason: row.discard_reason || null,
+      verified_at: row.verified_at || null,
+      scale_in_enabled: row.scale_in_enabled !== false,
+      scale_in_count: Number(row.scale_in_count || 0),
+      total_quantity: Number(row.total_quantity || row.executed_quantity || row.planned_quantity || 0),
+      average_entry_price: Number(row.average_entry_price || row.execution_price || row.entry_price || 0),
+      total_allocated_capital: Number(row.total_allocated_capital || 0),
+      current_risk_percent: Number(row.current_risk_percent || row.risk_pct || 0),
+      account_id: resolvedAccountId,
+      accountId: resolvedAccountId,
+      broker: resolvedBroker,
+      current_price: resolvedCurrentPrice,
+      currentPrice: resolvedCurrentPrice,
+      price_updated_at: resolvedPriceUpdatedAt,
+      priceUpdatedAt: resolvedPriceUpdatedAt,
+      price_source: resolvedPriceSource,
+      priceSource: resolvedPriceSource
+    };
+  });
 }
 
 function normalizePositionEvent(type, payload = {}) {
@@ -728,7 +783,7 @@ function normalizePositionEvent(type, payload = {}) {
   const event = { type, note: String(payload.note || '').slice(0, 4000) };
   if (type === 'update') {
     event.price = number(payload.price, 'Preço atual', { minimum: 0.000001, required: true });
-    event.stop = number(payload.stop, 'Novo stop', { minimum: 0.000001, required: true });
+    event.stop = number(payload.stop, 'Novo stop', { minimum: 0, required: false });
     event.atr = number(payload.atr, 'ATR atual', { minimum: 0 });
   } else {
     event.quantity = number(payload.qty ?? payload.quantity, 'Quantidade', { minimum: 1, required: true });
@@ -815,7 +870,20 @@ async function recordPositionEvent(userId, tradeId, type, payload) {
     );
     const shouldClose = event.type === 'close' && event.quantity === remaining;
     if (event.type === 'update') {
-      await client.query(`UPDATE app.trades SET stop_price = $3, atr = COALESCE($4, atr), updated_at = now() WHERE id = $1 AND user_id = $2`, [tradeId, userId, event.stop, event.atr]);
+      const priceMetaPatch = JSON.stringify({
+        currentPrice: event.price,
+        priceUpdatedAt: event.occurredAt || new Date().toISOString(),
+        priceSource: String(payload.priceSource || payload.source || 'event_update').slice(0, 60)
+      });
+      await client.query(
+        `UPDATE app.trades
+            SET stop_price = COALESCE($3, stop_price),
+                atr = COALESCE($4, atr),
+                metadata = COALESCE(metadata, '{}'::jsonb) || $5::jsonb,
+                updated_at = now()
+          WHERE id = $1 AND user_id = $2`,
+        [tradeId, userId, event.stop != null ? event.stop : null, event.atr, priceMetaPatch]
+      );
     } else if (shouldClose) {
       const exitReason = payload.exitReason || payload.exit_reason || payload.reason || (event.type === 'close' ? event.note : null);
       await client.query(
@@ -915,14 +983,35 @@ async function updateTrade(userId, tradeId, payload = {}) {
     payload.average_entry_price !== undefined ||
     payload.entry !== undefined;
 
-  if (hasEntryPrice) {
-    const rawEntry = payload.entryPrice ?? payload.entry_price ?? payload.average_entry_price ?? payload.entry;
-    const newEntryPrice = number(rawEntry, 'Preço de entrada', { minimum: 0.000001, required: true });
+  const hasAccountPatch =
+    payload.accountId !== undefined ||
+    payload.account_id !== undefined ||
+    payload.broker !== undefined ||
+    payload.accountLabel !== undefined;
+
+  const hasCurrentPricePatch =
+    payload.currentPrice !== undefined ||
+    payload.current_price !== undefined;
+
+  if (hasEntryPrice || hasAccountPatch || hasCurrentPricePatch) {
+    const newEntryPrice = hasEntryPrice
+      ? number(payload.entryPrice ?? payload.entry_price ?? payload.average_entry_price ?? payload.entry, 'Preço de entrada', { minimum: 0.000001, required: true })
+      : null;
+
+    let incomingCurrentPrice = null;
+    if (hasCurrentPricePatch) {
+      const rawCurr = payload.currentPrice ?? payload.current_price;
+      const parsedCurr = Number(rawCurr);
+      // NEVER overwrite a valid price with null/undefined/empty/<=0/NaN
+      if (rawCurr !== null && rawCurr !== '' && Number.isFinite(parsedCurr) && parsedCurr > 0) {
+        incomingCurrentPrice = parsedCurr;
+      }
+    }
 
     return database.transaction(async (client) => {
       const current = await client.query(
         `SELECT id, status, total_quantity, executed_quantity, planned_quantity, scale_in_count,
-                entry_price, execution_price, average_entry_price
+                entry_price, execution_price, average_entry_price, total_allocated_capital, metadata
            FROM app.trades
           WHERE id = $1 AND user_id = $2
           FOR UPDATE`,
@@ -930,38 +1019,74 @@ async function updateTrade(userId, tradeId, payload = {}) {
       );
       if (!current.rowCount) throw invalid('Trade não encontrado.');
       const trade = current.rows[0];
-      if (trade.status === 'closed') {
+      if (hasEntryPrice && trade.status === 'closed') {
         throw invalid('O preço de entrada só pode ser ajustado enquanto o trade ainda estiver em aberto.');
       }
 
-      const exits = await client.query(
-        `SELECT COALESCE(SUM(quantity), 0) AS total
-           FROM app.trade_events
-          WHERE trade_id = $1 AND event_type IN ('peeloff', 'close')`,
-        [tradeId]
-      );
-      const totalQty = Number(trade.total_quantity || trade.executed_quantity || trade.planned_quantity || 0);
-      const remaining = Math.max(0, totalQty - Number(exits.rows[0]?.total || 0));
-      const newAllocated = Math.round(remaining * newEntryPrice * 100) / 100;
+      const nextMetadata = { ...(trade.metadata && typeof trade.metadata === 'object' ? trade.metadata : {}) };
+
+      if (hasAccountPatch) {
+        const rawAccId = payload.accountId !== undefined ? payload.accountId : payload.account_id;
+        if (rawAccId !== undefined) {
+          const cleanAccId = rawAccId === null ? null : String(rawAccId).trim();
+          nextMetadata.accountId = cleanAccId || null;
+        }
+        const rawBroker = payload.broker !== undefined ? payload.broker : payload.accountLabel;
+        if (rawBroker !== undefined) {
+          const cleanBroker = rawBroker === null ? null : String(rawBroker).trim();
+          nextMetadata.broker = cleanBroker || null;
+          nextMetadata.account = cleanBroker || null;
+        } else if (nextMetadata.accountId === null) {
+          nextMetadata.broker = null;
+          nextMetadata.account = null;
+        }
+      }
+
+      if (incomingCurrentPrice !== null) {
+        const incomingTsRaw = payload.priceUpdatedAt || payload.price_updated_at || new Date().toISOString();
+        const incomingTs = Date.parse(incomingTsRaw);
+        const existingTs = nextMetadata.priceUpdatedAt ? Date.parse(nextMetadata.priceUpdatedAt) : 0;
+        const allowOverwrite = !Number.isFinite(existingTs) || !Number.isFinite(incomingTs) || incomingTs >= existingTs || Boolean(payload.forcePrice);
+        if (allowOverwrite) {
+          nextMetadata.currentPrice = incomingCurrentPrice;
+          nextMetadata.priceUpdatedAt = Number.isFinite(incomingTs) ? new Date(incomingTs).toISOString() : new Date().toISOString();
+          nextMetadata.priceSource = String(payload.priceSource || payload.price_source || 'manual').slice(0, 60);
+          nextMetadata.priceStale = Boolean(payload.priceStale || payload.price_stale);
+        }
+      }
+
+      let newAllocated = Number(trade.total_allocated_capital || 0);
+      if (hasEntryPrice) {
+        const exits = await client.query(
+          `SELECT COALESCE(SUM(quantity), 0) AS total
+             FROM app.trade_events
+            WHERE trade_id = $1 AND event_type IN ('peeloff', 'close')`,
+          [tradeId]
+        );
+        const totalQty = Number(trade.total_quantity || trade.executed_quantity || trade.planned_quantity || 0);
+        const remaining = Math.max(0, totalQty - Number(exits.rows[0]?.total || 0));
+        newAllocated = Math.round(remaining * newEntryPrice * 100) / 100;
+      }
 
       const updated = await client.query(
         `UPDATE app.trades
             SET setup_trigger = COALESCE($3, setup_trigger),
                 setup = COALESCE($4, setup),
                 scale_in_enabled = COALESCE($5, scale_in_enabled),
-                entry_price = $6,
-                execution_price = CASE WHEN execution_price IS NOT NULL THEN $6 ELSE execution_price END,
-                average_entry_price = $6,
-                total_allocated_capital = $7,
+                entry_price = COALESCE($6, entry_price),
+                execution_price = CASE WHEN $6 IS NOT NULL AND execution_price IS NOT NULL THEN $6 ELSE execution_price END,
+                average_entry_price = COALESCE($6, average_entry_price),
+                total_allocated_capital = CASE WHEN $6 IS NOT NULL THEN $7 ELSE total_allocated_capital END,
+                metadata = $8::jsonb,
                 updated_at = now()
           WHERE id = $1 AND user_id = $2
           RETURNING id, ticker, status, setup, setup_trigger, scale_in_enabled, scale_in_count,
                     total_quantity, entry_price, execution_price, average_entry_price,
-                    total_allocated_capital, current_risk_percent`,
-        [tradeId, userId, setupTrigger, setupLabel, scaleInEnabled, newEntryPrice, newAllocated]
+                    total_allocated_capital, current_risk_percent, metadata`,
+        [tradeId, userId, setupTrigger, setupLabel, scaleInEnabled, newEntryPrice, newAllocated, JSON.stringify(nextMetadata)]
       );
 
-      if (Number(trade.scale_in_count || 0) === 0) {
+      if (hasEntryPrice && Number(trade.scale_in_count || 0) === 0) {
         await client.query(
           `UPDATE app.trade_events
               SET price = $2
@@ -977,9 +1102,18 @@ async function updateTrade(userId, tradeId, payload = {}) {
         ).catch(() => null);
       }
 
+      const rowOut = updated.rows[0];
+      const outMeta = rowOut.metadata && typeof rowOut.metadata === 'object' ? rowOut.metadata : {};
       return {
-        ...updated.rows[0],
-        setupTrigger: updated.rows[0].setup_trigger
+        ...rowOut,
+        setupTrigger: rowOut.setup_trigger,
+        accountId: outMeta.accountId ?? null,
+        account_id: outMeta.accountId ?? null,
+        broker: outMeta.broker ?? outMeta.account ?? null,
+        currentPrice: Number.isFinite(Number(outMeta.currentPrice)) && Number(outMeta.currentPrice) > 0 ? Number(outMeta.currentPrice) : null,
+        current_price: Number.isFinite(Number(outMeta.currentPrice)) && Number(outMeta.currentPrice) > 0 ? Number(outMeta.currentPrice) : null,
+        priceUpdatedAt: outMeta.priceUpdatedAt ?? null,
+        priceSource: outMeta.priceSource ?? null
       };
     });
   }

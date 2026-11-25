@@ -189,6 +189,33 @@
   });
 
   /**
+   * Estados canônicos do ciclo de vida do padrão 1-2-3 de Compra:
+   * - ACTIVE: padrão formado, aguardando rompimento da máxima do Candle 3 ou invalidação pela perda da mínima do Candle 3.
+   * - EXECUTED: rompimento da máxima do Candle 3 confirmado e trade executado (estado terminal; não retorna a ACTIVE).
+   * - INVALIDATED: mínima do Candle 3 perdida em qualquer candle posterior e sinal descartado definitivamente (estado terminal; não retorna a ACTIVE).
+   */
+  const ONE_TWO_THREE_STATES = Object.freeze({
+    ACTIVE: 'ACTIVE',
+    EXECUTED: 'EXECUTED',
+    INVALIDATED: 'INVALIDATED'
+  });
+  const PATTERN_STATES = ONE_TWO_THREE_STATES;
+
+  function isOneTwoThreeBuyTrigger(triggerNameOrId) {
+    if (!triggerNameOrId) return false;
+    const s = String(triggerNameOrId).trim();
+    return (
+      s === '1-2-3 de Compra' ||
+      s === '123_COMPRA' ||
+      s === 'ONE_TWO_THREE' ||
+      s === 'EXP_123_IB' ||
+      s === 'EXP_123_IB_VERTEX' ||
+      s === 'EXP_123_SEM_IB' ||
+      s.startsWith('1-2-3')
+    );
+  }
+
+  /**
    * Gatilhos EXPERIMENTAIS da validação estatística 1-2-3 + Inside Bar (não pertencem ao catálogo operacional).
    */
   const EXPERIMENTAL_TRIGGERS = Object.freeze({
@@ -1807,6 +1834,60 @@
       return d === rawSignalDateStr || d === signalDateStr;
     });
 
+    const isOneTwoThree = isOneTwoThreeBuyTrigger(sim.triggerName || sim.triggerId || sim.triggerKey);
+    const explicitCandle3Low =
+      sim.candle3Low != null ? Number(sim.candle3Low) :
+      (sim.invalidationLow != null ? Number(sim.invalidationLow) :
+      (sim.structure?.candle3Low != null ? Number(sim.structure.candle3Low) :
+      (sim.structure?.invalidationLow != null ? Number(sim.structure.invalidationLow) :
+      (sim.structure?.audit?.candles?.pivot3?.low != null ? Number(sim.structure.audit.candles.pivot3.low) : null))));
+    const signalCandleLow = (signalIndex >= 0 && validCandles[signalIndex] && Number.isFinite(Number(validCandles[signalIndex].low)))
+      ? Number(validCandles[signalIndex].low)
+      : null;
+    const candle3Low = isOneTwoThree
+      ? ((explicitCandle3Low != null && Number.isFinite(explicitCandle3Low))
+        ? round2(explicitCandle3Low)
+        : (signalCandleLow != null ? round2(signalCandleLow) : stopInitial))
+      : null;
+    const candle3High = isOneTwoThree ? round2(entryPlanned - 0.01) : null;
+
+    const rawInitialPatternState = String(sim.patternState || sim.state || '').toUpperCase().trim();
+    let patternState = ONE_TWO_THREE_STATES.ACTIVE;
+    if (
+      rawInitialPatternState === ONE_TWO_THREE_STATES.INVALIDATED ||
+      sim.status === STATUS.NOT_TRIGGERED
+    ) {
+      patternState = ONE_TWO_THREE_STATES.INVALIDATED;
+    } else if (
+      rawInitialPatternState === ONE_TWO_THREE_STATES.EXECUTED ||
+      sim.status === STATUS.IN_OPERATION ||
+      sim.status === STATUS.INCOMPLETE ||
+      sim.status === STATUS.CLOSED_GAIN ||
+      sim.status === STATUS.CLOSED_LOSS
+    ) {
+      patternState = ONE_TWO_THREE_STATES.EXECUTED;
+    }
+
+    if (isOneTwoThree) {
+      sim.candle3Low = candle3Low;
+      sim.candle3High = candle3High;
+      sim.invalidationLow = candle3Low;
+      sim.patternState = patternState;
+      sim.state = patternState;
+    }
+
+    // Estados terminais do padrão 1-2-3: uma vez INVALIDATED ou EXECUTED (já encerrado), não pode voltar a ACTIVE nem gerar nova entrada
+    if (patternState === ONE_TWO_THREE_STATES.INVALIDATED) {
+      sim.status = STATUS.NOT_TRIGGERED;
+      sim.executedEntryPrice = null;
+      sim.entryDate = null;
+      sim.resultR = null;
+      if (!sim.currentPrice && validCandles.length) {
+        sim.currentPrice = round2(validCandles[validCandles.length - 1].close);
+      }
+      return sim;
+    }
+
     const startIndex = signalIndex >= 0
       ? signalIndex + 1
       : validCandles.findIndex(c => String(c.time || c.date).slice(0, 10) > rawSignalDateStr);
@@ -1838,6 +1919,10 @@
     let exitPrice = sim.exitPrice ? Number(sim.exitPrice) : null;
     let exitDate = sim.exitDate || null;
     let exitReason = sim.exitReason || null;
+    let invalidationDate = sim.invalidationDate || null;
+    let invalidationPrice = sim.invalidationPrice != null ? Number(sim.invalidationPrice) : null;
+    let invalidatedAtCandle = sim.invalidatedAtCandle != null ? Number(sim.invalidatedAtCandle) : null;
+    let executedAtCandle = sim.executedAtCandle != null ? Number(sim.executedAtCandle) : null;
     let resultR = sim.resultR !== undefined && sim.resultR !== null ? Number(sim.resultR) : null;
     let mfeR = sim.mfeR !== undefined && sim.mfeR !== null ? Number(sim.mfeR) : null;
     let maeR = sim.maeR !== undefined && sim.maeR !== null ? Number(sim.maeR) : null;
@@ -1847,6 +1932,15 @@
     let expansionAfterBreakout = sim.expansionAfterBreakout ? { ...sim.expansionAfterBreakout } : { c1: null, c2: null, c3: null, c5: null };
     let entryCandleIndex = sim.entryCandleIndex != null ? sim.entryCandleIndex : null;
     let pendingCloseExit = null;
+
+    // Se o padrão já estava marcado como EXECUTED antes do loop, garante que não volte ao estado WAITING_ENTRY / ACTIVE
+    if (patternState === ONE_TWO_THREE_STATES.EXECUTED && status === STATUS.WAITING_ENTRY) {
+      if (executedEntryPrice && entryDate) {
+        status = STATUS.IN_OPERATION;
+      } else {
+        return sim;
+      }
+    }
 
     let maxHigh = executedEntryPrice || entryPlanned;
     let minLow = executedEntryPrice || entryPlanned;
@@ -1902,12 +1996,13 @@
 
       // ESTADO 1: AGUARDANDO ENTRADA
       if (status === STATUS.WAITING_ENTRY) {
-        // Regra Global e Obrigatória do Sistema:
-        // A condição de entrada de qualquer gatilho identificado no candle T é avaliada EXCLUSIVAMENTE
-        // no candle imediatamente seguinte T+1 (i === startIndex).
-        // Se a entrada não for acionada no candle T+1, o sinal expira definitivamente e a ordem é cancelada.
-        // Nenhuma ordem pode permanecer pendente nem ser executada em T+2 ou candles posteriores.
-        if (i > startIndex) {
+        const candleNumberInPattern = 4 + (i - startIndex); // Candle 4 = startIndex, Candle 5 = startIndex + 1, etc.
+
+        // Para gatilhos que NÃO são 1-2-3 de Compra (ex: Inside Bar, PFR, RBI), a validade é restrita a T+1.
+        // Para o padrão 1-2-3 de Compra, o sinal permanece ACTIVE nos candles subsequentes (Candle 4, 5, 6...)
+        // enquanto não romper a máxima do Candle 3 e não perder a mínima do Candle 3.
+        if (!isOneTwoThree && i > startIndex) {
+          patternState = ONE_TWO_THREE_STATES.INVALIDATED;
           status = STATUS.NOT_TRIGGERED;
           exitDate = candleDate;
           exitReason = 'Expirou sem acionamento no candle seguinte (T+1)';
@@ -1934,6 +2029,7 @@
             advanceSessions: sim.extremeEventAdvanceSessions != null ? sim.extremeEventAdvanceSessions : null
           });
           if (blockingEvt) {
+            patternState = ONE_TWO_THREE_STATES.INVALIDATED;
             status = STATUS.NOT_TRIGGERED;
             exitDate = candleDate;
             exitReason = EXTREME_EVENT_EXIT_REASON;
@@ -1950,9 +2046,34 @@
           }
         }
 
+        // REGRA 1 OBRIGATÓRIA DO PADRÃO 1-2-3 DE COMPRA:
+        // Invalidação definitiva pela perda da mínima do Candle 3 em qualquer candle posterior antes da entrada.
+        // Nenhuma entrada poderá ser executada com base nesse padrão, mesmo que posteriormente o preço rompa a máxima do Candle 3.
+        if (isOneTwoThree && Number.isFinite(candle3Low) && cLow < candle3Low) {
+          patternState = ONE_TWO_THREE_STATES.INVALIDATED;
+          status = STATUS.NOT_TRIGGERED;
+          invalidationDate = candleDate;
+          invalidationPrice = round2(cLow);
+          invalidatedAtCandle = candleNumberInPattern;
+          exitDate = candleDate;
+          exitReason = `Padrão 1-2-3 invalidado: perda da mínima do Candle 3 (${formatPrice(candle3Low)}) no Candle ${candleNumberInPattern}`;
+          resultR = null;
+          executedEntryPrice = null;
+          entryDate = null;
+          addTimelineEvent({
+            type: 'NOT_TRIGGERED',
+            date: candleDate,
+            label: 'Não acionado (Invalidado)',
+            desc: `Padrão 1-2-3 de Compra invalidado definitivamente no Candle ${candleNumberInPattern}: mínima (${formatPrice(cLow)}) inferior à mínima do Candle 3 (${formatPrice(candle3Low)}).`
+          });
+          break; // Sinal descartado definitivamente; não volta ao estado ACTIVE
+        }
+
         const entryExec = resolveEntryExecutionOnCandle(c, entryPlanned);
         if (entryExec.triggered) {
-          // Gatilho acionado no candle imediatamente seguinte (T+1)!
+          // Rompimento confirmado -> Transição definitiva para EXECUTED
+          patternState = ONE_TWO_THREE_STATES.EXECUTED;
+          executedAtCandle = candleNumberInPattern;
           executedEntryPrice = entryExec.executedPrice;
           entryDate = candleDate;
           entryCandleIndex = i;
@@ -1960,14 +2081,18 @@
           currentStop = stopInitial;
           enteredOnThisCandle = true;
 
+          const timingSuffix = i === startIndex
+            ? 'no candle seguinte (T+1)'
+            : `no Candle ${candleNumberInPattern} (T+${i - startIndex + 1})`;
+
           addTimelineEvent({
             type: 'ENTRY_EXECUTED',
             date: candleDate,
             label: 'Entrada executada',
             price: executedEntryPrice,
             desc: entryExec.isGapUp
-              ? `Abertura em gap de alta acima do gatilho (${formatPrice(entryPlanned)}); entrada executada na abertura a ${formatPrice(executedEntryPrice)} no candle seguinte (T+1)`
-              : `Preço rompeu a máxima do gatilho a ${formatPrice(executedEntryPrice)} no candle seguinte (T+1)`
+              ? `Abertura em gap de alta acima do gatilho (${formatPrice(entryPlanned)}); entrada executada na abertura a ${formatPrice(executedEntryPrice)} ${timingSuffix}`
+              : `Preço rompeu a máxima do gatilho a ${formatPrice(executedEntryPrice)} ${timingSuffix}`
           });
 
           maxHigh = cHigh;
@@ -2004,11 +2129,16 @@
             });
             break; // Trade encerrado
           }
+        } else if (isOneTwoThree) {
+          // REGRA 2 OBRIGATÓRIA DO PADRÃO 1-2-3 DE COMPRA:
+          // Se o candle posterior não romper a máxima do Candle 3, mas também não perder a mínima do Candle 3,
+          // manter o sinal no estado ACTIVE e repetir a verificação nos candles seguintes.
+          patternState = ONE_TWO_THREE_STATES.ACTIVE;
+          status = STATUS.WAITING_ENTRY;
+          continue;
         } else {
-          // Preço não alcançou a entrada no candle imediatamente seguinte (T+1).
-          // Regra Global e Obrigatória do Sistema:
-          // A ordem de entrada é avaliada exclusivamente no candle T+1.
-          // Se não atingir o preço de entrada no candle T+1, a ordem é cancelada e o sinal invalidado.
+          // Para os demais gatilhos (Inside Bar, PFR, RBI): expira se não acionar em T+1
+          patternState = ONE_TWO_THREE_STATES.INVALIDATED;
           status = STATUS.NOT_TRIGGERED;
           exitDate = candleDate;
           resultR = null;
@@ -2545,6 +2675,15 @@
       scaleIn: sim.scaleIn || null,
       partialExit: sim.partialExit || null,
       status,
+      patternState,
+      state: patternState,
+      candle3Low: isOneTwoThree ? candle3Low : sim.candle3Low,
+      candle3High: isOneTwoThree ? candle3High : sim.candle3High,
+      invalidationLow: isOneTwoThree ? candle3Low : sim.invalidationLow,
+      invalidationDate,
+      invalidationPrice: invalidationPrice != null ? round2(invalidationPrice) : null,
+      invalidatedAtCandle,
+      executedAtCandle,
       isIncomplete,
       isCensored,
       incompleteReason,
@@ -3335,11 +3474,28 @@
       if (maxDateStr && sim.signalDate && String(sim.signalDate).slice(0, 10) > maxDateStr) {
         return false;
       }
+      if (maxDateStr && sim.exitDate && String(sim.exitDate).slice(0, 10) > maxDateStr && filters.strictEndDate === true) {
+        return false;
+      }
 
-      // 2.1. Ativo / Símbolo
+      // 2.1. Ativo / Símbolo (único ou lista múltipla) e Classe de Ativo
+      const simSym = String(sim.symbol || '').trim().toUpperCase();
       if (symbol && symbol !== 'ALL') {
-        const simSym = String(sim.symbol || '').trim().toUpperCase();
         if (simSym !== symbol) return false;
+      }
+      if (Array.isArray(filters.symbols) && filters.symbols.length > 0 && !filters.symbols.includes('ALL')) {
+        const allowedSymbols = new Set(filters.symbols.map(s => String(s || '').trim().toUpperCase()).filter(Boolean));
+        if (allowedSymbols.size > 0 && !allowedSymbols.has(simSym)) return false;
+      }
+      if (filters.assetClasses && filters.assetClasses !== 'ALL') {
+        const rawClasses = Array.isArray(filters.assetClasses) ? filters.assetClasses : String(filters.assetClasses).split(',');
+        const allowedClasses = new Set(rawClasses.map(c => String(c || '').trim().toUpperCase()).filter(c => c && c !== 'ALL'));
+        if (allowedClasses.size > 0) {
+          const simClass = sim.assetClass && SIMULATOR_ASSET_CLASSES[sim.assetClass]
+            ? sim.assetClass
+            : classifySimulatorAsset(simSym, sim).assetClass;
+          if (!allowedClasses.has(simClass)) return false;
+        }
       }
 
       // 3. Gatilho
@@ -5327,9 +5483,14 @@
     const baseSeeds = generateSeedSimulationsForScenario(scenarioId);
     const period = options.period;
     const targetVolume = (options.targetVolume === 'MAX' || !options.targetVolume) ? 250 : Math.max(1, Number(options.targetVolume));
+    const minDate = options.startDate ? String(options.startDate).slice(0, 10) : null;
+    const maxDate = options.endDate ? String(options.endDate).slice(0, 10) : null;
 
     let pDays = 120;
-    if (period === 30 || period === '30') pDays = 30;
+    if (minDate && maxDate && minDate <= maxDate) {
+      const diffMs = new Date(maxDate + 'T12:00:00Z').getTime() - new Date(minDate + 'T12:00:00Z').getTime();
+      pDays = Math.max(30, Math.round(diffMs / 86400000));
+    } else if (period === 30 || period === '30') pDays = 30;
     else if (period === 90 || period === '90') pDays = 90;
     else if (period === 120 || period === '120') pDays = 120;
     else if (period === 180 || period === '180') pDays = 180;
@@ -5338,15 +5499,38 @@
     else if (period === 1095 || period === '1095' || period === '36m') pDays = 1095;
     else if (period === 'ALL') pDays = 730;
 
-    if (pDays <= 120 && targetVolume <= 42) {
+    const hasCustomFilters = Boolean(minDate || maxDate || options.assetClasses || (Array.isArray(options.symbols) && options.symbols.length > 0));
+    if (!hasCustomFilters && pDays <= 120 && targetVolume <= 42) {
       return baseSeeds;
+    }
+
+    // Resolve universo multiclasse se solicitado em modo seed/offline
+    let customSymbolPool = null;
+    if ((Array.isArray(options.symbols) && options.symbols.length > 0 && !options.symbols.includes('ALL')) ||
+        (options.assetClasses && options.assetClasses !== 'ALL')) {
+      const catalog = getAvailableSimulatorAssetsCatalog();
+      const resolved = resolveBacktestUniverseSelection(catalog, {
+        assetClasses: options.assetClasses,
+        symbols: options.symbols
+      });
+      if (resolved.selectedAssets.length > 0) {
+        customSymbolPool = resolved.selectedAssets;
+      }
+    }
+
+    // Anchor date: se maxDate foi informada e é menor que a maior data base (2026-10-30), desloca para caber em [minDate, maxDate]
+    let baseAnchorOffset = 0;
+    if (maxDate && maxDate < '2026-10-23') {
+      const anchorDiffMs = new Date('2026-10-23T12:00:00Z').getTime() - new Date(maxDate + 'T12:00:00Z').getTime();
+      baseAnchorOffset = Math.max(0, Math.round((anchorDiffMs / 86400000) * 0.72));
     }
 
     const cyclesCount = Math.max(Math.ceil(pDays / 100), Math.ceil(targetVolume / 36));
     const expanded = [];
+    let assetPoolIdx = 0;
 
     for (let cycle = 0; cycle < cyclesCount; cycle++) {
-      const offsetTradingDays = Math.round((cycle * pDays * 0.68) / cyclesCount);
+      const offsetTradingDays = baseAnchorOffset + Math.round((cycle * pDays * 0.68) / cyclesCount);
       for (const sim of baseSeeds) {
         if (expanded.length >= targetVolume * 1.3) break;
 
@@ -5369,9 +5553,32 @@
           }
         }
 
+        // Respeito estrito ao intervalo [minDate, maxDate] sem usar candles após maxDate
+        if (minDate && sDate && sDate < minDate) continue;
+        if (maxDate && sDate && sDate > maxDate) continue;
+        if (maxDate && eDate && eDate > maxDate) continue;
+        if (maxDate && xDate && xDate > maxDate) continue;
+
+        let assignedAsset = null;
+        if (customSymbolPool && customSymbolPool.length > 0) {
+          const directMatch = customSymbolPool.find(a => a.symbol === sim.symbol);
+          assignedAsset = (cycle === 0 && directMatch)
+            ? directMatch
+            : customSymbolPool[assetPoolIdx++ % customSymbolPool.length];
+        } else {
+          assignedAsset = classifySimulatorAsset(sim.symbol, sim);
+        }
+
         const cloned = {
           ...sim,
-          id: cycle === 0 ? sim.id : `sim-exp-c${cycle}-${sim.id.replace('sim-', '')}`,
+          id: cycle === 0 && assignedAsset.symbol === sim.symbol
+            ? sim.id
+            : `sim-exp-c${cycle}-${assignedAsset.symbol.toLowerCase()}-${sim.id.replace('sim-', '')}`,
+          symbol: assignedAsset.symbol,
+          companyName: assignedAsset.name || sim.companyName || assignedAsset.symbol,
+          sector: assignedAsset.sector || sim.sector || 'Geral',
+          assetClass: assignedAsset.assetClass,
+          market: assignedAsset.market,
           grade: normalizeSimulatorGrade(sim.grade),
           signalDate: sDate,
           entryDate: eDate,
@@ -7501,6 +7708,8 @@
       };
     }
 
+    const candle3High = Math.round(c1High * 100) / 100;
+    const candle3Low = Math.round(c1Low * 100) / 100;
     const entryPrice = Math.round((c1High + 0.01) * 100) / 100;
     const stopLoss = Math.round((c2Low - 0.01) * 100) / 100;
     const initialRisk = Math.round(Math.max(0.01, entryPrice - stopLoss) * 100) / 100;
@@ -7510,11 +7719,254 @@
       isValid: true,
       reason: null,
       triggerType: '1-2-3 de Compra',
+      state: ONE_TWO_THREE_STATES.ACTIVE,
+      patternState: ONE_TWO_THREE_STATES.ACTIVE,
+      candle3High,
+      candle3Low,
+      invalidationLow: candle3Low,
       entryPrice,
       stopLoss,
       initialRisk,
       graphicRiskPct,
       audit
+    };
+  }
+
+  /**
+   * Avalia o ciclo de vida e as regras de validade do padrão 1-2-3 de Compra ao longo dos candles posteriores à formação:
+   *
+   * 1. Estados canônicos:
+   *    - ACTIVE: padrão formado, aguardando rompimento da máxima do Candle 3 ou invalidação pela perda da mínima do Candle 3.
+   *    - EXECUTED: rompimento da máxima do Candle 3 confirmado e entrada executada (estado terminal; não retorna a ACTIVE e não permite nova entrada).
+   *    - INVALIDATED: mínima do Candle 3 perdida em qualquer candle posterior e sinal descartado definitivamente (estado terminal; não retorna a ACTIVE).
+   *
+   * 2. Regras de transição:
+   *    - Monitora sequencialmente todos os candles posteriores (Candle 4, Candle 5, Candle 6, ...).
+   *    - Se o padrão já estiver em EXECUTED ou INVALIDATED, permanece nesse estado terminal.
+   *    - Enquanto estiver em ACTIVE:
+   *      a) Se o candle posterior apresentar mínima inferior à mínima do Candle 3 (low < candle3Low):
+   *         invalida imediatamente o setup (INVALIDATED), descarta o sinal definitivamente e impede qualquer entrada posterior.
+   *      b) Senão, se o candle posterior romper a máxima do Candle 3 (high >= entryPrice ou high > candle3High):
+   *         executa a entrada nesse candle (EXECUTED) conforme as regras de execução do simulador e bloqueia novas entradas pelo mesmo padrão.
+   *      c) Senão (não rompeu a máxima do Candle 3 e não perdeu a mínima do Candle 3):
+   *         mantém o sinal no estado ACTIVE para o próximo candle.
+   *
+   * @param {Object|Array} input Padrão/simulação (ou array completo de candles [c1_form, c2_form, c3_form, c4, c5, ...])
+   * @param {Array} [subsequentCandles] Candles posteriores ao Candle 3 ([Candle 4, Candle 5, Candle 6, ...])
+   * @param {Object} [options] Opções adicionais
+   */
+  function evaluateOneTwoThreeSignalLifecycle(input, subsequentCandles = null, options = {}) {
+    let pattern = null;
+    let postCandles = Array.isArray(subsequentCandles) ? subsequentCandles : [];
+
+    if (Array.isArray(input)) {
+      const sigIdx = Number.isInteger(options.signalIndex) ? options.signalIndex : 2;
+      if (input.length < 3 || sigIdx < 2 || sigIdx >= input.length) {
+        return {
+          isValidPattern: false,
+          state: ONE_TWO_THREE_STATES.INVALIDATED,
+          patternState: ONE_TWO_THREE_STATES.INVALIDATED,
+          reason: 'Histórico insuficiente para formar o padrão 1-2-3 de Compra.'
+        };
+      }
+      const c3Form = input[sigIdx - 2]; // Candle 1
+      const c2Form = input[sigIdx - 1]; // Candle 2 (vértice)
+      const c1Form = input[sigIdx];     // Candle 3 (sinal)
+      const validated = validateOneTwoThreeBuyPattern(c1Form, c2Form, c3Form, options);
+      if (!validated.isValid) {
+        return {
+          isValidPattern: false,
+          state: ONE_TWO_THREE_STATES.INVALIDATED,
+          patternState: ONE_TWO_THREE_STATES.INVALIDATED,
+          reason: validated.reason,
+          audit: validated.audit
+        };
+      }
+      pattern = validated;
+      if (!Array.isArray(subsequentCandles)) {
+        postCandles = input.slice(sigIdx + 1);
+      }
+    } else if (input && typeof input === 'object') {
+      if (input.c1 && input.c2 && input.c3 && input.candle3Low == null && input.entryPrice == null) {
+        const validated = validateOneTwoThreeBuyPattern(input.c1, input.c2, input.c3, options);
+        if (!validated.isValid) {
+          return {
+            isValidPattern: false,
+            state: ONE_TWO_THREE_STATES.INVALIDATED,
+            patternState: ONE_TWO_THREE_STATES.INVALIDATED,
+            reason: validated.reason,
+            audit: validated.audit
+          };
+        }
+        pattern = { ...validated, ...input };
+      } else {
+        pattern = { ...input };
+      }
+    } else {
+      return {
+        isValidPattern: false,
+        state: ONE_TWO_THREE_STATES.INVALIDATED,
+        patternState: ONE_TWO_THREE_STATES.INVALIDATED,
+        reason: 'Parâmetros inválidos para avaliação do padrão 1-2-3 de Compra.'
+      };
+    }
+
+    const candle3High = pattern.candle3High != null
+      ? round2(Number(pattern.candle3High))
+      : (pattern.audit?.candles?.pivot3?.high != null
+        ? round2(Number(pattern.audit.candles.pivot3.high))
+        : (pattern.entryPrice != null ? round2(Number(pattern.entryPrice) - 0.01) : null));
+
+    const candle3Low = pattern.candle3Low != null
+      ? round2(Number(pattern.candle3Low))
+      : (pattern.invalidationLow != null
+        ? round2(Number(pattern.invalidationLow))
+        : (pattern.audit?.candles?.pivot3?.low != null
+          ? round2(Number(pattern.audit.candles.pivot3.low))
+          : null));
+
+    const entryPrice = pattern.entryPrice != null
+      ? round2(Number(pattern.entryPrice))
+      : (candle3High != null ? round2(candle3High + 0.01) : null);
+
+    const stopLoss = pattern.stopLoss != null
+      ? round2(Number(pattern.stopLoss))
+      : (pattern.audit?.candles?.pivot2?.low != null ? round2(Number(pattern.audit.candles.pivot2.low) - 0.01) : null);
+
+    const rawInitState = String(pattern.patternState || pattern.state || ONE_TWO_THREE_STATES.ACTIVE).toUpperCase().trim();
+    let state = ONE_TWO_THREE_STATES.ACTIVE;
+    if (rawInitState === ONE_TWO_THREE_STATES.EXECUTED || pattern.status === STATUS.IN_OPERATION || pattern.status === STATUS.CLOSED_GAIN || pattern.status === STATUS.CLOSED_LOSS) {
+      state = ONE_TWO_THREE_STATES.EXECUTED;
+    } else if (rawInitState === ONE_TWO_THREE_STATES.INVALIDATED || pattern.status === STATUS.NOT_TRIGGERED) {
+      state = ONE_TWO_THREE_STATES.INVALIDATED;
+    }
+
+    let executedEntryPrice = pattern.executedEntryPrice != null ? round2(Number(pattern.executedEntryPrice)) : null;
+    let entryDate = pattern.entryDate || null;
+    let executedAtCandle = pattern.executedAtCandle != null ? Number(pattern.executedAtCandle) : null;
+    let executionCandleIndex = pattern.executionCandleIndex != null ? Number(pattern.executionCandleIndex) : null;
+    let invalidationDate = pattern.invalidationDate || null;
+    let invalidationPrice = pattern.invalidationPrice != null ? round2(Number(pattern.invalidationPrice)) : null;
+    let invalidatedAtCandle = pattern.invalidatedAtCandle != null ? Number(pattern.invalidatedAtCandle) : null;
+    let invalidationCandleIndex = pattern.invalidationCandleIndex != null ? Number(pattern.invalidationCandleIndex) : null;
+    let entriesCount = state === ONE_TWO_THREE_STATES.EXECUTED ? 1 : 0;
+    let duplicateEntryAttemptBlocked = false;
+    let postInvalidationBreakoutBlocked = false;
+    const history = [];
+
+    for (let idx = 0; idx < postCandles.length; idx++) {
+      const c = postCandles[idx];
+      if (!c) continue;
+      const candleNumber = 4 + idx;
+      const cDate = String(c.time || c.date || `candle-${candleNumber}`).slice(0, 10);
+      const cHigh = Number(c.high);
+      const cLow = Number(c.low);
+
+      // Uma vez EXECUTED ou INVALIDATED, o padrão jamais retorna ao estado ACTIVE nem permite nova entrada
+      if (state === ONE_TWO_THREE_STATES.EXECUTED) {
+        if (Number.isFinite(cHigh) && Number.isFinite(entryPrice) && cHigh >= entryPrice) {
+          duplicateEntryAttemptBlocked = true;
+        }
+        history.push({
+          candleNumber,
+          date: cDate,
+          state: ONE_TWO_THREE_STATES.EXECUTED,
+          action: 'ALREADY_EXECUTED_LOCKED'
+        });
+        continue;
+      }
+
+      if (state === ONE_TWO_THREE_STATES.INVALIDATED) {
+        if (Number.isFinite(cHigh) && Number.isFinite(entryPrice) && cHigh >= entryPrice) {
+          postInvalidationBreakoutBlocked = true;
+        }
+        history.push({
+          candleNumber,
+          date: cDate,
+          state: ONE_TWO_THREE_STATES.INVALIDATED,
+          action: 'ALREADY_INVALIDATED_LOCKED'
+        });
+        continue;
+      }
+
+      // Estado ACTIVE:
+      // 1. Verifica perda da mínima do Candle 3 (invalidação definitiva)
+      if (Number.isFinite(candle3Low) && Number.isFinite(cLow) && cLow < candle3Low) {
+        state = ONE_TWO_THREE_STATES.INVALIDATED;
+        invalidationDate = cDate;
+        invalidationPrice = round2(cLow);
+        invalidatedAtCandle = candleNumber;
+        invalidationCandleIndex = idx;
+        if (Number.isFinite(cHigh) && Number.isFinite(entryPrice) && cHigh >= entryPrice) {
+          postInvalidationBreakoutBlocked = true;
+        }
+        history.push({
+          candleNumber,
+          date: cDate,
+          state: ONE_TWO_THREE_STATES.INVALIDATED,
+          action: 'INVALIDATED_BY_CANDLE3_LOW_LOSS'
+        });
+        continue;
+      }
+
+      // 2. Verifica rompimento da máxima do Candle 3 (execução da entrada)
+      const entryExec = resolveEntryExecutionOnCandle(c, entryPrice);
+      if (entryExec.triggered) {
+        state = ONE_TWO_THREE_STATES.EXECUTED;
+        executedEntryPrice = entryExec.executedPrice;
+        entryDate = cDate;
+        executedAtCandle = candleNumber;
+        executionCandleIndex = idx;
+        entriesCount = 1;
+        history.push({
+          candleNumber,
+          date: cDate,
+          state: ONE_TWO_THREE_STATES.EXECUTED,
+          action: 'ENTRY_EXECUTED',
+          executedEntryPrice
+        });
+        continue;
+      }
+
+      // 3. Não rompeu a máxima e não perdeu a mínima -> mantém sinal ACTIVE
+      history.push({
+        candleNumber,
+        date: cDate,
+        state: ONE_TWO_THREE_STATES.ACTIVE,
+        action: 'KEPT_ACTIVE'
+      });
+    }
+
+    const simulatorStatus =
+      state === ONE_TWO_THREE_STATES.EXECUTED
+        ? STATUS.IN_OPERATION
+        : (state === ONE_TWO_THREE_STATES.INVALIDATED ? STATUS.NOT_TRIGGERED : STATUS.WAITING_ENTRY);
+
+    return {
+      isValidPattern: true,
+      state,
+      patternState: state,
+      status: simulatorStatus,
+      isActive: state === ONE_TWO_THREE_STATES.ACTIVE,
+      isExecuted: state === ONE_TWO_THREE_STATES.EXECUTED,
+      isInvalidated: state === ONE_TWO_THREE_STATES.INVALIDATED,
+      candle3High,
+      candle3Low,
+      invalidationLow: candle3Low,
+      entryPrice,
+      stopLoss,
+      executedEntryPrice,
+      entryDate,
+      executedAtCandle,
+      executionCandleIndex,
+      invalidationDate,
+      invalidationPrice,
+      invalidatedAtCandle,
+      invalidationCandleIndex,
+      entriesCount,
+      duplicateEntryAttemptBlocked,
+      postInvalidationBreakoutBlocked,
+      history
     };
   }
 
@@ -8265,8 +8717,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         });
       }
 
+      const isOneTwoThreeSim = isOneTwoThreeBuyTrigger(sim.triggerName || sim.triggerId || sim.triggerKey);
       const expectedTPlusOne = addTradingDays(signalDate, 1, validSessionSet);
-      if (signalDate && eDate && expectedTPlusOne && eDate !== expectedTPlusOne) {
+      if (!isOneTwoThreeSim && signalDate && eDate && expectedTPlusOne && eDate !== expectedTPlusOne) {
         errors.push({
           code: 'DELAYED_ENTRY_EXECUTION',
           field: 'entryDate',
@@ -8939,6 +9392,11 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
             `Data de entrada (${eDate}) não encontrada no histórico real de ${sym}.`
           );
         } else {
+          const isOneTwoThreeAudit = isOneTwoThreeBuyTrigger(sim.triggerName || sim.triggerId || sim.triggerKey);
+          const signalCandleLowFor123 = (isOneTwoThreeAudit && signalIdx >= 0 && candleSeries[signalIdx])
+            ? Number(candleSeries[signalIdx].low)
+            : null;
+
           if (signalIdx >= 0 && entryIdx !== signalIdx + 1) {
             if (entryIdx <= signalIdx) {
               pushError(
@@ -8947,18 +9405,53 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
                 'entryDate',
                 `Candle de entrada (${eDate}) não é posterior ao candle do sinal (${signalDate}).`
               );
-            } else {
+            } else if (!isOneTwoThreeAudit) {
               pushError(
                 'DELAYED_ENTRY_EXECUTION',
                 REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
                 'entryDate',
                 `A entrada (${eDate}) ocorreu após T+1 (${candleSeries[signalIdx + 1]?.time}).`
               );
+            } else {
+              // Para o padrão 1-2-3 de Compra, a entrada pode ocorrer em qualquer candle posterior (Candle 4, 5, 6...),
+              // desde que nenhum candle intermediário tenha perdido a mínima do Candle 3 (invalidação) ou já rompido a máxima do Candle 3 anteriormente.
+              for (let k = signalIdx + 1; k < entryIdx; k++) {
+                const interCandle = candleSeries[k];
+                if (!interCandle) continue;
+                if (Number.isFinite(signalCandleLowFor123) && interCandle.low < signalCandleLowFor123) {
+                  pushError(
+                    'DELAYED_ENTRY_EXECUTION',
+                    REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+                    'entryDate',
+                    `Padrão 1-2-3 de Compra invalidado em ${interCandle.time} pela perda da mínima do Candle 3 (${signalCandleLowFor123}) antes da entrada em ${eDate}.`
+                  );
+                  break;
+                }
+                if (interCandle.high >= entryPrice) {
+                  pushError(
+                    'DELAYED_ENTRY_EXECUTION',
+                    REJECTION_CATEGORIES.TEMPORAL_INCONSISTENCY,
+                    'entryDate',
+                    `Padrão 1-2-3 de Compra já havia rompido o nível de entrada (${entryPrice}) em ${interCandle.time} antes da entrada registrada em ${eDate}.`
+                  );
+                  break;
+                }
+              }
             }
           }
 
           const ec = candleSeries[entryIdx];
           const effectiveEntry = execEntry != null ? execEntry : entryPrice;
+
+          // Verifica se o próprio candle de entrada violou a mínima do Candle 3 no padrão 1-2-3 de Compra
+          if (isOneTwoThreeAudit && Number.isFinite(signalCandleLowFor123) && ec && ec.low < signalCandleLowFor123) {
+            pushError(
+              'DELAYED_ENTRY_EXECUTION',
+              REJECTION_CATEGORIES.IMPOSSIBLE_EXECUTION,
+              'entryDate',
+              `Candle de entrada (${eDate}) apresentou mínima (${ec.low}) inferior à mínima do Candle 3 (${signalCandleLowFor123}), invalidando o padrão 1-2-3 de Compra.`
+            );
+          }
 
           // Verifica se o gatilho foi efetivamente alcançado pela máxima do candle
           if (ec.high + 0.015 < entryPrice) {
@@ -9539,16 +10032,47 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     let maxDate = options.endDate ? String(options.endDate).slice(0, 10) : null;
     const period = options.period;
 
-    // Determina datas disponíveis no dataset (apenas sessões válidas de pregão)
+    // Resolve universo de ativos solicitado (deduplicando tickers e aplicando filtro por classes de ativos quando informado)
+    const rawRequestedClasses = Array.isArray(options.assetClasses)
+      ? options.assetClasses
+      : (options.assetClasses && options.assetClasses !== 'ALL' ? String(options.assetClasses).split(',') : []);
+    const selectedAssetClasses = rawRequestedClasses
+      .map(c => String(c || '').trim().toUpperCase())
+      .filter(c => c && c !== 'ALL' && SIMULATOR_ASSET_CLASSES[c]);
+
+    let rawSymbols = Array.isArray(options.symbols) && options.symbols.length > 0 && !options.symbols.includes('ALL')
+      ? options.symbols
+      : Array.from(candlesMap.keys());
+
+    const uniqueSymbolsSet = new Set();
+    for (const rawSym of rawSymbols) {
+      const normSym = String(rawSym || '').trim().toUpperCase();
+      if (!normSym) continue;
+      if (selectedAssetClasses.length > 0) {
+        const clsInfo = classifySimulatorAsset(normSym, metadataMap[normSym] || {});
+        if (!selectedAssetClasses.includes(clsInfo.assetClass)) continue;
+      }
+      uniqueSymbolsSet.add(normSym);
+    }
+    let symbols = Array.from(uniqueSymbolsSet);
+    symbols.sort();
+
+    // Determina datas disponíveis no dataset (apenas sessões válidas de pregão nos ativos relevantes + benchmarks)
     let earliestDatasetDate = null;
     let latestDatasetDate = null;
     const validSessionSet = new Set();
 
-    for (const candles of candlesMap.values()) {
+    const sessionScanKeys = symbols.length > 0 && symbols.length < candlesMap.size
+      ? Array.from(new Set([...symbols, 'IBOV', 'BOVA11', 'QQQ', 'SPY', 'PETR4', 'VALE3']))
+      : Array.from(candlesMap.keys());
+
+    for (const k of sessionScanKeys) {
+      const candles = candlesMap.get(k);
       if (Array.isArray(candles) && candles.length > 0) {
         for (const c of candles) {
           const d = String(c.time || c.date || '').slice(0, 10);
           if (!d || !isTradingDay(d)) continue;
+          if (maxDate && d > maxDate) continue;
           validSessionSet.add(d);
           if (!earliestDatasetDate || d < earliestDatasetDate) earliestDatasetDate = d;
           if (!latestDatasetDate || d > latestDatasetDate) latestDatasetDate = d;
@@ -9566,19 +10090,13 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
       else if (period === '730' || period === 730 || period === '24m' || period === '2y') pDays = 730;
       else if (period === '1095' || period === 1095 || period === '36m' || period === '3y') pDays = 1095;
 
-      const refDate = latestDatasetDate ? new Date(latestDatasetDate + 'T12:00:00Z') : new Date();
+      const refDate = (maxDate || latestDatasetDate) ? new Date((maxDate || latestDatasetDate) + 'T12:00:00Z') : new Date();
       const startDateObj = new Date(refDate.getTime() - pDays * 24 * 3600 * 1000);
       minDate = startDateObj.toISOString().slice(0, 10);
       if (!maxDate && latestDatasetDate) {
         maxDate = latestDatasetDate;
       }
     }
-
-    let symbols = Array.isArray(options.symbols) && options.symbols.length > 0
-      ? options.symbols
-      : Array.from(candlesMap.keys());
-
-    symbols.sort();
 
     const simulationMode = options.simulationMode === SIMULATION_MODES.RESEARCH
       ? SIMULATION_MODES.RESEARCH
@@ -9610,16 +10128,28 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
 
     const datesSet = new Set();
     const tickerIndexMap = new Map();
+    const excludedAssets = [];
 
     for (const sym of symbols) {
       const rawCandles = candlesMap.get(sym);
-      if (!Array.isArray(rawCandles) || rawCandles.length < 20) continue;
-      // Filtra apenas candles em pregões válidos B3
+      const clsInfo = classifySimulatorAsset(sym, metadataMap[sym] || {});
+      if (!Array.isArray(rawCandles) || rawCandles.length === 0) {
+        excludedAssets.push({
+          symbol: sym,
+          assetClass: clsInfo.assetClass,
+          assetClassLabel: clsInfo.assetClassLabel,
+          market: clsInfo.market,
+          reason: 'Ativo sem série histórica disponível na base de dados'
+        });
+        continue;
+      }
+      // Filtra apenas candles em pregões válidos e NUNCA utiliza candles posteriores à Data Final (maxDate)
       const candles = [];
       const closes = [];
       let hasCustomEmaProps = false;
       let isChrono = true;
       let prevD = '';
+      let barsInSelectedWindow = 0;
       const dateMap = new Map();
 
       for (let i = 0; i < rawCandles.length; i++) {
@@ -9627,6 +10157,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         if (!c) continue;
         const d = String(c.time || c.date || '').slice(0, 10);
         if (!d || !isTradingDay(d)) continue;
+        // Regra Crítica: Jamais incluir candles posteriores à Data Final configurada (zero look-ahead)
+        if (maxDate && d > maxDate) continue;
         const closeVal = Number(c.close);
         if (!Number.isFinite(closeVal)) hasCustomEmaProps = true;
         if (c.ema10 != null || c.ema9 != null || c.ema72 != null || c.ema30 != null || c.ema20 != null) {
@@ -9641,9 +10173,23 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         dateMap.set(d, idx);
         if ((!minDate || d >= minDate) && (!maxDate || d <= maxDate)) {
           datesSet.add(d);
+          barsInSelectedWindow++;
         }
       }
-      if (candles.length < 20) continue;
+      if (candles.length < 20 || barsInSelectedWindow === 0) {
+        excludedAssets.push({
+          symbol: sym,
+          assetClass: clsInfo.assetClass,
+          assetClassLabel: clsInfo.assetClassLabel,
+          market: clsInfo.market,
+          barsUpToEndDate: candles.length,
+          barsInSelectedWindow,
+          reason: barsInSelectedWindow === 0
+            ? 'Ativo sem candles históricos no intervalo de datas selecionado'
+            : `Histórico insuficiente até a Data Final (${candles.length} pregões < 20 mínimos)`
+        });
+        continue;
+      }
 
       const ema10Series = !hasCustomEmaProps ? calculateEmaSeriesRaw(closes, 10) : null;
       const ema72Series = !hasCustomEmaProps ? calculateEmaSeriesRaw(closes, 72) : null;
@@ -9922,6 +10468,7 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         totalSignalsFound++;
 
         const simId = `sim-hist-${sym}-${d}-${trigger.id || 'trig'}`;
+        const symClassInfo = classifySimulatorAsset(sym, meta);
 
         const rawSim = {
           id: simId,
@@ -9930,6 +10477,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           triggerName: trigger.name,
           grade: normalizedTriggerGrade,
           sector: meta.sector || 'Geral',
+          assetClass: symClassInfo.assetClass,
+          assetClassLabel: symClassInfo.assetClassLabel,
+          market: symClassInfo.market,
           signalDate: d,
           entryPrice: trigger.entry,
           stopLoss: trigger.stop,
@@ -9948,6 +10498,9 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         const evaluated = evaluateSimulationOnCandles(rawSim, candles.slice(Math.max(0, candleIdx - 40)), scenario);
         evaluated.visionAtivo = getTradeVisionAtivo(evaluated);
         evaluated.rsScore = rawSim.rsScore;
+        evaluated.assetClass = symClassInfo.assetClass;
+        evaluated.assetClassLabel = symClassInfo.assetClassLabel;
+        evaluated.market = symClassInfo.market;
         if (liqEval) evaluated.liquidity = liqEval;
         evaluated.simulationMode = simulationMode;
         evaluated.ruleVersion = ruleVersion;
@@ -9983,6 +10536,8 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
           } else if (evaluated.status === STATUS.IN_OPERATION) {
             symbolBusyUntil.set(sym, '9999-12-31');
           }
+        } else if (evaluated.status === STATUS.WAITING_ENTRY && evaluated.patternState === ONE_TWO_THREE_STATES.ACTIVE) {
+          symbolBusyUntil.set(sym, '9999-12-31');
         }
 
         simulations.push(evaluated);
@@ -10081,6 +10636,18 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         executedCount,
         assetsCount: symbols.length,
         assetsProcessedCount: tickerIndexMap.size,
+        participatingAssetsCount: tickerIndexMap.size,
+        excludedAssetsCount: excludedAssets.length,
+        excludedAssets,
+        dataIntegrity: {
+          requestedAssetsCount: symbols.length,
+          participatingAssetsCount: tickerIndexMap.size,
+          excludedAssetsCount: excludedAssets.length,
+          excludedAssets,
+          startDate: minDate,
+          endDate: maxDate,
+          assetClasses: selectedAssetClasses.length > 0 ? selectedAssetClasses : ['ALL']
+        },
         elapsedMs: totalElapsedMs,
         targetVolume: rawTargetVolume || 'MAX',
         targetReached: executedCount >= (isTargetMax ? 1 : targetVolume),
@@ -10094,9 +10661,814 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
         },
         scenario,
         universe: options.universe || 'IBOV',
+        assetClasses: selectedAssetClasses.length > 0 ? selectedAssetClasses : ['ALL'],
         triggers: options.triggers || 'ALL',
         grades: options.grades || 'ALL'
       }
+    };
+  }
+
+  // =========================================================================
+  // CATÁLOGO MULTICLASSE DE ATIVOS, PERÍODOS PERSONALIZADOS E VALIDAÇÃO DE INTEGRIDADE
+  // =========================================================================
+
+  const SIMULATOR_ASSET_CLASSES = Object.freeze({
+    STOCK_BR: {
+      id: 'STOCK_BR',
+      label: 'Ações brasileiras (B3)',
+      shortLabel: 'Ações B3',
+      market: 'B3',
+      marketLabel: 'Brasil (B3)',
+      exchange: 'B3',
+      benchmark: 'IBOV',
+      order: 1
+    },
+    FII: {
+      id: 'FII',
+      label: 'FIIs (Fundos Imobiliários)',
+      shortLabel: 'FIIs',
+      market: 'B3',
+      marketLabel: 'Brasil (B3)',
+      exchange: 'B3',
+      benchmark: 'IFIX',
+      order: 2
+    },
+    BDR: {
+      id: 'BDR',
+      label: 'BDRs',
+      shortLabel: 'BDRs',
+      market: 'B3',
+      marketLabel: 'Brasil (B3)',
+      exchange: 'B3',
+      benchmark: 'BDRX',
+      order: 3
+    },
+    ETF_BR: {
+      id: 'ETF_BR',
+      label: 'ETFs brasileiros',
+      shortLabel: 'ETFs BR',
+      market: 'B3',
+      marketLabel: 'Brasil (B3)',
+      exchange: 'B3',
+      benchmark: 'IBOV',
+      order: 4
+    },
+    ETF_INTL: {
+      id: 'ETF_INTL',
+      label: 'ETFs internacionais',
+      shortLabel: 'ETFs Intl',
+      market: 'GLOBAL',
+      marketLabel: 'B3 / EUA',
+      exchange: 'B3 / NASDAQ / NYSE',
+      benchmark: 'QQQ',
+      order: 5
+    },
+    STOCK_US: {
+      id: 'STOCK_US',
+      label: 'Ações americanas',
+      shortLabel: 'Ações EUA',
+      market: 'US',
+      marketLabel: 'EUA (NASDAQ / NYSE)',
+      exchange: 'NASDAQ / NYSE',
+      benchmark: 'QQQ',
+      order: 6
+    },
+    OTHER: {
+      id: 'OTHER',
+      label: 'Outros instrumentos disponíveis',
+      shortLabel: 'Outros',
+      market: 'MULTI',
+      marketLabel: 'B3 / Índices',
+      exchange: 'B3 / Global',
+      benchmark: 'IBOV',
+      order: 7
+    }
+  });
+
+  const SIMULATOR_ASSET_CLASS_ORDER = Object.freeze([
+    'STOCK_BR',
+    'FII',
+    'BDR',
+    'ETF_BR',
+    'ETF_INTL',
+    'STOCK_US',
+    'OTHER'
+  ]);
+
+  const BACKTEST_PERIOD_PRESETS = Object.freeze([
+    { id: '30', label: 'Últimos 30 dias', days: 30 },
+    { id: '90', label: 'Últimos 90 dias', days: 90 },
+    { id: '180', label: 'Últimos 6 meses', days: 180 },
+    { id: '365', label: 'Último ano', days: 365 },
+    { id: '730', label: 'Últimos 24 meses', days: 730 },
+    { id: 'ALL', label: 'Todo o histórico', days: null },
+    { id: 'CUSTOM', label: 'Personalizado', days: null }
+  ]);
+
+  const B3_EQUITY_UNITS_SET = new Set([
+    'BPAC11', 'KLBN11', 'SANB11', 'TAEE11', 'ALUP11', 'ENGI11', 'IGTI11',
+    'SAPR11', 'TIET11', 'AESB11', 'RNEW11', 'PPLA11', 'MODL11', 'BMGB11',
+    'BIDI11', 'SULA11', 'BRBI11', 'GETT11', 'DASA11', 'CAML11', 'AZEV11', 'AMAR11'
+  ]);
+
+  const ETF_BR_TICKERS_SET = new Set([
+    'BOVA11', 'BOVV11', 'BOVB11', 'BOVX11', 'BBOV11', 'SMAL11', 'SMAC11', 'SMLL11',
+    'DIVO11', 'DIVD11', 'NDIV11', 'PIBB11', 'BRAX11', 'IBOB11', 'FIND11', 'MATB11',
+    'GOVE11', 'ISUS11', 'ECOO11', 'XFIX11', 'IMAB11', 'IB5M11', 'IRFM11', 'B5P211',
+    'FIXA11', 'LFTS11', 'NTNS11', 'DEBB11', 'TRIG11', 'AGRI11', 'FOOD11', 'BREW11',
+    'HIGH11', 'LVOL11', 'ESGB11', 'CMDB11', 'GENB11'
+  ]);
+
+  const ETF_INTL_TICKERS_SET = new Set([
+    'IVVB11', 'SPXI11', 'SPXB11', 'NASD11', 'WRLD11', 'ACWI11', 'EURP11', 'EURO11',
+    'CHINA11', 'XINA11', 'GOLD11', 'GLDX11', 'HASH11', 'BITH11', 'ETHE11', 'QBTC11',
+    'QETH11', 'QDFI11', 'DEFI11', 'WEB311', 'META11', 'TECK11', 'CHIP11', 'DNAI11',
+    'MILL11', 'HTEK11', 'JOGO11', 'USTK11', 'ALUG11', 'SHOT11', 'SVAL11', 'USAL11',
+    'BNDX11', 'USDB11', 'DOLA11', 'DOLB11', 'HODL11', 'COIN11', 'NFTS11', 'CRPT11',
+    'QQQ', 'SPY', 'IWM', 'DIA', 'VTI', 'VOO', 'EWZ', 'ARKK', 'XLK', 'XLF', 'XLE', 'GLD', 'SLV', 'TLT', 'EEM'
+  ]);
+
+  const INDEX_AND_OTHER_TICKERS_SET = new Set([
+    'IBOV', 'IFIX', 'SMLL', 'BDRX', 'IDIV', 'MLCX', 'INDX', 'UTIL', 'IFNC', 'IMAT', 'IMOB', 'ICON', 'IEEX'
+  ]);
+
+  /**
+   * Classifica um ativo diferenciando estritamente Classe de Ativo vs Mercado/Bolsa.
+   */
+  function classifySimulatorAsset(symbol, metadata = {}) {
+    const sym = String(symbol || '').trim().toUpperCase();
+    const rawClass = String(metadata?.assetClass || metadata?.class || '').trim().toUpperCase();
+    const rawMarket = String(metadata?.market || metadata?.exchange || '').trim().toUpperCase();
+
+    let classId = null;
+    if (rawClass && SIMULATOR_ASSET_CLASSES[rawClass]) {
+      classId = rawClass;
+    } else if (INDEX_AND_OTHER_TICKERS_SET.has(sym) || rawClass === 'INDEX' || rawClass === 'ÍNDICE' || /^(WIN|WDO|IND|DOL|BGI|CCM)[FGHJKMNQUVXZ]\d{2}$/.test(sym)) {
+      classId = 'OTHER';
+    } else if (ETF_BR_TICKERS_SET.has(sym) || rawClass === 'ETF_BR') {
+      classId = 'ETF_BR';
+    } else if (ETF_INTL_TICKERS_SET.has(sym) || rawClass === 'ETF_INTL' || /^[A-Z0-9]{4}39$/.test(sym)) {
+      classId = 'ETF_INTL';
+    } else if (rawClass === 'BDR' || /^[A-Z0-9]{4}(31|32|33|34|35)$/.test(sym)) {
+      classId = 'BDR';
+    } else if (B3_EQUITY_UNITS_SET.has(sym)) {
+      classId = 'STOCK_BR';
+    } else if (rawClass === 'FII' || /^[A-Z]{4}11B?$/.test(sym)) {
+      classId = 'FII';
+    } else if (rawClass === 'STOCK_IBOV' || rawClass === 'STOCK_OTHER' || rawClass === 'STOCK_B3' || rawClass === 'B3' || rawClass === 'IBOV' || /^[A-Z0-9]{4}[3456]$/.test(sym)) {
+      classId = 'STOCK_BR';
+    } else if (rawClass === 'NASDAQ' || rawClass === 'US' || rawMarket === 'US' || rawMarket === 'NASDAQ' || (/^[A-Z]{1,5}$/.test(sym) && !INDEX_AND_OTHER_TICKERS_SET.has(sym))) {
+      classId = 'STOCK_US';
+    } else {
+      classId = 'OTHER';
+    }
+
+    const def = SIMULATOR_ASSET_CLASSES[classId] || SIMULATOR_ASSET_CLASSES.OTHER;
+    const isUsExchange = classId === 'STOCK_US' || ['QQQ', 'SPY', 'IWM', 'DIA', 'VTI', 'VOO', 'EWZ', 'ARKK', 'XLK', 'XLF', 'XLE', 'GLD', 'SLV', 'TLT', 'EEM'].includes(sym);
+
+    return {
+      symbol: sym,
+      name: metadata?.name || metadata?.companyName || sym,
+      sector: metadata?.sector || def.label,
+      assetClass: def.id,
+      assetClassLabel: def.label,
+      assetClassShortLabel: def.shortLabel,
+      market: isUsExchange ? 'US' : 'B3',
+      marketLabel: isUsExchange ? 'EUA (NASDAQ / NYSE)' : 'Brasil (B3)',
+      exchange: isUsExchange ? 'NASDAQ / NYSE' : 'B3',
+      benchmark: def.benchmark
+    };
+  }
+
+  const DEFAULT_MULTICLASS_CATALOG_ITEMS = Object.freeze([
+    // 1. Ações brasileiras (B3) — STOCK_BR
+    { symbol: 'PETR4', name: 'Petrobras PN', sector: 'Petróleo e Gás', assetClass: 'STOCK_BR' },
+    { symbol: 'PETR3', name: 'Petrobras ON', sector: 'Petróleo e Gás', assetClass: 'STOCK_BR' },
+    { symbol: 'VALE3', name: 'Vale ON', sector: 'Materiais Básicos', assetClass: 'STOCK_BR' },
+    { symbol: 'ITUB4', name: 'Itaú Unibanco PN', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'BBAS3', name: 'Banco do Brasil ON', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'WEGE3', name: 'WEG S.A.', sector: 'Bens Industriais', assetClass: 'STOCK_BR' },
+    { symbol: 'PRIO3', name: 'PRIO S.A.', sector: 'Petróleo e Gás', assetClass: 'STOCK_BR' },
+    { symbol: 'BBDC4', name: 'Bradesco PN', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'BPAC11', name: 'BTG Pactual UNT', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'RENT3', name: 'Localiza ON', sector: 'Consumo Cíclico', assetClass: 'STOCK_BR' },
+    { symbol: 'B3SA3', name: 'B3 S.A.', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'SUZB3', name: 'Suzano S.A.', sector: 'Materiais Básicos', assetClass: 'STOCK_BR' },
+    { symbol: 'EQTL3', name: 'Equatorial Energia', sector: 'Utilidade Pública', assetClass: 'STOCK_BR' },
+    { symbol: 'RDOR3', name: 'Rede D\'Or', sector: 'Saúde', assetClass: 'STOCK_BR' },
+    { symbol: 'RADL3', name: 'Raia Drogasil', sector: 'Saúde', assetClass: 'STOCK_BR' },
+    { symbol: 'GGBR4', name: 'Gerdau PN', sector: 'Materiais Básicos', assetClass: 'STOCK_BR' },
+    { symbol: 'EMBR3', name: 'Embraer ON', sector: 'Bens Industriais', assetClass: 'STOCK_BR' },
+    { symbol: 'TOTS3', name: 'Totvs S.A.', sector: 'Tecnologia', assetClass: 'STOCK_BR' },
+    { symbol: 'ELET3', name: 'Eletrobras ON', sector: 'Utilidade Pública', assetClass: 'STOCK_BR' },
+    { symbol: 'SBSP3', name: 'Sabesp ON', sector: 'Utilidade Pública', assetClass: 'STOCK_BR' },
+    { symbol: 'VIVT3', name: 'Telefônica Brasil', sector: 'Telecomunicações', assetClass: 'STOCK_BR' },
+    { symbol: 'TIMS3', name: 'TIM Brasil', sector: 'Telecomunicações', assetClass: 'STOCK_BR' },
+    { symbol: 'CMIG4', name: 'Cemig PN', sector: 'Utilidade Pública', assetClass: 'STOCK_BR' },
+    { symbol: 'CPLE6', name: 'Copel PNB', sector: 'Utilidade Pública', assetClass: 'STOCK_BR' },
+    { symbol: 'KLBN11', name: 'Klabin UNT', sector: 'Materiais Básicos', assetClass: 'STOCK_BR' },
+    { symbol: 'TAEE11', name: 'Taesa UNT', sector: 'Utilidade Pública', assetClass: 'STOCK_BR' },
+    { symbol: 'SANB11', name: 'Santander Brasil UNT', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'ALUP11', name: 'Alupar UNT', sector: 'Utilidade Pública', assetClass: 'STOCK_BR' },
+    { symbol: 'LREN3', name: 'Lojas Renner', sector: 'Consumo Cíclico', assetClass: 'STOCK_BR' },
+    { symbol: 'JBSS3', name: 'JBS S.A.', sector: 'Consumo Não Cíclico', assetClass: 'STOCK_BR' },
+    { symbol: 'RAIL3', name: 'Rumo S.A.', sector: 'Bens Industriais', assetClass: 'STOCK_BR' },
+    { symbol: 'VBBR3', name: 'Vibra Energia', sector: 'Petróleo e Gás', assetClass: 'STOCK_BR' },
+    { symbol: 'CSAN3', name: 'Cosan S.A.', sector: 'Petróleo e Gás', assetClass: 'STOCK_BR' },
+    { symbol: 'ENEV3', name: 'Eneva S.A.', sector: 'Utilidade Pública', assetClass: 'STOCK_BR' },
+    { symbol: 'MULT3', name: 'Multiplan', sector: 'Imobiliário', assetClass: 'STOCK_BR' },
+    { symbol: 'CYRE3', name: 'Cyrela Realty', sector: 'Construção Civil', assetClass: 'STOCK_BR' },
+    { symbol: 'DIRR3', name: 'Direcional Engenharia', sector: 'Construção Civil', assetClass: 'STOCK_BR' },
+    { symbol: 'CURY3', name: 'Cury Construtora', sector: 'Construção Civil', assetClass: 'STOCK_BR' },
+    { symbol: 'ASAI3', name: 'Assaí Atacadista', sector: 'Consumo Não Cíclico', assetClass: 'STOCK_BR' },
+    { symbol: 'MGLU3', name: 'Magazine Luiza', sector: 'Consumo Cíclico', assetClass: 'STOCK_BR' },
+    { symbol: 'BBSE3', name: 'BB Seguridade', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'CXSE3', name: 'Caixa Seguridade', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'ITSA4', name: 'Itaúsa PN', sector: 'Financeiro', assetClass: 'STOCK_BR' },
+    { symbol: 'FLRY3', name: 'Fleury S.A.', sector: 'Saúde', assetClass: 'STOCK_BR' },
+    { symbol: 'CSNA3', name: 'CSN ON', sector: 'Materiais Básicos', assetClass: 'STOCK_BR' },
+    { symbol: 'ALOS3', name: 'Allos S.A.', sector: 'Imobiliário', assetClass: 'STOCK_BR' },
+    { symbol: 'KEPL3', name: 'Kepler Weber', sector: 'Bens Industriais', assetClass: 'STOCK_BR' },
+    { symbol: 'SLCE3', name: 'SLC Agrícola', sector: 'Agronegócio', assetClass: 'STOCK_BR' },
+    { symbol: 'SMTO3', name: 'São Martinho', sector: 'Agronegócio', assetClass: 'STOCK_BR' },
+
+    // 2. FIIs (Fundos Imobiliários) — FII
+    { symbol: 'HGLG11', name: 'CSHG Logística FII', sector: 'FII Logística', assetClass: 'FII' },
+    { symbol: 'KNRI11', name: 'Kinea Renda Imobiliária FII', sector: 'FII Híbrido', assetClass: 'FII' },
+    { symbol: 'KNCR11', name: 'Kinea Rendimentos Imobiliários FII', sector: 'FII Recebíveis', assetClass: 'FII' },
+    { symbol: 'KNIP11', name: 'Kinea Índices de Preços FII', sector: 'FII Recebíveis', assetClass: 'FII' },
+    { symbol: 'MXRF11', name: 'Maxi Renda FII', sector: 'FII Recebíveis', assetClass: 'FII' },
+    { symbol: 'XPML11', name: 'XP Malls FII', sector: 'FII Shoppings', assetClass: 'FII' },
+    { symbol: 'VISC11', name: 'Vinci Shopping Centers FII', sector: 'FII Shoppings', assetClass: 'FII' },
+    { symbol: 'BTLG11', name: 'BTG Pactual Logística FII', sector: 'FII Logística', assetClass: 'FII' },
+    { symbol: 'HGRU11', name: 'CSHG Renda Urbana FII', sector: 'FII Renda Urbana', assetClass: 'FII' },
+    { symbol: 'HGBS11', name: 'Hedge Brasil Shopping FII', sector: 'FII Shoppings', assetClass: 'FII' },
+    { symbol: 'HGRE11', name: 'CSHG Real Estate FII', sector: 'FII Lajes Corporativas', assetClass: 'FII' },
+    { symbol: 'BRCO11', name: 'Bresco Logística FII', sector: 'FII Logística', assetClass: 'FII' },
+    { symbol: 'LVBI11', name: 'VBI Logístico FII', sector: 'FII Logística', assetClass: 'FII' },
+    { symbol: 'IRDM11', name: 'Iridium Recebíveis FII', sector: 'FII Recebíveis', assetClass: 'FII' },
+    { symbol: 'RECR11', name: 'REC Recebíveis Imobiliários FII', sector: 'FII Recebíveis', assetClass: 'FII' },
+    { symbol: 'HGCR11', name: 'CSHG Recebíveis Imobiliários FII', sector: 'FII Recebíveis', assetClass: 'FII' },
+    { symbol: 'ALZR11', name: 'Alianza Trust Renda Imobiliária FII', sector: 'FII Híbrido', assetClass: 'FII' },
+    { symbol: 'TRXF11', name: 'TRX Real Estate FII', sector: 'FII Renda Urbana', assetClass: 'FII' },
+    { symbol: 'MALL11', name: 'Malls Brasil Plural FII', sector: 'FII Shoppings', assetClass: 'FII' },
+    { symbol: 'RBRP11', name: 'RBR Properties FII', sector: 'FII Híbrido', assetClass: 'FII' },
+
+    // 3. BDRs — BDR
+    { symbol: 'AAPL34', name: 'Apple Inc. BDR', sector: 'Tecnologia Internacional', assetClass: 'BDR' },
+    { symbol: 'MSFT34', name: 'Microsoft Corp. BDR', sector: 'Tecnologia Internacional', assetClass: 'BDR' },
+    { symbol: 'GOGL34', name: 'Alphabet Inc. BDR', sector: 'Tecnologia Internacional', assetClass: 'BDR' },
+    { symbol: 'AMZO34', name: 'Amazon.com BDR', sector: 'Consumo Internacional', assetClass: 'BDR' },
+    { symbol: 'TSLA34', name: 'Tesla Inc. BDR', sector: 'Automotivo Internacional', assetClass: 'BDR' },
+    { symbol: 'MELI34', name: 'MercadoLibre BDR', sector: 'E-Commerce Internacional', assetClass: 'BDR' },
+    { symbol: 'BERK34', name: 'Berkshire Hathaway BDR', sector: 'Financeiro Internacional', assetClass: 'BDR' },
+    { symbol: 'DISB34', name: 'Walt Disney BDR', sector: 'Mídia Internacional', assetClass: 'BDR' },
+    { symbol: 'AVGO34', name: 'Broadcom Inc. BDR', sector: 'Semicondutores', assetClass: 'BDR' },
+    { symbol: 'ASML34', name: 'ASML Holding BDR', sector: 'Semicondutores', assetClass: 'BDR' },
+    { symbol: 'TSMC34', name: 'Taiwan Semiconductor BDR', sector: 'Semicondutores', assetClass: 'BDR' },
+    { symbol: 'NFLX34', name: 'Netflix Inc. BDR', sector: 'Mídia Internacional', assetClass: 'BDR' },
+    { symbol: 'COCA34', name: 'Coca-Cola Co. BDR', sector: 'Consumo Internacional', assetClass: 'BDR' },
+    { symbol: 'PEPB34', name: 'PepsiCo Inc. BDR', sector: 'Consumo Internacional', assetClass: 'BDR' },
+    { symbol: 'EXXO34', name: 'Exxon Mobil BDR', sector: 'Energia Internacional', assetClass: 'BDR' },
+    { symbol: 'INBR32', name: 'Inter & Co BDR', sector: 'Financeiro', assetClass: 'BDR' },
+    { symbol: 'AURA33', name: 'Aura Minerals BDR', sector: 'Mineração', assetClass: 'BDR' },
+    { symbol: 'PAGS34', name: 'PagSeguro Digital BDR', sector: 'Financeiro', assetClass: 'BDR' },
+
+    // 4. ETFs brasileiros — ETF_BR
+    { symbol: 'BOVA11', name: 'iShares Ibovespa ETF', sector: 'ETF Renda Variável BR', assetClass: 'ETF_BR' },
+    { symbol: 'SMAL11', name: 'iShares Small Cap ETF', sector: 'ETF Small Caps BR', assetClass: 'ETF_BR' },
+    { symbol: 'DIVO11', name: 'It Now IDIV Dividendos ETF', sector: 'ETF Dividendos BR', assetClass: 'ETF_BR' },
+    { symbol: 'PIBB11', name: 'It Now IBrX-50 ETF', sector: 'ETF Renda Variável BR', assetClass: 'ETF_BR' },
+    { symbol: 'BRAX11', name: 'iShares IBrX-100 ETF', sector: 'ETF Renda Variável BR', assetClass: 'ETF_BR' },
+    { symbol: 'FIND11', name: 'It Now IFNC Financeiro ETF', sector: 'ETF Setorial BR', assetClass: 'ETF_BR' },
+    { symbol: 'MATB11', name: 'It Now IMAT Materiais Básicos ETF', sector: 'ETF Setorial BR', assetClass: 'ETF_BR' },
+    { symbol: 'XFIX11', name: 'Trend IFIX Fundos Imobiliários ETF', sector: 'ETF Imobiliário BR', assetClass: 'ETF_BR' },
+    { symbol: 'ISUS11', name: 'It Now ISE Sustentabilidade ETF', sector: 'ETF ESG BR', assetClass: 'ETF_BR' },
+    { symbol: 'BOVV11', name: 'It Now Ibovespa ETF', sector: 'ETF Renda Variável BR', assetClass: 'ETF_BR' },
+
+    // 5. ETFs internacionais — ETF_INTL
+    { symbol: 'IVVB11', name: 'iShares S&P 500 ETF (B3)', sector: 'ETF Internacional EUA', assetClass: 'ETF_INTL' },
+    { symbol: 'SPXI11', name: 'It Now S&P 500 TRN ETF', sector: 'ETF Internacional EUA', assetClass: 'ETF_INTL' },
+    { symbol: 'NASD11', name: 'Trend NASDAQ 100 ETF', sector: 'ETF Internacional Tecnologia', assetClass: 'ETF_INTL' },
+    { symbol: 'WRLD11', name: 'Investo FTSE Global All Cap ETF', sector: 'ETF Global', assetClass: 'ETF_INTL' },
+    { symbol: 'ACWI11', name: 'Trend MSCI ACWI Global ETF', sector: 'ETF Global', assetClass: 'ETF_INTL' },
+    { symbol: 'GOLD11', name: 'Trend Ouro ETF', sector: 'ETF Commodities', assetClass: 'ETF_INTL' },
+    { symbol: 'HASH11', name: 'Hashdex Nasdaq Crypto Index ETF', sector: 'ETF Criptoativos', assetClass: 'ETF_INTL' },
+    { symbol: 'BITH11', name: 'Hashdex Nasdaq Bitcoin ETF', sector: 'ETF Criptoativos', assetClass: 'ETF_INTL' },
+    { symbol: 'ETHE11', name: 'Hashdex Nasdaq Ethereum ETF', sector: 'ETF Criptoativos', assetClass: 'ETF_INTL' },
+    { symbol: 'EURP11', name: 'Trend MSCI Europa ETF', sector: 'ETF Internacional Europa', assetClass: 'ETF_INTL' },
+    { symbol: 'CHINA11', name: 'Trend MSCI China ETF', sector: 'ETF Internacional Ásia', assetClass: 'ETF_INTL' },
+    { symbol: 'BIVB39', name: 'iShares Core S&P 500 BDR ETF', sector: 'BDR de ETF Internacional', assetClass: 'ETF_INTL' },
+    { symbol: 'QQQ', name: 'Invesco QQQ Trust (NASDAQ-100)', sector: 'ETF Internacional EUA', assetClass: 'ETF_INTL', market: 'US' },
+
+    // 6. Ações americanas — STOCK_US
+    { symbol: 'AAPL', name: 'Apple Inc.', sector: 'Tecnologia / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'MSFT', name: 'Microsoft Corporation', sector: 'Tecnologia / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'NVDA', name: 'NVIDIA Corporation', sector: 'Semicondutores / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'AMZN', name: 'Amazon.com Inc.', sector: 'Consumo & Cloud / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'GOOGL', name: 'Alphabet Inc. (Class A)', sector: 'Tecnologia / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'META', name: 'Meta Platforms Inc.', sector: 'Tecnologia / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'TSLA', name: 'Tesla Inc.', sector: 'Automotivo & Energia / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'AVGO', name: 'Broadcom Inc.', sector: 'Semicondutores / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'NFLX', name: 'Netflix Inc.', sector: 'Mídia & Streaming / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'AMD', name: 'Advanced Micro Devices', sector: 'Semicondutores / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'COST', name: 'Costco Wholesale', sector: 'Varejo / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'PLTR', name: 'Palantir Technologies', sector: 'Software & IA / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'PANW', name: 'Palo Alto Networks', sector: 'Cibersegurança / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'CRWD', name: 'CrowdStrike Holdings', sector: 'Cibersegurança / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'MELI', name: 'MercadoLibre Inc. (NASDAQ)', sector: 'E-Commerce / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'ASML', name: 'ASML Holding N.V. (NASDAQ)', sector: 'Semicondutores / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'ARM', name: 'Arm Holdings plc', sector: 'Semicondutores / EUA', assetClass: 'STOCK_US', market: 'US' },
+    { symbol: 'SMCI', name: 'Super Micro Computer', sector: 'Hardware / EUA', assetClass: 'STOCK_US', market: 'US' },
+
+    // 7. Outros instrumentos disponíveis — OTHER
+    { symbol: 'IBOV', name: 'Índice Bovespa (IBOV)', sector: 'Índice de Mercado B3', assetClass: 'OTHER' },
+    { symbol: 'SMLL', name: 'Índice Small Cap (SMLL)', sector: 'Índice de Mercado B3', assetClass: 'OTHER' },
+    { symbol: 'IFIX', name: 'Índice de Fundos Imobiliários (IFIX)', sector: 'Índice Imobiliário B3', assetClass: 'OTHER' },
+    { symbol: 'BDRX', name: 'Índice de BDRs Não Patrocinados (BDRX)', sector: 'Índice Internacional B3', assetClass: 'OTHER' }
+  ]);
+
+  /**
+   * Retorna o catálogo completo e deduplicado de ativos disponíveis para o Simulador de Trades,
+   * agrupados por classe de ativo e diferenciados por mercado/bolsa.
+   */
+  function getAvailableSimulatorAssetsCatalog(options = {}) {
+    const bySymbol = new Map();
+
+    const addRecord = (item) => {
+      if (!item) return;
+      const rawSym = typeof item === 'string' ? item : item.symbol;
+      const sym = String(rawSym || '').trim().toUpperCase();
+      if (!sym) return;
+      const classified = classifySimulatorAsset(sym, typeof item === 'object' ? item : {});
+      const existing = bySymbol.get(sym);
+      if (!existing) {
+        bySymbol.set(sym, {
+          ...classified,
+          minDate: item.minDate || null,
+          maxDate: item.maxDate || null,
+          candlesCount: item.candlesCount != null ? Number(item.candlesCount) : null,
+          hasValidHistory: item.hasValidHistory !== false
+        });
+      } else {
+        if ((!existing.name || existing.name === sym) && classified.name && classified.name !== sym) {
+          existing.name = classified.name;
+        }
+        if (item.minDate && (!existing.minDate || item.minDate < existing.minDate)) existing.minDate = item.minDate;
+        if (item.maxDate && (!existing.maxDate || item.maxDate > existing.maxDate)) existing.maxDate = item.maxDate;
+        if (item.candlesCount != null) existing.candlesCount = Number(item.candlesCount);
+        if (item.hasValidHistory !== undefined) existing.hasValidHistory = Boolean(item.hasValidHistory);
+      }
+    };
+
+    // 1. Base de referência multiclasse
+    for (const item of DEFAULT_MULTICLASS_CATALOG_ITEMS) {
+      addRecord(item);
+    }
+
+    // 2. Itens vindos do endpoint /api/market-data/ticker-universe ou injetados
+    if (Array.isArray(options.universeItems)) {
+      for (const item of options.universeItems) {
+        addRecord(item);
+      }
+    }
+
+    // 3. Ativos presentes nas simulações carregadas
+    if (Array.isArray(options.simulations)) {
+      for (const sim of options.simulations) {
+        if (sim && sim.symbol) {
+          addRecord({
+            symbol: sim.symbol,
+            name: sim.companyName || sim.symbol,
+            sector: sim.sector,
+            assetClass: sim.assetClass,
+            market: sim.market
+          });
+        }
+      }
+    }
+
+    // 4. Mapa de candles históricos (quando disponível)
+    if (options.candlesMap) {
+      const entries = options.candlesMap instanceof Map
+        ? options.candlesMap.entries()
+        : Object.entries(options.candlesMap);
+      const metaMap = options.metadataMap || {};
+      for (const [sym, candles] of entries) {
+        if (!Array.isArray(candles)) continue;
+        const firstD = candles.length > 0 ? String(candles[0].time || candles[0].date || '').slice(0, 10) : null;
+        const lastD = candles.length > 0 ? String(candles[candles.length - 1].time || candles[candles.length - 1].date || '').slice(0, 10) : null;
+        addRecord({
+          symbol: sym,
+          ...(metaMap[sym] || {}),
+          minDate: firstD,
+          maxDate: lastD,
+          candlesCount: candles.length,
+          hasValidHistory: candles.length >= 20
+        });
+      }
+    }
+
+    const assets = Array.from(bySymbol.values()).sort((a, b) => {
+      const orderA = SIMULATOR_ASSET_CLASSES[a.assetClass]?.order || 99;
+      const orderB = SIMULATOR_ASSET_CLASSES[b.assetClass]?.order || 99;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.symbol.localeCompare(b.symbol);
+    });
+
+    const byClass = {};
+    for (const classId of SIMULATOR_ASSET_CLASS_ORDER) {
+      byClass[classId] = {
+        ...SIMULATOR_ASSET_CLASSES[classId],
+        assets: [],
+        count: 0
+      };
+    }
+    for (const asset of assets) {
+      const bucket = byClass[asset.assetClass] || byClass.OTHER;
+      bucket.assets.push(asset);
+      bucket.count++;
+    }
+
+    return {
+      assets,
+      totalCount: assets.length,
+      byClass,
+      classes: SIMULATOR_ASSET_CLASS_ORDER.map(id => byClass[id])
+    };
+  }
+
+  /**
+   * Resolve um atalho de período ('30', '90', '180', '365', '730', 'ALL', 'CUSTOM')
+   * preenchendo automaticamente Data Inicial e Data Final.
+   */
+  function resolveBacktestDatePreset(presetKey, options = {}) {
+    const rawKey = String(presetKey == null ? '730' : presetKey).trim().toUpperCase();
+    const latestDate = options.latestDate && /^\d{4}-\d{2}-\d{2}$/.test(String(options.latestDate).slice(0, 10))
+      ? String(options.latestDate).slice(0, 10)
+      : '2026-10-30';
+    const earliestDate = options.earliestDate && /^\d{4}-\d{2}-\d{2}$/.test(String(options.earliestDate).slice(0, 10))
+      ? String(options.earliestDate).slice(0, 10)
+      : '2024-10-01';
+
+    if (rawKey === 'CUSTOM') {
+      const sDate = options.startDate && /^\d{4}-\d{2}-\d{2}$/.test(String(options.startDate).slice(0, 10))
+        ? String(options.startDate).slice(0, 10)
+        : earliestDate;
+      const eDate = options.endDate && /^\d{4}-\d{2}-\d{2}$/.test(String(options.endDate).slice(0, 10))
+        ? String(options.endDate).slice(0, 10)
+        : latestDate;
+      return {
+        preset: 'CUSTOM',
+        presetLabel: 'Personalizado',
+        startDate: sDate,
+        endDate: eDate
+      };
+    }
+
+    if (rawKey === 'ALL') {
+      return {
+        preset: 'ALL',
+        presetLabel: 'Todo o histórico',
+        startDate: earliestDate,
+        endDate: latestDate
+      };
+    }
+
+    let days = 730;
+    let normalizedPreset = '730';
+    let presetLabel = 'Últimos 24 meses';
+
+    if (rawKey === '30' || rawKey === '30D') {
+      days = 30;
+      normalizedPreset = '30';
+      presetLabel = 'Últimos 30 dias';
+    } else if (rawKey === '90' || rawKey === '90D') {
+      days = 90;
+      normalizedPreset = '90';
+      presetLabel = 'Últimos 90 dias';
+    } else if (rawKey === '120' || rawKey === '120D' || rawKey === '4M') {
+      days = 120;
+      normalizedPreset = '120';
+      presetLabel = 'Últimos 4 meses';
+    } else if (rawKey === '180' || rawKey === '180D' || rawKey === '6M') {
+      days = 180;
+      normalizedPreset = '180';
+      presetLabel = 'Últimos 6 meses';
+    } else if (rawKey === '365' || rawKey === '365D' || rawKey === '12M' || rawKey === '1Y') {
+      days = 365;
+      normalizedPreset = '365';
+      presetLabel = 'Último ano';
+    } else if (rawKey === '730' || rawKey === '730D' || rawKey === '24M' || rawKey === '2Y') {
+      days = 730;
+      normalizedPreset = '730';
+      presetLabel = 'Últimos 24 meses';
+    }
+
+    const refEnd = new Date(latestDate + 'T12:00:00Z');
+    const startObj = new Date(refEnd.getTime() - days * 86400000);
+    const computedStart = startObj.toISOString().slice(0, 10);
+
+    return {
+      preset: normalizedPreset,
+      presetLabel,
+      days,
+      startDate: computedStart,
+      endDate: latestDate
+    };
+  }
+
+  /**
+   * Resolve e sumariza a seleção multiclasse de ativos (classes selecionadas, tickers específicos,
+   * pesquisa por ticker, deduplicação e rótulo resumido para o cabeçalho).
+   */
+  function resolveBacktestUniverseSelection(catalogInput, selection = {}) {
+    const catalog = catalogInput && Array.isArray(catalogInput.assets)
+      ? catalogInput
+      : getAvailableSimulatorAssetsCatalog(catalogInput || {});
+
+    const allAssets = catalog.assets || [];
+    const rawClasses = selection.assetClasses;
+    let selectedClasses = [];
+
+    if (rawClasses === 'ALL' || (Array.isArray(rawClasses) && rawClasses.includes('ALL'))) {
+      selectedClasses = [...SIMULATOR_ASSET_CLASS_ORDER];
+    } else if (Array.isArray(rawClasses) && rawClasses.length > 0) {
+      selectedClasses = Array.from(new Set(
+        rawClasses.map(c => String(c || '').trim().toUpperCase()).filter(c => SIMULATOR_ASSET_CLASSES[c])
+      ));
+    } else if (typeof rawClasses === 'string' && rawClasses.trim() !== '') {
+      selectedClasses = Array.from(new Set(
+        rawClasses.split(',').map(c => c.trim().toUpperCase()).filter(c => SIMULATOR_ASSET_CLASSES[c])
+      ));
+    } else {
+      // Mapeia legado universe ('IBOV', 'LIQUID_B3', 'NASDAQ', 'ALL')
+      const legacyUniv = String(selection.universe || 'STOCK_BR').trim().toUpperCase();
+      if (legacyUniv === 'NASDAQ' || legacyUniv === 'US') {
+        selectedClasses = ['STOCK_US'];
+      } else if (legacyUniv === 'ALL' || legacyUniv === 'MULTI') {
+        selectedClasses = [...SIMULATOR_ASSET_CLASS_ORDER];
+      } else if (SIMULATOR_ASSET_CLASSES[legacyUniv]) {
+        selectedClasses = [legacyUniv];
+      } else {
+        selectedClasses = ['STOCK_BR'];
+      }
+    }
+
+    const rawSymbols = Array.isArray(selection.symbols)
+      ? selection.symbols
+      : (selection.symbol && selection.symbol !== 'ALL' ? [selection.symbol] : []);
+    const explicitSymbols = Array.from(new Set(
+      rawSymbols.map(s => String(s || '').trim().toUpperCase()).filter(s => s && s !== 'ALL')
+    ));
+
+    let selectedAssets = [];
+    if (explicitSymbols.length > 0) {
+      const explicitSet = new Set(explicitSymbols);
+      const existingMap = new Map(allAssets.map(a => [a.symbol, a]));
+      for (const sym of explicitSet) {
+        if (existingMap.has(sym)) {
+          selectedAssets.push(existingMap.get(sym));
+        } else {
+          selectedAssets.push(classifySimulatorAsset(sym));
+        }
+      }
+      const derivedClasses = Array.from(new Set(selectedAssets.map(a => a.assetClass)));
+      if (derivedClasses.length > 0 && selection.syncClassesFromSymbols !== false) {
+        selectedClasses = derivedClasses;
+      }
+    } else {
+      const classSet = new Set(selectedClasses);
+      selectedAssets = allAssets.filter(a => classSet.has(a.assetClass));
+    }
+
+    const selectedSymbols = selectedAssets.map(a => a.symbol);
+    const isAllUniverseSelected = selectedClasses.length === SIMULATOR_ASSET_CLASS_ORDER.length && explicitSymbols.length === 0;
+
+    // Constrói rótulo humano claro para exibição no resumo da configuração ativa
+    let summaryLabel = '';
+    const activeClassLabels = selectedClasses
+      .map(c => SIMULATOR_ASSET_CLASSES[c]?.shortLabel || c)
+      .filter(Boolean);
+
+    if (explicitSymbols.length > 0 && explicitSymbols.length <= 4) {
+      summaryLabel = `${explicitSymbols.join(', ')} (${explicitSymbols.length} ${explicitSymbols.length === 1 ? 'ativo' : 'ativos'})`;
+    } else if (isAllUniverseSelected) {
+      summaryLabel = `Todo o universo multiclasse (${selectedAssets.length} ativos)`;
+    } else if (activeClassLabels.length === 1) {
+      const fullLabel = SIMULATOR_ASSET_CLASSES[selectedClasses[0]]?.label || activeClassLabels[0];
+      summaryLabel = `${fullLabel} (${selectedAssets.length} ativos)`;
+    } else if (activeClassLabels.length <= 3) {
+      summaryLabel = `${activeClassLabels.join(' + ')} (${selectedAssets.length} ativos)`;
+    } else {
+      summaryLabel = `${activeClassLabels.length} classes de ativos (${selectedAssets.length} ativos)`;
+    }
+
+    // Deriva o parâmetro legacy 'universe' e 'market' para compatibilidade com rotas de backend
+    let derivedUniverse = 'MULTI';
+    let derivedMarket = 'MULTI';
+    if (selectedClasses.length === 1) {
+      const onlyClass = selectedClasses[0];
+      if (onlyClass === 'STOCK_BR') {
+        derivedUniverse = selection.universe === 'IBOV' ? 'IBOV' : 'LIQUID_B3';
+        derivedMarket = 'B3';
+      } else if (onlyClass === 'STOCK_US') {
+        derivedUniverse = 'NASDAQ';
+        derivedMarket = 'US';
+      } else {
+        derivedUniverse = onlyClass;
+        derivedMarket = SIMULATOR_ASSET_CLASSES[onlyClass]?.market || 'B3';
+      }
+    } else if (selectedClasses.every(c => SIMULATOR_ASSET_CLASSES[c]?.market === 'B3')) {
+      derivedMarket = 'B3';
+    } else if (selectedClasses.every(c => SIMULATOR_ASSET_CLASSES[c]?.market === 'US')) {
+      derivedMarket = 'US';
+    }
+
+    return {
+      selectedClasses,
+      selectedClassLabels: activeClassLabels,
+      selectedAssets,
+      selectedSymbols,
+      explicitSymbols,
+      isExplicitTickerSelection: explicitSymbols.length > 0,
+      isAllUniverseSelected,
+      totalSelectedCount: selectedAssets.length,
+      summaryLabel,
+      derivedUniverse,
+      derivedMarket
+    };
+  }
+
+  /**
+   * Valida a configuração completa do backtest (datas, ativos, capital e integridade histórica no período).
+   */
+  function validateBacktestConfiguration(config = {}, options = {}) {
+    const errors = [];
+    const warnings = [];
+
+    const startDate = config.startDate ? String(config.startDate).slice(0, 10) : null;
+    const endDate = config.endDate ? String(config.endDate).slice(0, 10) : null;
+
+    if (!startDate || !/^\d{4}-\d{2}-\d{2}$/.test(startDate)) {
+      errors.push({
+        code: 'INVALID_START_DATE',
+        field: 'startDate',
+        message: 'Informe uma Data Inicial válida para o período do backtest.'
+      });
+    }
+    if (!endDate || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+      errors.push({
+        code: 'INVALID_END_DATE',
+        field: 'endDate',
+        message: 'Informe uma Data Final válida para o período do backtest.'
+      });
+    }
+    if (startDate && endDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate) && /^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+      if (startDate > endDate) {
+        errors.push({
+          code: 'START_DATE_AFTER_END_DATE',
+          field: 'startDate',
+          message: `A Data Inicial (${formatDateBR(startDate)}) não pode ser maior que a Data Final (${formatDateBR(endDate)}).`
+        });
+      }
+    }
+
+    const initialCapital = Number(config.initialCapital);
+    if (!Number.isFinite(initialCapital) || initialCapital <= 0) {
+      errors.push({
+        code: 'INVALID_INITIAL_CAPITAL',
+        field: 'initialCapital',
+        message: 'Informe um Capital Inicial válido maior que zero.'
+      });
+    }
+
+    const catalog = options.catalog || getAvailableSimulatorAssetsCatalog(options);
+    const universeResolution = resolveBacktestUniverseSelection(catalog, {
+      assetClasses: config.assetClasses,
+      symbols: config.symbols,
+      symbol: config.symbol,
+      universe: config.universe,
+      syncClassesFromSymbols: config.syncClassesFromSymbols
+    });
+
+    if (universeResolution.selectedSymbols.length === 0) {
+      errors.push({
+        code: 'EMPTY_ASSET_UNIVERSE',
+        field: 'assetClasses',
+        message: 'Selecione ao menos uma classe de ativos ou um ticker para o backtest.'
+      });
+    }
+
+    const participatingAssets = [];
+    const excludedAssets = [];
+
+    if (options.candlesMap && startDate && endDate && startDate <= endDate) {
+      const cMap = options.candlesMap instanceof Map
+        ? options.candlesMap
+        : new Map(Object.entries(options.candlesMap));
+
+      for (const asset of universeResolution.selectedAssets) {
+        const rawCandles = cMap.get(asset.symbol);
+        if (!Array.isArray(rawCandles) || rawCandles.length === 0) {
+          excludedAssets.push({
+            symbol: asset.symbol,
+            assetClass: asset.assetClass,
+            assetClassLabel: asset.assetClassLabel,
+            reason: 'Sem histórico disponível na base de dados'
+          });
+          continue;
+        }
+        let barsUpToEnd = 0;
+        let barsInWindow = 0;
+        for (let i = 0; i < rawCandles.length; i++) {
+          const d = String(rawCandles[i]?.time || rawCandles[i]?.date || '').slice(0, 10);
+          if (!d || d > endDate) continue;
+          barsUpToEnd++;
+          if (d >= startDate && d <= endDate) barsInWindow++;
+        }
+        if (barsUpToEnd < 20 || barsInWindow === 0) {
+          excludedAssets.push({
+            symbol: asset.symbol,
+            assetClass: asset.assetClass,
+            assetClassLabel: asset.assetClassLabel,
+            barsUpToEndDate: barsUpToEnd,
+            barsInSelectedWindow: barsInWindow,
+            reason: barsInWindow === 0
+              ? 'Sem candles no intervalo de datas selecionado'
+              : `Histórico insuficiente no período (${barsUpToEnd} pregões < 20 mínimos)`
+          });
+        } else {
+          participatingAssets.push(asset);
+        }
+      }
+
+      if (participatingAssets.length === 0 && universeResolution.selectedAssets.length > 0) {
+        errors.push({
+          code: 'NO_HISTORICAL_DATA_FOR_PERIOD',
+          field: 'period',
+          message: `Nenhum dos ${universeResolution.selectedAssets.length} ativos selecionados possui histórico suficiente entre ${formatDateBR(startDate)} e ${formatDateBR(endDate)}.`
+        });
+      } else if (excludedAssets.length > 0) {
+        warnings.push({
+          code: 'PARTIAL_UNIVERSE_HISTORY',
+          message: `${excludedAssets.length} ${excludedAssets.length === 1 ? 'ativo foi ignorado' : 'ativos foram ignorados'} por não ${excludedAssets.length === 1 ? 'possuir' : 'possuírem'} histórico suficiente no período selecionado (${participatingAssets.length} ativos elegíveis participaram).`
+        });
+      }
+    } else {
+      for (const asset of universeResolution.selectedAssets) {
+        if (asset.hasValidHistory === false) {
+          excludedAssets.push({
+            symbol: asset.symbol,
+            assetClass: asset.assetClass,
+            assetClassLabel: asset.assetClassLabel,
+            reason: 'Ativo sem histórico suficiente no período selecionado'
+          });
+        } else if (startDate && endDate && asset.maxDate && asset.maxDate < startDate) {
+          excludedAssets.push({
+            symbol: asset.symbol,
+            assetClass: asset.assetClass,
+            assetClassLabel: asset.assetClassLabel,
+            reason: `Histórico do ativo encerra antes de ${formatDateBR(startDate)}`
+          });
+        } else if (startDate && endDate && asset.minDate && asset.minDate > endDate) {
+          excludedAssets.push({
+            symbol: asset.symbol,
+            assetClass: asset.assetClass,
+            assetClassLabel: asset.assetClassLabel,
+            reason: `Histórico do ativo inicia após ${formatDateBR(endDate)}`
+          });
+        } else {
+          participatingAssets.push(asset);
+        }
+      }
+      if (participatingAssets.length === 0 && universeResolution.selectedAssets.length > 0) {
+        errors.push({
+          code: 'NO_HISTORICAL_DATA_FOR_PERIOD',
+          field: 'period',
+          message: `Não existem dados históricos suficientes para os ativos selecionados entre ${formatDateBR(startDate)} e ${formatDateBR(endDate)}.`
+        });
+      } else if (excludedAssets.length > 0) {
+        warnings.push({
+          code: 'PARTIAL_UNIVERSE_HISTORY',
+          message: `${excludedAssets.length} ${excludedAssets.length === 1 ? 'ativo ignorado' : 'ativos ignorados'} por falta de histórico no período.`
+        });
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings,
+      startDate,
+      endDate,
+      initialCapital: Number.isFinite(initialCapital) && initialCapital > 0 ? initialCapital : 500000,
+      universe: universeResolution,
+      participatingAssets,
+      participatingSymbols: participatingAssets.map(a => a.symbol),
+      participatingCount: participatingAssets.length,
+      excludedAssets,
+      excludedCount: excludedAssets.length
     };
   }
 
@@ -12300,6 +13672,10 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
   sliceSnapshotByZoom,
   normalizeSnapshotHistory,
     TRIGGER_TYPES,
+    ONE_TWO_THREE_STATES,
+    PATTERN_STATES,
+    isOneTwoThreeBuyTrigger,
+    evaluateOneTwoThreeSignalLifecycle,
     calculateInsideBarStructure,
     validateInsideBarPattern: calculateInsideBarStructure,
     calculateDoubleInsideBarStructure,
@@ -12346,6 +13722,14 @@ if (marketPermission && !marketPermission.isPermitted && !allowDefensiveCycle) {
     buildOfficialRulesPanelData,
     runResearchLabExperiment,
     generateHistoricalSimulations,
+    SIMULATOR_ASSET_CLASSES,
+    SIMULATOR_ASSET_CLASS_ORDER,
+    BACKTEST_PERIOD_PRESETS,
+    classifySimulatorAsset,
+    getAvailableSimulatorAssetsCatalog,
+    resolveBacktestDatePreset,
+    resolveBacktestUniverseSelection,
+    validateBacktestConfiguration,
     computeSnapshotNavInfo,
     SIMULATION_PROCESSING_STEPS,
     SimulationProcessingExperience,

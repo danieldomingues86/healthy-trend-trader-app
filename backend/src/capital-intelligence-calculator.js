@@ -21,6 +21,8 @@ const marketRegime = require('./market-regime');
 const usMarketBreadth = require('./us-market-breadth');
 const usSectorRotation = require('./us-sector-rotation');
 const macroTrends = require('./macro-trends');
+const goldProtection = require('./gold-protection');
+const macroEventsCalendar = require('./macro-events-calendar');
 
 const VALID_OFFICIAL_REGIMES = new Set(Object.values(marketRegime.REGIMES || {}));
 
@@ -31,14 +33,8 @@ const FRESHNESS = {
   PARCIAL: 'parcial'
 };
 
-// Calendário institucional de datas oficiais (COPOM / FOMC / Payroll / IPCA) — base determinística
-const OFFICIAL_MACRO_CALENDAR = [
-  { id: 'cal-copom-2026-12', country: 'BR', flag: '🇧🇷', title: 'Decisão COPOM (BCB)', date: '2026-12-09', timeLocal: '18:30 BRT', impact: 'ALTO', source: 'Calendário Oficial BCB' },
-  { id: 'cal-ipca-2026-12', country: 'BR', flag: '🇧🇷', title: 'IPCA (IBGE)', date: '2026-12-10', timeLocal: '09:00 BRT', impact: 'ALTO', source: 'Calendário Oficial IBGE' },
-  { id: 'cal-payroll-2026-12', country: 'US', flag: '🇺🇸', title: 'Payroll — Emprego (EUA)', date: '2026-12-04', timeLocal: '10:30 BRT', impact: 'ALTO', source: 'Calendário Oficial BLS' },
-  { id: 'cal-cpi-2026-12', country: 'US', flag: '🇺🇸', title: 'CPI — Inflação (EUA)', date: '2026-12-10', timeLocal: '10:30 BRT', impact: 'ALTO', source: 'Calendário Oficial BLS' },
-  { id: 'cal-fomc-2026-12', country: 'US', flag: '🇺🇸', title: 'Decisão de Juros — FOMC', date: '2026-12-16', timeLocal: '16:00 BRT', impact: 'ALTO', source: 'Calendário Oficial Federal Reserve' }
-];
+// Calendário institucional de datas oficiais (COPOM / FOMC / Payroll / IPCA / PCE / PIB) — base determinística
+const OFFICIAL_MACRO_CALENDAR = macroEventsCalendar.OFFICIAL_CALENDAR_EVENTS;
 
 function pctChange(latest, base) {
   if (!Number.isFinite(latest) || !Number.isFinite(base) || base === 0) return null;
@@ -245,33 +241,8 @@ function aggregateFreshnessStatus(statuses = []) {
  * Seleciona próximos eventos oficiais a partir da data atual (nunca retorna datas vencidas como futuras).
  */
 function resolveUpcomingOfficialEvents(now = new Date(), userPlaybookEvents = []) {
-  const todayBr = getZonedParts(now, 'America/Sao_Paulo').isoDate;
-
-  const upcoming = OFFICIAL_MACRO_CALENDAR
-    .filter(ev => ev.date >= todayBr)
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-  const enriched = upcoming.map(ev => {
-    const matchedPlaybook = Array.isArray(userPlaybookEvents)
-      ? userPlaybookEvents.find(p => {
-          const pname = String(p.name || '').toLowerCase();
-          const etitle = ev.title.toLowerCase();
-          return (etitle.includes('copom') && pname.includes('copom')) ||
-            (etitle.includes('fomc') && (pname.includes('fed') || pname.includes('fomc'))) ||
-            (etitle.includes('payroll') && pname.includes('payroll')) ||
-            (etitle.includes('ipca') && pname.includes('ipca'));
-        })
-      : null;
-
-    return {
-      ...ev,
-      dateLabel: `${ev.date.slice(8, 10)}/${ev.date.slice(5, 7)}`,
-      hasHistoricalPlaybook: Boolean(matchedPlaybook),
-      playbookId: matchedPlaybook?.id || null
-    };
-  });
-
-  return enriched;
+  const dim = macroEventsCalendar.buildMacroEventsDimension({ now, userPlaybookEvents });
+  return dim.upcomingEvents;
 }
 
 function extractOfficialRegimeInfo(rawRegimeCode) {
@@ -1001,7 +972,11 @@ function buildDailySnapshot(seriesById = {}, options = {}) {
   const usSectorMetrics = usSectorRotationSphere.sectors;
   const sectorStatus = usSectorRotationSphere.status;
 
-  const upcomingEvents = resolveUpcomingOfficialEvents(now, options.userPlaybookEvents || []);
+  const macroEventsDimension = macroEventsCalendar.buildMacroEventsDimension({
+    now,
+    userPlaybookEvents: options.userPlaybookEvents || []
+  });
+  const upcomingEvents = macroEventsDimension.upcomingEvents;
 
   const brSphere = buildBrazilCycleDimension(indicators, seriesById, { now, brBreadth: options.brBreadth || null });
   const usSphere = buildUsCycleDimension(indicators, seriesById, {
@@ -1023,14 +998,7 @@ function buildDailySnapshot(seriesById = {}, options = {}) {
     cycle_us: usSphere,
     breadth_us: usBreadthSphere,
     gold_commodities: {
-      id: 'gold_commodities',
-      metricNature: 'price_performance',
-      status: indicators.cmd_gold.status,
-      asOfDate: indicators.cmd_gold.freshness.asOfDate,
-      expectedDate: indicators.cmd_gold.freshness.expectedDate,
-      lagBusinessDays: indicators.cmd_gold.freshness.lagBusinessDays,
-      collectedAt: indicators.cmd_gold.freshness.collectedAt,
-      source: indicators.cmd_gold.provider,
+      ...goldProtection.buildGoldProtectionDimension(seriesById, { now }),
       primary: indicators.cmd_gold,
       instruments: {
         GOLD: indicators.cmd_gold,
@@ -1040,12 +1008,13 @@ function buildDailySnapshot(seriesById = {}, options = {}) {
     },
     sector_rotation_us: usSectorRotationSphere,
     macro_events: {
+      ...macroEventsDimension,
       id: 'macro_events',
       metricNature: 'event',
-      status: upcomingEvents.length > 0 ? FRESHNESS.ATUALIZADO : FRESHNESS.PARCIAL,
+      status: macroEventsDimension.status,
       asOfDate: snapshotDate,
       collectedAt: generatedAt,
-      source: 'official_calendar+event_playbook',
+      source: macroEventsDimension.source,
       upcomingEvents
     }
   };
@@ -1066,20 +1035,25 @@ function buildDailySnapshot(seriesById = {}, options = {}) {
 
   // Faixa secundária e compacta do rodapé (variações de 1 único pregão)
   const dailyTapeSecondary = [
-    { symbol: 'IBOV', label: 'IBOV', metric: indicators.cycle_br_ibov },
-    { symbol: 'SPX', label: 'S&P 500 (SPY)', metric: indicators.cycle_us_sp500 },
-    { symbol: 'NDX', label: 'Nasdaq (QQQ)', metric: indicators.cycle_us_nasdaq },
-    { symbol: 'USD', label: 'Dólar PTAX', metric: indicators.fx_usd_brl },
-    { symbol: 'GOLD', label: 'Ouro (GLD)', metric: indicators.cmd_gold },
-    { symbol: 'VIX', label: 'VIX', metric: indicators.vol_vix }
-  ].map(({ symbol, label, metric }) => ({
+    { symbol: 'IBOV', label: 'IBOV', market: 'BR', flag: '🇧🇷', calendar: 'B3 (São Paulo)', metric: indicators.cycle_br_ibov },
+    { symbol: 'SPX', label: 'S&P 500', market: 'US', flag: '🇺🇸', calendar: 'NYSE (New York)', metric: indicators.cycle_us_sp500 },
+    { symbol: 'NDX', label: 'Nasdaq', market: 'US', flag: '🇺🇸', calendar: 'NASDAQ (New York)', metric: indicators.cycle_us_nasdaq },
+    { symbol: 'USD', label: 'Dólar PTAX', market: 'BR', flag: '🇧🇷', calendar: 'Banco Central (BRL)', metric: indicators.fx_usd_brl },
+    { symbol: 'GOLD', label: 'Ouro (GLD)', market: 'US', flag: '🇺🇸', calendar: 'NYSE Arca (USD)', metric: indicators.cmd_gold },
+    { symbol: 'VIX', label: 'VIX', market: 'US', flag: '🇺🇸', calendar: 'CBOE (New York)', metric: indicators.vol_vix }
+  ].map(({ symbol, label, market, flag, calendar, metric }) => ({
     symbol,
     label,
-    closeValue: metric.latestValue,
-    change1dPct: metric.change1dPct,
-    unit: metric.unit,
-    asOfDate: metric.freshness.asOfDate,
-    status: metric.status
+    market,
+    flag,
+    calendar,
+    closeValue: metric?.latestValue ?? null,
+    change1dPct: metric?.change1dPct ?? null,
+    unit: metric?.unit || '',
+    asOfDate: metric?.freshness?.asOfDate || null,
+    updatedAt: metric?.freshness?.collectedAt || generatedAt,
+    timezone: metric?.freshness?.timezone || (market === 'US' ? 'America/New_York' : 'America/Sao_Paulo'),
+    status: metric?.status || 'indisponivel'
   }));
 
   // Estado consolidado global de frescor (exclui indicadores intencionalmente unconfigured do cálculo de quebra, mas expõe contagem!)
@@ -1108,6 +1082,8 @@ function buildDailySnapshot(seriesById = {}, options = {}) {
     spheres,
     trendSatellites21d,
     macroTrends: macroTrendsDimension,
+    officialCalendar: upcomingEvents,
+    upcomingEvents,
     dailyTapeSecondary,
     indicators
   };
@@ -1124,6 +1100,8 @@ module.exports = {
   computeIndicatorMetrics,
   aggregateFreshnessStatus,
   resolveUpcomingOfficialEvents,
+  macroEventsCalendar,
+  buildMacroEventsDimension: macroEventsCalendar.buildMacroEventsDimension,
   buildBrazilCycleDimension,
   buildUsCycleDimension,
   buildUsBreadthDimension,

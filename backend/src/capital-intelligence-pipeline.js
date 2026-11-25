@@ -14,6 +14,8 @@ const crypto = require('node:crypto');
 const { CapitalIntelligenceStore } = require('./capital-intelligence-store');
 const ingestion = require('./capital-intelligence-ingestion');
 const calculator = require('./capital-intelligence-calculator');
+const capitalIntelligencePortfolio = require('./capital-intelligence-portfolio');
+const allocationEngine = require('./capital-intelligence-allocation');
 
 const JOB_DEFINITIONS = {
   br_ptax_macro: {
@@ -393,6 +395,9 @@ class CapitalIntelligencePipeline {
         status: calculator.FRESHNESS.INDISPONIVEL,
         isLive: false,
         equity: null,
+        operationalEquity: null,
+        realWealth: null,
+        checkingWealth: 0,
         heatPct: null,
         heatLimitPct: 5.0,
         openPositionsCount: 0,
@@ -403,51 +408,36 @@ class CapitalIntelligencePipeline {
     const wealthSvc = this._dep('wealth', './wealth');
     const tradesSvc = this._dep('trades', './trades');
     const riskSvc = this._dep('riskPolicy', './risk-policy');
+    const workspaceStateSvc = this._dep('workspaceState', './workspace-state');
 
     try {
-      const [wealthData, tradesData, policyData] = await Promise.all([
+      const [wealthData, tradesData, policyData, workspaceStateData] = await Promise.all([
         wealthSvc?.list ? wealthSvc.list(userId).catch(() => null) : null,
-        tradesSvc?.list ? tradesSvc.list(userId).catch(() => []) : [],
-        riskSvc?.get ? riskSvc.get(userId).catch(() => null) : null
+        tradesSvc?.listPlans
+          ? tradesSvc.listPlans(userId).catch(() => [])
+          : (tradesSvc?.list ? tradesSvc.list(userId).catch(() => []) : []),
+        riskSvc?.get ? riskSvc.get(userId).catch(() => null) : null,
+        workspaceStateSvc?.get ? workspaceStateSvc.get(userId).catch(() => ({})) : {}
       ]);
 
-      const equity = Number(wealthData?.summary?.operationalEquity ?? wealthData?.summary?.realWealth ?? 0);
-      const openTrades = Array.isArray(tradesData)
-        ? tradesData.filter(t => t.status === 'open' || t.status === 'active')
-        : [];
+      const tradesList = Array.isArray(tradesData) ? tradesData : (tradesData?.trades || []);
+      const wsData = workspaceStateData?.state || workspaceStateData || {};
 
-      const totalHeatPct = openTrades.reduce((sum, t) => sum + Number(t.currentRiskPercent ?? t.current_risk_percent ?? 0), 0);
-      const heatLimitPct = Number(policyData?.maxPortfolioHeat ?? policyData?.portfolioHeatLimit ?? 5.0);
+      const portDim = capitalIntelligencePortfolio.buildPortfolioDimension({
+        wealthData,
+        tradesData: tradesList,
+        policyData,
+        workspaceStateData: wsData,
+        now: new Date()
+      });
 
-      let localExposure = 0;
-      let globalExposure = 0;
-      for (const t of openTrades) {
-        const qty = Number(t.currentQuantity ?? t.executedQuantity ?? t.executed_quantity ?? 0);
-        const price = Number(t.currentPrice ?? t.entryPrice ?? t.entry_price ?? 0);
-        const vol = Math.max(0, qty * price);
-        const sym = String(t.ticker || '').toUpperCase();
-        const isGlobal = /(31|32|33|34|35|39)$/.test(sym) || String(t.market || '').toUpperCase() === 'US';
-        if (isGlobal) globalExposure += vol;
-        else localExposure += vol;
-      }
-
-      if (equity > 0) {
-        const cashValue = Math.max(0, equity - localExposure - globalExposure);
+      if (portDim.isLive || portDim.operationalEquity > 0 || portDim.realWealth > 0) {
         return {
-          id: 'my_portfolio',
+          ...portDim,
           metricNature: 'portfolio_allocation',
-          status: calculator.FRESHNESS.ATUALIZADO,
-          isLive: true,
-          asOfDate: new Date().toISOString().slice(0, 10),
-          collectedAt: new Date().toISOString(),
-          source: 'internal_wealth_trades_db',
-          equity,
-          cashValue,
-          localExposureValue: localExposure,
-          globalExposureValue: globalExposure,
-          heatPct: Number(totalHeatPct.toFixed(2)),
-          heatLimitPct,
-          openPositionsCount: openTrades.length
+          equity: portDim.operationalEquity,
+          localExposureValue: portDim.exposureByRegion?.brazil?.amount || 0,
+          globalExposureValue: portDim.exposureByRegion?.global?.amount || 0
         };
       }
     } catch (_) {}
@@ -458,6 +448,9 @@ class CapitalIntelligencePipeline {
       status: calculator.FRESHNESS.INDISPONIVEL,
       isLive: false,
       equity: null,
+      operationalEquity: null,
+      realWealth: null,
+      checkingWealth: 0,
       heatPct: null,
       heatLimitPct: 5.0,
       openPositionsCount: 0,
@@ -513,17 +506,26 @@ class CapitalIntelligencePipeline {
 
     const enrichedEvents = calculator.resolveUpcomingOfficialEvents(now, userEvents);
 
+    const enrichedSpheres = {
+      ...baseSnapshot.spheres,
+      macro_events: {
+        ...baseSnapshot.spheres.macro_events,
+        upcomingEvents: enrichedEvents
+      },
+      my_portfolio: portfolioDim
+    };
+
+    const allocationSuggestion = allocationEngine.buildAllocationSuggestion({
+      snapshot: { ...baseSnapshot, spheres: enrichedSpheres },
+      portfolioDimension: portfolioDim,
+      now
+    });
+
     return {
       ...baseSnapshot,
       servedFromCache: true,
-      spheres: {
-        ...baseSnapshot.spheres,
-        macro_events: {
-          ...baseSnapshot.spheres.macro_events,
-          upcomingEvents: enrichedEvents
-        },
-        my_portfolio: portfolioDim
-      }
+      spheres: enrichedSpheres,
+      allocationSuggestion
     };
   }
 
