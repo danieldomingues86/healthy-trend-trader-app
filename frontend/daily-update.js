@@ -34,6 +34,10 @@
     return (root.DailyUpdateModel?.formatUSD || ((n) => 'US$ ' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })))(val);
   };
 
+  const fmtCurrency = (val, currency = 'BRL') => {
+    return String(currency || 'BRL').toUpperCase() === 'USD' ? fmtUSD(val) : fmtBRL(val);
+  };
+
   const fmtPct = (val, withSign = true) => {
     return (root.DailyUpdateModel?.formatPercent || ((n) => (n > 0 ? '+' : '') + Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + '%'))(val, withSign);
   };
@@ -158,24 +162,41 @@
         if (p.databaseId) closedOppMap.set(String(p.databaseId), p);
       });
 
+      const isAuth = Boolean(r.healthyTrendApi?.isAuthenticated?.());
+      const hasRealOperationalData = oppPositions.length > 0 || oppClosed.length > 0 || (Array.isArray(r.synchronizedTrades) && r.synchronizedTrades.length > 0);
+
+      const isMock = (p) => {
+        const id = String(p.id || '');
+        return id.startsWith('pos_') || (Array.isArray(r.DailyUpdateModel?.DEFAULT_POSITIONS) && r.DailyUpdateModel.DEFAULT_POSITIONS.some(d => d.id === id));
+      };
+
       const savedMetaMap = typeof this.getMergedPositionMetaMap === 'function' ? this.getMergedPositionMetaMap() : {};
 
       // 1. Reconcile existing model positions against operationalState
       const remainingPositions = [];
       (this.model.positions || []).forEach(pos => {
-        const idStr = String(pos.id);
-        const isClosedInOpp = closedOppMap.has(idStr);
-        const isActiveInOpp = activeOppMap.has(idStr);
+        const idStr = String(pos.id || '');
+        const dbIdStr = String(pos.databaseId || '');
 
-        if (isClosedInOpp || (oppPositions.length > 0 && !isActiveInOpp && (/^[0-9a-f-]{36}$/i.test(idStr) || idStr.startsWith('trade-')))) {
+        // If authenticated or real operational data exists, immediately purge demonstration mock positions
+        if ((isAuth || hasRealOperationalData) && isMock(pos)) {
+          return;
+        }
+
+        const isClosedInOpp = closedOppMap.has(idStr) || (dbIdStr && closedOppMap.has(dbIdStr));
+        const isActiveInOpp = activeOppMap.has(idStr) || (dbIdStr && activeOppMap.has(dbIdStr));
+        const isSelfClosed = pos.closed || pos.status === 'encerrada' || pos.status === 'closed' || Number(pos.quantity ?? 1) <= 0;
+
+        // If explicitly closed, or if we have real operational data and position is no longer active in operationalState:
+        if (isClosedInOpp || isSelfClosed || (hasRealOperationalData && !isActiveInOpp)) {
           pos.closed = true;
           pos.status = 'encerrada';
           pos.quantity = 0;
-          if (!this.model.closedPositions.some(c => String(c.id) === idStr)) {
+          if (!this.model.closedPositions.some(c => String(c.id) === idStr || (dbIdStr && String(c.databaseId) === dbIdStr))) {
             this.model.closedPositions.unshift(pos);
           }
         } else {
-          const opp = activeOppMap.get(idStr);
+          const opp = activeOppMap.get(idStr) || (dbIdStr ? activeOppMap.get(dbIdStr) : null);
           if (opp) {
             if (opp.currentPrice && Number(opp.currentPrice) > 0) pos.currentPrice = Number(opp.currentPrice);
             if (opp.currentStop) pos.trailingStop = Number(opp.currentStop);
@@ -201,8 +222,8 @@
       oppPositions.forEach(opp => {
         const idStr = String(opp.id || opp.databaseId || '');
         if (!idStr) return;
-        const exists = remainingPositions.some(p => String(p.id) === idStr);
-        if (!exists && opp.status !== 'closed' && !opp.isPending && opp.status !== 'pending') {
+        const exists = remainingPositions.some(p => String(p.id) === idStr || (p.databaseId && String(p.databaseId) === idStr));
+        if (!exists && opp.status !== 'closed' && opp.status !== 'encerrada' && !opp.closed && !opp.isPending && opp.status !== 'pending' && Number(opp.remaining ?? opp.initialQty ?? 0) > 0) {
           const entry = Number(opp.entry || opp.averageEntry || opp.currentPrice || 0);
           const curr = Number(opp.currentPrice || entry);
           const qty = Number(opp.remaining ?? opp.initialQty ?? opp.totalQty ?? 0);
@@ -384,6 +405,18 @@
             if (savedAccountsSnapshot && newestTs(savedAccountsSnapshot) >= newestTs(this.model.accounts)) {
               this.model.accounts = savedAccountsSnapshot;
               this.model.updateClosingReadiness();
+            }
+
+            const isAuth = Boolean(r?.healthyTrendApi?.isAuthenticated?.());
+            const hasRealOperationalData = (
+              (Array.isArray(r?.operationalState?.positions) && r.operationalState.positions.length > 0) ||
+              (Array.isArray(r?.operationalState?.closedPositions) && r.operationalState.closedPositions.length > 0) ||
+              (Array.isArray(r?.synchronizedTrades) && r.synchronizedTrades.length > 0)
+            );
+            if (isAuth || hasRealOperationalData) {
+              if (Array.isArray(this.model.positions)) {
+                this.model.positions = this.model.positions.filter(p => !String(p.id || '').startsWith('pos_'));
+              }
             }
           }
         }
@@ -596,8 +629,8 @@
           // Move previously open positions that are no longer in openTrades to closedPositions
           const openIds = new Set(openTrades.map((t, idx) => String(t.id || `pos_${idx}`)));
           (existingPositionsSnapshot || []).forEach(p => {
-            const pid = String(p.id);
-            if (!openIds.has(pid) && /^[0-9a-f-]{36}$/i.test(pid)) {
+            const pid = String(p.id || '');
+            if (!openIds.has(pid)) {
               p.closed = true;
               p.status = 'encerrada';
               p.quantity = 0;
@@ -606,6 +639,11 @@
               }
             }
           });
+
+          // Discard any residual mock demonstration positions from open positions
+          if (Array.isArray(this.model.positions)) {
+            this.model.positions = this.model.positions.filter(p => !String(p.id || '').startsWith('pos_') || openIds.has(String(p.id)));
+          }
 
           if (typeof this.model.savePositionMeta === 'function') {
             this.model.savePositionMeta();
@@ -807,29 +845,46 @@
           <div class="daily-update-workspace-grid">
             <!-- Left: Contas (Saldos Totais) -->
             <section class="daily-update-card accounts-card">
-              <header class="daily-update-card-header">
+              <header class="daily-update-card-header accounts-card-header">
                 <div class="card-title-group">
                   <span class="card-icon" aria-hidden="true">🪙</span>
                   <div class="card-title-text">
                     <h2>1. Atualizar Contas (Saldos Totais)</h2>
                     <p>Informe o saldo total de cada conta (contas do tipo Corrente não impactam a Equity).</p>
+                    <div class="account-types-legend-group">
+                      <span class="account-legend-badge investment" title="Participa da Equity, rentabilidade e métricas da estratégia">
+                        <span class="legend-icon">🏛️</span> Conta de Investimentos <span class="legend-note">(compõe a Equity)</span>
+                      </span>
+                      <span class="account-legend-badge checking" title="Participa do Patrimônio Total, mas não interfere na estratégia">
+                        <span class="legend-icon">🏛️</span> Conta Corrente <span class="legend-note">(não compõe a Equity)</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div class="accounts-header-legends">
-                  <span class="account-legend-badge investment" title="Participa da Equity, rentabilidade e métricas da estratégia">
-                    <span class="legend-icon">🏛️</span> Conta de Investimentos <span class="legend-note">(compõe a Equity)</span>
-                  </span>
-                  <span class="account-legend-badge checking" title="Participa do Patrimônio Total, mas não interfere na estratégia">
-                    <span class="legend-icon">🏛️</span> Conta Corrente <span class="legend-note">(não compõe a Equity)</span>
-                  </span>
+                <div class="accounts-header-right">
                   ${(() => {
                     const usdAcc = (model.accounts || []).find(a => a.currency === 'USD');
                     if (!usdAcc) return '';
-                    const fxDisplay = Number(usdAcc.fxRate || 5.95).toFixed(2).replace('.', ',');
+                    const fxDisplay = Number(usdAcc.fxRate || 5.95).toFixed(3).replace('.', ',');
                     return `
-                      <span class="account-legend-badge fx-ref font-numeric" data-nomad-header-fx="true" title="Cotação USD/BRL de referência usada na conversão da conta Nomad para BRL">
-                        <span class="legend-icon">🇺🇸</span> Câmbio USD/BRL: <strong>R$ ${fxDisplay}</strong>
-                      </span>
+                      <div class="account-fx-header-highlight">
+                        <label class="account-legend-badge fx-ref fx-ref-editable font-numeric" data-nomad-header-fx="true" title="Clique para atualizar manualmente a cotação USD/BRL usada na conversão da conta Nomad para BRL">
+                          <span class="legend-icon fx-flag-icon">🇺🇸</span>
+                          <span class="fx-label-text">Câmbio USD/BRL:</span>
+                          <strong class="fx-prefix">R$</strong>
+                          <input
+                            type="text"
+                            inputmode="decimal"
+                            autocomplete="off"
+                            class="nomad-fx-inline-input font-numeric"
+                            data-fx-rate-input="true"
+                            value="${fxDisplay}"
+                            aria-label="Cotação Câmbio USD/BRL"
+                            placeholder="0,000"
+                          />
+                          <span class="fx-edit-pencil" aria-hidden="true" title="Editar cotação do dólar">✎</span>
+                        </label>
+                      </div>
                     `;
                   })()}
                 </div>
@@ -917,8 +972,8 @@
                                           </div>
                                           <div class="account-meta-line">
                                             ${isNomad ? `
-                                              <span class="account-meta-time nomad-inline-fx font-numeric" data-nomad-fx-badge="${acc.id}" title="Saldo em dólar (${fmtUSD(acc.newBalanceUSD || 0)}) convertido pelo câmbio R$ ${(acc.fxRate || 5.95).toFixed(2).replace('.', ',')}">
-                                                ${fmtUSD(acc.newBalanceUSD || 0)} | Câmbio: R$ ${(acc.fxRate || 5.95).toFixed(2).replace('.', ',')}
+                                              <span class="account-meta-time nomad-inline-fx font-numeric" data-nomad-fx-badge="${acc.id}" onclick="window.DailyUpdateHub.focusUsdFxInput()" style="cursor: pointer;" title="Saldo em dólar (${fmtUSD(acc.newBalanceUSD || 0)}) convertido pelo câmbio R$ ${(acc.fxRate || 5.95).toFixed(3).replace('.', ',')} — clique para editar o câmbio">
+                                                ${fmtUSD(acc.newBalanceUSD || 0)} | Câmbio: R$ ${(acc.fxRate || 5.95).toFixed(3).replace('.', ',')}
                                               </span>
                                             ` : `
                                               <span class="account-meta-time">${acc.subtitle || fmtTime(acc.updatedAt)}</span>
@@ -952,7 +1007,7 @@
                                           data-account-input="${acc.id}" 
                                           value="${inputValue}" 
                                           aria-label="Novo saldo para ${acc.label}"
-                                          title="${isNomad ? `Equivalente em BRL: ${fmtBRL(acc.newBalance)} | USD: ${fmtUSD(acc.newBalanceUSD || 0)} @ R$ ${(acc.fxRate || 5.95).toFixed(2).replace('.', ',')}` : `Novo saldo para ${acc.label}`}"
+                                          title="${isNomad ? `Equivalente em BRL: ${fmtBRL(acc.newBalance)} | USD: ${fmtUSD(acc.newBalanceUSD || 0)} @ R$ ${(acc.fxRate || 5.95).toFixed(3).replace('.', ',')}` : `Novo saldo para ${acc.label}`}"
                                           placeholder="0,00"
                                         />
                                         <span class="account-error-msg" data-account-error-for="${acc.id}" style="display: ${hasError ? 'block' : 'none'};">${hasError ? acc.error : ''}</span>
@@ -1087,229 +1142,245 @@
               <div class="position-groups-container">
                 ${(() => {
                   const groupedAccounts = typeof model.getGroupedAccounts === 'function' ? model.getGroupedAccounts() : [];
-                  const groupedPositions = typeof model.getGroupedPositions === 'function'
-                    ? model.getGroupedPositions()
-                    : [{
-                        key: 'OTHER',
-                        label: 'Posições',
-                        icon: '📊',
-                        positions: model.positions,
-                        count: model.positions.length
-                      }];
+                  const rawGrouped = typeof model.getGroupedPositions === 'function'
+                    ? model.getGroupedPositions({ includeEmpty: true })
+                    : [];
+
+                  // As seções Tendência e Volatilidade permanecem sempre visíveis e expandidas
+                  const permanentGroups = [
+                    { key: 'TREND_FOLLOWING', label: 'Tendência', badgeLabel: 'Tendência', badgeClass: 'trend', icon: '📈', order: 1 },
+                    { key: 'VOLATILITY_TRADING', label: 'Volatilidade', badgeLabel: 'Volatilidade', badgeClass: 'volatility', icon: '⚡', order: 2 }
+                  ];
+
+                  const groupedPositions = [];
+                  permanentGroups.forEach(perm => {
+                    const found = rawGrouped.find(g => g.key === perm.key);
+                    if (found) {
+                      groupedPositions.push(found);
+                    } else {
+                      groupedPositions.push({
+                        key: perm.key,
+                        label: perm.label,
+                        badgeLabel: perm.badgeLabel,
+                        badgeClass: perm.badgeClass,
+                        icon: perm.icon,
+                        order: perm.order,
+                        positions: [],
+                        count: 0
+                      });
+                    }
+                  });
+
+                  rawGrouped.forEach(g => {
+                    if (!permanentGroups.some(p => p.key === g.key) && g.positions && g.positions.length > 0) {
+                      groupedPositions.push(g);
+                    }
+                  });
 
                   let globalPosIdx = 0;
 
                   return groupedPositions.map(group => {
-                    const isGroupCollapsed = this.collapsedPositionGroups.has(group.key);
+                    const hasPositions = Array.isArray(group.positions) && group.positions.length > 0;
 
                     return `
                       <div class="position-group-card position-group--${group.key.toLowerCase()}" data-position-group="${group.key}">
-                        <header class="position-group-header" onclick="window.DailyUpdateHub.togglePositionGroup('${group.key}')" title="Clique para recolher ou expandir ${group.label}">
+                        <header class="position-group-header">
                           <div class="pos-group-header-left">
                             <span class="pos-group-icon" aria-hidden="true">${group.icon}</span>
                             <span class="pos-group-name">${group.label}</span>
-                            <span class="pos-group-count-inline" data-pos-group-count="${group.key}">(${group.count})</span>
-                          </div>
-                          <div class="pos-group-header-right">
-                            <button type="button" class="pos-group-toggle-btn" aria-label="Recolher ou expandir grupo ${group.label}">
-                              <svg class="pos-group-chevron ${isGroupCollapsed ? 'collapsed' : ''}" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-                                <polyline points="18 15 12 9 6 15"/>
-                              </svg>
-                            </button>
+                            <span class="pos-group-count-inline" data-pos-group-count="${group.key}">(${group.count ?? group.positions.length})</span>
                           </div>
                         </header>
 
-                        <div class="position-group-body" style="display: ${isGroupCollapsed ? 'none' : 'block'};">
-                          <div class="daily-update-table-container">
-                            <table class="daily-update-table positions-table" aria-label="Tabela de Posições Abertas — ${group.label}">
-                              <thead>
-                                <tr>
-                                  <th class="th-pos-ticker">Ativo</th>
-                                  <th class="th-pos-date" style="text-align: center;">Data Entrada</th>
-                                  <th class="th-pos-strategy" style="text-align: center;">Estratégia</th>
-                                  <th class="th-pos-cv" style="text-align: center;">C/V</th>
-                                  <th class="th-pos-account">Conta / Corretora</th>
-                                  <th class="th-pos-qty" style="text-align: right;">Quantidade</th>
-                                  <th class="th-pos-entry" style="text-align: right;">Preço de Entrada</th>
-                                  <th class="th-pos-price" style="text-align: right;">Preço Atual</th>
-                                  <th class="th-pos-var" style="text-align: right;">Variação %</th>
-                                  <th class="th-pos-result" style="text-align: right;">Resultado Atual</th>
-                                  <th class="th-pos-duration" style="text-align: right;">Duração</th>
-                                  <th class="th-pos-action" style="text-align: center;" aria-label="Encerrar operação"></th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                ${group.positions.map(pos => {
-                                  const pIdx = globalPosIdx++;
-                                  const entry = Number(pos.entryPrice || 0);
-                                  const curr = Number(pos.currentPrice || entry);
-                                  const varPct = entry > 0 ? ((curr - entry) / entry) * 100 : 0;
-                                  const varClass = varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral';
-                                  const isChecked = pos.checked && pos.status !== 'pendente' && !pos.hasDivergence && !pos.error;
-                                  const isDivergent = Boolean(pos.hasDivergence);
-                                  const isPending = pos.status === 'pendente' || (!pos.checked && !isDivergent);
+                        <div class="position-group-body">
+                          ${hasPositions ? `
+                            <div class="daily-update-table-container">
+                              <table class="daily-update-table positions-table" aria-label="Tabela de Posições Abertas — ${group.label}">
+                                <thead>
+                                  <tr>
+                                    <th class="th-pos-ticker">Ativo</th>
+                                    <th class="th-pos-date" style="text-align: center;">Data Entrada</th>
+                                    <th class="th-pos-strategy" style="text-align: center;">Estratégia</th>
+                                    <th class="th-pos-cv" style="text-align: center;">C/V</th>
+                                    <th class="th-pos-account">Conta / Corretora</th>
+                                    <th class="th-pos-qty" style="text-align: right;">Quantidade</th>
+                                    <th class="th-pos-entry" style="text-align: right;">Preço de Entrada</th>
+                                    <th class="th-pos-price" style="text-align: right;">Preço Atual</th>
+                                    <th class="th-pos-var" style="text-align: right;">Variação %</th>
+                                    <th class="th-pos-result" style="text-align: right;">Resultado Atual</th>
+                                    <th class="th-pos-duration" style="text-align: right;">Duração</th>
+                                    <th class="th-pos-action" style="text-align: center;" aria-label="Encerrar operação"></th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  ${group.positions.map(pos => {
+                                    const pIdx = globalPosIdx++;
+                                    const entry = Number(pos.entryPrice || 0);
+                                    const curr = Number(pos.currentPrice || entry);
+                                    const varPct = entry > 0 ? ((curr - entry) / entry) * 100 : 0;
+                                    const varClass = varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral';
+                                    const isChecked = pos.checked && pos.status !== 'pendente' && !pos.hasDivergence && !pos.error;
+                                    const isDivergent = Boolean(pos.hasDivergence);
+                                    const isPending = pos.status === 'pendente' || (!pos.checked && !isDivergent);
 
-                                  const unrealizedVal = typeof model.getPositionUnrealizedResult === 'function'
-                                    ? model.getPositionUnrealizedResult(pos)
-                                    : (curr - entry) * (pos.direction === 'short' ? -1 : 1) * Number(pos.quantity || 0) * Number(pos.contractMult || pos.mult || 1);
-                                  const resClass = unrealizedVal > 0.005 ? 'positive' : unrealizedVal < -0.005 ? 'negative' : 'neutral';
-                                  const resSign = unrealizedVal > 0.005 ? '+' : '';
-                                  const sideCode = typeof model.getPositionSideCode === 'function'
-                                    ? model.getPositionSideCode(pos)
-                                    : ((typeof model.getPositionDirectionSign === 'function' ? model.getPositionDirectionSign(pos) : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1)) === -1 ? 'V' : 'C');
-                                  const isShort = sideCode === 'V';
-                                  const rawEntryDate = root.DailyUpdateModel?.resolvePositionEntryDate
-                                    ? root.DailyUpdateModel.resolvePositionEntryDate(pos)
-                                    : (pos.entryDate || null);
-                                  const formattedEntryDate = root.DailyUpdateModel?.formatDateBR
-                                    ? root.DailyUpdateModel.formatDateBR(rawEntryDate)
-                                    : (rawEntryDate || '—');
-                                  const stratMeta = typeof model.getPositionStrategy === 'function'
-                                    ? model.getPositionStrategy(pos)
-                                    : (root.DailyUpdateModel?.getPositionStrategyMeta
-                                      ? root.DailyUpdateModel.getPositionStrategyMeta(pos)
-                                      : { key: 'UNCLASSIFIED', label: 'Não classificada', badgeLabel: 'Não classificada', badgeClass: 'unclassified' });
-                                  const durationDays = typeof model.getPositionDurationDays === 'function'
-                                    ? model.getPositionDurationDays(pos)
-                                    : (root.DailyUpdateModel?.calculateB3TradingDuration
-                                      ? root.DailyUpdateModel.calculateB3TradingDuration(rawEntryDate)
-                                      : null);
-                                  const durationLabel = root.DailyUpdateModel?.formatTradingDurationLabel
-                                    ? root.DailyUpdateModel.formatTradingDurationLabel(durationDays)
-                                    : (durationDays === null ? '—' : `${durationDays} dias úteis`);
-                                  const durationTitle = durationDays === null
-                                    ? 'Sem data de entrada registrada para calcular dias úteis'
-                                    : `${durationLabel} de pregão B3 desde ${formattedEntryDate} (exclui fins de semana e feriados B3)`;
-                                  const realizedPartial = Number(pos.realizedResult || 0);
+                                    const unrealizedVal = typeof model.getPositionUnrealizedResult === 'function'
+                                      ? model.getPositionUnrealizedResult(pos)
+                                      : (curr - entry) * (pos.direction === 'short' ? -1 : 1) * Number(pos.quantity || 0) * Number(pos.contractMult || pos.mult || 1);
+                                    const resClass = unrealizedVal > 0.005 ? 'positive' : unrealizedVal < -0.005 ? 'negative' : 'neutral';
+                                    const resSign = unrealizedVal > 0.005 ? '+' : '';
+                                    const sideCode = typeof model.getPositionSideCode === 'function'
+                                      ? model.getPositionSideCode(pos)
+                                      : ((typeof model.getPositionDirectionSign === 'function' ? model.getPositionDirectionSign(pos) : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1)) === -1 ? 'V' : 'C');
+                                    const isShort = sideCode === 'V';
+                                    const rawEntryDate = root.DailyUpdateModel?.resolvePositionEntryDate
+                                      ? root.DailyUpdateModel.resolvePositionEntryDate(pos)
+                                      : (pos.entryDate || null);
+                                    const formattedEntryDate = root.DailyUpdateModel?.formatDateBR
+                                      ? root.DailyUpdateModel.formatDateBR(rawEntryDate)
+                                      : (rawEntryDate || '—');
+                                    const stratMeta = typeof model.getPositionStrategy === 'function'
+                                      ? model.getPositionStrategy(pos)
+                                      : (root.DailyUpdateModel?.getPositionStrategyMeta
+                                        ? root.DailyUpdateModel.getPositionStrategyMeta(pos)
+                                        : { key: 'UNCLASSIFIED', label: 'Não classificada', badgeLabel: 'Não classificada', badgeClass: 'unclassified' });
+                                    const durationDays = typeof model.getPositionDurationDays === 'function'
+                                      ? model.getPositionDurationDays(pos)
+                                      : (root.DailyUpdateModel?.calculateB3TradingDuration
+                                        ? root.DailyUpdateModel.calculateB3TradingDuration(rawEntryDate)
+                                        : null);
+                                    const durationLabel = root.DailyUpdateModel?.formatTradingDurationLabel
+                                      ? root.DailyUpdateModel.formatTradingDurationLabel(durationDays)
+                                      : (durationDays === null ? '—' : `${durationDays} dias úteis`);
+                                    const durationTitle = durationDays === null
+                                      ? 'Sem data de entrada registrada para calcular dias úteis'
+                                      : `${durationLabel} de pregão B3 desde ${formattedEntryDate} (exclui fins de semana e feriados B3)`;
+                                    const realizedPartial = Number(pos.realizedResult || 0);
 
-                                  let rowClass = 'position-row';
-                                  if (isDivergent) rowClass += ' divergent';
-                                  else if (isPending) rowClass += ' pending';
-                                  else if (isChecked) rowClass += ' checked';
+                                    let rowClass = 'position-row';
+                                    if (isDivergent) rowClass += ' divergent';
+                                    else if (isPending) rowClass += ' pending';
+                                    else if (isChecked) rowClass += ' checked';
 
-                                  return `
-                                    <tr class="${rowClass}" data-position-row="${pos.id}" data-position-group-item="${group.key}">
-                                      <td class="td-pos-ticker">
-                                        <div class="pos-ticker-group">
-                                          <strong class="pos-ticker" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}');" title="Ver detalhes completos da operação">${pos.ticker}</strong>
-                                        </div>
-                                      </td>
-                                      <td class="td-pos-date" style="text-align: center;">
-                                        <span class="pos-entry-date font-numeric" data-pos-entry-date="${pos.id}" title="Data original de abertura da operação">${formattedEntryDate}</span>
-                                      </td>
-                                      <td class="td-pos-strategy" style="text-align: center;">
-                                        <span class="pos-strategy-badge ${stratMeta.badgeClass}" data-pos-strategy="${pos.id}" data-strategy-key="${stratMeta.key}" title="Estratégia registrada na operação: ${stratMeta.label}">${stratMeta.badgeLabel}</span>
-                                      </td>
-                                      <td class="td-pos-cv" style="text-align: center;">
-                                        <span class="pos-cv-badge ${isShort ? 'sell' : 'buy'}" data-pos-cv="${pos.id}" title="${isShort ? 'Operação Vendida (Short)' : 'Operação Comprada (Long)'}">${sideCode}</span>
-                                      </td>
-                                      <td class="td-pos-account">
-                                        <select 
-                                          class="pos-account-select ${pos.accountId ? 'linked' : 'unlinked'}" 
-                                          data-position-id="${pos.id}"
-                                          onchange="window.DailyUpdateHub.handlePositionAccountChange('${pos.id}', this.value)"
-                                          title="Conta onde esta posição está custodiada. Atualizações de preço refletem no saldo desta conta."
-                                          aria-label="Conta onde ${pos.ticker} está custodiada"
-                                        >
-                                          <option value="" ${!pos.accountId ? 'selected' : ''}>— Selecionar conta —</option>
-                                          ${groupedAccounts.map(g => {
-                                            const investAccounts = g.accounts.filter(a => a.type !== 'CHECKING');
-                                            if (investAccounts.length === 0) return '';
-                                            return `
-                                              <optgroup label="${g.person}">
-                                                ${investAccounts.map(a => `
-                                                  <option value="${a.id}" ${pos.accountId === a.id ? 'selected' : ''}>
-                                                    ${a.label}
+                                    return `
+                                      <tr class="${rowClass}" data-position-row="${pos.id}" data-position-group-item="${group.key}">
+                                        <td class="td-pos-ticker">
+                                          <div class="pos-ticker-group">
+                                            <strong class="pos-ticker" onclick="if (typeof openPosition === 'function') openPosition('${pos.id}');" title="Ver detalhes completos da operação">${pos.ticker}</strong>
+                                          </div>
+                                        </td>
+                                        <td class="td-pos-date" style="text-align: center;">
+                                          <span class="pos-entry-date font-numeric" data-pos-entry-date="${pos.id}" title="Data original de abertura da operação">${formattedEntryDate}</span>
+                                        </td>
+                                        <td class="td-pos-strategy" style="text-align: center;">
+                                          <span class="pos-strategy-badge ${stratMeta.badgeClass}" data-pos-strategy="${pos.id}" data-strategy-key="${stratMeta.key}" title="Estratégia registrada na operação: ${stratMeta.label}">${stratMeta.badgeLabel}</span>
+                                        </td>
+                                        <td class="td-pos-cv" style="text-align: center;">
+                                          <span class="pos-cv-badge ${isShort ? 'sell' : 'buy'}" data-pos-cv="${pos.id}" title="${isShort ? 'Operação Vendida (Short)' : 'Operação Comprada (Long)'}">${sideCode}</span>
+                                        </td>
+                                        <td class="td-pos-account">
+                                          <select 
+                                            class="pos-account-select ${pos.accountId ? 'linked' : 'unlinked'}" 
+                                            data-position-id="${pos.id}"
+                                            onchange="window.DailyUpdateHub.handlePositionAccountChange('${pos.id}', this.value)"
+                                            title="Conta onde esta posição está custodiada. Atualizações de preço refletem no saldo desta conta."
+                                            aria-label="Conta onde ${pos.ticker} está custodiada"
+                                          >
+                                            <option value="" ${!pos.accountId ? 'selected' : ''}>— Selecionar conta —</option>
+                                            ${pos.mode === 'paper' || pos.accountId === 'paper' ? `
+                                              <option value="paper" selected>Paper Trading (Simulação)</option>
+                                            ` : groupedAccounts.map(grp => `
+                                              <optgroup label="${grp.person} (${grp.accounts.length} ${grp.accounts.length === 1 ? 'conta' : 'contas'})">
+                                                ${grp.accounts.map(acc => `
+                                                  <option value="${acc.id}" ${pos.accountId === acc.id ? 'selected' : ''}>
+                                                    ${acc.label}
                                                   </option>
                                                 `).join('')}
                                               </optgroup>
-                                            `;
-                                          }).join('')}
-                                        </select>
-                                      </td>
-                                      <td class="td-pos-qty" style="text-align: right;">
-                                        <div class="pos-qty-cell">
-                                          <span class="pos-qty-number font-numeric">${pos.quantity}</span>
-                                          ${pos.isPartial ? `<span class="pos-partial-pill" title="Posição com saída parcial realizada">parcial</span>` : ''}
-                                          ${isDivergent ? `<span class="divergence-tag" title="${pos.divergence?.note || ''}">⚠️ ${pos.divergence?.reported || ''} na corr.</span>` : ''}
-                                        </div>
-                                      </td>
-                                      <td class="td-pos-entry" style="text-align: right;">
-                                        <input
-                                          type="text"
-                                          inputmode="decimal"
-                                          autocomplete="off"
-                                          class="pos-entry-clean-input font-numeric ${pos.entryError ? 'input-error' : ''}"
-                                          data-position-entry-id="${pos.id}"
-                                          data-entry-index="${pIdx}"
-                                          value="${fmtBRL(entry)}"
-                                          placeholder="R$ 0,00"
-                                          title="Clique para ajustar o preço de entrada enquanto o trade estiver em aberto (Enter confirma, Esc cancela)"
-                                          aria-label="Preço de entrada de ${pos.ticker}"
-                                        />
-                                        ${pos.entryError ? `<span class="account-error-msg" data-pos-entry-error="${pos.id}">${pos.entryError}</span>` : ''}
-                                      </td>
-                                      <td class="td-pos-price" style="text-align: right;">
-                                        <input 
-                                          type="text" 
-                                          inputmode="decimal"
-                                          autocomplete="off"
-                                          class="pos-price-clean-input font-numeric ${pos.error ? 'input-error' : ''} ${pos.priceStale ? 'price-stale' : ''}" 
-                                          data-position-id="${pos.id}"
-                                          data-index="${pIdx}"
-                                          data-price-source="${pos.priceSource || ''}"
-                                          data-price-stale="${pos.priceStale ? 'true' : 'false'}"
-                                          value="${fmtBRL(curr)}"
-                                          placeholder="R$ 0,00"
-                                          title="${pos.priceStale
-                                            ? `Último preço válido preservado (${pos.priceSource || 'cache'}${pos.priceUpdatedAt ? ` • ${fmtTime(pos.priceUpdatedAt)}` : ''}). Cotação mais recente indisponível no momento.`
-                                            : `Preço atual${pos.priceSource ? ` (${pos.priceSource}` : ''}${pos.priceUpdatedAt ? ` • ${fmtTime(pos.priceUpdatedAt)}` : ''}${pos.priceSource ? ')' : ''} — digite para ajustar`}"
-                                          aria-label="Preço atual de ${pos.ticker}"
-                                        />
-                                        ${pos.error ? `<span class="account-error-msg">${pos.error}</span>` : ''}
-                                      </td>
-                                      <td class="td-pos-var" style="text-align: right;">
-                                        <span class="variation-tag position-var-tag font-numeric ${varClass}" data-pos-var-for="${pos.id}">
-                                          ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
-                                        </span>
-                                      </td>
-                                      <td class="td-pos-result" style="text-align: right;">
-                                        <div class="pos-result-stack">
-                                          <strong class="pos-result-amount font-numeric ${resClass}" data-pos-result-amount="${pos.id}">
-                                            ${resSign}${fmtBRL(unrealizedVal)}
-                                          </strong>
-                                          ${pos.isPartial && Math.abs(realizedPartial) > 0.005 ? `
-                                            <small class="pos-realized-hint font-numeric ${realizedPartial > 0 ? 'positive' : 'negative'}" title="Resultado já realizado em saídas parciais (separado do não realizado)">
-                                              Realiz.: ${realizedPartial > 0 ? '+' : ''}${fmtBRL(realizedPartial)}
-                                            </small>
-                                          ` : ''}
-                                        </div>
-                                      </td>
-                                      <td class="td-pos-duration" style="text-align: right;">
-                                        <span class="pos-duration-val font-numeric" data-pos-duration="${pos.id}" data-duration-days="${durationDays !== null ? durationDays : ''}" title="${durationTitle}">${durationLabel}</span>
-                                      </td>
-                                      <td class="td-pos-action" style="text-align: center;">
-                                        <button
-                                          type="button"
-                                          class="btn-pos-close-op"
-                                          data-close-position-btn="${pos.id}"
-                                          onclick="window.DailyUpdateHub.openClosePositionModal('${pos.id}')"
-                                          title="Fechar operação"
-                                          aria-label="Fechar operação ${pos.ticker}"
-                                        >
-                                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                            <circle cx="12" cy="12" r="9"/>
-                                            <line x1="15" y1="9" x2="9" y2="15"/>
-                                            <line x1="9" y1="9" x2="15" y2="15"/>
-                                          </svg>
-                                        </button>
-                                      </td>
-                                    </tr>
-                                  `;
-                                }).join('')}
-                              </tbody>
-                            </table>
-                          </div>
+                                            `).join('')}
+                                          </select>
+                                        </td>
+                                        <td class="td-pos-qty" style="text-align: right;">
+                                          <span class="pos-qty font-numeric" data-pos-qty="${pos.id}">${pos.quantity}</span>
+                                        </td>
+                                        <td class="td-pos-entry" style="text-align: right;">
+                                          <input
+                                            type="text"
+                                            inputmode="decimal"
+                                            autocomplete="off"
+                                            class="pos-entry-clean-input font-numeric pos-entry-price-input"
+                                            data-position-entry-id="${pos.id}"
+                                            data-position-entry-input="${pos.id}"
+                                            value="${fmtCurrency(entry, pos.currency)}"
+                                            onfocus="this.select()"
+                                            title="Preço de entrada da operação (editável enquanto a posição estiver aberta)"
+                                            aria-label="Preço de entrada de ${pos.ticker}"
+                                          />
+                                        </td>
+                                        <td class="td-pos-price" style="text-align: right;">
+                                          <input 
+                                            type="text" 
+                                            inputmode="decimal"
+                                            autocomplete="off"
+                                            class="pos-price-input pos-price-clean-input font-numeric ${pos.priceStale ? 'price-stale' : ''}" 
+                                            data-position-id="${pos.id}"
+                                            data-position-price-input="${pos.id}" 
+                                            value="${fmtCurrency(curr, pos.currency)}" 
+                                            onfocus="this.select()" 
+                                            title="${pos.priceStale
+                                              ? `Último preço válido preservado (${pos.priceSource || 'cache'}${pos.priceUpdatedAt ? ` • ${fmtTime(pos.priceUpdatedAt)}` : ''}). Cotação mais recente indisponível no momento.`
+                                              : `Preço atual${pos.priceSource ? ` (${pos.priceSource}` : ''}${pos.priceUpdatedAt ? ` • ${fmtTime(pos.priceUpdatedAt)}` : ''}${pos.priceSource ? ')' : ''} — digite para ajustar`}"
+                                            aria-label="Preço atual de ${pos.ticker}"
+                                          />
+                                          ${pos.error ? `<span class="account-error-msg">${pos.error}</span>` : ''}
+                                        </td>
+                                        <td class="td-pos-var" style="text-align: right;">
+                                          <span class="variation-tag position-var-tag font-numeric ${varClass}" data-pos-var-for="${pos.id}">
+                                            ${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%
+                                          </span>
+                                        </td>
+                                        <td class="td-pos-result" style="text-align: right;">
+                                          <div class="pos-result-stack">
+                                            <strong class="pos-result-amount font-numeric ${resClass}" data-pos-result-amount="${pos.id}">
+                                              ${resSign}${fmtBRL(unrealizedVal)}
+                                            </strong>
+                                            ${pos.isPartial && Math.abs(realizedPartial) > 0.005 ? `
+                                              <small class="pos-realized-hint font-numeric ${realizedPartial > 0 ? 'positive' : 'negative'}" title="Resultado já realizado em saídas parciais (separado do não realizado)">
+                                                Realiz.: ${realizedPartial > 0 ? '+' : ''}${fmtBRL(realizedPartial)}
+                                              </small>
+                                            ` : ''}
+                                          </div>
+                                        </td>
+                                        <td class="td-pos-duration" style="text-align: right;">
+                                          <span class="pos-duration-val font-numeric" data-pos-duration="${pos.id}" data-duration-days="${durationDays !== null ? durationDays : ''}" title="${durationTitle}">${durationLabel}</span>
+                                        </td>
+                                        <td class="td-pos-action" style="text-align: center;">
+                                          <button
+                                            type="button"
+                                            class="btn-pos-close-op"
+                                            data-close-position-btn="${pos.id}"
+                                            onclick="window.DailyUpdateHub.openClosePositionModal('${pos.id}')"
+                                            title="Fechar operação"
+                                            aria-label="Fechar operação ${pos.ticker}"
+                                          >
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                              <circle cx="12" cy="12" r="9"/>
+                                              <line x1="15" y1="9" x2="9" y2="15"/>
+                                              <line x1="9" y1="9" x2="15" y2="15"/>
+                                            </svg>
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    `;
+                                  }).join('')}
+                                </tbody>
+                              </table>
+                            </div>
+                          ` : `
+                            <div class="pos-group-empty-state">
+                              <span class="pos-group-empty-icon" aria-hidden="true">✓</span>
+                              <span class="pos-group-empty-text">Nenhuma posição aberta em ${group.label}.</span>
+                            </div>
+                          `}
                         </div>
                       </div>
                     `;
@@ -1524,41 +1595,54 @@
       }
     }
 
-    scheduleDraftSave() {
+    scheduleDraftSave(options = {}) {
       if (this._draftSaveTimer) {
         clearTimeout(this._draftSaveTimer);
       }
       this._draftSaveTimer = setTimeout(() => {
         this._draftSaveTimer = null;
-        this.persistDraftNonBlocking();
+        this.persistDraftNonBlocking(options);
       }, 300);
     }
 
-    persistDraftNonBlocking() {
+    persistDraftNonBlocking(options = {}) {
       if (this._draftSaveTimer) {
         clearTimeout(this._draftSaveTimer);
         this._draftSaveTimer = null;
       }
+      const scope = options.scope || 'all';
       this.model.saveDraft();
-      if (typeof this.model.saveAccounts === 'function') {
-        this.model.saveAccounts();
-      }
-      if (typeof this.model.savePositionMeta === 'function') {
-        this.model.savePositionMeta();
-      }
-      if (root.healthyTrendWorkspace?.save) {
-        try {
-          root.healthyTrendWorkspace.save(
-            root.DailyUpdateModel?.STORAGE_KEY_ACCOUNTS || 'healthy-daily-update-accounts',
-            this.model.accounts
-          );
-          if (typeof this.model.exportPositionMetaMap === 'function') {
+
+      // Only persist durable accounts when accounts or all are in scope (Etapa 1)
+      if (scope !== 'positions') {
+        if (typeof this.model.saveAccounts === 'function') {
+          this.model.saveAccounts();
+        }
+        if (root.healthyTrendWorkspace?.save) {
+          try {
             root.healthyTrendWorkspace.save(
-              root.DailyUpdateModel?.STORAGE_KEY_POSITION_META || 'healthy-daily-update-position-meta',
-              this.model.exportPositionMetaMap()
+              root.DailyUpdateModel?.STORAGE_KEY_ACCOUNTS || 'healthy-daily-update-accounts',
+              this.model.accounts
             );
-          }
-        } catch (_) {}
+          } catch (_) {}
+        }
+      }
+
+      // Only persist position metadata when positions or all are in scope (Etapa 2)
+      if (scope !== 'accounts') {
+        if (typeof this.model.savePositionMeta === 'function') {
+          this.model.savePositionMeta();
+        }
+        if (root.healthyTrendWorkspace?.save) {
+          try {
+            if (typeof this.model.exportPositionMetaMap === 'function') {
+              root.healthyTrendWorkspace.save(
+                root.DailyUpdateModel?.STORAGE_KEY_POSITION_META || 'healthy-daily-update-position-meta',
+                this.model.exportPositionMetaMap()
+              );
+            }
+          } catch (_) {}
+        }
       }
     }
 
@@ -1613,7 +1697,7 @@
           }
 
           this.updateTotalsLive({ scope: 'accounts', accountId: accId, broadcastNow: true });
-          this.persistDraftNonBlocking();
+          this.persistDraftNonBlocking({ scope: 'accounts' });
         };
 
         input.addEventListener('focus', () => {
@@ -1649,7 +1733,7 @@
             this.model.updateAccountBalance(accId, parsed, isUSD);
             this.setAccountRowErrorLive(accId, null);
             this.updateTotalsLive({ scope: 'accounts', accountId: accId, broadcastNow: false });
-            this.scheduleDraftSave();
+            this.scheduleDraftSave({ scope: 'accounts' });
           } else {
             const validation = root.DailyUpdateModel?.validateBalanceInput
               ? root.DailyUpdateModel.validateBalanceInput(rawVal, true, isUSD ? 'USD' : 'BRL')
@@ -1693,100 +1777,247 @@
         });
       });
 
-      // Position price inputs with keyboard navigation
-      const priceInputs = Array.from(container.querySelectorAll('.pos-price-clean-input, .position-price-input'));
-      priceInputs.forEach((input, index) => {
-        // Real-time recalculation as user types
-        input.addEventListener('input', (e) => {
-          const posId = input.dataset.positionId;
-          const val = e.target.value;
-          const parsed = (root.DailyUpdateModel?.parseNumber || parseFloat)(val);
-          if (parsed !== null && parsed > 0) {
-            const pos = this.model.positions.find(p => p.id === posId);
-            if (pos) {
-              const oldPrice = Number(pos.currentPrice || pos.entryPrice || 0);
-              const sign = typeof this.model.getPositionDirectionSign === 'function'
-                ? this.model.getPositionDirectionSign(pos)
-                : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1);
-              const mult = Number(pos.contractMult ?? pos.mult ?? 1);
-              const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
-              const qty = Number(pos.quantity ?? pos.remaining ?? 0);
-              const deltaTotal = Math.round((parsed - oldPrice) * sign * qty * mult * fxRate * 100) / 100;
+      // Câmbio USD/BRL manual input in Accounts header
+      const fxInputs = Array.from(container.querySelectorAll('[data-fx-rate-input]'));
+      fxInputs.forEach((fxInput) => {
+        let initialFxOnFocus = null;
 
-              pos.currentPrice = parsed;
-              pos.checked = true;
-              if (!pos.hasDivergence) pos.status = 'conferida';
-              pos.error = null;
-
-              // Live update linked account balance
-              if (pos.accountId && deltaTotal !== 0) {
-                const acc = this.model.accounts.find(a => a.id === pos.accountId);
-                if (acc) {
-                  if (acc.currency === 'USD') {
-                    const fx = Number(acc.fxRate || 5.95);
-                    const deltaUSD = Math.round((deltaTotal / fx) * 100) / 100;
-                    acc.newBalanceUSD = Math.round(((acc.newBalanceUSD || 0) + deltaUSD) * 100) / 100;
-                    acc.newBalance = Math.round((acc.newBalanceUSD * fx) * 100) / 100;
-                  } else {
-                    acc.newBalance = Math.round(((Number(acc.newBalance) || 0) + deltaTotal) * 100) / 100;
-                  }
-                  acc.status = 'updated';
-                }
-              }
+        const commitFxRate = (formatField = true) => {
+          const usdAcc = (this.model.accounts || []).find(a => a.currency === 'USD');
+          if (!usdAcc) return;
+          const res = typeof this.model.updateUsdFxRate === 'function'
+            ? this.model.updateUsdFxRate(fxInput.value)
+            : null;
+          if (res?.success) {
+            if (fxInput.classList) fxInput.classList.remove('input-error');
+            if (formatField) {
+              fxInput.value = Number(res.fxRate).toFixed(3).replace('.', ',');
             }
+            this.updateTotalsLive({ scope: 'all', broadcastNow: true });
+            this.persistDraftNonBlocking();
+          } else {
+            if (fxInput.classList) fxInput.classList.add('input-error');
+            if (formatField && initialFxOnFocus && initialFxOnFocus > 0) {
+              this.model.updateUsdFxRate(initialFxOnFocus);
+              fxInput.value = Number(initialFxOnFocus).toFixed(3).replace('.', ',');
+              if (fxInput.classList) fxInput.classList.remove('input-error');
+              this.updateTotalsLive({ scope: 'all', broadcastNow: true });
+            }
+          }
+        };
+
+        fxInput.addEventListener('focus', () => {
+          const usdAcc = (this.model.accounts || []).find(a => a.currency === 'USD');
+          initialFxOnFocus = Number(usdAcc?.fxRate || 5.95);
+          if (typeof fxInput.select === 'function') {
+            try { fxInput.select(); } catch (_) {}
+          }
+        });
+
+        fxInput.addEventListener('input', (e) => {
+          const rawVal = String(e.target.value || '').replace(/R\$|\s/gi, '').replace(',', '.').trim();
+          if (!rawVal) {
+            if (fxInput.classList) fxInput.classList.remove('input-error');
+            return;
+          }
+          const parsed = Number(rawVal);
+          if (Number.isFinite(parsed) && parsed > 0 && parsed <= 100 && typeof this.model.updateUsdFxRate === 'function') {
+            this.model.updateUsdFxRate(parsed);
+            if (fxInput.classList) fxInput.classList.remove('input-error');
             this.updateTotalsLive({ scope: 'all', broadcastNow: false });
+            this.scheduleDraftSave();
+          } else {
+            if (fxInput.classList) fxInput.classList.add('input-error');
+          }
+        });
+
+        fxInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (typeof fxInput.blur === 'function') fxInput.blur();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            if (initialFxOnFocus && initialFxOnFocus > 0 && typeof this.model.updateUsdFxRate === 'function') {
+              this.model.updateUsdFxRate(initialFxOnFocus);
+              fxInput.value = Number(initialFxOnFocus).toFixed(3).replace('.', ',');
+              if (fxInput.classList) fxInput.classList.remove('input-error');
+              this.updateTotalsLive({ scope: 'all', broadcastNow: false });
+            }
+            if (typeof fxInput.blur === 'function') fxInput.blur();
+          }
+        });
+
+        fxInput.addEventListener('blur', () => {
+          commitFxRate(true);
+        });
+
+        fxInput.addEventListener('change', () => {
+          const isStillFocused = typeof document !== 'undefined' && document.activeElement === fxInput;
+          commitFxRate(!isStillFocused);
+        });
+      });
+
+      // Position price inputs with keyboard navigation and live masking
+      const priceInputs = Array.from(container.querySelectorAll('.pos-price-input, .pos-price-clean-input, .position-price-input'));
+      priceInputs.forEach((input, index) => {
+        let initialPriceOnFocus = null;
+
+        const getPosId = () => input.dataset.positionId || input.dataset.positionPriceInput;
+
+        input.addEventListener('focus', () => {
+          const posId = getPosId();
+          const pos = this.model.positions.find(p => p.id === posId);
+          if (!pos) return;
+          initialPriceOnFocus = Number(pos.currentPrice || pos.entryPrice || 0);
+          const isUSD = pos.currency === 'USD';
+          const formatEditable = root.DailyUpdateModel?.formatEditableNumber;
+          if (typeof formatEditable === 'function' && initialPriceOnFocus > 0) {
+            input.value = formatEditable(initialPriceOnFocus, isUSD);
+          }
+          if (typeof input.select === 'function') {
+            try { input.select(); } catch (_) {}
+          }
+        });
+
+        // Instant, 0-lag recalculation as user types (without mutating input.value so cursor never jumps)
+        input.addEventListener('input', (e) => {
+          const posId = getPosId();
+          const val = e.target.value;
+          const pos = this.model.positions.find(p => p.id === posId);
+          if (!pos) return;
+          const isUSD = pos.currency === 'USD';
+          const parsed = (root.DailyUpdateModel?.parseNumber || parseFloat)(val, isUSD ? 'USD' : 'BRL');
+          if (parsed !== null && Number.isFinite(parsed) && parsed > 0) {
+            const oldPrice = Number(pos.currentPrice || pos.entryPrice || 0);
+            const sign = typeof this.model.getPositionDirectionSign === 'function'
+              ? this.model.getPositionDirectionSign(pos)
+              : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1);
+            const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+            const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+            const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+            const deltaTotal = Math.round((parsed - oldPrice) * sign * qty * mult * fxRate * 100) / 100;
+
+            pos.currentPrice = parsed;
+            pos.checked = true;
+            if (!pos.hasDivergence) pos.status = 'conferida';
+            pos.error = null;
+            pos.priceSource = 'manual';
+            pos.priceUpdatedAt = new Date().toISOString();
+            pos.priceStale = false;
+            if (input.classList) {
+              input.classList.remove('input-error');
+              input.classList.remove('price-stale');
+            }
+
+            // Crucial: A atualização do preço de uma posição NÃO deve alterar o saldo de nenhuma conta (Etapa 2 independente da Etapa 1)
+            // Recalcula somente métricas de posições (Exposição, Heat, Header Pills, P&L da linha) sem tocar em saldos ou Patrimônio Real
+            this.updateTotalsLive({ scope: 'positions', broadcastNow: false });
+            this.scheduleDraftSave({ scope: 'positions' });
+
             // Update row variation badge, volume, and unrealized result live
-            const row = input.closest('tr');
+            const row = typeof input.closest === 'function' ? input.closest('tr') : null;
             if (row && pos) {
-              const varPct = pos.entryPrice > 0 ? ((parsed - pos.entryPrice) / pos.entryPrice) * 100 : 0;
+              const entry = Number(pos.entryPrice || 0);
+              const varPct = entry > 0 ? ((parsed - entry) / entry) * 100 : 0;
               const varTag = row.querySelector('.position-var-tag, .variation-tag');
               if (varTag) {
-                varTag.className = `variation-tag position-var-tag ${varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral'}`;
+                varTag.className = `variation-tag position-var-tag font-numeric ${varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral'}`;
                 varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
+              }
+              const resTag = row.querySelector('.pos-result-amount, [data-pos-result-amount]');
+              if (resTag) {
+                const unrealizedVal = (parsed - entry) * sign * qty * mult * fxRate;
+                const resClass = unrealizedVal > 0.005 ? 'positive' : unrealizedVal < -0.005 ? 'negative' : 'neutral';
+                const resSign = unrealizedVal > 0.005 ? '+' : '';
+                resTag.className = `pos-result-amount font-numeric ${resClass}`;
+                resTag.textContent = `${resSign}${fmtBRL(unrealizedVal)}`;
               }
             }
           }
         });
 
-        // Keydown for Tab, Enter, Up/Down navigation
+        // Keydown for Tab, Enter, Up/Down navigation, Escape
         input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Escape') {
             e.preventDefault();
-            const next = priceInputs[index + 1] || priceInputs[0];
+            const posId = getPosId();
+            const pos = this.model.positions.find(p => p.id === posId);
+            if (pos && initialPriceOnFocus && initialPriceOnFocus > 0) {
+              pos.currentPrice = initialPriceOnFocus;
+              pos.error = null;
+              input.value = fmtCurrency(initialPriceOnFocus, pos.currency);
+              if (input.classList) input.classList.remove('input-error');
+              this.updateTotalsLive({ scope: 'positions', broadcastNow: false });
+            }
+            if (typeof input.blur === 'function') input.blur();
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            const next = priceInputs[index + 1];
             if (next) {
               next.focus();
-              next.select();
+              if (typeof next.select === 'function') next.select();
+            } else if (typeof input.blur === 'function') {
+              input.blur();
             }
           } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             const next = priceInputs[index + 1];
             if (next) {
               next.focus();
-              next.select();
+              if (typeof next.select === 'function') next.select();
             }
           } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             const prev = priceInputs[index - 1];
             if (prev) {
               prev.focus();
-              prev.select();
+              if (typeof prev.select === 'function') prev.select();
             }
           }
         });
 
-        // Change event to format and persist (preserving last valid price if cleared/invalid)
-        input.addEventListener('change', async (e) => {
-          const posId = input.dataset.positionId;
+        // Blur event to format currency and persist
+        input.addEventListener('blur', async (e) => {
+          const posId = getPosId();
           const val = e.target.value;
           const res = await this.updatePositionPrice(posId, val, { source: 'manual', markStaleOnFailure: false });
-          if (!res?.success && res?.preservedPrice) {
-            const pos = this.model.positions.find(p => p.id === posId);
-            if (pos) {
-              pos.currentPrice = res.preservedPrice;
-              pos.error = null;
+          const pos = this.model.positions.find(p => p.id === posId);
+          if (res?.success && pos) {
+            input.value = fmtCurrency(pos.currentPrice, pos.currency);
+            if (input.classList) {
+              input.classList.remove('input-error');
+              input.classList.remove('price-stale');
             }
+            this.updateTotalsLive({ scope: 'positions', broadcastNow: true });
+            const row = typeof input.closest === 'function' ? input.closest('tr') : null;
+            if (row) {
+              const entry = Number(pos.entryPrice || 0);
+              const curr = Number(pos.currentPrice || entry);
+              const varPct = entry > 0 ? ((curr - entry) / entry) * 100 : 0;
+              const varTag = row.querySelector('.position-var-tag, .variation-tag');
+              if (varTag) {
+                varTag.className = `variation-tag position-var-tag font-numeric ${varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral'}`;
+                varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
+              }
+              const resTag = row.querySelector('.pos-result-amount, [data-pos-result-amount]');
+              if (resTag) {
+                const sign = typeof this.model.getPositionDirectionSign === 'function'
+                  ? this.model.getPositionDirectionSign(pos)
+                  : (pos.direction === 'short' || pos.side === 'Venda' ? -1 : 1);
+                const mult = Number(pos.contractMult ?? pos.mult ?? 1);
+                const fxRate = Number(pos.fxRate ?? (pos.currency === 'USD' ? (pos.fxRate || 5.95) : 1));
+                const qty = Number(pos.quantity ?? pos.remaining ?? 0);
+                const unrealizedVal = (curr - entry) * sign * qty * mult * fxRate;
+                const resClass = unrealizedVal > 0.005 ? 'positive' : unrealizedVal < -0.005 ? 'negative' : 'neutral';
+                const resSign = unrealizedVal > 0.005 ? '+' : '';
+                resTag.className = `pos-result-amount font-numeric ${resClass}`;
+                resTag.textContent = `${resSign}${fmtBRL(unrealizedVal)}`;
+              }
+            }
+          } else if (pos && initialPriceOnFocus && initialPriceOnFocus > 0) {
+            input.value = fmtCurrency(initialPriceOnFocus, pos.currency);
+            if (input.classList) input.classList.remove('input-error');
           }
-          this.render();
         });
       });
 
@@ -1848,7 +2079,7 @@
               pos.averageEntry = initialEntryOnFocus;
               pos.entry = initialEntryOnFocus;
               pos.entryError = null;
-              input.value = fmtBRL(initialEntryOnFocus);
+              input.value = fmtCurrency(initialEntryOnFocus, pos.currency);
               if (input.classList) input.classList.remove('input-error');
               this.updateTotalsLive({ scope: 'all', broadcastNow: false });
             }
@@ -1878,7 +2109,7 @@
           const res = await this.updatePositionEntryPrice(posId, val);
           const pos = this.model.positions.find(p => p.id === posId);
           if (res?.success && pos) {
-            input.value = fmtBRL(pos.entryPrice);
+            input.value = fmtCurrency(pos.entryPrice, pos.currency);
             if (input.classList) input.classList.remove('input-error');
             this.updateTotalsLive({ scope: 'all', broadcastNow: true });
             const row = typeof input.closest === 'function' ? input.closest('tr') : null;
@@ -1929,37 +2160,40 @@
       const exposure = this.model.getTotalExposure();
       const exposurePct = investmentWealth > 0 ? Math.round(((exposure / investmentWealth) * 100) * 100) / 100 : 0;
 
-      const elRealWealth = getEl(cache?.kpiRealWealth, 'kpiRealWealth');
-      if (elRealWealth) elRealWealth.textContent = fmtBRL(realWealth);
+      // Only update Real Wealth (Patrimônio Real) and account tables when accounts are in scope
+      if (scope !== 'positions') {
+        const elRealWealth = getEl(cache?.kpiRealWealth, 'kpiRealWealth');
+        if (elRealWealth) elRealWealth.textContent = fmtBRL(realWealth);
 
-      const elDayVar = getEl(cache?.kpiDayVar, 'kpiDayVar');
-      if (elDayVar) {
-        elDayVar.className = `daily-update-kpi-sub ${dayVarNominal >= 0 ? 'up' : 'down'}`;
-        elDayVar.textContent = `${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)}) vs. fechamento anterior`;
+        const elDayVar = getEl(cache?.kpiDayVar, 'kpiDayVar');
+        if (elDayVar) {
+          elDayVar.className = `daily-update-kpi-sub ${dayVarNominal >= 0 ? 'up' : 'down'}`;
+          elDayVar.textContent = `${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)}) vs. fechamento anterior`;
+        }
+
+        const elTableWealth = getEl(cache?.tableConsolidatedWealth, 'tableConsolidatedWealth');
+        if (elTableWealth) elTableWealth.textContent = fmtBRL(realWealth);
+
+        const elTableDayVar = getEl(cache?.tableDayVar, 'tableDayVar');
+        if (elTableDayVar) {
+          if (elTableDayVar.style) elTableDayVar.style.color = dayVarNominal >= 0 ? '#1e7e4a' : '#d14343';
+          elTableDayVar.className = `consolidated-var-tag ${dayVarNominal >= 0 ? 'positive' : 'negative'}`;
+          elTableDayVar.textContent = `${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)})`;
+        }
       }
 
-      if (scope === 'all') {
+      if (scope === 'all' || scope === 'positions') {
         const elExpVal = getEl(cache?.kpiExposureVal, 'kpiExposureVal') || getEl(null, 'kpiTotalExposure');
         if (elExpVal) elExpVal.textContent = fmtBRL(exposure);
 
         const elHeaderTotalExp = getEl(cache?.headerTotalExposure, 'headerTotalExposure');
         if (elHeaderTotalExp) elHeaderTotalExp.textContent = fmtBRL(exposure);
-      }
 
-      const elExpPct = getEl(cache?.kpiExposurePct, 'kpiExposurePct');
-      if (elExpPct) elExpPct.textContent = `${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio`;
+        const elExpPct = getEl(cache?.kpiExposurePct, 'kpiExposurePct');
+        if (elExpPct) elExpPct.textContent = `${exposurePct.toFixed(2).replace('.', ',')}% do patrimônio`;
 
-      const elHeaderTotalExpPct = getEl(cache?.headerTotalExposurePct, 'headerTotalExposurePct');
-      if (elHeaderTotalExpPct) elHeaderTotalExpPct.textContent = `(${exposurePct.toFixed(2).replace('.', ',')}%)`;
-
-      const elTableWealth = getEl(cache?.tableConsolidatedWealth, 'tableConsolidatedWealth');
-      if (elTableWealth) elTableWealth.textContent = fmtBRL(realWealth);
-
-      const elTableDayVar = getEl(cache?.tableDayVar, 'tableDayVar');
-      if (elTableDayVar) {
-        if (elTableDayVar.style) elTableDayVar.style.color = dayVarNominal >= 0 ? '#1e7e4a' : '#d14343';
-        elTableDayVar.className = `consolidated-var-tag ${dayVarNominal >= 0 ? 'positive' : 'negative'}`;
-        elTableDayVar.textContent = `${dayVarNominal >= 0 ? '▲' : '▼'} ${fmtPct(dayVarPct)} (${fmtBRL(dayVarNominal)})`;
+        const elHeaderTotalExpPct = getEl(cache?.headerTotalExposurePct, 'headerTotalExposurePct');
+        if (elHeaderTotalExpPct) elHeaderTotalExpPct.textContent = `(${exposurePct.toFixed(2).replace('.', ',')}%)`;
       }
 
       const progress = this.model.getProgress();
@@ -1985,79 +2219,81 @@
       }
 
       // CARD [05] — Update % do Total, variation, and Nomad USD badges live without touching focused input
-      const isProvisional = this.model.isWealthDistributionProvisional();
-      const activeEl = typeof document !== 'undefined' ? document.activeElement : null;
+      if (scope !== 'positions') {
+        const isProvisional = this.model.isWealthDistributionProvisional();
+        const activeEl = typeof document !== 'undefined' ? document.activeElement : null;
 
-      this.model.accounts.forEach(acc => {
-        const cachedAcc = cache?.accounts?.get(acc.id);
-        const sharePct = this.model.getAccountWealthSharePct(acc, realWealth);
-        const elShare = queryEl(cachedAcc?.shareEl, `[data-wealth-share-for="${acc.id}"]`);
-        if (elShare) {
-          elShare.textContent = `${sharePct.toFixed(2).replace('.', ',')}%`;
-          if (elShare.classList) {
-            if (isProvisional) {
-              elShare.classList.add('provisional');
-              elShare.title = 'Participação provisória (contas pendentes de conferência)';
-            } else {
-              elShare.classList.remove('provisional');
-              elShare.title = `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`;
+        this.model.accounts.forEach(acc => {
+          const cachedAcc = cache?.accounts?.get(acc.id);
+          const sharePct = this.model.getAccountWealthSharePct(acc, realWealth);
+          const elShare = queryEl(cachedAcc?.shareEl, `[data-wealth-share-for="${acc.id}"]`);
+          if (elShare) {
+            elShare.textContent = `${sharePct.toFixed(2).replace('.', ',')}%`;
+            if (elShare.classList) {
+              if (isProvisional) {
+                elShare.classList.add('provisional');
+                elShare.title = 'Participação provisória (contas pendentes de conferência)';
+              } else {
+                elShare.classList.remove('provisional');
+                elShare.title = `Representa ${sharePct.toFixed(2).replace('.', ',')}% do Patrimônio Real consolidado`;
+              }
             }
           }
-        }
 
-        // Only sync non-focused inputs (e.g. when a position price changed a linked account)
-        if (scope === 'all') {
-          const accInput = queryEl(cachedAcc?.input, `[data-account-input="${acc.id}"]`);
-          if (accInput && activeEl !== accInput && !this.editingAccountInputs.has(acc.id)) {
-            const isUSD = acc.currency === 'USD' && acc.inputCurrency === 'USD';
-            accInput.value = isUSD ? fmtUSD(acc.newBalanceUSD || 0) : fmtBRL(acc.newBalance);
-          }
-        }
-
-        if (!options.accountId || options.accountId === acc.id) {
-          const varTag = queryEl(cachedAcc?.varTag, `[data-account-var-for="${acc.id}"]`);
-          if (varTag) {
-            const varPct = this.model.getAccountVariationPct(acc);
-            varTag.className = `variation-tag font-numeric ${varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral'}`;
-            varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
-          }
-
-          if (acc.currency === 'USD') {
-            const nomadBadge = queryEl(cachedAcc?.nomadFxBadge, `[data-nomad-fx-badge="${acc.id}"]`);
-            if (nomadBadge) {
-              nomadBadge.textContent = `${fmtUSD(acc.newBalanceUSD || 0)} | Câmbio: R$ ${(acc.fxRate || 5.95).toFixed(2).replace('.', ',')}`;
-            }
-            const usdVarTag = queryEl(cachedAcc?.usdVarTag, `[data-account-usd-var-for="${acc.id}"]`);
-            if (usdVarTag) {
-              const usdPct = this.model.getAccountUsdVariationPct(acc);
-              usdVarTag.className = `usd-var-hint font-numeric ${usdPct >= 0 ? 'positive' : 'negative'}`;
-              usdVarTag.textContent = `${usdPct >= 0 ? '+' : ''}${usdPct.toFixed(2).replace('.', ',')}% USD`;
+          // Only sync non-focused inputs on full view refresh
+          if (scope === 'all') {
+            const accInput = queryEl(cachedAcc?.input, `[data-account-input="${acc.id}"]`);
+            if (accInput && activeEl !== accInput && !this.editingAccountInputs.has(acc.id)) {
+              const isUSD = acc.currency === 'USD' && acc.inputCurrency === 'USD';
+              accInput.value = isUSD ? fmtUSD(acc.newBalanceUSD || 0) : fmtBRL(acc.newBalance);
             }
           }
+
+          if (!options.accountId || options.accountId === acc.id) {
+            const varTag = queryEl(cachedAcc?.varTag, `[data-account-var-for="${acc.id}"]`);
+            if (varTag) {
+              const varPct = this.model.getAccountVariationPct(acc);
+              varTag.className = `variation-tag font-numeric ${varPct > 0.001 ? 'positive' : varPct < -0.001 ? 'negative' : 'neutral'}`;
+              varTag.textContent = `${varPct > 0 ? '+' : ''}${varPct.toFixed(2).replace('.', ',')}%`;
+            }
+
+            if (acc.currency === 'USD') {
+              const nomadBadge = queryEl(cachedAcc?.nomadFxBadge, `[data-nomad-fx-badge="${acc.id}"]`);
+              if (nomadBadge) {
+                nomadBadge.textContent = `${fmtUSD(acc.newBalanceUSD || 0)} | Câmbio: R$ ${(acc.fxRate || 5.95).toFixed(3).replace('.', ',')}`;
+              }
+              const usdVarTag = queryEl(cachedAcc?.usdVarTag, `[data-account-usd-var-for="${acc.id}"]`);
+              if (usdVarTag) {
+                const usdPct = this.model.getAccountUsdVariationPct(acc);
+                usdVarTag.className = `usd-var-hint font-numeric ${usdPct >= 0 ? 'positive' : 'negative'}`;
+                usdVarTag.textContent = `${usdPct >= 0 ? '+' : ''}${usdPct.toFixed(2).replace('.', ',')}% USD`;
+              }
+            }
+          }
+        });
+
+        // Update titular group subtotals, shares, and header totals live
+        const grouped = this.model.getGroupedAccounts(realWealth);
+        grouped.forEach(group => {
+          const cachedTit = cache?.titulares?.get(group.person);
+          const elSubtotal = queryEl(cachedTit?.subtotalEl, `[data-titular-subtotal="${group.person}"]`);
+          if (elSubtotal) elSubtotal.textContent = fmtBRL(group.subtotal);
+
+          const elShare = queryEl(cachedTit?.shareEl, `[data-titular-share="${group.person}"]`);
+          if (elShare) elShare.textContent = `${group.sharePct.toFixed(2).replace('.', ',')}% do patrimônio`;
+
+          const elHeaderTotal = queryEl(cachedTit?.headerTotalEl, `[data-titular-header-total="${group.person}"]`);
+          if (elHeaderTotal) elHeaderTotal.innerHTML = `Total: <strong>${fmtBRL(group.subtotal)}</strong> (${group.sharePct.toFixed(2).replace('.', ',')}%)`;
+        });
+
+        const elProvisionalHint = getEl(cache?.provisionalHint, 'wealthDistributionProvisionalHint');
+        if (elProvisionalHint?.style) {
+          elProvisionalHint.style.display = isProvisional ? 'inline-flex' : 'none';
         }
-      });
-
-      // Update titular group subtotals, shares, and header totals live
-      const grouped = this.model.getGroupedAccounts(realWealth);
-      grouped.forEach(group => {
-        const cachedTit = cache?.titulares?.get(group.person);
-        const elSubtotal = queryEl(cachedTit?.subtotalEl, `[data-titular-subtotal="${group.person}"]`);
-        if (elSubtotal) elSubtotal.textContent = fmtBRL(group.subtotal);
-
-        const elShare = queryEl(cachedTit?.shareEl, `[data-titular-share="${group.person}"]`);
-        if (elShare) elShare.textContent = `${group.sharePct.toFixed(2).replace('.', ',')}% do patrimônio`;
-
-        const elHeaderTotal = queryEl(cachedTit?.headerTotalEl, `[data-titular-header-total="${group.person}"]`);
-        if (elHeaderTotal) elHeaderTotal.innerHTML = `Total: <strong>${fmtBRL(group.subtotal)}</strong> (${group.sharePct.toFixed(2).replace('.', ',')}%)`;
-      });
-
-      const elProvisionalHint = getEl(cache?.provisionalHint, 'wealthDistributionProvisionalHint');
-      if (elProvisionalHint?.style) {
-        elProvisionalHint.style.display = isProvisional ? 'inline-flex' : 'none';
       }
 
-      // Skip scanning open position rows when only an account balance changed
-      if (scope === 'all') {
+      // Scan open position rows when positions or all are in scope
+      if (scope === 'all' || scope === 'positions') {
         this.model.positions.forEach(pos => {
           if (pos.closed || pos.status === 'encerrada') return;
           if (typeof this.model.getPositionUnrealizedResult === 'function') {
@@ -2203,6 +2439,33 @@
       }
     }
 
+    focusUsdFxInput() {
+      if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return;
+      const fxInput = document.querySelector('[data-fx-rate-input]');
+      if (fxInput) {
+        if (typeof fxInput.focus === 'function') fxInput.focus();
+        if (typeof fxInput.select === 'function') {
+          try { fxInput.select(); } catch (_) {}
+        }
+      }
+    }
+
+    updateUsdFxRate(newFxRate) {
+      if (typeof this.model.updateUsdFxRate !== 'function') return { success: false };
+      const res = this.model.updateUsdFxRate(newFxRate);
+      if (res?.success) {
+        if (typeof document !== 'undefined' && typeof document.querySelector === 'function') {
+          const fxInput = document.querySelector('[data-fx-rate-input]');
+          if (fxInput && document.activeElement !== fxInput) {
+            fxInput.value = Number(res.fxRate).toFixed(3).replace('.', ',');
+          }
+        }
+        this.updateTotalsLive({ scope: 'all', broadcastNow: true });
+        this.persistDraftNonBlocking();
+      }
+      return res;
+    }
+
     confirmPosition(positionId) {
       this.model.confirmPosition(positionId);
       this.model.saveDraft();
@@ -2291,7 +2554,7 @@
         source: options.source || 'manual',
         updatedAt: options.updatedAt || new Date().toISOString(),
         stale: Boolean(options.stale),
-        syncAccount: options.syncAccount,
+        syncAccount: Boolean(options.syncAccount),
         markStaleOnFailure: Boolean(options.markStaleOnFailure)
       });
       if (res.success) {
@@ -2306,7 +2569,8 @@
           });
         }
 
-        this.persistDraftNonBlocking();
+        this.persistDraftNonBlocking({ scope: 'positions' });
+        this.updateTotalsLive({ scope: 'positions', broadcastNow: true });
 
         // 1. If real backend trade, persist currentPrice durably in metadata AND record update event
         if (pos && /^[0-9a-f-]{36}$/i.test(String(pos.id)) && root.healthyTrendApi?.request && root.healthyTrendApi.isAuthenticated?.()) {

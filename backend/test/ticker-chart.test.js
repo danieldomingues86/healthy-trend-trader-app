@@ -66,7 +66,8 @@ test('ticker-chart: getTickerChartData retorna pacote analítico completo para P
   // 8. Rubric
   assert.ok(data.rubric.finalGrade);
   assert.ok(Array.isArray(data.rubric.criteria));
-  assert.equal(data.rubric.criteria.length, 8);
+  assert.equal(data.rubric.criteria.length, 9);
+  assert.ok(data.rubric.criteria.some(c => c.name === 'Negócios por dia'), 'Deve conter o critério Negócios por dia');
 
   // 9. Fundamentos e Liquidez
   assert.ok(data.fundamentals.roe);
@@ -168,4 +169,57 @@ test('ticker-chart: expõe bdrInfo para BDRs (StockCharts + Earnings) e mantém 
   assert.equal(petr.tickerInfo.originalSymbol, null);
   assert.equal(petr.bdrInfo, null);
 });
+
+test('ticker-chart: Ciclo de Mercado e Estrutura apresentam condições objetivas e regimes canônicos (sem rótulo Expansão)', async () => {
+  // 1. TIMS3: Estrutura em Alta com alta volatilidade (Up & Volatile) e Ciclo do IBOV
+  const tims = await tickerChart.getTickerChartData('TIMS3');
+  assert.notEqual(tims.marketCycle.regime, 'Expansão');
+  assert.notEqual(tims.structure.label, 'Expansão');
+  assert.ok(
+    tims.marketCycle.regime === 'Média 10 > Média 30' || tims.marketCycle.regime === 'Média 10 ≤ Média 30',
+    `Ciclo esperado Média 10 > Média 30 ou Média 10 ≤ Média 30, recebido: ${tims.marketCycle.regime}`
+  );
+  assert.equal(tims.structure.label, 'Alta com alta volatilidade (Up & Volatile)');
+  assert.equal(tims.structure.regimeCode, 'UP_VOLATILE');
+  assert.equal(tims.structure.status, 'alert');
+
+  // Critérios da Rubric nunca apresentam rótulo genérico Expansão
+  const timsCycleCrit = tims.rubric.criteria.find(c => c.name === 'Ciclo de Mercado');
+  assert.ok(timsCycleCrit);
+  assert.notEqual(timsCycleCrit.obs, 'Expansão');
+  assert.equal(timsCycleCrit.obs, tims.marketCycle.regime);
+
+  const timsStructCrit = tims.rubric.criteria.find(c => c.name === 'Estrutura');
+  assert.ok(timsStructCrit);
+  assert.notEqual(timsStructCrit.obs, 'Expansão');
+  assert.equal(timsStructCrit.obs, 'Alta com alta volatilidade (Up & Volatile)');
+
+  // 2. DESK3: Estrutura em Alta com baixa volatilidade (Up & Quiet)
+  const desk = await tickerChart.getTickerChartData('DESK3');
+  assert.notEqual(desk.structure.label, 'Expansão');
+  assert.equal(desk.structure.label, 'Alta com baixa volatilidade (Up & Quiet)');
+  assert.equal(desk.structure.regimeCode, 'UP_QUIET');
+  assert.equal(desk.structure.status, 'good');
+
+  // SBSP3: Estrutura em transição/repique (Preço > EMAs, porém EMA 10 < EMA 72 => Sideways)
+  const sbsp = await tickerChart.getTickerChartData('SBSP3');
+  assert.notEqual(sbsp.structure.label, 'Expansão');
+  assert.equal(sbsp.structure.label, 'Mercado lateral (Sideways)');
+  assert.equal(sbsp.structure.status, 'neutral');
+
+  // 3. PETR4: Estrutura em Baixa com alta volatilidade (Down & Volatile)
+  const petr = await tickerChart.getTickerChartData('PETR4');
+  assert.notEqual(petr.structure.label, 'Expansão');
+  assert.equal(petr.structure.label, 'Baixa com alta volatilidade (Down & Volatile)');
+  assert.equal(petr.structure.regimeCode, 'DOWN_VOLATILE');
+  assert.equal(petr.structure.status, 'bad');
+
+  // 4. VALE3: Estrutura em Baixa com alta volatilidade (Down & Volatile)
+  const vale = await tickerChart.getTickerChartData('VALE3');
+  assert.notEqual(vale.structure.label, 'Expansão');
+  assert.equal(vale.structure.label, 'Baixa com alta volatilidade (Down & Volatile)');
+  assert.equal(vale.structure.regimeCode, 'DOWN_VOLATILE');
+  assert.equal(vale.structure.status, 'bad');
+});
+
 

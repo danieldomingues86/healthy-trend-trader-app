@@ -1809,10 +1809,12 @@ body:has(#charts.page.active) #marketFocusGuard {
 }
 
 .method-structure-label.good { color: var(--ink, #0f172a); }
+.method-structure-label.alert { color: var(--ink, #0f172a); }
 .method-structure-label.neutral { color: #64748b; }
 .method-structure-label.bad { color: #b91c1c; }
 
 .structure-arrow.good { color: #10b981; }
+.structure-arrow.alert { color: #f59e0b; }
 .structure-arrow.neutral { color: #94a3b8; }
 .structure-arrow.bad { color: #ef4444; }
 

@@ -70,6 +70,9 @@
     { bg: '#0f172a', fg: '#e2e8f0' }
   ];
 
+  const MARKET_CYCLE_DEFINITION = (root.OpportunityRadarModel && root.OpportunityRadarModel.MARKET_CYCLE_DEFINITION) ||
+    'Ciclo de Mercado Positivo: mercado com tendência predominante de alta, caracterizada pelo alinhamento das EMAs 10 e 30 no gráfico Diário, ambas com inclinação favorável. O comportamento do preço e a persistência do alinhamento também são considerados. Após correções, o sistema observa sinais de retomada da tendência.';
+
   const LOGO_CACHE_KEY = 'htt_asset_logos_status_v1';
 
   // Cache persistente na sessão do navegador para evitar requisições redundantes ou 404 repetidos
@@ -536,7 +539,7 @@
       <div class="radar-cycle-status-pill ${isDefensive ? 'defensive' : 'healthy'}" id="radarHeaderCyclePill"
            onclick="window.openMarketCycleFromRadar('${esc(marketId)}')"
            style="cursor: pointer;"
-           title="Ver Ciclo de Mercado de ${esc(cycle.marketName || 'Mercado')}">
+           title="${esc(cycle.marketName || 'Mercado')} — ${esc(MARKET_CYCLE_DEFINITION)}">
         <span class="radar-cycle-status-dot" aria-hidden="true"></span>
         <div class="radar-cycle-status-info">
           <div class="radar-cycle-status-label">
@@ -672,6 +675,16 @@
     `;
   }
 
+  function resolveDailyTradesCount(item) {
+    const direct = Number(item?.tradesCount ?? item?.dailyTrades ?? item?.trades ?? item?.negocios);
+    if (Number.isFinite(direct) && direct > 0) return Math.round(direct);
+    const fromLiqLast = Number(item?.liquidity?.metrics?.lastDayTrades);
+    if (Number.isFinite(fromLiqLast) && fromLiqLast > 0) return Math.round(fromLiqLast);
+    const fromLiqAvg = Number(item?.liquidity?.metrics?.averageDailyTrades);
+    if (Number.isFinite(fromLiqAvg) && fromLiqAvg > 0) return Math.round(fromLiqAvg);
+    return null;
+  }
+
   function renderVolatilityTable(items) {
     if (!items || !items.length) {
       return `
@@ -698,6 +711,11 @@
       const distColor = '#15803d';
       const liqBadgeText = '✓ Aprovada';
       const liqTooltip = 'Liquidez operacional comprovada nos últimos pregões pelo Liquidity Gate global.';
+      const tradesCount = resolveDailyTradesCount(item);
+      const tradesDisplay = tradesCount !== null ? tradesCount.toLocaleString('pt-BR') : '—';
+      const tradesTooltip = tradesCount !== null
+        ? `${tradesDisplay} negócios realizados pelo ativo no dia`
+        : 'Número de negócios do dia não informado';
 
       return `
         <tr data-ticker="${esc(sym)}" class="row-oversold">
@@ -737,6 +755,11 @@
             </span>
           </td>
           <td class="col-center">
+            <span class="radar-trades-count-pill font-numeric" title="${esc(tradesTooltip)}">
+              ${esc(tradesDisplay)}
+            </span>
+          </td>
+          <td class="col-center">
             <span class="radar-status-pill is-oversold" title="⚡ SOBREVENDA (Gatilho Ativo)">
               ⚡ SOBREVENDA
             </span>
@@ -770,6 +793,7 @@
               <th class="col-center">NÍVEL CONFIGURADO</th>
               <th class="col-center">ZONA DE ENTRADA</th>
               <th class="col-center">LIQUIDEZ</th>
+              <th class="col-center" title="Número de negócios realizados pelo ativo no dia">NEGÓCIOS (DIA)</th>
               <th class="col-center">STATUS DA OPORTUNIDADE</th>
               <th class="col-actions">AÇÕES</th>
             </tr>
@@ -827,6 +851,11 @@
       const liqVolCompact = liqMetrics?.averageDailyVolumeCompact;
       const liqBadgeText = liqVolCompact ? `${liqVolCompact}/dia` : (item.liquidity?.badge?.shortText || '✓ Adequada');
       const liqTooltip = item.liquidity?.reason || 'Liquidez comprovada nos últimos 21 pregões (Hard Gate).';
+      const tradesCount = resolveDailyTradesCount(item);
+      const tradesDisplay = tradesCount !== null ? tradesCount.toLocaleString('pt-BR') : '—';
+      const tradesTooltip = tradesCount !== null
+        ? `${tradesDisplay} negócios realizados pelo ativo no dia`
+        : 'Número de negócios do dia não informado';
 
       return `
         <tr data-ticker="${esc(sym)}">
@@ -857,7 +886,7 @@
             </div>
           </td>
           <td class="col-center">
-            <span class="radar-green-pill">${esc(item.marketCycle)}</span>
+            <span class="radar-green-pill" title="${esc(MARKET_CYCLE_DEFINITION)}">${esc(item.marketCycle)}</span>
           </td>
           <td class="col-center">
             <span class="radar-green-pill">${esc(item.trend)}</span>
@@ -866,6 +895,11 @@
             <span class="radar-liquidity-pill" title="${esc(liqTooltip)}">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
               ${esc(liqBadgeText)}
+            </span>
+          </td>
+          <td class="col-center">
+            <span class="radar-trades-count-pill font-numeric" title="${esc(tradesTooltip)}">
+              ${esc(tradesDisplay)}
             </span>
           </td>
           <td>
@@ -915,9 +949,10 @@
               <th class="col-center">GRADE</th>
               <th class="col-center">MERCADO</th>
               <th class="col-center">RS (3M)</th>
-              <th class="col-center">CICLO DE MERCADO</th>
+              <th class="col-center" title="${esc(MARKET_CYCLE_DEFINITION)}">CICLO DE MERCADO</th>
               <th class="col-center">TENDÊNCIA (EMA 10 &gt; 72)</th>
               <th class="col-center">LIQUIDEZ</th>
+              <th class="col-center" title="Número de negócios realizados pelo ativo no dia">NEGÓCIOS (DIA)</th>
               <th>GATILHO</th>
               <th>ENTRADA PLANEJADA</th>
               <th>STOP INICIAL</th>
@@ -1236,8 +1271,7 @@
     }
     if (typeof root.go === 'function') {
       root.go('charts', sym);
-    }
-    if (typeof root.loadTickerChart === 'function') {
+    } else if (typeof root.loadTickerChart === 'function') {
       root.loadTickerChart(sym);
     }
   }
@@ -1642,9 +1676,9 @@
               </div>
               <ul class="radar-criteria-list">
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Força Relativa (3M) &gt; 80</li>
-                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Ciclo de Mercado Positivo</li>
+                <li title="${esc(MARKET_CYCLE_DEFINITION)}"><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Ciclo de Mercado Positivo: alinhamento das EMAs 10 e 30 com inclinação favorável (Diário)</li>
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Preço &gt; EMA 10 &gt; EMA 72 (Diário)</li>
-                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Liquidez Mínima: Vol. médio &ge; R$ 500 mil/dia (21 pregões)</li>
+                <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Negócios por dia &ge; 500 • Liquidez Mínima: Vol. médio &ge; R$ 500 mil/dia (21 pregões)</li>
                 <li><span class="radar-check-icon"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#159967"/><path d="M6 10.2L8.7 13 14 7.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Gatilhos: Inside Bar, 123 Buy, PFR de Compra</li>
               </ul>
             </div>

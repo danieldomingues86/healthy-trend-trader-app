@@ -86,13 +86,13 @@
         dataDate: cycle.date || history.at(-1)?.date || currentRegime.reference_date || null,
         dataVersion: payload.source || 'b3-indexes',
         ema10: Number(cycle.ema10 ?? cycle.ema9) || null,
-        ema72: Number(cycle.ema72 ?? cycle.ema30) || null,
+        ema30: Number(cycle.ema30 ?? cycle.ema72) || null,
+        ema72: Number(cycle.ema30 ?? cycle.ema72) || null,
         ema9: Number(cycle.ema10 ?? cycle.ema9) || null,
-        ema30: Number(cycle.ema72 ?? cycle.ema30) || null,
         above10: cycle.above10 !== undefined ? Boolean(cycle.above10) : Boolean(cycle.above9 ?? isUp),
-        above72: cycle.above72 !== undefined ? Boolean(cycle.above72) : Boolean(cycle.above30 ?? isUp),
-        above9: cycle.above9 !== undefined ? Boolean(cycle.above9) : Boolean(cycle.above10 ?? isUp),
         above30: cycle.above30 !== undefined ? Boolean(cycle.above30) : Boolean(cycle.above72 ?? isUp),
+        above72: cycle.above30 !== undefined ? Boolean(cycle.above30) : Boolean(cycle.above72 ?? isUp),
+        above9: cycle.above9 !== undefined ? Boolean(cycle.above9) : Boolean(cycle.above10 ?? isUp),
         rawPrice: Number(cycle.price || history.at(-1)?.close || currentRegime.close_price) || null,
         closePrice: Number(cycle.price || history.at(-1)?.close || currentRegime.close_price) || null,
         regime: currentRegime.regime || (isHealthy ? 'UP_QUIET' : 'DOWN_VOLATILE'),
@@ -118,8 +118,8 @@
       title: 'Up – Quiet',
       name: 'Tendência de alta com baixa volatilidade',
       sublabel: 'Alta + baixa volatilidade',
-      direction: 'Up',
-      volatility: 'Quiet',
+      direction: 'UP',
+      volatility: 'QUIET',
       color: '#10b981',
       badgeClass: 'regime-up-quiet',
       icon: 'arrow-up'
@@ -130,8 +130,8 @@
       title: 'Up – Volatile',
       name: 'Tendência de alta com alta volatilidade',
       sublabel: 'Alta + alta volatilidade',
-      direction: 'Up',
-      volatility: 'Volatile',
+      direction: 'UP',
+      volatility: 'VOLATILE',
       color: '#f59e0b',
       badgeClass: 'regime-up-volatile',
       icon: 'arrow-up-right'
@@ -142,8 +142,8 @@
       title: 'Sideways – Quiet',
       name: 'Lateral com baixa volatilidade',
       sublabel: 'Lateral + baixa volatilidade',
-      direction: 'Sideways',
-      volatility: 'Quiet',
+      direction: 'SIDEWAYS',
+      volatility: 'QUIET',
       color: '#3b82f6',
       badgeClass: 'regime-sideways-quiet',
       icon: 'arrow-left-right'
@@ -154,8 +154,8 @@
       title: 'Sideways – Volatile',
       name: 'Lateral com alta volatilidade',
       sublabel: 'Lateral + alta volatilidade',
-      direction: 'Sideways',
-      volatility: 'Volatile',
+      direction: 'SIDEWAYS',
+      volatility: 'VOLATILE',
       color: '#f97316',
       badgeClass: 'regime-sideways-volatile',
       icon: 'zigzag'
@@ -166,8 +166,8 @@
       title: 'Down – Quiet',
       name: 'Baixa com baixa volatilidade',
       sublabel: 'Baixa + baixa volatilidade',
-      direction: 'Down',
-      volatility: 'Quiet',
+      direction: 'DOWN',
+      volatility: 'QUIET',
       color: '#6b7280',
       badgeClass: 'regime-down-quiet',
       icon: 'arrow-down-right'
@@ -178,8 +178,8 @@
       title: 'Down – Volatile',
       name: 'Baixa com alta volatilidade',
       sublabel: 'Baixa + alta volatilidade',
-      direction: 'Down',
-      volatility: 'Volatile',
+      direction: 'DOWN',
+      volatility: 'VOLATILE',
       color: '#ef4444',
       badgeClass: 'regime-down-volatile',
       icon: 'arrow-down'
@@ -276,7 +276,8 @@
     'trophy': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2M4 22h16M10 14.66V17c0 .55-.45 1-1 1H7v4h10v-4h-2c-.55 0-1-.45-1-1v-2.34M6 3h12v7a6 6 0 0 1-12 0V3z"/></svg>',
     'check': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
     'info': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>',
-    'calendar': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'
+    'calendar': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    'refresh': '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'
   };
 
   function calculateEmaSeries(values, period) {
@@ -299,20 +300,24 @@
       const raw = localStorage.getItem('mcv2_emas');
       if (raw) {
         const parsed = JSON.parse(raw);
-        return {
-          showEma10: parsed.showEma10 !== undefined ? Boolean(parsed.showEma10) : true,
-          showEma20: Boolean(parsed.showEma20),
-          showEma50: Boolean(parsed.showEma50),
-          showEma72: parsed.showEma72 !== undefined ? Boolean(parsed.showEma72) : true,
-          showEma200: Boolean(parsed.showEma200)
-        };
+        if (parsed && parsed.showEma30 !== undefined) {
+          return {
+            showEma10: parsed.showEma10 !== undefined ? Boolean(parsed.showEma10) : true,
+            showEma20: Boolean(parsed.showEma20),
+            showEma30: Boolean(parsed.showEma30),
+            showEma50: Boolean(parsed.showEma50),
+            showEma72: Boolean(parsed.showEma72),
+            showEma200: Boolean(parsed.showEma200)
+          };
+        }
       }
     } catch (_) {}
     return {
       showEma10: true,
       showEma20: false,
+      showEma30: true,
       showEma50: false,
-      showEma72: true,
+      showEma72: false,
       showEma200: false
     };
   }
@@ -322,6 +327,7 @@
       localStorage.setItem('mcv2_emas', JSON.stringify({
         showEma10: state.showEma10,
         showEma20: state.showEma20,
+        showEma30: state.showEma30,
         showEma50: state.showEma50,
         showEma72: state.showEma72,
         showEma200: state.showEma200
@@ -339,6 +345,7 @@
     error: null,
     showEma10: initialEmaPrefs.showEma10,
     showEma20: initialEmaPrefs.showEma20,
+    showEma30: initialEmaPrefs.showEma30,
     showEma50: initialEmaPrefs.showEma50,
     showEma72: initialEmaPrefs.showEma72,
     showEma200: initialEmaPrefs.showEma200,
@@ -353,6 +360,33 @@
   }
   syncActiveLayout();
   new MutationObserver(syncActiveLayout).observe(root, { attributes: true, attributeFilter: ['class'] });
+
+  const CACHE_TTL_MS = 5 * 60 * 1000;
+  let loadRequestSeq = 0;
+
+  function normalizeIsoDate(value) {
+    const raw = String(value || '').trim();
+    if (/^\d{8}$/.test(raw)) return `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
+    if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0, 10);
+    return '';
+  }
+
+  function formatDateTimeShort(isoValue) {
+    if (!isoValue) return '';
+    try {
+      const parsed = new Date(isoValue);
+      if (!Number.isFinite(parsed.getTime())) return '';
+      return parsed.toLocaleString(window.appLanguage === 'en-US' ? 'en-US' : 'pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return '';
+    }
+  }
 
   function getMarketOperatingStatus(market) {
     const isUs = market === 'US';
@@ -403,13 +437,45 @@
 
   /**
    * Top Header com título, seletor centralizado e destacado de benchmarks (Brasil & EUA),
-   * e badges contextuais de status do mercado e data de referência.
+   * e badges contextuais de status do mercado, defasagem e data de referência.
    */
   /**
    * 1. Hero Banner Superior com Identificação, Arte Celestial e Status do Mercado
    */
-  function renderHeroBanner(benchmarkInfo, dataDate) {
+  function renderHeroBanner(benchmarkInfo, dataDate, freshness = null) {
     const marketStatus = getMarketOperatingStatus(benchmarkInfo.market);
+    const normalizedDataDate = normalizeIsoDate(dataDate);
+    const expectedClosedDate = normalizeIsoDate(freshness?.expectedClosedDate);
+    const isStale = Boolean(
+      freshness?.isStale ||
+      state.error ||
+      (expectedClosedDate && normalizedDataDate && normalizedDataDate < expectedClosedDate)
+    );
+    const staleReason = freshness?.lastError || state.error || (
+      expectedClosedDate && normalizedDataDate && normalizedDataDate < expectedClosedDate
+        ? t(`Último pregão fechado esperado: ${dateLabel(expectedClosedDate)}`, `Expected last closed session: ${dateLabel(expectedClosedDate)}`)
+        : ''
+    );
+    const lastUpdatedStr = formatDateTimeShort(freshness?.updatedAt);
+    const staleTooltipParts = [
+      t('Dados desatualizados: exibindo o último fechamento diário válido em cache.', 'Stale data: showing last valid cached daily close.')
+    ];
+    if (lastUpdatedStr) {
+      staleTooltipParts.push(`${t('Última sincronização:', 'Last sync:')} ${lastUpdatedStr}`);
+    }
+    if (staleReason) {
+      staleTooltipParts.push(`${t('Motivo:', 'Reason:')} ${staleReason}`);
+    }
+
+    const statusLabel = marketStatus.isOpen
+      ? (isStale
+        ? t('Pregão em andamento (Ciclo Diário)', 'Session in progress (Daily Cycle)')
+        : t('Mercado aberto • Ciclo Diário', 'Market open • Daily Cycle'))
+      : marketStatus.label;
+
+    const statusTooltip = marketStatus.isOpen
+      ? t('Pregão em andamento. O Ciclo de Mercado utiliza exclusivamente candles diários consolidados (último pregão fechado).', 'Trading session in progress. Market Cycle uses exclusively consolidated daily candles (last closed session).')
+      : t('Status de operação da bolsa de referência.', 'Operating status of the reference exchange.');
 
     return `<div class="mre-hero-banner" role="banner">
       <div class="mre-hero-content">
@@ -421,11 +487,20 @@
       </div>
 
       <div class="mre-header-controls">
-        <div class="mre-badge-closed ${marketStatus.isOpen ? 'is-open' : 'is-closed'}">
-          <span class="mre-closed-dot ${marketStatus.isOpen ? 'is-open' : ''}"></span>
-          <span>${esc(marketStatus.label)}</span>
+        ${isStale ? `
+          <div class="mre-badge-stale" role="status" data-stale-badge title="${esc(staleTooltipParts.join(' • '))}">
+            ${svgIcons['alert-triangle']}
+            <div class="mre-stale-text-col">
+              <strong>${t('Dados desatualizados', 'Outdated data')}</strong>
+              ${lastUpdatedStr || staleReason ? `<span class="mre-stale-sub">${esc([lastUpdatedStr ? `${t('Atualizado:', 'Updated:')} ${lastUpdatedStr}` : '', staleReason].filter(Boolean).join(' • '))}</span>` : ''}
+            </div>
+          </div>
+        ` : ''}
+        <div class="mre-badge-closed ${marketStatus.isOpen && !isStale ? 'is-open' : 'is-closed'}" title="${esc(statusTooltip)}">
+          <span class="mre-closed-dot ${marketStatus.isOpen && !isStale ? 'is-open' : ''}"></span>
+          <span>${esc(statusLabel)}</span>
         </div>
-        <div class="mre-badge-date" title="${t('Data do último pregão registrado', 'Last recorded session date')}">
+        <div class="mre-badge-date ${isStale ? 'is-stale' : ''}" title="${t('Data do último pregão diário fechado e validado', 'Last validated closed daily session date')}">
           ${svgIcons.calendar}
           <span>${t('Dados de:', 'Data from:')} ${esc(formatDateWithWeekday(dataDate))}</span>
         </div>
@@ -433,6 +508,10 @@
           <span class="mre-origin-flag">${benchmarkInfo.flag}</span>
           <span>${esc(marketStatus.marketBadge)}</span>
         </div>
+        <button type="button" class="mre-refresh-btn ${state.loading ? 'is-loading' : ''}" data-refresh-benchmark title="${t('Sincronizar dados do benchmark', 'Sync benchmark data')}" aria-label="${t('Atualizar dados', 'Refresh data')}">
+          ${svgIcons.refresh}
+          <span>${state.loading ? t('Atualizando...', 'Refreshing...') : t('Atualizar', 'Refresh')}</span>
+        </button>
       </div>
     </div>`;
   }
@@ -538,22 +617,61 @@
    * 5. Card 2: Regime Atual do Mercado (Hero Tile + Orientações Estruturais TF / VT)
    */
   function renderCurrentRegimeCard(currentRegime, dataDate) {
-    const regCode = currentRegime?.regime || 'UP_VOLATILE';
-    const meta = REGIME_METADATA[regCode] || REGIME_METADATA.UP_VOLATILE;
-    const isUp = (meta.title || '').includes('Up') || (meta.title || '').includes('Alta');
-    const isVolatile = (meta.title || '').includes('Volatile') || (meta.title || '').includes('alta volatilidade');
+    const regCode = currentRegime?.regime || 'SIDEWAYS_VOLATILE';
+    const meta = REGIME_METADATA[regCode] || REGIME_METADATA.SIDEWAYS_VOLATILE;
 
-    const tfGuidance = isUp 
-      ? t('Ambiente favorável para condução, expansão e novos setups em confluência.', 'Favorable environment for trend continuation and quality setups.')
-      : t('Proteção de capital: não abrir novas compras em tendência sem confirmação.', 'Capital protection: do not open new trend buys without confirmation.');
+    const rawDir = String(currentRegime?.direction || meta.direction || '').toUpperCase();
+    const rawVol = String(currentRegime?.volatility || meta.volatility || '').toUpperCase();
+    const isUp = rawDir === 'UP';
+    const isDown = rawDir === 'DOWN';
+    const isVolatile = rawVol === 'VOLATILE';
+
+    const dirLabel = isUp ? t('Alta', 'Up') : (isDown ? t('Baixa', 'Down') : t('Lateral', 'Sideways'));
+    const volLabel = isVolatile ? t('Alta Volatilidade', 'High Volatility') : t('Baixa Volatilidade', 'Low Volatility');
+
+    const price = Number(currentRegime?.close_price);
+    const ema10 = Number(currentRegime?.ema_10 ?? currentRegime?.ema10);
+    const ema30 = Number(currentRegime?.ema_30 ?? currentRegime?.ema30 ?? currentRegime?.ema_72 ?? currentRegime?.ema72);
+
+    const hasEmas = Number.isFinite(price) && Number.isFinite(ema10) && Number.isFinite(ema30);
+    const isAlignedUp = hasEmas && ema10 > ema30;
+    const isPriceAboveBoth = hasEmas && price > ema10 && price > ema30;
+    const isConfirmedFavorable = isAlignedUp && isPriceAboveBoth;
+
+    // Detecção e explicação transparente de divergência legítima entre Regime e Ciclo
+    let divergenceNotice = '';
+    let tfGuidance = '';
+
+    if (isConfirmedFavorable) {
+      tfGuidance = t(
+        'Ambiente favorável (EMA 10 e EMA 30 no Diário): médias alinhadas (Média 10 > Média 30) e preço acima das médias para condução, expansão e novos setups em confluência.',
+        'Favorable environment (EMA 10 and EMA 30 on Daily): aligned moving averages (EMA 10 > EMA 30) and price above averages for trend continuation and setups.'
+      );
+    } else if (hasEmas && isPriceAboveBoth && !isAlignedUp) {
+      // Divergência clássica: preço repicou acima das médias, mas alinhamento EMA 10/30 ainda negativo
+      tfGuidance = t(
+        'Regime em repique/recuperação de preços acima das médias, mas alinhamento EMA 10/30 ainda negativo (Média 10 ≤ Média 30 no Diário) — aguardar confirmação do cruzamento para novos setups em confluência.',
+        'Regime in price recovery above moving averages, but EMA 10/30 alignment is still negative (EMA 10 ≤ EMA 30 on Daily) — await crossover confirmation for new trend setups.'
+      );
+      divergenceNotice = `<div class="mre-divergence-alert" title="${t('Divergência entre Preço e Alinhamento de Médias', 'Divergence between Price and Moving Average Alignment')}">
+        <span class="mre-divergence-icon">⚠️</span>
+        <div class="mre-divergence-text">
+          <strong>${t('Repique com Médias Invertidas:', 'Price Bounce with Inverted EMAs:')}</strong>
+          ${t('Preço acima das médias, porém EMA 10 ≤ EMA 30 no Diário. O Ciclo requer alinhamento positivo para autorizar novos setups em confluência.', 'Price is above averages, but EMA 10 ≤ EMA 30 on Daily. Cycle requires positive alignment to authorize new setups.')}
+        </div>
+      </div>`;
+    } else {
+      tfGuidance = t(
+        'Contexto cauteloso no índice (EMA 10/30): dimensionar risco com disciplina, aguardando alinhamento positivo e preço acima das médias. Avaliar cada ativo líder por sua própria estrutura (EMA 10/72) e força.',
+        'Cautious index context (EMA 10/30): size risk with discipline, awaiting positive alignment and price above averages. Evaluate each leader by its own structure (EMA 10/72) and strength.'
+      );
+    }
 
     const vtGuidance = isVolatile
       ? t('Requer atenção estrita ao filtro estrutural (preço > SMA200 do próprio ativo), operando reações táticas com saída temporal D7.', 'Requires strict structural filter adherence, operating tactical reactions with D7 time stop.')
       : t('Oscilações contidas: reversão à média com stops curtos e saídas ágeis nas bandas.', 'Contained swings: mean reversion with tight stops and swift band exits.');
 
     const refDate = currentRegime?.reference_date || dataDate;
-    const dirLabel = meta.direction === 'UP' ? t('Alta', 'Up') : (meta.direction === 'DOWN' ? t('Baixa', 'Down') : t('Lateral', 'Sideways'));
-    const volLabel = meta.volatility === 'VOLATILE' ? t('Alta Volatilidade', 'High Volatility') : t('Baixa Volatilidade', 'Low Volatility');
 
     return `<div class="mre-card mre-current-card">
       <div class="mre-card-header mre-current-header">
@@ -583,6 +701,7 @@
         </div>
 
         <div class="mre-strategy-guidance-vertical">
+          ${divergenceNotice}
           <div class="mre-guidance-block mre-guidance-tf">
             <div class="mre-guidance-title">
               <span class="mre-guidance-icon">📈</span>
@@ -632,6 +751,46 @@
   }
 
   /**
+   * 6b. Card Explicativo Metodológico: Por que fazemos essa distinção? (Ciclo EMA 10/30 vs Ativos EMA 10/72)
+   */
+  function renderMethodologyDistinctionCard() {
+    return `<div class="mre-card mre-distinction-card" data-methodology-distinction>
+      <div class="mre-card-header mre-distinction-header">
+        <div class="mre-card-title-group">
+          <span class="mre-card-header-icon">${svgIcons.info}</span>
+          <h2 class="mre-card-title">${t('Por que fazemos essa distinção?', 'Why do we make this distinction?')}</h2>
+        </div>
+        <div class="mre-distinction-badges">
+          <span class="mre-distinction-pill mre-pill-market-emas">
+            <strong>${t('Ciclo de Mercado (Diário):', 'Market Cycle (Daily):')}</strong> EMA 10 e EMA 30
+          </span>
+          <span class="mre-distinction-pill mre-pill-asset-emas">
+            <strong>${t('Gráficos dos Ativos (Diário):', 'Asset Charts (Daily):')}</strong> EMA 10 e EMA 72
+          </span>
+        </div>
+      </div>
+      <div class="mre-distinction-body">
+        <p>${t(
+          'O mercado e os ativos não se movimentam na mesma velocidade. Em momentos de queda, muitos ativos tendem a cair juntos e apresentar estruturas semelhantes. Porém, quando começa uma recuperação, alguns ativos — especialmente os líderes — podem voltar a performar antes dos demais e antes de o mercado confirmar uma tendência de alta mais madura.',
+          'The market and individual assets do not move at the same speed. During downturns, many assets tend to fall together and display similar structures. However, when a recovery begins, some assets — especially leaders — may start outperforming before the rest and before the market confirms a more mature uptrend.'
+        )}</p>
+        <p>${t(
+          'Se utilizássemos a mesma leitura estrutural e mais lenta para o mercado e para os ativos, o sistema poderia demorar a reconhecer essa mudança. O ciclo geral ainda poderia indicar recuperação ou uma condição não totalmente confirmada, enquanto determinados ativos já estariam demonstrando força e apresentando oportunidades técnicas.',
+          'If we used the same slower structural reading for both the market and individual assets, the system could take too long to recognize this shift. The broader cycle might still indicate recovery or an unconfirmed condition while specific assets are already demonstrating strength and presenting technical opportunities.'
+        )}</p>
+        <p>${t(
+          'Por isso, usamos médias mais curtas (EMA 10 e EMA 30) no ciclo de mercado, para perceber as transições do ambiente com maior agilidade. Nos gráficos individuais, mantemos EMA 10 e EMA 72, pois precisamos de uma leitura estrutural mais ampla para avaliar cada ativo.',
+          'Therefore, we use shorter moving averages (EMA 10 and EMA 30) in the market cycle to perceive environment transitions with greater agility. On individual charts, we keep EMA 10 and EMA 72 because we need a broader structural reading to evaluate each asset.'
+        )}</p>
+        <p>${t(
+          'O ciclo de mercado contextualiza; não deve impedir a leitura individual dos ativos. O mercado ajuda a dimensionar o contexto e o risco, enquanto cada ativo precisa ser avaliado por sua própria estrutura e força. Assim, conseguimos reconhecer líderes e possíveis antecipações sem esperar que todo o mercado esteja alinhado.',
+          'The market cycle contextualizes; it should not prevent the individual reading of assets. The market helps size context and risk, while each asset must be evaluated by its own structure and strength. This way, we can recognize leaders and early recoveries without waiting for the entire market to align.'
+        )}</p>
+      </div>
+    </div>`;
+  }
+
+  /**
    * 3. Gráfico Histórico do Mercado (Full Width Dominante)
    */
   function renderHistorySection(benchmarkInfo, historyCandles, periods, distribution, dataDate, currentRegime) {
@@ -652,6 +811,11 @@
     const price = hasNumber(displayCandle.close) ? Number(displayCandle.close) : Number(currentRegime?.close_price || 0);
     const ema10Val = hasNumber(displayCandle.ema10) ? Number(displayCandle.ema10) : (state.showEma10 ? Number(currentRegime?.ema_10 || 0) : null);
     const ema20Val = hasNumber(displayCandle.ema20) ? Number(displayCandle.ema20) : null;
+    const ema30Val = hasNumber(displayCandle.ema30)
+      ? Number(displayCandle.ema30)
+      : (hasNumber(displayCandle.ema72)
+        ? Number(displayCandle.ema72)
+        : (state.showEma30 ? Number(currentRegime?.ema_30 ?? currentRegime?.ema_72 ?? 0) : null));
     const ema50Val = hasNumber(displayCandle.ema50) ? Number(displayCandle.ema50) : null;
     const ema72Val = hasNumber(displayCandle.ema72) ? Number(displayCandle.ema72) : (state.showEma72 ? Number(currentRegime?.ema_72 || 0) : null);
     const ema200Val = hasNumber(displayCandle.ema200) ? Number(displayCandle.ema200) : null;
@@ -678,6 +842,7 @@
           <div class="mre-chart-emas-inline">
             ${state.showEma10 && hasNumber(ema10Val) ? `<span class="mre-stat-ema mre-stat-ema10">EMA 10 <strong>${number(ema10Val, 2)}</strong></span>` : ''}
             ${state.showEma20 && hasNumber(ema20Val) ? `<span class="mre-stat-ema mre-stat-ema20">EMA 20 <strong>${number(ema20Val, 2)}</strong></span>` : ''}
+            ${state.showEma30 && hasNumber(ema30Val) ? `<span class="mre-stat-ema mre-stat-ema30">EMA 30 <strong>${number(ema30Val, 2)}</strong></span>` : ''}
             ${state.showEma50 && hasNumber(ema50Val) ? `<span class="mre-stat-ema mre-stat-ema50">EMA 50 <strong>${number(ema50Val, 2)}</strong></span>` : ''}
             ${state.showEma72 && hasNumber(ema72Val) ? `<span class="mre-stat-ema mre-stat-ema72">EMA 72 <strong>${number(ema72Val, 2)}</strong></span>` : ''}
             ${state.showEma200 && hasNumber(ema200Val) ? `<span class="mre-stat-ema mre-stat-ema200">EMA 200 <strong>${number(ema200Val, 2)}</strong></span>` : ''}
@@ -685,7 +850,7 @@
         </div>
 
         <div class="mre-chart-toolbar">
-          <label class="mre-toggle-pill mre-toggle-ema10 ${state.showEma10 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 10', 'Toggle EMA 10')}">
+          <label class="mre-toggle-pill mre-toggle-ema10 ${state.showEma10 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 10 (Oficial do Ciclo de Mercado)', 'Toggle EMA 10 (Official Market Cycle)')}">
             <input type="checkbox" data-toggle-ema="10" ${state.showEma10 ? 'checked' : ''} style="display:none;">
             <span class="mre-toggle-check">${svgIcons.check}</span>
             <span class="mre-toggle-text">EMA 10</span>
@@ -697,16 +862,16 @@
             <span class="mre-toggle-text">EMA 20</span>
           </label>
 
+          <label class="mre-toggle-pill mre-toggle-ema30 ${state.showEma30 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 30 (Oficial do Ciclo de Mercado)', 'Toggle EMA 30 (Official Market Cycle)')}">
+            <input type="checkbox" data-toggle-ema="30" ${state.showEma30 ? 'checked' : ''} style="display:none;">
+            <span class="mre-toggle-check">${svgIcons.check}</span>
+            <span class="mre-toggle-text">EMA 30</span>
+          </label>
+
           <label class="mre-toggle-pill mre-toggle-ema50 ${state.showEma50 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 50', 'Toggle EMA 50')}">
             <input type="checkbox" data-toggle-ema="50" ${state.showEma50 ? 'checked' : ''} style="display:none;">
             <span class="mre-toggle-check">${svgIcons.check}</span>
             <span class="mre-toggle-text">EMA 50</span>
-          </label>
-
-          <label class="mre-toggle-pill mre-toggle-ema72 ${state.showEma72 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 72', 'Toggle EMA 72')}">
-            <input type="checkbox" data-toggle-ema="72" ${state.showEma72 ? 'checked' : ''} style="display:none;">
-            <span class="mre-toggle-check">${svgIcons.check}</span>
-            <span class="mre-toggle-text">EMA 72</span>
           </label>
 
           <label class="mre-toggle-pill mre-toggle-ema200 ${state.showEma200 ? 'is-checked' : ''}" title="${t('Habilitar/Desabilitar EMA 200', 'Toggle EMA 200')}">
@@ -846,9 +1011,22 @@
     let minPrice = Infinity;
     let maxPrice = -Infinity;
 
-    for (const c of candles) {
-      const low = hasNumber(c.low) ? Number(c.low) : Number(c.close);
-      const high = hasNumber(c.high) ? Number(c.high) : Number(c.close);
+    for (let i = 0; i < candles.length; i++) {
+      const c = candles[i];
+      const prevC = i > 0 ? candles[i - 1] : null;
+      const close = Number(c.close);
+      const hasRealOhlc = hasNumber(c.open) && hasNumber(c.high) && hasNumber(c.low) &&
+        (Number(c.high) > Number(c.low) || Number(c.open) !== close);
+      const open = hasRealOhlc
+        ? Number(c.open)
+        : (prevC && hasNumber(prevC.close) ? Number(prevC.close) : close);
+      const high = hasRealOhlc
+        ? Number(c.high)
+        : Math.max(open, close) + Math.abs(close - open) * 0.25 + (close * 0.001);
+      const low = hasRealOhlc
+        ? Number(c.low)
+        : Math.min(open, close) - Math.abs(close - open) * 0.25 - (close * 0.001);
+
       if (low < minPrice) minPrice = low;
       if (high > maxPrice) maxPrice = high;
       if (state.showEma10 && hasNumber(c.ema10)) {
@@ -858,6 +1036,11 @@
       if (state.showEma20 && hasNumber(c.ema20)) {
         if (c.ema20 < minPrice) minPrice = c.ema20;
         if (c.ema20 > maxPrice) maxPrice = c.ema20;
+      }
+      const cEma30 = hasNumber(c.ema30) ? c.ema30 : (hasNumber(c.ema72) ? c.ema72 : null);
+      if (state.showEma30 && hasNumber(cEma30)) {
+        if (cEma30 < minPrice) minPrice = cEma30;
+        if (cEma30 > maxPrice) maxPrice = cEma30;
       }
       if (state.showEma50 && hasNumber(c.ema50)) {
         if (c.ema50 < minPrice) minPrice = c.ema50;
@@ -909,6 +1092,7 @@
     const candleElements = [];
     const ema10Points = [];
     const ema20Points = [];
+    const ema30Points = [];
     const ema50Points = [];
     const ema72Points = [];
     const ema200Points = [];
@@ -916,10 +1100,20 @@
     for (let i = 0; i < candles.length; i++) {
       const c = candles[i];
       const x = getX(i);
-      const open = hasNumber(c.open) ? Number(c.open) : Number(c.close);
+      const prevC = i > 0 ? candles[i - 1] : null;
       const close = Number(c.close);
-      const high = hasNumber(c.high) ? Number(c.high) : Math.max(open, close);
-      const low = hasNumber(c.low) ? Number(c.low) : Math.min(open, close);
+      const hasRealOhlc = hasNumber(c.open) && hasNumber(c.high) && hasNumber(c.low) &&
+        (Number(c.high) > Number(c.low) || Number(c.open) !== close);
+
+      const open = hasRealOhlc
+        ? Number(c.open)
+        : (prevC && hasNumber(prevC.close) ? Number(prevC.close) : close);
+      const high = hasRealOhlc
+        ? Number(c.high)
+        : Math.max(open, close) + Math.abs(close - open) * 0.25 + (close * 0.001);
+      const low = hasRealOhlc
+        ? Number(c.low)
+        : Math.min(open, close) - Math.abs(close - open) * 0.25 - (close * 0.001);
 
       const yHigh = getY(high);
       const yLow = getY(low);
@@ -929,7 +1123,7 @@
       const isBull = close >= open;
       const color = isBull ? '#10b981' : '#ef4444';
       const bodyY = Math.min(yOpen, yClose);
-      const bodyH = Math.max(1.5, Math.abs(yClose - yOpen));
+      const bodyH = Math.max(2.0, Math.abs(yClose - yOpen));
 
       candleElements.push(`
         <g class="mre-candle" data-index="${i}">
@@ -938,8 +1132,10 @@
         </g>
       `);
 
+      const cEma30 = hasNumber(c.ema30) ? c.ema30 : (hasNumber(c.ema72) ? c.ema72 : null);
       if (hasNumber(c.ema10)) ema10Points.push(`${x.toFixed(1)},${getY(c.ema10).toFixed(1)}`);
       if (hasNumber(c.ema20)) ema20Points.push(`${x.toFixed(1)},${getY(c.ema20).toFixed(1)}`);
+      if (hasNumber(cEma30)) ema30Points.push(`${x.toFixed(1)},${getY(cEma30).toFixed(1)}`);
       if (hasNumber(c.ema50)) ema50Points.push(`${x.toFixed(1)},${getY(c.ema50).toFixed(1)}`);
       if (hasNumber(c.ema72)) ema72Points.push(`${x.toFixed(1)},${getY(c.ema72).toFixed(1)}`);
       if (hasNumber(c.ema200)) ema200Points.push(`${x.toFixed(1)},${getY(c.ema200).toFixed(1)}`);
@@ -975,6 +1171,13 @@
           tipEmaRows.push(`<div class="mre-tip-row">
             <span class="mre-tip-ema20" style="color:#f59e0b;">— EMA 20</span>
             <strong>${number(hc.ema20, 2)}</strong>
+          </div>`);
+        }
+        const hcEma30 = hasNumber(hc.ema30) ? hc.ema30 : (hasNumber(hc.ema72) ? hc.ema72 : null);
+        if (state.showEma30 && hasNumber(hcEma30)) {
+          tipEmaRows.push(`<div class="mre-tip-row">
+            <span class="mre-tip-ema30" style="color:#3b82f6;">— EMA 30</span>
+            <strong>${number(hcEma30, 2)}</strong>
           </div>`);
         }
         if (state.showEma50 && hasNumber(hc.ema50)) {
@@ -1029,8 +1232,9 @@
         <g class="mre-grid-lines">${gridLines.join('')}</g>
         <g class="mre-candles-group">${candleElements.join('')}</g>
         ${state.showEma200 && ema200Points.length > 1 ? `<polyline points="${ema200Points.join(' ')}" fill="none" stroke="#f97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
-        ${state.showEma72 && ema72Points.length > 1 ? `<polyline points="${ema72Points.join(' ')}" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma72 && ema72Points.length > 1 ? `<polyline points="${ema72Points.join(' ')}" fill="none" stroke="#60a5fa" stroke-width="2.0" stroke-dasharray="4 3" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>` : ''}
         ${state.showEma50 && ema50Points.length > 1 ? `<polyline points="${ema50Points.join(' ')}" fill="none" stroke="#a855f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
+        ${state.showEma30 && ema30Points.length > 1 ? `<polyline points="${ema30Points.join(' ')}" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
         ${state.showEma20 && ema20Points.length > 1 ? `<polyline points="${ema20Points.join(' ')}" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
         ${state.showEma10 && ema10Points.length > 1 ? `<polyline points="${ema10Points.join(' ')}" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>` : ''}
         <g class="mre-crosshair-group">${crosshairHtml}</g>
@@ -1173,11 +1377,14 @@
     const marketRegimeData = dataEntry?.marketRegime || {};
     const cycle = dataEntry?.cycle || {};
     const currentRegime = marketRegimeData.current || {
-      regime: cycle?.state === 'healthy' ? 'UP_QUIET' : 'UP_VOLATILE',
-      direction: cycle?.state === 'healthy' ? 'UP' : 'UP',
+      regime: cycle?.state === 'healthy' ? 'UP_QUIET' : 'SIDEWAYS_VOLATILE',
+      direction: cycle?.state === 'healthy' ? 'UP' : 'SIDEWAYS',
       volatility: 'VOLATILE',
       reference_date: cycle?.date,
       close_price: cycle?.price,
+      ema_10: cycle?.ema10 ?? cycle?.ema9,
+      ema_30: cycle?.ema30 ?? cycle?.ema72,
+      ema_72: cycle?.ema72 ?? cycle?.ema30,
       atr_21: cycle?.atr21,
       atr_percentage: cycle?.atrPct,
       atr_percentage_sma_252: null,
@@ -1186,11 +1393,12 @@
 
     const historyCandles = dataEntry?.benchmark?.history || [];
 
-    // 1. Garantir que todas as 5 EMAs estejam calculadas para cada candle
+    // 1. Garantir que todas as EMAs (incluindo EMA 10 e EMA 30 oficiais do Ciclo de Mercado) estejam calculadas para cada candle
     if (historyCandles.length > 0) {
       const closes = historyCandles.map(c => Number(c.close));
       const e10 = calculateEmaSeries(closes, 10);
       const e20 = calculateEmaSeries(closes, 20);
+      const e30 = calculateEmaSeries(closes, Math.min(30, closes.length));
       const e50 = calculateEmaSeries(closes, 50);
       const e72 = calculateEmaSeries(closes, Math.min(72, closes.length));
       const e200 = closes.length >= 200 ? calculateEmaSeries(closes, 200) : [];
@@ -1198,6 +1406,7 @@
         const c = historyCandles[i];
         if (!hasNumber(c.ema10) && hasNumber(e10[i])) c.ema10 = e10[i];
         if (!hasNumber(c.ema20) && hasNumber(e20[i])) c.ema20 = e20[i];
+        if (!hasNumber(c.ema30) && hasNumber(e30[i])) c.ema30 = e30[i];
         if (!hasNumber(c.ema50) && hasNumber(e50[i])) c.ema50 = e50[i];
         if (!hasNumber(c.ema72) && hasNumber(e72[i])) c.ema72 = e72[i];
         if (!hasNumber(c.ema200) && hasNumber(e200[i])) c.ema200 = e200[i];
@@ -1222,25 +1431,48 @@
         c.regime = match.regime;
         c.direction = match.direction;
         c.volatility = match.volatility;
+        if (hasNumber(match.ema_10)) c.ema10 = Number(match.ema_10);
+        if (hasNumber(match.ema_30)) c.ema30 = Number(match.ema_30);
+        if (hasNumber(match.ema_72) && !hasNumber(c.ema30)) c.ema30 = Number(match.ema_72);
       } else if (!c.regime) {
-        const isUp = c.close >= (c.ema10 || c.close) && c.close >= (c.ema72 || c.close);
-        const isDown = c.close < (c.ema10 || c.close) && c.close < (c.ema72 || c.close);
+        const slowRef = hasNumber(c.ema30) ? c.ema30 : (c.ema72 || c.close);
+        const isUp = c.close >= (c.ema10 || c.close) && c.close >= slowRef;
+        const isDown = c.close < (c.ema10 || c.close) && c.close < slowRef;
         const dir = isUp ? 'UP' : (isDown ? 'DOWN' : 'SIDEWAYS');
         c.direction = dir;
         c.volatility = 'QUIET';
         c.regime = dir === 'UP' ? 'UP_QUIET' : (dir === 'DOWN' ? 'DOWN_QUIET' : 'SIDEWAYS_QUIET');
       }
     }
+
+    // Sincronizar o último candle do gráfico com o Regime Atual quando compartilharem a mesma data de referência
+    const lastHistoryCandle = historyCandles.at(-1);
+    if (lastHistoryCandle && currentRegime?.reference_date) {
+      const lastIso = normalizeIsoDate(lastHistoryCandle.date);
+      const refIso = normalizeIsoDate(currentRegime.reference_date);
+      if (lastIso && refIso && lastIso === refIso) {
+        if (hasNumber(currentRegime.close_price)) lastHistoryCandle.close = Number(currentRegime.close_price);
+        if (hasNumber(currentRegime.ema_10)) lastHistoryCandle.ema10 = Number(currentRegime.ema_10);
+        if (hasNumber(currentRegime.ema_30)) lastHistoryCandle.ema30 = Number(currentRegime.ema_30);
+        if (hasNumber(currentRegime.ema_72)) {
+          lastHistoryCandle.ema72 = Number(currentRegime.ema_72);
+          if (!hasNumber(currentRegime.ema_30)) lastHistoryCandle.ema30 = Number(currentRegime.ema_72);
+        }
+        if (currentRegime.regime) lastHistoryCandle.regime = currentRegime.regime;
+      }
+    }
+
     const periods = marketRegimeData.periods || [];
     const distribution = marketRegimeData.distribution || null;
-    const dataDate = cycle.date || historyCandles.at(-1)?.date || currentRegime?.reference_date;
+    const dataDate = currentRegime?.reference_date || historyCandles.at(-1)?.date || cycle.date;
+    const freshness = dataEntry?.freshness || marketRegimeData.freshness || null;
 
     const isUp = (currentRegime.direction || cycle.direction || '').toUpperCase() === 'UP';
     const activeRegime = cycle?.state === 'healthy' || (cycle?.state ? false : isUp) ? 'healthy' : 'defensive';
 
     root.innerHTML = `<div class="mre-workspace mcv2-page regime-${activeRegime}" data-current-benchmark="${esc(benchmarkInfo.id)}" data-market-regime="${activeRegime}">
       <div class="mre-shell">
-        ${renderHeroBanner(benchmarkInfo, dataDate)}
+        ${renderHeroBanner(benchmarkInfo, dataDate, freshness)}
 
         ${renderBenchmarkSelector(benchmarkInfo)}
 
@@ -1252,6 +1484,8 @@
             ${renderCurrentRegimeCard(currentRegime, dataDate)}
           </div>
         </div>
+
+        ${renderMethodologyDistinctionCard()}
 
         <div class="mre-bottom-grid mre-bottom-split">
           ${renderVolatilityMetricsCard(currentRegime, dataDate)}
@@ -1273,6 +1507,7 @@
     const prefs = loadSavedEmaPrefs();
     state.showEma10 = prefs.showEma10;
     state.showEma20 = prefs.showEma20;
+    state.showEma30 = prefs.showEma30;
     state.showEma50 = prefs.showEma50;
     state.showEma72 = prefs.showEma72;
     state.showEma200 = prefs.showEma200;
@@ -1280,12 +1515,23 @@
     const benchmarkId = normalizeMarketId(benchmarkInput);
     const valid = BENCHMARKS.find(b => b.id === benchmarkId) || BENCHMARKS[0];
     state.currentBenchmark = valid.id;
+    state.hoverCandle = null;
 
-    if (!force && state.data[valid.id]) {
+    const cachedEntry = state.data[valid.id];
+    const isCacheFresh = Boolean(
+      cachedEntry &&
+      cachedEntry._loadedAt &&
+      (Date.now() - cachedEntry._loadedAt < CACHE_TTL_MS) &&
+      !cachedEntry.freshness?.isStale
+    );
+
+    if (!force && isCacheFresh) {
+      state.error = null;
       render();
       return;
     }
 
+    const requestSeq = ++loadRequestSeq;
     state.loading = true;
     render();
 
@@ -1296,24 +1542,62 @@
       else if (valid.id === 'SP500') marketParam = 'sp500';
       else if (valid.id === 'NASDAQ') marketParam = 'nasdaq';
 
+      const forceQuery = force ? '&force=1' : '';
       const [cycleRes, perfRes] = await Promise.all([
-        fetch(`${(window.MARKET_DATA_API_URL || 'http://localhost:8787/api')}/market-cycle?market=${marketParam}&benchmark=${valid.id}`),
+        fetch(`${(window.MARKET_DATA_API_URL || 'http://localhost:8787/api')}/market-cycle?market=${marketParam}&benchmark=${valid.id}${forceQuery}`),
         fetch(`${(window.MARKET_DATA_API_URL || 'http://localhost:8787/api')}/trading-analytics/performance-by-regime?benchmark=${valid.id}`)
       ]);
 
-      if (cycleRes.ok) {
-        state.data[valid.id] = await cycleRes.json();
-        persistMarketSnapshot(marketParam, state.data[valid.id]);
+      if (cycleRes && cycleRes.ok) {
+        const payload = await cycleRes.json();
+        if (payload && typeof payload === 'object') {
+          payload._loadedAt = Date.now();
+          state.data[valid.id] = payload;
+          persistMarketSnapshot(marketParam, payload);
+          if (requestSeq === loadRequestSeq) {
+            state.error = payload.freshness?.lastError || null;
+          }
+        }
+      } else {
+        const statusMsg = cycleRes ? `HTTP ${cycleRes.status}` : 'Sem resposta do servidor';
+        if (state.data[valid.id]) {
+          state.data[valid.id].freshness = {
+            ...(state.data[valid.id].freshness || {}),
+            isStale: true,
+            isUpToDate: false,
+            status: 'stale',
+            lastError: statusMsg
+          };
+        }
+        if (requestSeq === loadRequestSeq) {
+          state.error = statusMsg;
+        }
       }
-      if (perfRes.ok) {
+
+      if (perfRes && perfRes.ok && requestSeq === loadRequestSeq) {
         state.performance = await perfRes.json();
       }
-      state.loading = false;
-      render();
+      if (requestSeq === loadRequestSeq) {
+        state.loading = false;
+        render();
+      }
     } catch (err) {
+      const errMsg = err?.message || String(err);
       console.warn('[market-regime] Erro ao carregar dados:', err);
-      state.loading = false;
-      render();
+      if (state.data[valid.id]) {
+        state.data[valid.id].freshness = {
+          ...(state.data[valid.id].freshness || {}),
+          isStale: true,
+          isUpToDate: false,
+          status: 'stale',
+          lastError: errMsg
+        };
+      }
+      if (requestSeq === loadRequestSeq) {
+        state.error = errMsg;
+        state.loading = false;
+        render();
+      }
     }
   }
 
@@ -1324,6 +1608,13 @@
     if (pillBtn) {
       const id = pillBtn.getAttribute('data-benchmark-pill');
       load(id);
+      return;
+    }
+
+    // 1b. Botão de atualizar dados do benchmark atual
+    const refreshBtn = event.target.closest('[data-refresh-benchmark]');
+    if (refreshBtn) {
+      load(state.currentBenchmark, true);
       return;
     }
 
@@ -1352,6 +1643,7 @@
       const type = emaToggle.getAttribute('data-toggle-ema');
       if (type === '10') state.showEma10 = emaToggle.checked;
       if (type === '20') state.showEma20 = emaToggle.checked;
+      if (type === '30') state.showEma30 = emaToggle.checked;
       if (type === '50') state.showEma50 = emaToggle.checked;
       if (type === '72') state.showEma72 = emaToggle.checked;
       if (type === '200') state.showEma200 = emaToggle.checked;

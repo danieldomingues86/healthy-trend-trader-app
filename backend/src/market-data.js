@@ -169,8 +169,12 @@ function calculateEmaSeries(values, period) {
   }
   return result;
 }
-const OFFICIAL_EMA_FAST = 10;
-const OFFICIAL_EMA_SLOW = 72;
+const MARKET_CYCLE_EMA_FAST = 10;
+const MARKET_CYCLE_EMA_SLOW = 30;
+const ASSET_STRUCTURE_EMA_FAST = 10;
+const ASSET_STRUCTURE_EMA_SLOW = 72;
+const OFFICIAL_EMA_FAST = MARKET_CYCLE_EMA_FAST;
+const OFFICIAL_EMA_SLOW = MARKET_CYCLE_EMA_SLOW;
 
 function scoreCycle(history) {
   const candles = history.filter((item) => Number.isFinite(item.adjustedClose ?? item.close));
@@ -178,15 +182,15 @@ function scoreCycle(history) {
   if (closes.length < 30) return { state: 'defensive', score: 25, reason: 'Histórico insuficiente para leitura completa (mínimo 30 pregões).' };
   const price = closes.at(-1);
 
-  const ema10Arr = calculateEmaSeries(closes, OFFICIAL_EMA_FAST);
-  const ema72Period = Math.min(OFFICIAL_EMA_SLOW, closes.length);
-  const ema72Arr = calculateEmaSeries(closes, ema72Period);
+  const ema10Arr = calculateEmaSeries(closes, MARKET_CYCLE_EMA_FAST);
+  const ema30Period = Math.min(MARKET_CYCLE_EMA_SLOW, closes.length);
+  const ema30Arr = calculateEmaSeries(closes, ema30Period);
   const ema10 = ema10Arr[ema10Arr.length - 1];
-  const ema72 = ema72Arr[ema72Arr.length - 1];
+  const ema30 = ema30Arr[ema30Arr.length - 1];
   const prevEma10 = ema10Arr.length > 1 ? ema10Arr[ema10Arr.length - 2] : ema10;
-  const prevEma72 = ema72Arr.length > 1 ? ema72Arr[ema72Arr.length - 2] : ema72;
-  const ema10Slope = Number.isFinite(prevEma10) ? ema10 - prevEma10 : 0;
-  const ema72Slope = Number.isFinite(prevEma72) ? ema72 - prevEma72 : 0;
+  const prevEma30 = ema30Arr.length > 1 ? ema30Arr[ema30Arr.length - 2] : ema30;
+  const ema10Slope = Number.isFinite(prevEma10) ? Number((ema10 - prevEma10).toFixed(4)) : 0;
+  const ema30Slope = Number.isFinite(prevEma30) ? Number((ema30 - prevEma30).toFixed(4)) : 0;
 
   const ranges = candles.slice(-21).map((item, index, rows) => {
     const high = Number(item.high), low = Number(item.low);
@@ -196,13 +200,15 @@ function scoreCycle(history) {
   }).filter(Number.isFinite);
   const atr21 = ranges.length >= 15 ? ranges.reduce((sum, value) => sum + value, 0) / ranges.length : null;
 
-  // Regra oficial do Ciclo de Mercado (exclusivamente EMA 10 e EMA 72 no gráfico Diário):
-  // EXPANSÃO (mercado saudável): Preço > EMA 10 e Preço > EMA 72 (estritamente acima de ambas)
-  // DEFESA (evitar operar): Preço <= EMA 10 ou Preço <= EMA 72 (abaixo, entre as médias, ou igual a uma delas)
+  // Regra oficial do Ciclo de Mercado (exclusivamente EMA 10 e EMA 30 no gráfico Diário):
+  // Leitura mais ágil para identificar mudanças de regime e retomadas com maior antecedência.
+  // EXPANSÃO (mercado saudável): Preço > EMA 10, Preço > EMA 30 E EMA 10 > EMA 30 (estrutura alinhada)
+  // DEFESA / TRANSIÇÃO: Preço <= EMA 10 ou Preço <= EMA 30 ou EMA 10 <= EMA 30 (médias invertidas)
   const above10 = price > ema10;
-  const above72 = price > ema72;
-  const structure = ema10 > ema72;
-  const isExpansion = above10 && above72;
+  const above30 = price > ema30;
+  const structure = ema10 > ema30;
+  const isExpansion = above10 && above30 && structure;
+  const isEarlyRecovery = (above10 || above30) && !structure;
   const state = isExpansion ? 'healthy' : 'defensive';
 
   const roc10 = closes.length >= 11 ? ((price / closes.at(-11)) - 1) * 100 : 0;
@@ -214,15 +220,15 @@ function scoreCycle(history) {
     score = 76;
     if (structure) score += 4; else score -= 2;
     if (ema10Slope > 0) score += 3; else score -= 2;
-    if (ema72Slope > 0) score += 3; else score -= 2;
+    if (ema30Slope > 0) score += 3; else score -= 2;
     const rocAdj = Math.max(-4, Math.min(6, Math.round(roc10 * 1.2)));
     score += rocAdj;
     score = Math.max(70, Math.min(95, score));
   } else {
-    // Mercado em modo defesa: base 26, modulação de 10 a 48 (abaixo de 50)
+    // Mercado em modo defesa / transição: base 26, modulação de 10 a 48 (abaixo de 50)
     score = 26;
     if (above10) score += 6;
-    if (above72) score += 4;
+    if (above30) score += 4;
     if (ema10Slope > 0) score += 3;
     if (structure) score += 3;
     const rocAdj = Math.max(-5, Math.min(5, Math.round(roc10 * 1.0)));
@@ -230,36 +236,39 @@ function scoreCycle(history) {
     score = Math.max(10, Math.min(48, score));
   }
 
-  const ema200Val = closes.length >= 200 ? ema(closes.slice(-200), 200) : ema72;
+  const ema200Val = closes.length >= 200 ? ema(closes.slice(-200), 200) : ema30;
 
   return {
     state,
     score,
     price,
     ema10,
-    ema72,
+    ema30,
     above10,
-    above72,
+    above30,
     structure,
     ema10Slope,
-    ema72Slope,
+    ema30Slope,
+    isEarlyRecovery,
+    emaFastPeriod: MARKET_CYCLE_EMA_FAST,
+    emaSlowPeriod: MARKET_CYCLE_EMA_SLOW,
     atr21,
     atrPct: Number.isFinite(atr21) && price > 0 ? atr21 / price * 100 : null,
     roc10,
     date: candles.at(-1)?.date || null,
-    // Compatibilidade retroativa para consumidores legados:
+    // Compatibilidade retroativa para consumidores que acessam campos legados do ciclo:
+    ema72: ema30,
+    above72: above30,
+    ema72Slope: ema30Slope,
     ema9: ema10,
-    ema30: ema72,
     above9: above10,
-    above30: above72,
     ema9Slope: ema10Slope,
-    ema30Slope: ema72Slope,
-    ema20: ema72,
+    ema20: ema30,
     ema200: ema200Val,
-    above20: above72,
+    above20: above30,
     above200: price > ema200Val,
     ema10Above20: structure,
-    ema20Slope: ema72Slope,
+    ema20Slope: ema30Slope,
     ema200Slope: 0
   };
 }
@@ -267,6 +276,7 @@ function marketCycleSeries(history) {
   const closes = history.map((item) => Number(item.adjustedClose ?? item.close)).filter(Number.isFinite);
   const ema10All = calculateEmaSeries(closes, 10);
   const ema20All = calculateEmaSeries(closes, 20);
+  const ema30All = calculateEmaSeries(closes, 30);
   const ema50All = calculateEmaSeries(closes, 50);
   const ema72All = calculateEmaSeries(closes, 72);
   const ema200All = closes.length >= 200 ? calculateEmaSeries(closes, 200) : [];
@@ -276,13 +286,17 @@ function marketCycleSeries(history) {
     const reading = scoreCycle(history.slice(0, index + 1));
     const close = reading.price;
     const prevCandle = index > 0 ? history[index - 1] : null;
-    const open = candle.open !== undefined && Number.isFinite(Number(candle.open))
+    const hasRealOhlc = candle.open !== undefined && candle.high !== undefined && candle.low !== undefined &&
+      Number.isFinite(Number(candle.open)) && Number.isFinite(Number(candle.high)) && Number.isFinite(Number(candle.low)) &&
+      (Number(candle.high) > Number(candle.low) || Number(candle.open) !== Number(candle.close));
+
+    const open = hasRealOhlc
       ? Number(candle.open)
       : (prevCandle && Number.isFinite(Number(prevCandle.close)) ? Number(prevCandle.close) : close);
-    const high = candle.high !== undefined && Number.isFinite(Number(candle.high))
+    const high = hasRealOhlc
       ? Number(candle.high)
       : Math.max(open, close) + Math.abs(close - open) * 0.25 + (close * 0.001);
-    const low = candle.low !== undefined && Number.isFinite(Number(candle.low))
+    const low = hasRealOhlc
       ? Number(candle.low)
       : Math.min(open, close) - Math.abs(close - open) * 0.25 - (close * 0.001);
 
@@ -294,16 +308,16 @@ function marketCycleSeries(history) {
       close,
       ema10: reading.ema10 ?? ema10All[index] ?? null,
       ema20: ema20All[index] ?? null,
+      ema30: reading.ema30 ?? ema30All[index] ?? null,
       ema50: ema50All[index] ?? null,
-      ema72: reading.ema72 ?? ema72All[index] ?? null,
+      ema72: ema72All[index] ?? reading.ema30 ?? null,
       ema200: ema200All[index] ?? reading.ema200 ?? null,
       atr21: reading.atr21,
       atrPct: reading.atrPct,
       score: reading.score,
       state: reading.state,
       // Compatibilidade legada
-      ema9: reading.ema10,
-      ema30: reading.ema72
+      ema9: reading.ema10
     };
   }).filter(Boolean);
 }
@@ -1212,38 +1226,16 @@ async function marketDataStatus() {
 
 const US_BENCHMARKS_CACHE_PATH = path.join(__dirname, '..', 'data', 'us-benchmarks-cache.json');
 
-async function loadUsBenchmarkCandlesForMarketData(marketId) {
-  const norm = String(marketId || '').toUpperCase();
-  const isSp500 = norm === 'SP500' || norm === 'SPX' || norm === 'SPY';
-  const targetKey = isSp500 ? 'SP500' : 'NASDAQ';
-  const targetSymbol = isSp500 ? 'SPY' : 'QQQ';
-  let candles = [];
-
+async function loadUsBenchmarkCandlesForMarketData(marketId, options = {}) {
   try {
-    const raw = await fs.readFile(US_BENCHMARKS_CACHE_PATH, 'utf8');
-    const parsed = JSON.parse(raw);
-    const entry = parsed?.benchmarks?.[targetKey] || parsed?.benchmarks?.[targetSymbol];
-    if (Array.isArray(entry?.candles) && entry.candles.length >= 25) {
-      candles = entry.candles;
+    const marketRegime = require('./market-regime');
+    if (typeof marketRegime.loadUsBenchmarkCandles === 'function') {
+      return await marketRegime.loadUsBenchmarkCandles(marketId, options);
     }
-  } catch (_) {}
-
-  if (!candles.length && process.env.TWELVE_DATA_API_KEY) {
-    try {
-      const { TwelveDataMarketDataProvider } = require('./twelve-data-provider');
-      const provider = new TwelveDataMarketDataProvider();
-      candles = await provider.getHistoricalDailyPrices(targetSymbol, { outputsize: 300 });
-    } catch (_) {}
+  } catch (err) {
+    console.warn(`[market-data] Falha ao delegar loadUsBenchmarkCandles (${marketId}):`, err.message);
   }
-
-  return candles.map(c => ({
-    date: c.date || c.datetime,
-    open: Number(c.open) || Number(c.close),
-    high: Number(c.high) || Number(c.close),
-    low: Number(c.low) || Number(c.close),
-    close: Number(c.close),
-    volume: Number(c.volume) || 0
-  })).filter(c => c.date && Number.isFinite(c.close));
+  return [];
 }
 
 function marketCycleFor(cache, market = 'stock_b3') {
@@ -1259,6 +1251,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
         cycle: entry.cycle,
         benchmark: entry.benchmark,
         breadth: entry.breadth || null,
+        freshness: entry.freshness || null,
         market: 'sp500',
         supportedMarkets
       };
@@ -1283,6 +1276,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
         cycle: entry.cycle,
         benchmark: entry.benchmark,
         breadth: entry.breadth || null,
+        freshness: entry.freshness || null,
         market: 'nasdaq',
         supportedMarkets
       };
@@ -1307,6 +1301,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
         cycle: entry.cycle,
         benchmark: entry.benchmark,
         breadth: entry.breadth || null,
+        freshness: entry.freshness || null,
         market: 'bdr',
         supportedMarkets
       };
@@ -1330,6 +1325,7 @@ function marketCycleFor(cache, market = 'stock_b3') {
         cycle: entry.cycle,
         benchmark: entry.benchmark,
         breadth: entry.breadth || null,
+        freshness: entry.freshness || null,
         market: 'fii',
         supportedMarkets
       };
@@ -1351,18 +1347,37 @@ function marketCycleFor(cache, market = 'stock_b3') {
     cycle: entry?.cycle || cache?.cycle || null,
     benchmark: entry?.benchmark || cache?.benchmark || null,
     breadth: entry?.breadth || cache?.overview?.breadth || null,
+    freshness: entry?.freshness || null,
     market: 'stock_b3',
     supportedMarkets
   };
 }
 
-async function resolveMarketCycle(cache, market = 'stock_b3') {
+function isCycleEntryNeedsRefresh(entry, marketType = 'BR', options = {}) {
+  if (options.force) return true;
+  if (!entry || (!entry.cycle?.ema10 && !entry.cycle?.ema9) || !entry.benchmark?.history?.length) return true;
+  if (entry.cycle?.emaSlowPeriod !== 30) return true;
+  try {
+    const marketRegime = require('./market-regime');
+    const now = options.now ? new Date(options.now) : new Date();
+    const expectedClosed = marketRegime.getExpectedClosedDate(marketType, now);
+    const entryDate = marketRegime.formatDateIso(entry.cycle?.date || entry.benchmark?.history?.at(-1)?.date);
+    if (!entryDate || entryDate < expectedClosed || entryDate > expectedClosed) {
+      return true;
+    }
+  } catch (_) {}
+  return false;
+}
+
+async function resolveMarketCycle(cache, market = 'stock_b3', options = {}) {
   const normalized = String(market || 'stock_b3').trim().toLowerCase();
+  const marketRegime = require('./market-regime');
+  const now = options.now ? new Date(options.now) : new Date();
 
   if (['sp500', 'spx', 'spy'].includes(normalized)) {
-    if ((!cache?.cycles?.sp500?.cycle?.ema10 && !cache?.cycles?.sp500?.cycle?.ema9) || !cache?.cycles?.sp500?.benchmark?.history?.length) {
+    if (isCycleEntryNeedsRefresh(cache?.cycles?.sp500, 'US', options)) {
       try {
-        const spyHistory = await loadUsBenchmarkCandlesForMarketData('SP500');
+        const spyHistory = await loadUsBenchmarkCandlesForMarketData('SP500', options);
         if (spyHistory?.length >= 25) {
           const spyReturns = returns(spyHistory);
           const spyCycle = scoreCycle(spyHistory);
@@ -1375,6 +1390,8 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
           if (cache) {
             cache.cycles = cache.cycles || {};
             cache.cycles.sp500 = {
+              updatedAt: now.toISOString(),
+              source: 'twelve_data',
               market: 'sp500',
               benchmark: spyBenchmark,
               cycle: spyCycle,
@@ -1382,17 +1399,17 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
             };
           }
         }
-      } catch {
-        // Degrada graciosamente se houver falha de rede
+      } catch (err) {
+        console.warn('[market-data] Falha ao atualizar ciclo SP500:', err.message);
       }
     }
     return marketCycleFor(cache, 'sp500');
   }
 
   if (['nasdaq', 'ndx', 'qqq'].includes(normalized)) {
-    if ((!cache?.cycles?.nasdaq?.cycle?.ema10 && !cache?.cycles?.nasdaq?.cycle?.ema9) || !cache?.cycles?.nasdaq?.benchmark?.history?.length) {
+    if (isCycleEntryNeedsRefresh(cache?.cycles?.nasdaq, 'US', options)) {
       try {
-        const qqqHistory = await loadUsBenchmarkCandlesForMarketData('NASDAQ');
+        const qqqHistory = await loadUsBenchmarkCandlesForMarketData('NASDAQ', options);
         if (qqqHistory?.length >= 25) {
           const qqqReturns = returns(qqqHistory);
           const qqqCycle = scoreCycle(qqqHistory);
@@ -1405,6 +1422,8 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
           if (cache) {
             cache.cycles = cache.cycles || {};
             cache.cycles.nasdaq = {
+              updatedAt: now.toISOString(),
+              source: 'twelve_data',
               market: 'nasdaq',
               benchmark: qqqBenchmark,
               cycle: qqqCycle,
@@ -1412,17 +1431,18 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
             };
           }
         }
-      } catch {
-        // Degrada graciosamente se houver falha de rede
+      } catch (err) {
+        console.warn('[market-data] Falha ao atualizar ciclo NASDAQ:', err.message);
       }
     }
     return marketCycleFor(cache, 'nasdaq');
   }
 
   if (['bdr', 'bdrx'].includes(normalized)) {
-    if ((!cache?.cycles?.bdr?.cycle?.ema10 && !cache?.cycles?.bdr?.cycle?.ema9) || !cache?.cycles?.bdr?.benchmark?.history?.length) {
+    if (isCycleEntryNeedsRefresh(cache?.cycles?.bdr, 'BR', options)) {
       try {
-        const bdrxHistory = await fetchBenchmarkHistory('BDRX');
+        const rawBdrx = await fetchBenchmarkHistory('BDRX');
+        const bdrxHistory = marketRegime.filterClosedDailyCandles(rawBdrx, 'BR', now);
         if (bdrxHistory?.length >= 25) {
           const bdrxReturns = returns(bdrxHistory);
           const bdrxCycle = scoreCycle(bdrxHistory);
@@ -1435,6 +1455,8 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
           if (cache) {
             cache.cycles = cache.cycles || {};
             cache.cycles.bdr = {
+              updatedAt: now.toISOString(),
+              source: 'b3-indexes',
               market: 'bdr',
               benchmark: bdrxBenchmark,
               cycle: bdrxCycle,
@@ -1442,17 +1464,18 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
             };
           }
         }
-      } catch {
-        // Degrada graciosamente se houver falha de rede
+      } catch (err) {
+        console.warn('[market-data] Falha ao atualizar ciclo BDRX:', err.message);
       }
     }
     return marketCycleFor(cache, 'bdr');
   }
 
   if (['fii', 'fiis', 'ifix'].includes(normalized)) {
-    if ((!cache?.cycles?.fii?.cycle?.ema10 && !cache?.cycles?.fii?.cycle?.ema9) || !cache?.cycles?.fii?.benchmark?.history?.length) {
+    if (isCycleEntryNeedsRefresh(cache?.cycles?.fii, 'BR', options)) {
       try {
-        const ifixHistory = await fetchBenchmarkHistory('IFIX');
+        const rawIfix = await fetchBenchmarkHistory('IFIX');
+        const ifixHistory = marketRegime.filterClosedDailyCandles(rawIfix, 'BR', now);
         if (ifixHistory?.length >= 25) {
           const ifixReturns = returns(ifixHistory);
           const ifixCycle = scoreCycle(ifixHistory);
@@ -1465,6 +1488,8 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
           if (cache) {
             cache.cycles = cache.cycles || {};
             cache.cycles.fii = {
+              updatedAt: now.toISOString(),
+              source: 'b3-indexes',
               market: 'fii',
               benchmark: ifixBenchmark,
               cycle: ifixCycle,
@@ -1472,16 +1497,17 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
             };
           }
         }
-      } catch {
-        // Degrada graciosamente se houver falha de rede
+      } catch (err) {
+        console.warn('[market-data] Falha ao atualizar ciclo IFIX:', err.message);
       }
     }
     return marketCycleFor(cache, 'fii');
   }
 
-  if ((!cache?.cycles?.stock_b3?.cycle?.ema10 && !cache?.cycles?.stock_b3?.cycle?.ema9) || (!cache?.cycle?.ema10 && !cache?.cycle?.ema9)) {
+  if (isCycleEntryNeedsRefresh(cache?.cycles?.stock_b3, 'BR', options) || (!cache?.cycle?.ema10 && !cache?.cycle?.ema9)) {
     try {
-      const ibovHistory = await fetchBenchmarkHistory('^BVSP');
+      const rawIbov = await fetchBenchmarkHistory('^BVSP');
+      const ibovHistory = marketRegime.filterClosedDailyCandles(rawIbov, 'BR', now);
       if (ibovHistory?.length >= 25) {
         const ibovReturns = returns(ibovHistory);
         const ibovCycle = scoreCycle(ibovHistory);
@@ -1496,6 +1522,8 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
           cache.benchmark = ibovBenchmark;
           cache.cycles = cache.cycles || {};
           cache.cycles.stock_b3 = {
+            updatedAt: now.toISOString(),
+            source: 'b3-indexes',
             market: 'stock_b3',
             benchmark: ibovBenchmark,
             cycle: ibovCycle,
@@ -1503,8 +1531,8 @@ async function resolveMarketCycle(cache, market = 'stock_b3') {
           };
         }
       }
-    } catch {
-      // Degrada graciosamente se houver falha de rede
+    } catch (err) {
+      console.warn('[market-data] Falha ao atualizar ciclo IBOV:', err.message);
     }
   }
 

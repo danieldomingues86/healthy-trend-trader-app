@@ -770,7 +770,7 @@ test('DailyUpdateModel: Reconciliação e paridade matemática absoluta entre At
   assert.equal(storedAfter[0].realWealth, 1000295.73);
 });
 
-test('DailyUpdateModel: Vinculação de posições a contas e reflexo automático nos Saldos Totais', () => {
+test('DailyUpdateModel: Vinculação de posições a contas e independência entre saldos e cotações', () => {
   const model = new DailyUpdateModel();
 
   // 1. Vinculação de posição à conta (linkPositionToAccount)
@@ -783,7 +783,7 @@ test('DailyUpdateModel: Vinculação de posições a contas e reflexo automátic
   const xpPositions = model.getPositionsByAccount('xp_daniel');
   assert.ok(xpPositions.some(p => p.id === 'pos_aapl34'));
 
-  // 2. Reflexo de atualização de cotação no Saldo Total da Conta
+  // 2. Independência: atualização de cotação NÃO altera saldo da conta por padrão
   const xpAcc = model.accounts.find(a => a.id === 'xp_daniel');
   const initialBalance = Number(xpAcc.newBalance); // 207521.00
   const pos = model.positions.find(p => p.id === 'pos_aapl34');
@@ -795,11 +795,14 @@ test('DailyUpdateModel: Vinculação de posições a contas e reflexo automátic
   assert.equal(updateRes.success, true);
   assert.equal(pos.currentPrice, 105.21);
   assert.equal(updateRes.deltaTotal, 1200.00);
-  assert.equal(updateRes.affectedAccount.id, 'xp_daniel');
+  assert.equal(updateRes.affectedAccount, null, 'Por padrão, posições não afetam contas');
+  assert.equal(xpAcc.newBalance, initialBalance, 'Saldo da conta XP permanece inalterado pela cotação da posição');
 
-  // Saldo da conta XP reflete exatamente a variação de +R$ 1.200,00
-  assert.equal(xpAcc.newBalance, initialBalance + 1200.00);
-  assert.equal(xpAcc.status, 'updated');
+  // Suporte opcional a syncAccount: true caso explicitamente requerido
+  const syncRes = model.updatePositionPrice('pos_aapl34', '106,21', { syncAccount: true });
+  assert.equal(syncRes.success, true);
+  assert.equal(syncRes.affectedAccount.id, 'xp_daniel');
+  assert.equal(xpAcc.newBalance, initialBalance + 600.00); // delta de 105.21 -> 106.21 (+R$ 1,00 * 600)
 
   // 3. Posição desvinculada (accountId: null) não afeta contas
   model.linkPositionToAccount('pos_amzn34', null);

@@ -185,6 +185,7 @@
     { key: 'marketHealthy', label: 'Mercado saudável', read: item => item.marketContext ? item.marketContext === 'Saudável' : null },
     { key: 'atr', label: 'ATR < 2%', read: item => item.atrPct == null ? null : item.atrPct < 2 },
     { key: 'triggerInsideBar', label: 'Gatilho: Inside Bar', read: item => item.setupTrigger ? item.setupTrigger === 'INSIDE_BAR' : null },
+    { key: 'triggerIfr2', label: 'Gatilho: IFR2 (Volatilidade)', read: item => item.setupTrigger ? item.setupTrigger === 'IFR2' : null },
     { key: 'triggerPfr', label: 'Gatilho: PFR de Compra', read: item => item.setupTrigger ? item.setupTrigger === 'PFR_COMPRA' : null },
     { key: 'trigger123', label: 'Gatilho: 1-2-3 de Compra', read: item => item.setupTrigger ? item.setupTrigger === '123_COMPRA' : null },
     { key: 'triggerRbi', label: 'Gatilho: RBI', read: item => item.setupTrigger ? item.setupTrigger === 'RBI' : null },

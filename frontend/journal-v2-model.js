@@ -115,15 +115,16 @@
     const strategyType = String(rawStrategy).toUpperCase().includes('VOLATILITY') ? 'VOLATILITY_TRADING' : 'TREND_FOLLOWING';
     const isVol = strategyType === 'VOLATILITY_TRADING';
 
-    const rawTrigger = data.setupTrigger || data.setup_trigger;
-    const triggerKey = isVol
-      ? (rawTrigger || 'VOLATILITY_SWING_IFR2')
-      : (rawTrigger
-        ? (setupTriggers ? setupTriggers.normalizeKey(rawTrigger) : rawTrigger)
-        : (data.setup ? (setupTriggers ? setupTriggers.normalizeKey(data.setup) : null) : null));
-    const triggerLabel = isVol
-      ? (data.setup || 'Volatility Swing — IFR2')
-      : (triggerKey && setupTriggers ? setupTriggers.getTriggerLabel(triggerKey) : (data.setup || 'Não informado'));
+    const rawTrigger = data.setupTrigger || data.setup_trigger || data.setup;
+    const normalizedTrigger = rawTrigger
+      ? (setupTriggers ? setupTriggers.normalizeKey(rawTrigger) : String(rawTrigger))
+      : null;
+    const triggerKey = normalizedTrigger || (isVol ? 'VOLATILITY_SWING_IFR2' : null);
+    const triggerLabel = (triggerKey === 'VOLATILITY_SWING_IFR2')
+      ? 'Volatility Swing — IFR2'
+      : ((triggerKey && setupTriggers)
+        ? setupTriggers.getTriggerLabel(triggerKey)
+        : (data.setup || (isVol ? 'Volatility Swing — IFR2' : 'Não informado')));
 
     return {
       id: data.id || `trade-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,

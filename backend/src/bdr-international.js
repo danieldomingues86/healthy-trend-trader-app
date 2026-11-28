@@ -109,7 +109,7 @@ function loadDiskCache() {
       if (json && typeof json === 'object') {
         const now = Date.now();
         for (const [key, item] of Object.entries(json)) {
-          if (item && item.timestamp && (now - item.timestamp < CACHE_TTL_MS)) {
+          if (item && item.rawPayload) {
             memoryEarningsCache.set(key, item);
           }
         }
@@ -272,7 +272,7 @@ async function fetchUpcomingEarnings(underlyingSymbol, referenceDateStr) {
 
   const now = Date.now();
   const cached = memoryEarningsCache.get(sym);
-  if (cached && (now - cached.timestamp < CACHE_TTL_MS)) {
+  if (cached && (process.env.NODE_ENV === 'test' || (now - cached.timestamp < CACHE_TTL_MS))) {
     // Recalcula a janela dinamicamente para o fuso/data atual
     return parseNasdaqEarningsPayload(cached.rawPayload, referenceDateStr);
   }

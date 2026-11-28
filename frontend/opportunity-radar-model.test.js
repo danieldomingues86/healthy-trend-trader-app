@@ -13,7 +13,8 @@ function generateUptrendWithInsideBar() {
       high: Number((price + 0.4).toFixed(2)),
       low: Number((price - 0.3).toFixed(2)),
       close: Number((price + 0.1).toFixed(2)),
-      volume: 1000000
+      volume: 1000000,
+      trades: 2500
     });
   }
   // Mother bar
@@ -23,7 +24,8 @@ function generateUptrendWithInsideBar() {
     high: 43.0,
     low: 40.5,
     close: 42.5,
-    volume: 1500000
+    volume: 1500000,
+    trades: 3500
   });
   // Inside Bar above EMA 9 and EMA 30
   candles.push({
@@ -32,7 +34,8 @@ function generateUptrendWithInsideBar() {
     high: 42.6,
     low: 41.2,
     close: 42.2,
-    volume: 1200000
+    volume: 1200000,
+    trades: 3200
   });
   return candles;
 }

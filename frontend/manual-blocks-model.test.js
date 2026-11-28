@@ -8,7 +8,13 @@ test('ManualBlocksModel: validateBlock valida catálogo de blocos permitidos', (
   assert.equal(ManualBlocksModel.validateBlock({}).valid, false);
   assert.equal(ManualBlocksModel.validateBlock({ type: 'unknown_xyz' }).valid, false);
 
-  const validTypes = ['hero', 'lead', 'quote', 'principles', 'story', 'visual-callout', 'pillar-wheel', 'method-tip', 'quiz', 'in-practice', 'challenge', 'visual-summary', 'what-you-learned', 'conquest-badge'];
+  const validTypes = [
+    'hero', 'lead', 'quote', 'principles', 'story', 'visual-callout',
+    'pillar-wheel', 'central-idea', 'method-tip', 'did-you-know',
+    'common-error', 'warning', 'fundamental-rule', 'quiz', 'flowchart',
+    'reveal-cards', 'in-practice', 'software-tool', 'challenge',
+    'visual-summary', 'what-you-learned', 'conquest-badge'
+  ];
   validTypes.forEach(t => {
     const res = ManualBlocksModel.validateBlock({ type: t });
     assert.equal(res.valid, true, `Tipo ${t} deve ser válido`);

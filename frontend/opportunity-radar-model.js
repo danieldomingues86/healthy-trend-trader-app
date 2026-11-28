@@ -150,6 +150,9 @@
     { bg: '#0f172a', fg: '#e2e8f0' }
   ];
 
+  const MARKET_CYCLE_DEFINITION =
+    'Ciclo de Mercado Positivo: mercado com tendência predominante de alta, caracterizada pelo alinhamento das EMAs 10 e 30 no gráfico Diário, ambas com inclinação favorável. O comportamento do preço e a persistência do alinhamento também são considerados. Após correções, o sistema observa sinais de retomada da tendência.';
+
   /**
    * Resolve a URL de alta fidelidade do logo oficial para qualquer ativo negociado na B3.
    * Suporta ações ON/PN, Units, FIIs e BDRs, tratando frações (PETR4F -> PETR4).
@@ -231,7 +234,7 @@
   function isFiiSymbol(symbol) {
     const s = String(symbol || '').trim().toUpperCase();
     if (STOCK_UNITS_ENDING_IN_11.has(s)) return false;
-    return s.endsWith('11') && !s.startsWith('IBOV') && !s.startsWith('IFIX') && !s.startsWith('SMLL');
+    return s.endsWith('11');
   }
 
   function isBdrSymbol(symbol) {
@@ -483,6 +486,17 @@
       }
     }
 
+    const rawLastTrades = Number(latestCandle?.trades ?? latestCandle?.negocios ?? item.tradesCount ?? item.dailyTrades ?? item.trades);
+    const fallbackTrades = Number(liquidityResult?.metrics?.lastDayTrades ?? liquidityResult?.metrics?.averageDailyTrades ?? item.liquidity?.metrics?.lastDayTrades ?? item.liquidity?.metrics?.averageDailyTrades);
+    const tradesCount = Number.isFinite(rawLastTrades) && rawLastTrades > 0
+      ? Math.round(rawLastTrades)
+      : (Number.isFinite(fallbackTrades) && fallbackTrades > 0 ? Math.round(fallbackTrades) : null);
+
+    // Hard Gate obrigatório: Mínimo de 500 negócios por dia
+    if (!tradesCount || tradesCount < 500) {
+      return null;
+    }
+
     return {
       symbol: String(item.symbol).trim().toUpperCase(),
       name: cleanCompanyName(item.symbol, item.name),
@@ -517,6 +531,8 @@
       status: 'Pronto para entrada',
       liquidity: liquidityResult,
       liquidityEligible: true,
+      tradesCount,
+      dailyTrades: tradesCount,
       lastCandleDate: latestCandle.time || null,
       lastPrice: latestClose
     };
@@ -543,14 +559,14 @@
       if (item.liquidityEligible === false || item.liquidityBlocked === true) {
         return false;
       }
-
-      // Salvaguarda: somente ativos em Ciclo Positivo são elegíveis no Radar de Oportunidades.
-      // Ativos com ciclo em transição ou defensivo são estritamente excluídos.
-      const cycleNorm = String(item.marketCycleState || item.cycleState || item.cycle || item.marketCycle || '').trim().toLowerCase();
-      if (cycleNorm.includes('transi') || cycleNorm.includes('defens') || cycleNorm === 'riskoff') {
+      const trCount = Number(item.tradesCount ?? item.dailyTrades);
+      if (Number.isFinite(trCount) && trCount < 500) {
         return false;
       }
-      if (item.marketCycle && !String(item.marketCycle).toLowerCase().includes('positivo')) {
+
+      // Salvaguarda: ativos com ciclo individual ou marcação explícita em transição/defensivo são excluídos
+      const cycleState = String(item.marketCycleState || item.cycleState || '').trim().toLowerCase();
+      if (cycleState === 'transition' || cycleState === 'defensive' || cycleState === 'riskoff') {
         return false;
       }
 
@@ -1007,6 +1023,7 @@
     STORAGE_KEY_SELECTION,
     BRAND_LOGOS,
     FALLBACK_PALETTE,
+    MARKET_CYCLE_DEFINITION,
     resolveAssetLogoUrl,
     getAssetBrandDetails,
     resolveMarketCategory,

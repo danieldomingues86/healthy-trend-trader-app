@@ -138,21 +138,75 @@
     }
   ];
 
-  const TRIGGER_MAP = new Map(TRIGGERS.map(t => [t.id, t]));
+  const IFR2_TRIGGER = {
+    id: 'IFR2',
+    name: 'IFR2 (Volatilidade)',
+    optionLabel: '⚡ IFR2 (Volatilidade)',
+    shortLabel: 'IFR2 (Volatilidade)',
+    strategy: 'VOLATILITY_TRADING',
+    whatIs: 'Gatilho exclusivo da estratégia Volatility Trading (IFR2 – Reversão à Média). Identifica sobrevenda extrema de curtíssimo prazo com IFR(2) abaixo do limiar configurado (ex.: IFR(2) ≤ 10) em ativos líquidos que permanecem em tendência primária de alta (Fechamento > SMA 200) e abaixo da média curta (Fechamento < SMA 7).',
+    howToIdentify: 'No gráfico Diário, confirme que o ativo está acima da SMA(200) e recuou abaixo da SMA(7), levando o indicador IFR de 2 períodos (Wilder) para nível extremo de sobrevenda (≤ 10, ou conforme calibrado na Política de Risco).',
+    concept: 'Captura o choque de liquidez e exaustão vendedora de curtíssimo prazo dentro de uma tendência primária saudável, apostando no repique estatístico de retorno à média curta (SMA 7).',
+    conditions: [
+      'Tendência primária de alta ativa: Fechamento acima da SMA(200) no Diário.',
+      'Estiramento de curto prazo: Fechamento abaixo da SMA(7) no Diário.',
+      'Sobrevenda extrema confirmada: IFR(2) ≤ nível de sobrevenda configurado (padrão ≤ 10).'
+    ],
+    entryTrigger: 'Entrada no fechamento do candle de sinal (ou abertura seguinte conforme plano) quando IFR(2) ≤ limiar com preço > SMA(200) e < SMA(7).',
+    stop: 'Gestão por saída no retorno à média curta (Fechamento ≥ SMA 7), saída temporal máxima (D7) ou stop de proteção opcional.',
+    visualExample: [
+      '   SMA 7   ──────────┐',
+      '                     ╰───╮   [Pullback Abrupto]',
+      '                         ╰──> ┌───┐ Fechamento < SMA 7',
+      '                              │▓▓▓│ IFR(2) <= 10  <-- GATILHO IFR2 (COMPRA)',
+      '                              └───┘',
+      '   SMA 200 ══════════════════════════════════════ (Tendência Primária > SMA 200)'
+    ].join('\n'),
+    observations: 'Exclusivo da estratégia Volatility Trading (IFR2 – Reversão à Média). Não deve ser utilizado na estratégia Trend Following.'
+  };
 
-  function getAllTriggers() {
+  const ALL_CATALOG_TRIGGERS = [
+    TRIGGERS[0],
+    IFR2_TRIGGER,
+    ...TRIGGERS.slice(1)
+  ];
+
+  const TRIGGER_MAP = new Map(ALL_CATALOG_TRIGGERS.map(t => [t.id, t]));
+  const TREND_TRIGGER_MAP = new Map(TRIGGERS.map(t => [t.id, t]));
+
+  function isVolatilityStrategy(strategy) {
+    if (!strategy) return false;
+    const s = String(strategy).trim().toUpperCase();
+    return s === 'VOLATILITY_TRADING' || s === 'VOLATILITY';
+  }
+
+  function isTrendStrategy(strategy) {
+    if (!strategy) return false;
+    const s = String(strategy).trim().toUpperCase();
+    return s === 'TREND_FOLLOWING' || s === 'TREND';
+  }
+
+  function getAllTriggers(strategy) {
+    if (strategy === 'ALL' || isVolatilityStrategy(strategy) || (strategy && typeof strategy === 'object' && strategy.includeVolatility)) {
+      return ALL_CATALOG_TRIGGERS.map(t => ({ ...t }));
+    }
     return TRIGGERS.map(t => ({ ...t }));
   }
 
   function getTriggerById(id) {
     if (!id || typeof id !== 'string') return null;
-    const cleanId = id.trim().toUpperCase();
-    return TRIGGER_MAP.get(cleanId) ? { ...TRIGGER_MAP.get(cleanId) } : null;
+    const key = normalizeKey(id) || id.trim().toUpperCase();
+    return TRIGGER_MAP.get(key) ? { ...TRIGGER_MAP.get(key) } : null;
   }
 
-  function isValidTrigger(id) {
+  function isValidTrigger(id, strategy) {
     if (!id || typeof id !== 'string') return false;
-    return TRIGGER_MAP.has(id.trim().toUpperCase());
+    const key = normalizeKey(id);
+    if (!key || !TRIGGER_MAP.has(key)) return false;
+    if (isTrendStrategy(strategy)) {
+      return TREND_TRIGGER_MAP.has(key);
+    }
+    return true;
   }
 
   function normalizeKey(value) {
@@ -167,6 +221,16 @@
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
 
+    if (
+      normalized.includes('ifr2') ||
+      normalized.includes('ifr(2)') ||
+      normalized.includes('ifr 2') ||
+      normalized === 'ifr' ||
+      normalized.includes('volatility_swing_ifr2') ||
+      normalized.includes('volatility swing')
+    ) {
+      return 'IFR2';
+    }
     if (normalized.includes('rbi') || normalized.includes('vermelha') || normalized.includes('ignorada')) {
       return 'RBI';
     }
@@ -195,11 +259,16 @@
     return fallback;
   }
 
-  function getTriggerOptions() {
-    return TRIGGERS.map(t => ({
+  function getTriggerOptions(strategy) {
+    const list = (strategy === 'ALL' || isVolatilityStrategy(strategy))
+      ? ALL_CATALOG_TRIGGERS
+      : TRIGGERS;
+    return list.map(t => ({
       value: t.id,
-      label: t.name,
-      shortLabel: t.shortLabel
+      label: t.optionLabel || t.name,
+      name: t.name,
+      shortLabel: t.shortLabel,
+      strategy: t.strategy || 'TREND_FOLLOWING'
     }));
   }
 
@@ -219,6 +288,8 @@
 
   return {
     TRIGGERS,
+    IFR2_TRIGGER,
+    ALL_CATALOG_TRIGGERS,
     getAllTriggers,
     getTriggerById,
     isValidTrigger,

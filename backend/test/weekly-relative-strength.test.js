@@ -170,19 +170,22 @@ test('buildWeeklyClass agrega, ranqueia e estrutura classe completa no semanal',
   const stock1Daily = dates.map((dt, i) => ({
     date: dt,
     close: 50 + i * 3,
-    volume: 5000000 // R$ 5.000.000/dia > R$ 500.000
+    volume: 5000000, // R$ 5.000.000/dia > R$ 500.000
+    trades: 2000
   }));
 
   const stock2Daily = dates.map((dt, i) => ({
     date: dt,
     close: 80 - i,
-    volume: 3000000 // R$ 3.000.000/dia > R$ 500.000
+    volume: 3000000, // R$ 3.000.000/dia > R$ 500.000
+    trades: 1500
   }));
 
   const stockIlliquidDaily = dates.map((dt, i) => ({
     date: dt,
     close: 10 + i * 10,
-    volume: 50000 // R$ 50.000/dia < R$ 500.000 (reprovado pelo gate)
+    volume: 50000, // R$ 50.000/dia < R$ 500.000 (reprovado pelo gate)
+    trades: 120
   }));
 
   const histories = new Map([

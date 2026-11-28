@@ -287,6 +287,9 @@
     }
     const avgDailyVolume = sumVolume / config.windowSessions;
     const avgDailyTrades = sumTrades / config.windowSessions;
+    const lastWindowCandle = priorArray[winEnd];
+    const lastDayTrades = Math.round(Number(lastWindowCandle?.trades || lastWindowCandle?.negocios) || 0);
+    const dailyTrades = Math.round(avgDailyTrades > 0 ? avgDailyTrades : lastDayTrades);
 
     const avgVolFormatted = formatMoney(avgDailyVolume, currency);
     const avgVolCompact = formatCompactMoney(avgDailyVolume, currency);
@@ -303,6 +306,9 @@
       minDailyVolumeFormatted: minVolFormatted,
       minDailyVolumeCompact: minVolCompact,
       averageDailyTrades: Math.round(avgDailyTrades),
+      lastDayTrades,
+      dailyTrades,
+      observedTrades: dailyTrades,
       minDailyTrades: config.minDailyTrades,
       calendarDaysSpan,
       maxCalendarDaysSpan: config.maxCalendarDaysSpan,
@@ -313,29 +319,67 @@
       market: isUs ? 'US' : 'B3'
     };
 
-    // Critério Principal: Volume financeiro
-    if (hasVolumeData) {
-      if (avgDailyVolume < minVolume) {
+    // Fail-Closed: Dados de negócios indisponíveis ou ausentes (Ações, BDRs e FIIs)
+    if (!isUs && (!hasTradesData || (avgDailyTrades <= 0 && lastDayTrades <= 0))) {
+      return {
+        isEligible: false,
+        status: STATUS_CODES.DATA_UNAVAILABLE,
+        code: 'DATA_UNAVAILABLE',
+        reason: 'Dados de negócios indisponíveis: ativo sem histórico confiável de negócios por dia.',
+        metrics: baseMetrics,
+        badge: {
+          text: 'ATIVO SEM LIQUIDEZ — NÃO OPERE',
+          shortText: 'Sem dados',
+          class: 'badge-liquidity-blocked',
+          color: '#b91c1c'
+        }
+      };
+    }
+
+    // Critério 1: Volume financeiro diário
+    if (hasVolumeData && avgDailyVolume < minVolume) {
+      return {
+        isEligible: false,
+        status: STATUS_CODES.VOLUME_BELOW_MINIMUM,
+        code: 'VOLUME_BELOW_MINIMUM',
+        reason: `Volume financeiro médio diário de ${avgVolFormatted} nos últimos ${config.windowSessions} pregões está abaixo do mínimo exigido de ${minVolFormatted}.`,
+        metrics: baseMetrics,
+        badge: {
+          text: 'BLOQUEADO POR LIQUIDEZ',
+          shortText: `${avgVolCompact}/dia`,
+          class: 'badge-liquidity-blocked',
+          color: '#b91c1c'
+        }
+      };
+    }
+
+    // Critério 2: Quantidade de negócios por dia (Hard Gate obrigatório — mínimo de 500 negócios/dia)
+    if (hasTradesData || !isUs) {
+      if (dailyTrades < config.minDailyTrades || avgDailyTrades < config.minDailyTrades) {
+        const tradesCountDisplay = Math.min(dailyTrades, Math.round(avgDailyTrades));
         return {
           isEligible: false,
-          status: STATUS_CODES.VOLUME_BELOW_MINIMUM,
-          code: 'VOLUME_BELOW_MINIMUM',
-          reason: `Volume financeiro médio diário de ${avgVolFormatted} nos últimos ${config.windowSessions} pregões está abaixo do mínimo exigido de ${minVolFormatted}.`,
+          status: STATUS_CODES.TRADES_BELOW_MINIMUM,
+          code: 'TRADES_BELOW_MINIMUM',
+          reason: `ATIVO SEM LIQUIDEZ — NÃO OPERE: média de ${tradesCountDisplay} negócios/dia nos últimos ${config.windowSessions} pregões está abaixo do mínimo obrigatório de ${config.minDailyTrades} negócios/dia.`,
           metrics: baseMetrics,
           badge: {
-            text: 'BLOQUEADO POR LIQUIDEZ',
-            shortText: `${avgVolCompact}/dia`,
+            text: 'ATIVO SEM LIQUIDEZ — NÃO OPERE',
+            shortText: `${tradesCountDisplay} neg/dia`,
             class: 'badge-liquidity-blocked',
             color: '#b91c1c'
           }
         };
       }
+    }
 
+    // Se ambos os critérios forem cumpridos (ou volume US com dados de negócios não aplicáveis)
+    if (hasVolumeData) {
       return {
         isEligible: true,
         status: STATUS_CODES.APPROVED,
         code: 'APPROVED',
-        reason: `Liquidez aprovada: volume financeiro médio diário de ${avgVolFormatted} nos últimos ${config.windowSessions} pregões (mínimo: ${minVolFormatted}).`,
+        reason: `Liquidez aprovada: volume financeiro médio diário de ${avgVolFormatted} e média de ${Math.round(avgDailyTrades)} negócios/dia nos últimos ${config.windowSessions} pregões (mínimos: ${minVolFormatted} e ${config.minDailyTrades} negócios/dia).`,
         metrics: baseMetrics,
         badge: {
           text: 'LIQUIDEZ APROVADA',
@@ -346,38 +390,20 @@
       };
     }
 
-    // Critério Alternativo: Quantidade de negócios diários (quando volume financeiro não está disponível)
-    if (hasTradesData) {
-      if (avgDailyTrades < config.minDailyTrades) {
-        return {
-          isEligible: false,
-          status: STATUS_CODES.TRADES_BELOW_MINIMUM,
-          code: 'TRADES_BELOW_MINIMUM',
-          reason: `Volume financeiro não informado e média de negócios (${Math.round(avgDailyTrades)}/dia) nos últimos ${config.windowSessions} pregões está abaixo do mínimo exigido de ${config.minDailyTrades} negócios/dia.`,
-          metrics: baseMetrics,
-          badge: {
-            text: 'BLOQUEADO POR LIQUIDEZ',
-            shortText: `${Math.round(avgDailyTrades)} neg/dia`,
-            class: 'badge-liquidity-blocked',
-            color: '#b91c1c'
-          }
-        };
+    // Critério exclusivo de negócios (quando volume não fornecido)
+    return {
+      isEligible: true,
+      status: STATUS_CODES.APPROVED,
+      code: 'APPROVED',
+      reason: `Liquidez aprovada pelo critério de negócios: média de ${Math.round(avgDailyTrades)} negócios/dia nos últimos ${config.windowSessions} pregões (mínimo: ${config.minDailyTrades} negócios/dia).`,
+      metrics: baseMetrics,
+      badge: {
+        text: 'LIQUIDEZ APROVADA',
+        shortText: `${Math.round(avgDailyTrades)} neg/dia`,
+        class: 'badge-liquidity-approved',
+        color: '#15803d'
       }
-
-      return {
-        isEligible: true,
-        status: STATUS_CODES.APPROVED,
-        code: 'APPROVED',
-        reason: `Liquidez aprovada pelo critério de negócios: média de ${Math.round(avgDailyTrades)} negócios/dia nos últimos ${config.windowSessions} pregões (mínimo: ${config.minDailyTrades} negócios/dia).`,
-        metrics: baseMetrics,
-        badge: {
-          text: 'LIQUIDEZ APROVADA',
-          shortText: `${Math.round(avgDailyTrades)} neg/dia`,
-          class: 'badge-liquidity-approved',
-          color: '#15803d'
-        }
-      };
-    }
+    };
 
     // Falta tanto de volume quanto de negócios -> Fail closed
     return {

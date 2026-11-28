@@ -39,13 +39,6 @@
       desc: 'Metas, jornada de consistência e proteção operacional.'
     },
     {
-      id: 'market-analysis',
-      label: 'Análise de Mercado',
-      labelEn: 'Market Analysis',
-      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
-      desc: 'Força relativa, ciclo de mercado, gráficos e inteligência.'
-    },
-    {
       id: 'portfolio-risk',
       label: 'Carteira & Risco',
       labelEn: 'Portfolio & Risk',
@@ -143,8 +136,8 @@
     {
       id: 'habits',
       page: 'habits',
-      label: 'Acompanhar Hábitos',
-      labelEn: 'Habit Tracking',
+      label: 'Hábitos',
+      labelEn: 'Habits',
       category: 'daily',
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
       desc: 'Acompanhamento e construção de hábitos.',
@@ -296,6 +289,17 @@
       icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
       desc: 'Treemap interativo de todo o mercado acionário da B3.',
       descEn: 'Interactive treemap of the entire B3 stock market.',
+      proOnly: false
+    },
+    {
+      id: 'bdrintelligence',
+      page: 'bdrintelligence',
+      label: 'Inteligência BDR',
+      labelEn: 'BDR Intelligence',
+      category: 'market-analysis',
+      icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+      desc: 'Análise integrada de mercado de origem, empresa e câmbio.',
+      descEn: 'Integrated analysis of origin market cycle, underlying stock and FX.',
       proOnly: false
     },
 
@@ -630,16 +634,19 @@
   ];
 
   // 3. OFFICIAL PRESETS (Determines Organization & Quick Access without hiding anything)
+  // Menus expansíveis da barra lateral iniciam 100% recolhidos por padrão; apenas Acesso Rápido fica expandido
+  const ALL_CATEGORY_IDS = [...new Set(CATEGORIES.map(c => c.id))];
+
   const PRESETS = {
     fast: {
       id: 'fast',
       label: 'Fast',
       labelEn: 'Fast',
-      desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Atualização Diária, Dashboard, Novo Trade, Diário, Watchlist, Gráficos), com categorias organizadas para fluxo ágil.',
+      desc: 'Acesso ultrarrápido às ferramentas mais frequentes (Atualização Diária, Dashboard, Novo Trade, Diário, Watchlist, Gráficos, Hábitos), com categorias organizadas para fluxo ágil.',
       descEn: 'Lightning-fast access to most frequent tools with streamlined categories.',
-      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts', 'habits'],
       categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'simulators', 'data-performance', 'mindset', 'resources'],
-      collapsedCategories: ['simulators', 'mindset', 'resources']
+      collapsedCategories: [...ALL_CATEGORY_IDS]
     },
     trader_focus: {
       id: 'trader_focus',
@@ -647,9 +654,9 @@
       labelEn: 'Trader Focus',
       desc: 'Organização estritamente orientada à execução do pregão, enfatizando Operação, Risco, Mercado e Treinamento.',
       descEn: 'Strict execution-focused hierarchy emphasizing Daily Trading, Risk, Market and Training.',
-      quickAccess: ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal', 'habits'],
       categoryOrder: ['market-analysis', 'daily', 'portfolio-risk', 'training-recovery', 'data-performance', 'simulators', 'mindset', 'resources'],
-      collapsedCategories: ['simulators', 'mindset', 'resources']
+      collapsedCategories: [...ALL_CATEGORY_IDS]
     },
     full: {
       id: 'full',
@@ -657,9 +664,9 @@
       labelEn: 'Professional / Full',
       desc: 'Visão integral de todas as dimensões da plataforma: Operação, Treinamento, Mercado, Simuladores, Risco, Performance e Mindset.',
       descEn: 'Complete structured view of all platform pillars.',
-      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts'],
+      quickAccess: ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts', 'habits'],
       categoryOrder: ['market-analysis', 'daily', 'training-recovery', 'simulators', 'portfolio-risk', 'data-performance', 'mindset', 'resources'],
-      collapsedCategories: []
+      collapsedCategories: [...ALL_CATEGORY_IDS]
     }
   };
 
@@ -677,6 +684,13 @@
       this.state = this.getDefaultState('fast');
     }
 
+    /**
+     * Retorna todos os IDs das categorias cadastradas (para recolhimento padronizado)
+     */
+    getAllCategoryIds() {
+      return [...new Set(this.categories.map(c => c.id))];
+    }
+
     getDefaultState(presetKey = 'fast') {
       const preset = this.presets[presetKey] || this.presets.fast;
       const key = this.presets[presetKey] ? presetKey : 'fast';
@@ -686,7 +700,8 @@
         preset: key,
         quickAccess: [...preset.quickAccess],
         categoryOrder: [...preset.categoryOrder],
-        collapsedCategories: [...(preset.collapsedCategories || [])]
+        // Menus recolhidos por padrão na inicialização; apenas Acesso Rápido permanece expandido
+        collapsedCategories: this.getAllCategoryIds()
       };
     }
 
@@ -700,11 +715,14 @@
       const isEn = lang === 'en-US';
 
       // Migration guard: ensure 'dashboard' (Patrimônio) is NEVER in quickAccess (belongs in data-performance)
-      // and ensure 'dailyupdate' is present in quickAccess
+      // and ensure 'dailyupdate' and 'habits' are present in quickAccess
       if (state && Array.isArray(state.quickAccess)) {
         state.quickAccess = state.quickAccess.filter(id => id !== 'dashboard');
         if (!state.quickAccess.includes('dailyupdate')) {
           state.quickAccess.unshift('dailyupdate');
+        }
+        if (!state.quickAccess.includes('habits')) {
+          state.quickAccess.push('habits');
         }
       }
 
@@ -726,11 +744,13 @@
 
       // Build categories list (preserving categoryOrder)
       const categoriesById = new Map();
+      const collapsedSet = new Set(Array.isArray(state.collapsedCategories) ? state.collapsedCategories : this.getAllCategoryIds());
       this.categories.forEach(cat => {
         categoriesById.set(cat.id, {
           ...cat,
           currentLabel: isEn ? (cat.labelEn || cat.label) : cat.label,
-          isCollapsed: state.collapsedCategories.includes(cat.id),
+          // Por padrão todas as categorias são recolhidas; se não estiver no set, está expandida
+          isCollapsed: collapsedSet.has(cat.id),
           items: []
         });
       });
@@ -800,7 +820,7 @@
       this.state.preset = presetKey;
       this.state.quickAccess = [...preset.quickAccess];
       this.state.categoryOrder = [...preset.categoryOrder];
-      this.state.collapsedCategories = [...(preset.collapsedCategories || [])];
+      this.state.collapsedCategories = this.getAllCategoryIds();
       this.save();
     }
 
@@ -855,7 +875,8 @@
             preset: validPresetKey,
             quickAccess: [...defaultPresetState.quickAccess],
             categoryOrder: [...defaultPresetState.categoryOrder],
-            collapsedCategories: (parsed && Array.isArray(parsed.collapsedCategories)) ? parsed.collapsedCategories : defaultPresetState.collapsedCategories
+            // As categorias iniciam sempre 100% recolhidas por padrão ao abrir/recarregar
+            collapsedCategories: this.getAllCategoryIds()
           };
         }
 
@@ -864,16 +885,18 @@
         }
 
         // Migration guard: ensure 'dashboard' is NEVER in quickAccess (belongs in data-performance)
-        // and ensure 'dailyupdate' is present in quickAccess
+        // and ensure 'dailyupdate' and 'habits' are present in quickAccess
         if (this.state && Array.isArray(this.state.quickAccess)) {
           this.state.quickAccess = this.state.quickAccess.filter(id => id !== 'dashboard');
           if (!this.state.quickAccess.includes('dailyupdate')) {
             this.state.quickAccess.unshift('dailyupdate');
           }
+          if (!this.state.quickAccess.includes('habits')) {
+            this.state.quickAccess.push('habits');
+          }
         }
-        if (this.state && Array.isArray(this.state.collapsedCategories)) {
-          this.state.collapsedCategories = this.state.collapsedCategories.filter(id => id !== 'data-performance');
-        }
+        // Estado inicial obrigatório: todos os menus expansíveis sempre recolhidos por padrão na inicialização (apenas Acesso Rápido visível)
+        this.state.collapsedCategories = this.getAllCategoryIds();
       } catch (e) {
         console.warn('[NavigationSystemModel] Failed to load state from storage:', e);
       }
@@ -882,12 +905,18 @@
     save(storage = (typeof localStorage !== 'undefined' ? localStorage : null)) {
       if (!storage) return;
       try {
-        storage.setItem(STORAGE_KEY_STATE, JSON.stringify(this.state));
+        // Ao salvar estado persistente, não gravamos menus abertos para evitar que
+        // um menu aberto nesta sessão seja restaurado automaticamente na próxima inicialização
+        const stateToPersist = {
+          ...this.state,
+          collapsedCategories: this.getAllCategoryIds()
+        };
+        storage.setItem(STORAGE_KEY_STATE, JSON.stringify(stateToPersist));
         storage.setItem(STORAGE_KEY_LAYOUT, this.state.style);
         
         // Synchronize with workspace-state if available
         if (typeof root.healthyTrendWorkspace?.setKey === 'function') {
-          root.healthyTrendWorkspace.setKey('navigationState', this.state);
+          root.healthyTrendWorkspace.setKey('navigationState', stateToPersist);
         }
       } catch (e) {
         console.warn('[NavigationSystemModel] Failed to save state to storage:', e);

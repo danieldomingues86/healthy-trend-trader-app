@@ -18,8 +18,12 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  const OFFICIAL_EMA_FAST = 10;
-  const OFFICIAL_EMA_SLOW = 72;
+  const MARKET_CYCLE_EMA_FAST = 10;
+  const MARKET_CYCLE_EMA_SLOW = 30;
+  const ASSET_STRUCTURE_EMA_FAST = 10;
+  const ASSET_STRUCTURE_EMA_SLOW = 72;
+  const OFFICIAL_EMA_FAST = MARKET_CYCLE_EMA_FAST;
+  const OFFICIAL_EMA_SLOW = MARKET_CYCLE_EMA_SLOW;
 
   // Lista canônica de FIIs conhecidos da B3
   const KNOWN_FII_SYMBOLS = new Set([
@@ -120,39 +124,46 @@
     if (closes.length < 30) return null;
 
     const price = closes.at(-1);
-    const ema10Arr = calculateEmaSeries(closes, OFFICIAL_EMA_FAST);
-    const ema72Period = Math.min(OFFICIAL_EMA_SLOW, closes.length);
-    const ema72Arr = calculateEmaSeries(closes, ema72Period);
+    const ema10Arr = calculateEmaSeries(closes, MARKET_CYCLE_EMA_FAST);
+    const ema30Period = Math.min(MARKET_CYCLE_EMA_SLOW, closes.length);
+    const ema30Arr = calculateEmaSeries(closes, ema30Period);
 
     const ema10 = ema10Arr[ema10Arr.length - 1];
-    const ema72 = ema72Arr[ema72Arr.length - 1];
+    const ema30 = ema30Arr[ema30Arr.length - 1];
 
-    if (!Number.isFinite(ema10) || !Number.isFinite(ema72) || !Number.isFinite(price)) {
+    if (!Number.isFinite(ema10) || !Number.isFinite(ema30) || !Number.isFinite(price)) {
       return null;
     }
 
     const prevEma10 = ema10Arr.length > 1 ? ema10Arr[ema10Arr.length - 2] : ema10;
-    const prevEma72 = ema72Arr.length > 1 ? ema72Arr[ema72Arr.length - 2] : ema72;
+    const prevEma30 = ema30Arr.length > 1 ? ema30Arr[ema30Arr.length - 2] : ema30;
     const ema10Slope = ema10 - prevEma10;
-    const ema72Slope = ema72 - prevEma72;
+    const ema30Slope = ema30 - prevEma30;
 
     const above10 = price > ema10;
-    const above72 = price > ema72;
-    const structure = ema10 > ema72;
-    const isExpansion = above10 && above72;
+    const above30 = price > ema30;
+    const structure = ema10 > ema30;
+    const isExpansion = above10 && above30 && structure;
+    const isEarlyRecovery = (above10 || above30) && !structure;
     const state = isExpansion ? 'healthy' : 'defensive';
 
     return {
       state,
       price,
       ema10,
-      ema72,
+      ema30,
+      ema72: ema30,
       above10,
-      above72,
+      above30,
+      above72: above30,
       structure,
       ema10Slope,
-      ema72Slope,
-      isFavorable: isExpansion
+      ema30Slope,
+      ema72Slope: ema30Slope,
+      isEarlyRecovery,
+      isFavorable: isExpansion,
+      emaFastPeriod: MARKET_CYCLE_EMA_FAST,
+      emaSlowPeriod: MARKET_CYCLE_EMA_SLOW
     };
   }
 
@@ -465,12 +476,13 @@
     const above72 = price > ema72;
     const below10 = price < ema10;
     const below72 = price < ema72;
+    const structure = ema10 > ema72;
 
     let direction = 'SIDEWAYS';
-    if (above10 && above72) direction = 'UP';
-    else if (below10 && below72) direction = 'DOWN';
+    if (above10 && above72 && structure) direction = 'UP';
+    else if (below10 && below72 && !structure) direction = 'DOWN';
 
-    return { direction, price, ema10, ema72 };
+    return { direction, price, ema10, ema72, structure };
   }
 
   function calculateVolatility(candles, period = 21, smaPeriod = 252) {
@@ -764,47 +776,149 @@
       return readings;
     }
 
-    const warmupLimit = Math.min(len, OFFICIAL_EMA_SLOW - 1);
+    const warmupLimit = Math.min(len, MARKET_CYCLE_EMA_SLOW - 1);
     for (let i = 29; i < warmupLimit; i++) {
       readings[i] = scoreMarketCycleFromCandles(candles.slice(0, i + 1));
     }
 
-    if (len >= OFFICIAL_EMA_SLOW) {
-      const ema10Arr = calculateEmaSeries(closes, OFFICIAL_EMA_FAST);
-      const ema72Arr = calculateEmaSeries(closes, OFFICIAL_EMA_SLOW);
-      for (let i = OFFICIAL_EMA_SLOW - 1; i < len; i++) {
+    if (len >= MARKET_CYCLE_EMA_SLOW) {
+      const ema10Arr = calculateEmaSeries(closes, MARKET_CYCLE_EMA_FAST);
+      const ema30Arr = calculateEmaSeries(closes, MARKET_CYCLE_EMA_SLOW);
+      for (let i = MARKET_CYCLE_EMA_SLOW - 1; i < len; i++) {
         const price = closes[i];
         const ema10 = ema10Arr[i];
-        const ema72 = ema72Arr[i];
-        if (!Number.isFinite(ema10) || !Number.isFinite(ema72) || !Number.isFinite(price)) {
+        const ema30 = ema30Arr[i];
+        if (!Number.isFinite(ema10) || !Number.isFinite(ema30) || !Number.isFinite(price)) {
           readings[i] = null;
           continue;
         }
         const prevEma10 = i > 0 ? ema10Arr[i - 1] : ema10;
-        const prevEma72 = i > 0 ? ema72Arr[i - 1] : ema72;
+        const prevEma30 = i > 0 ? ema30Arr[i - 1] : ema30;
         const ema10Slope = ema10 - prevEma10;
-        const ema72Slope = ema72 - prevEma72;
+        const ema30Slope = ema30 - prevEma30;
         const above10 = price > ema10;
-        const above72 = price > ema72;
-        const structure = ema10 > ema72;
-        const isExpansion = above10 && above72;
+        const above30 = price > ema30;
+        const structure = ema10 > ema30;
+        const isExpansion = above10 && above30 && structure;
+        const isEarlyRecovery = (above10 || above30) && !structure;
         const state = isExpansion ? 'healthy' : 'defensive';
         readings[i] = {
           state,
           price,
           ema10,
-          ema72,
+          ema30,
+          ema72: ema30,
           above10,
-          above72,
+          above30,
+          above72: above30,
           structure,
           ema10Slope,
-          ema72Slope,
-          isFavorable: isExpansion
+          ema30Slope,
+          ema72Slope: ema30Slope,
+          isEarlyRecovery,
+          isFavorable: isExpansion,
+          emaFastPeriod: MARKET_CYCLE_EMA_FAST,
+          emaSlowPeriod: MARKET_CYCLE_EMA_SLOW
         };
       }
     }
 
     return readings;
+  }
+
+  /**
+   * Texto explicativo canônico exibido na interface do Ciclo de Mercado sobre
+   * a distinção entre a leitura rápida do mercado (EMA 10/30) e a estrutura dos ativos (EMA 10/72).
+   */
+  const METHODOLOGY_DISTINCTION_EXPLANATION = Object.freeze({
+    title: 'Por que fazemos essa distinção?',
+    marketCycleRule: 'Ciclo de Mercado (Diário): EMA 10 e EMA 30',
+    assetStructureRule: 'Ciclo dos Ativos / Gráficos (Diário): EMA 10 e EMA 72',
+    paragraphs: Object.freeze([
+      'O mercado e os ativos não se movimentam na mesma velocidade. Em momentos de queda, muitos ativos tendem a cair juntos e apresentar estruturas semelhantes. Porém, quando começa uma recuperação, alguns ativos — especialmente os líderes — podem voltar a performar antes dos demais e antes de o mercado confirmar uma tendência de alta mais madura.',
+      'Se utilizássemos a mesma leitura estrutural e mais lenta para o mercado e para os ativos, o sistema poderia demorar a reconhecer essa mudança. O ciclo geral ainda poderia indicar recuperação ou uma condição não totalmente confirmada, enquanto determinados ativos já estariam demonstrando força e apresentando oportunidades técnicas.',
+      'Por isso, usamos médias mais curtas (EMA 10 e EMA 30) no ciclo de mercado, para perceber as transições do ambiente com maior agilidade. Nos gráficos individuais, mantemos EMA 10 e EMA 72, pois precisamos de uma leitura estrutural mais ampla para avaliar cada ativo.',
+      'O ciclo de mercado contextualiza; não deve impedir a leitura individual dos ativos. O mercado ajuda a dimensionar o contexto e o risco, enquanto cada ativo precisa ser avaliado por sua própria estrutura e força. Assim, conseguimos reconhecer líderes e possíveis antecipações sem esperar que todo o mercado esteja alinhado.'
+    ])
+  });
+
+  /**
+   * Avalia de forma independente o Ciclo de Mercado (EMA 10 e EMA 30 no Diário)
+   * e a Estrutura Individual do Ativo (EMA 10 e EMA 72 no Diário).
+   *
+   * - O ciclo de mercado contextualiza risco e exposição, mas NÃO bloqueia nem invalida
+   *   automaticamente um ativo que já apresenta força e estrutura própria (EMA 10/72 alinhadas e ascendentes).
+   * - Em cenários de recuperação após queda, reconhece ativos líderes que antecipam a retomada
+   *   e mantém ativos atrasados sem confirmação até que superem sua própria EMA 10/72.
+   */
+  function evaluateMarketAndAssetContext(options = {}) {
+    const indexCandles = Array.isArray(options.indexCandles) ? options.indexCandles : [];
+    const assetCandles = Array.isArray(options.assetCandles) ? options.assetCandles : [];
+    const rsScore = Number.isFinite(Number(options.rsScore)) ? Number(options.rsScore) : null;
+
+    const marketReading = indexCandles.length >= 30 ? scoreMarketCycleFromCandles(indexCandles) : null;
+
+    let assetReading = null;
+    if (assetCandles.length >= ASSET_STRUCTURE_EMA_SLOW) {
+      const assetCloses = assetCandles
+        .map(c => Number(c.adjustedClose != null ? c.adjustedClose : c.close))
+        .filter(Number.isFinite);
+      if (assetCloses.length >= ASSET_STRUCTURE_EMA_SLOW) {
+        const assetPrice = assetCloses.at(-1);
+        const assetEma10Arr = calculateEmaSeries(assetCloses, ASSET_STRUCTURE_EMA_FAST);
+        const assetEma72Arr = calculateEmaSeries(assetCloses, ASSET_STRUCTURE_EMA_SLOW);
+        const assetEma10 = assetEma10Arr.at(-1);
+        const assetEma72 = assetEma72Arr.at(-1);
+        const prevAssetEma10 = assetEma10Arr.length > 1 ? assetEma10Arr.at(-2) : assetEma10;
+        const prevAssetEma72 = assetEma72Arr.length > 1 ? assetEma72Arr.at(-2) : assetEma72;
+        const ema10Slope = assetEma10 - prevAssetEma10;
+        const ema72Slope = assetEma72 - prevAssetEma72;
+        const priceAboveEma10 = assetPrice > assetEma10;
+        const priceAboveEma72 = assetPrice > assetEma72;
+        const ema10AboveEma72 = assetEma10 > assetEma72;
+        const bothAscending = ema10Slope > 0 && ema72Slope > 0;
+        const isConfirmed = priceAboveEma10 && priceAboveEma72 && ema10AboveEma72 && bothAscending;
+
+        assetReading = {
+          price: assetPrice,
+          ema10: assetEma10,
+          ema72: assetEma72,
+          emaFastPeriod: ASSET_STRUCTURE_EMA_FAST,
+          emaSlowPeriod: ASSET_STRUCTURE_EMA_SLOW,
+          priceAboveEma10,
+          priceAboveEma72,
+          ema10AboveEma72,
+          ema10Slope,
+          ema72Slope,
+          bothAscending,
+          isConfirmed,
+          rsScore,
+          isLeader: rsScore !== null ? rsScore >= 80 : isConfirmed
+        };
+      }
+    }
+
+    const isAssetConfirmed = Boolean(assetReading && assetReading.isConfirmed);
+    const isMarketFavorable = Boolean(marketReading && marketReading.isFavorable);
+    const isMarketEarlyRecovery = Boolean(marketReading && marketReading.isEarlyRecovery);
+
+    return {
+      marketCycle: marketReading ? {
+        ...marketReading,
+        role: 'context',
+        contextLabel: isMarketFavorable
+          ? 'Expansão (EMA 10 e EMA 30)'
+          : (isMarketEarlyRecovery ? 'Recuperação Inicial (Preço > EMA 10, abaixo da EMA 30)' : 'Defesa / Transição (EMA 10 e EMA 30)')
+      } : null,
+      assetStructure: assetReading,
+      isIndependentConfig: MARKET_CYCLE_EMA_SLOW === 30 && ASSET_STRUCTURE_EMA_SLOW === 72,
+      isAssetConfirmed,
+      isBlockedByMarketCycle: false,
+      canRecognizeOpportunity: isAssetConfirmed,
+      riskGuidance: isMarketFavorable
+        ? 'Contexto favorável no índice (EMA 10/30): risco operacional padrão conforme nota da oportunidade.'
+        : 'Contexto cauteloso ou em transição no índice (EMA 10/30): dimensionar exposição com disciplina caso o ativo líder já apresente estrutura própria confirmada (EMA 10/72).'
+    };
   }
 
   return {
@@ -820,8 +934,13 @@
     derivePeriods,
     calculateDistribution,
     calculateRegimePerformance,
+    MARKET_CYCLE_EMA_FAST,
+    MARKET_CYCLE_EMA_SLOW,
+    ASSET_STRUCTURE_EMA_FAST,
+    ASSET_STRUCTURE_EMA_SLOW,
     OFFICIAL_EMA_FAST,
     OFFICIAL_EMA_SLOW,
+    METHODOLOGY_DISTINCTION_EXPLANATION,
     isFiiSymbol,
     isBdrSymbol,
     isNasdaqSymbol,
@@ -829,6 +948,7 @@
     calculateEmaSeries,
     scoreMarketCycleFromCandles,
     buildMarketCycleReadingsSeries,
+    evaluateMarketAndAssetContext,
     validateMarketPermissionForBuy
   };
 });

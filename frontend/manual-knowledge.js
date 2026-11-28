@@ -53,6 +53,7 @@
     ['opportunityradar','Radar de Oportunidades','Ativos prontos para entrada no Diário.',null,'Consolide em uma visão rápida e objetiva somente os ativos que cumprem todos os critérios obrigatórios do método e possuem gatilho confirmado no gráfico Diário.'],
     ['relativestrength','Força Relativa','Encontre líderes.',null,'Compare os ativos dentro do seu universo. Força relativa indica liderança; a entrada ainda depende do setup.'],
     ['fundamentals','Fundamentalista','Score em 6 dimensões com CVM e SEC.',null,'Pesquise ações B3 ou BDRs internacionais. Score ponderado de 0 a 10 com régua de 5 patamares e Cobertura dos Dados (dado ausente não é zero).'],
+    ['bdrintelligence','Inteligência BDR','Análise integrada de BDRs.',null,'Avalie o ciclo do mercado internacional, a força estrutural da empresa e o impacto cambial (USD/BRL) de forma independente antes de operar.'],
     ['markettreemap','Setores','Treemap interativo de todo o mercado acionário da B3.',null,'Visualize o mercado brasileiro por setor com o tamanho das empresas proporcional ao seu Market Cap, variação diária e navegação direta para análise gráfica.'],
     ['dashboard','Patrimônio','Visão patrimonial e alocações.',null,'Acompanhe a curva de capital da estratégia, separe o rendimento real dos aportes e gerencie as alocações da sua carteira.'],
     ['dailyupdate','Atualização Diária','Rotina de fechamento diário.',null,'Atualize rapidamente o patrimônio total das contas, confira posições abertas e consolide o fechamento diário sem planilhas externas.'],
@@ -90,6 +91,11 @@
     today: [
       'A tela Visão Geral é seu centro de comando diário: visualize o status geral do mercado, as posições que demandam atenção imediata e as próximas ações recomendadas.',
       'Cockpit Matinal: comece seu dia revisando as posições abertas, trailing stops ativos e o alinhamento com a sua Política de Risco antes da abertura do pregão.'
+    ],
+    bdrintelligence: [
+      'A tela Inteligência BDR avalia três fatores independentes antes da execução: 1. Ciclo do mercado internacional (Nasdaq-100 / S&P 500), 2. Força e estrutura individual da ação original nos EUA (EMA 10 e EMA 72), 3. Impacto cambial direto (USD/BRL).',
+      'Matriz de Interpretação e Hierarquia: O câmbio atua como catalisador ou vento contrário, mas nunca compensa fraqueza estrutural ou mercado em baixa. Cenário Ideal exige Mercado Positivo, Empresa Positiva e Câmbio Favorável.',
+      'Decomposição Didática do Preço: Apresenta exatamente a contribuição de cada fator na cotação da BDR em reais através da fórmula: Preço BDR = Preço da ação original × USD/BRL × Fator de Paridade.'
     ],
     newtrade: [
       'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho Oficial, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',
@@ -1082,7 +1088,7 @@
   // NÍVEL 2 — INTERACTIVE BOOK READER (FLIPBOOK PREMIUM 3D)
   // =========================================================================
 
-  function renderPageSpread(page, isRightPage) {
+  function renderPageSpread(page, isRightPage, totalBookPages) {
     if (!page) {
       return `
         <div class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} blank-page kc-page-surface">
@@ -1297,27 +1303,34 @@
         achievements: achievements
       });
 
+      const runningHeadRightText = (page.pageData && page.pageData.runningHeadRight)
+        || ('CAP. ' + page.chapterNumber + ' · PÁG. ' + (page.chapterPageIndex + 1) + '/' + page.chapterPageCount);
+      const displayTotalPages = totalBookPages ? (totalBookPages - 2) : 13;
+
       return `
         <article class="ht-book-page ${isRightPage ? 'right-page' : 'left-page'} kc-page-surface ht-page-visual-mode" id="kcPageSurface">
           <header class="ht-page-running-head">
-            <span>${esc(page.bookTitle)}</span>
-            <span class="kc-page-eyebrow">Cap. ${page.chapterNumber} · Pág. ${page.chapterPageIndex + 1}/${page.chapterPageCount}</span>
+            <span class="ht-running-book-title">${esc(page.bookTitle)}</span>
+            <div style="display:inline-flex;align-items:center;gap:10px;">
+              <span class="kc-page-eyebrow">${esc(runningHeadRightText)}</span>
+              <button type="button" class="kc-btn-toggle-chapter ${isChapterCompleted(page.chapterId) ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${page.chapterId}" style="border:none;background:transparent;cursor:pointer;font-size:10.5px;font-weight:700;color:var(--ht-book-accent);display:inline-flex;align-items:center;gap:3px;padding:0;">
+                ${icon('checkCircle', 13)} <span>${isChapterCompleted(page.chapterId) ? 'Concluído' : 'Concluir'}</span>
+              </button>
+            </div>
           </header>
 
           <div class="ht-page-body">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <span class="ht-page-chapter-badge">Capítulo ${page.chapterNumber}</span>
-              <button type="button" class="kc-btn-toggle-chapter ${isChapterCompleted(page.chapterId) ? 'is-completed' : ''}" data-action="toggle-complete" data-chapter-id="${page.chapterId}" style="border:none;background:transparent;cursor:pointer;font-size:11px;font-weight:700;color:var(--ht-book-accent);display:inline-flex;align-items:center;gap:4px;">
-                ${icon('checkCircle', 14)} <span>${isChapterCompleted(page.chapterId) ? 'Concluído' : 'Concluir'}</span>
-              </button>
-            </div>
-
             ${blocksHtml}
           </div>
 
           <footer class="ht-page-running-foot">
-            <span>The Healthy Trend Trader</span>
-            <span class="ht-page-num">${page.globalIndex + 1}</span>
+            <span class="ht-foot-brand" style="display:inline-flex;align-items:center;gap:6px;">
+              <svg viewBox="0 0 18 16" width="15" height="13" aria-hidden="true"><rect x="1" y="9" width="3.5" height="6" rx="0.8" fill="#10b981"/><rect x="6.5" y="5.5" width="3.5" height="9.5" rx="0.8" fill="#059669"/><rect x="12" y="1.5" width="3.5" height="13.5" rx="0.8" fill="#047857"/></svg>
+              <strong style="color:var(--ht-book-ink, #0f2922);font-weight:800;">Healthy Trend Trader</strong>
+              <span style="opacity:0.4;">|</span>
+              <span>Manual do Software</span>
+            </span>
+            <span class="ht-page-num">Pág. ${page.globalIndex + 1} de ${displayTotalPages}</span>
           </footer>
         </article>
       `;
@@ -1814,10 +1827,10 @@ function renderReaderView() {
               <div class="ht-book-ribbon"></div>
 
               ${spread.isDual ? `
-                ${renderPageSpread(spread.leftPage, false)}
-                ${renderPageSpread(spread.rightPage, true)}
+                ${renderPageSpread(spread.leftPage, false, flatPages.length)}
+                ${renderPageSpread(spread.rightPage, true, flatPages.length)}
               ` : `
-                ${renderPageSpread(spread.centerPage, false)}
+                ${renderPageSpread(spread.centerPage, false, flatPages.length)}
               `}
 
               ${appState.isFlipping ? `

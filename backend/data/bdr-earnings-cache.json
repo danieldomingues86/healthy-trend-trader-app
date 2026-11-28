@@ -1,9 +1,9 @@
 {
   "NVDA": {
     "rawPayload": {
-      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "reportText": "NVIDIA Corporation Common Stock is expected* to report earnings on 11/17/2026 after market close.",
       "heading": "NVDA Earnings Date",
-      "announcement": "Earnings announcement* for NVDA: ",
+      "announcement": "Earnings announcement* for NVDA: Nov 17, 2026",
       "eQRResposeModel": {
         "text": [
           "NVDA has a \"high\" Earnings Quality Ranking (EQR) for the 1st week. Earnings quality refers to the extent to which current earnings predict future earnings. \"High-quality\" earnings are expected to persist, while \"low-quality\" earnings do not. EQR is a weekly ranking of relative earnings quality for a large universe of publicly traded US equities. Companies are compared to peers in their industry. Find out more about EQR data."
@@ -15,7 +15,7 @@
         }
       }
     },
-    "timestamp": 1795600630161
+    "timestamp": 1795823633345
   },
   "MSTR": {
     "rawPayload": {
@@ -45,16 +45,16 @@
   },
   "GS": {
     "rawPayload": {
-      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "reportText": "Goldman Sachs Group, Inc. (The) Common Stock is estimated to report earnings on  01/21/2027. The upcoming earnings date is derived from an algorithm based on a company's historical reporting dates. Our vendor, Zacks Investment Research, might revise this date in the future, once the company announces the actual earnings date. According to Zacks Investment Research, based on  8 analysts' forecasts, the consensus EPS forecast for the quarter is $15.55.  The reported EPS for the same quarter last year was $14.01.",
       "heading": "GS Earnings Date",
-      "announcement": "Earnings announcement* for GS: ",
+      "announcement": "Earnings announcement* for GS: Jan 21, 2027",
       "eQRResposeModel": {
         "text": null,
         "boldText": null,
         "dataLinkUrl": null
       }
     },
-    "timestamp": 1795600649496
+    "timestamp": 1795823106249
   },
   "COIN": {
     "rawPayload": {
@@ -85,7 +85,7 @@
         }
       }
     },
-    "timestamp": 1795600649553
+    "timestamp": 1795823106260
   },
   "DXYZ": {
     "rawPayload": {
@@ -98,7 +98,7 @@
         "dataLinkUrl": null
       }
     },
-    "timestamp": 1795600649501
+    "timestamp": 1795823106261
   },
   "MU": {
     "rawPayload": {
@@ -160,6 +160,151 @@
         "dataLinkUrl": null
       }
     },
-    "timestamp": 1795600655224
+    "timestamp": 1795823106253
+  },
+  "TSLA": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "TSLA Earnings Date",
+      "announcement": "Earnings announcement* for TSLA: ",
+      "eQRResposeModel": {
+        "text": null,
+        "boldText": null,
+        "dataLinkUrl": null
+      }
+    },
+    "timestamp": 1795823105760
+  },
+  "WMT": {
+    "rawPayload": {
+      "reportText": "Walmart Inc. Common Stock is estimated to report earnings on 12/03/2026.",
+      "heading": "WMT Earnings Date",
+      "announcement": "Earnings announcement* for WMT: Dec 03, 2026"
+    },
+    "timestamp": 1795823272418
+  },
+  "TSM": {
+    "rawPayload": {
+      "reportText": "Taiwan Semiconductor Manufacturing Company Ltd. is estimated to report earnings on  01/21/2027. The upcoming earnings date is derived from an algorithm based on a company's historical reporting dates. Our vendor, Zacks Investment Research, might revise this date in the future, once the company announces the actual earnings date. According to Zacks Investment Research, based on  6 analysts' forecasts, the consensus EPS forecast for the quarter is $5.17.  The reported EPS for the same quarter last year was $3.14.",
+      "heading": "TSM Earnings Date",
+      "announcement": "Earnings announcement* for TSM: Jan 21, 2027",
+      "eQRResposeModel": {
+        "text": [
+          "TSM has a \"high\" Earnings Quality Ranking (EQR) for the 1st week. Earnings quality refers to the extent to which current earnings predict future earnings. \"High-quality\" earnings are expected to persist, while \"low-quality\" earnings do not. EQR is a weekly ranking of relative earnings quality for a large universe of publicly traded US equities. Companies are compared to peers in their industry. Find out more about EQR data."
+        ],
+        "boldText": null,
+        "dataLinkUrl": {
+          "label": "Find out more about EQR data",
+          "value": "https://data.nasdaq.com/databases/EQR"
+        }
+      }
+    },
+    "timestamp": 1795823106258
+  },
+  "GOOGL": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "GOOGL Earnings Date",
+      "announcement": "Earnings announcement* for GOOGL: ",
+      "eQRResposeModel": {
+        "text": null,
+        "boldText": null,
+        "dataLinkUrl": null
+      }
+    },
+    "timestamp": 1795823106259
+  },
+  "XOM": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "XOM Earnings Date",
+      "announcement": "Earnings announcement* for XOM: ",
+      "eQRResposeModel": {
+        "text": [
+          "XOM has a \"high\" Earnings Quality Ranking (EQR) for the 16th consecutive week. Earnings quality refers to the extent to which current earnings predict future earnings. \"High-quality\" earnings are expected to persist, while \"low-quality\" earnings do not. EQR is a weekly ranking of relative earnings quality for a large universe of publicly traded US equities. Companies are compared to peers in their industry. Find out more about EQR data."
+        ],
+        "boldText": null,
+        "dataLinkUrl": {
+          "label": "Find out more about EQR data",
+          "value": "https://data.nasdaq.com/databases/EQR"
+        }
+      }
+    },
+    "timestamp": 1795823106254
+  },
+  "BRK.B": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "BRK/B Earnings Date",
+      "announcement": "Earnings announcement* for BRK/B: ",
+      "eQRResposeModel": {
+        "text": null,
+        "boldText": null,
+        "dataLinkUrl": null
+      }
+    },
+    "timestamp": 1795823106252
+  },
+  "KO": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "KO Earnings Date",
+      "announcement": "Earnings announcement* for KO: ",
+      "eQRResposeModel": {
+        "text": [
+          "KO has a \"high\" Earnings Quality Ranking (EQR) for the 16th consecutive week. Earnings quality refers to the extent to which current earnings predict future earnings. \"High-quality\" earnings are expected to persist, while \"low-quality\" earnings do not. EQR is a weekly ranking of relative earnings quality for a large universe of publicly traded US equities. Companies are compared to peers in their industry. Find out more about EQR data."
+        ],
+        "boldText": null,
+        "dataLinkUrl": {
+          "label": "Find out more about EQR data",
+          "value": "https://data.nasdaq.com/databases/EQR"
+        }
+      }
+    },
+    "timestamp": 1795823106257
+  },
+  "MSFT": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "MSFT Earnings Date",
+      "announcement": "Earnings announcement* for MSFT: ",
+      "eQRResposeModel": {
+        "text": null,
+        "boldText": null,
+        "dataLinkUrl": null
+      }
+    },
+    "timestamp": 1795823106248
+  },
+  "BAC": {
+    "rawPayload": {
+      "reportText": "Bank of America Corporation Common Stock is expected* to report earnings on  01/15/2027 before market open.  The report will be for the fiscal Quarter ending Dec 2026.  According to Zacks Investment Research, based on  7 analysts'  forecasts, the consensus EPS forecast for the quarter is $1.13.  The reported EPS for the same quarter last year was $0.98.",
+      "heading": "BAC Earnings Date",
+      "announcement": "Earnings announcement* for BAC: Jan 15, 2027",
+      "eQRResposeModel": {
+        "text": [
+          "BAC has a \"high\" Earnings Quality Ranking (EQR) for the 31st consecutive week. Earnings quality refers to the extent to which current earnings predict future earnings. \"High-quality\" earnings are expected to persist, while \"low-quality\" earnings do not. EQR is a weekly ranking of relative earnings quality for a large universe of publicly traded US equities. Companies are compared to peers in their industry. Find out more about EQR data."
+        ],
+        "boldText": null,
+        "dataLinkUrl": {
+          "label": "Find out more about EQR data",
+          "value": "https://data.nasdaq.com/databases/EQR"
+        }
+      }
+    },
+    "timestamp": 1795823106250
+  },
+  "AMZN": {
+    "rawPayload": {
+      "reportText": "Our vendor, Zacks Investment Research, hasn't provided us with the upcoming earnings report date.",
+      "heading": "AMZN Earnings Date",
+      "announcement": "Earnings announcement* for AMZN: ",
+      "eQRResposeModel": {
+        "text": null,
+        "boldText": null,
+        "dataLinkUrl": null
+      }
+    },
+    "timestamp": 1795823106255
   }
 }

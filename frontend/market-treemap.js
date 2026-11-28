@@ -69,8 +69,7 @@
     root.__pendingChartsTicker = sym;
     if (typeof root.go === 'function') {
       root.go('charts', sym);
-    }
-    if (typeof root.loadTickerChart === 'function') {
+    } else if (typeof root.loadTickerChart === 'function') {
       root.loadTickerChart(sym);
     }
   }

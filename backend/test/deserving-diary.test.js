@@ -39,17 +39,19 @@ test('deservingDiary.createEntry: cria novo registro com dados higienizados e UU
 test('deservingDiary.listEntries: isola registros por tenant e deriva evolução emocional real', async () => {
   const userA = crypto.randomUUID();
   const userB = crypto.randomUUID();
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 
   // User A: 2 registros
   await deservingDiary.createEntry(userA, {
-    entryDate: '2026-10-18',
+    entryDate: yesterday,
     ticker: 'VALE3',
     emotions: ['tranquil_satisfied'],
     emotionIntensity: 9,
     professionalAction: 'Saída técnica no alvo.'
   });
   await deservingDiary.createEntry(userA, {
-    entryDate: '2026-10-20',
+    entryDate: today,
     ticker: 'MGLU3',
     emotions: ['surprised_speed', 'tranquil_satisfied'],
     emotionIntensity: 8,
@@ -58,7 +60,7 @@ test('deservingDiary.listEntries: isola registros por tenant e deriva evolução
 
   // User B: 1 registro
   await deservingDiary.createEntry(userB, {
-    entryDate: '2026-10-19',
+    entryDate: today,
     ticker: 'PETR4',
     emotions: ['anxious_tense'],
     emotionIntensity: 6,

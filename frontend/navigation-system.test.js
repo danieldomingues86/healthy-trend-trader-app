@@ -44,7 +44,7 @@ test('NavigationSystemModel: PREDEFINIÇÃO FAST preserva 100% dos módulos', ()
 
   assert.equal(integrity.isValid, true);
   assert.equal(tree.preset, 'fast');
-  assert.deepEqual(tree.quickAccess.map(i => i.id), ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts']);
+  assert.deepEqual(tree.quickAccess.map(i => i.id), ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts', 'habits']);
   assert.equal(integrity.totalModules, integrity.representedCount);
 });
 
@@ -56,7 +56,7 @@ test('NavigationSystemModel: PREDEFINIÇÃO TRADER_FOCUS preserva 100% dos módu
 
   assert.equal(integrity.isValid, true);
   assert.equal(tree.preset, 'trader_focus');
-  assert.deepEqual(tree.quickAccess.map(i => i.id), ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
+  assert.deepEqual(tree.quickAccess.map(i => i.id), ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal', 'habits']);
   assert.equal(integrity.totalModules, integrity.representedCount);
 });
 
@@ -77,7 +77,7 @@ test('NavigationSystemModel: Predefinições governam exclusivamente o Acesso R�
   
   // 1. Inicia com preset 'fast'
   assert.equal(model.state.preset, 'fast');
-  assert.deepEqual(model.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts']);
+  assert.deepEqual(model.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts', 'habits']);
 
   // 2. Módulos pertencem estritamente às suas categorias oficiais (ex: portfolioheat em 'portfolio-risk')
   const treeFast = model.getNavigationTree();
@@ -97,7 +97,7 @@ test('NavigationSystemModel: Predefinições governam exclusivamente o Acesso R�
   // 3. Ao aplicar a predefinição 'trader_focus', Acesso Rápido e ordenação atualizam automaticamente
   model.applyPreset('trader_focus');
   assert.equal(model.state.preset, 'trader_focus');
-  assert.deepEqual(model.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal']);
+  assert.deepEqual(model.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'watchlist', 'charts', 'positions', 'journal', 'habits']);
 
   // REGRA DE NÃO DUPLICAÇÃO em trader_focus
   const treeFocus = model.getNavigationTree();
@@ -130,7 +130,7 @@ test('NavigationSystemModel: persistência em mock storage e restauração de es
 
   assert.equal(model2.state.style, 'tiles');
   assert.equal(model2.state.preset, 'full');
-  assert.deepEqual(model2.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts']);
+  assert.deepEqual(model2.state.quickAccess, ['dailyupdate', 'today', 'newtrade', 'journal', 'watchlist', 'charts', 'habits']);
   assert.ok(model2.isCategoryCollapsed('mindset'));
 });
 
@@ -201,7 +201,8 @@ test('NavigationSystemModel: Categoria Análise de Mercado segue ordem estrita d
     'marketcentral',
     'capitalintelligence',
     'fundamentals',
-    'markettreemap'
+    'markettreemap',
+    'bdrintelligence'
   ], 'Itens de Análise de Mercado devem respeitar a ordem prioritária de uso diário');
 
   // Validação dos textos e descrições do menu
@@ -329,4 +330,77 @@ test('NavigationSystemModel: Patrimônio pertence a Dados & Performance e nunca 
     assert.ok(dataCat.items.some(i => i.id === 'dashboard'), `Patrimônio deve estar dentro de Dados & Performance no preset ${presetKey}`);
     assert.equal(dataCat.items[0].id, 'dashboard', 'Patrimônio deve ser o primeiro item de Dados & Performance');
   });
+});
+
+test('Card Menus Recolhidos por Padrão: inicialização padronizada com todos os grupos recolhidos exceto Acesso Rápido', () => {
+  const model = new NavigationSystemModel();
+  const tree = model.getNavigationTree();
+
+  // 1. Acesso Rápido possui itens
+  assert.ok(tree.quickAccess.length > 0, 'Acesso Rápido deve possuir itens');
+
+  // 2. Todos os grupos expansíveis iniciam estritamente recolhidos por padrão
+  const expectedCollapsedGroups = [
+    'market-analysis',
+    'daily',
+    'training-recovery',
+    'simulators',
+    'portfolio-risk',
+    'data-performance'
+  ];
+
+  for (const groupId of expectedCollapsedGroups) {
+    const cat = tree.categories.find(c => c.id === groupId);
+    assert.ok(cat, `Categoria ${groupId} deve existir`);
+    assert.equal(cat.isCollapsed, true, `Categoria ${groupId} deve estar recolhida por padrão`);
+    assert.equal(model.isCategoryCollapsed(groupId), true, `isCategoryCollapsed(${groupId}) deve ser true`);
+  }
+
+  // 3. Em todos os presets oficiais, todas as categorias começam recolhidas
+  ['fast', 'trader_focus', 'full'].forEach(preset => {
+    model.applyPreset(preset);
+    const pTree = model.getNavigationTree();
+    pTree.categories.forEach(c => {
+      assert.equal(c.isCollapsed, true, `Preset ${preset}: categoria ${c.id} deve estar recolhida por padrão`);
+    });
+  });
+});
+
+test('Card Menus Recolhidos por Padrão: recarregar/reiniciar não restaura grupos abertos da sessão anterior', () => {
+  const storageMap = new Map();
+  const mockStorage = {
+    getItem: (k) => storageMap.get(k) || null,
+    setItem: (k, v) => storageMap.set(k, String(v))
+  };
+
+  const sessionModel = new NavigationSystemModel();
+  // Usuário expande manualmente Análise de Mercado e Simuladores durante a sessão
+  assert.equal(sessionModel.isCategoryCollapsed('market-analysis'), true);
+  sessionModel.toggleCategoryCollapsed('market-analysis');
+  sessionModel.toggleCategoryCollapsed('simulators');
+
+  assert.equal(sessionModel.isCategoryCollapsed('market-analysis'), false, 'Deve ter expandido em memória');
+  assert.equal(sessionModel.isCategoryCollapsed('simulators'), false, 'Deve ter expandido em memória');
+  sessionModel.save(mockStorage);
+
+  // Simula recarregamento da página (F5) ou fechamento/reabertura do navegador
+  const reloadedModel = new NavigationSystemModel();
+  reloadedModel.load(mockStorage);
+
+  // Todos os menus devem voltar a estar recolhidos por padrão
+  assert.equal(reloadedModel.isCategoryCollapsed('market-analysis'), true, 'Análise de Mercado deve voltar a estar recolhida no reload');
+  assert.equal(reloadedModel.isCategoryCollapsed('simulators'), true, 'Simuladores deve voltar a estar recolhido no reload');
+  assert.equal(reloadedModel.isCategoryCollapsed('daily'), true, 'Rotina & Mentalidade deve estar recolhida no reload');
+  assert.equal(reloadedModel.isCategoryCollapsed('portfolio-risk'), true, 'Carteira & Risco deve estar recolhida no reload');
+
+  const reloadedTree = reloadedModel.getNavigationTree();
+  reloadedTree.categories.forEach(cat => {
+    assert.equal(cat.isCollapsed, true, `Categoria ${cat.id} deve estar recolhida após recarregar`);
+  });
+
+  // O usuário continua podendo expandir e recolher manualmente na nova sessão
+  reloadedModel.toggleCategoryCollapsed('market-analysis');
+  assert.equal(reloadedModel.isCategoryCollapsed('market-analysis'), false, 'Usuário pode expandir manualmente após o reload');
+  reloadedModel.toggleCategoryCollapsed('market-analysis');
+  assert.equal(reloadedModel.isCategoryCollapsed('market-analysis'), true, 'Usuário pode recolher manualmente após o reload');
 });

@@ -173,6 +173,69 @@ body:has(#marketcycle.active) {
   font-size: 14px;
 }
 
+.mre-badge-stale {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(120, 53, 15, 0.45);
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  color: #fcd34d;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+}
+
+.mre-stale-text-col {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.mre-stale-sub {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #fde68a;
+  opacity: 0.92;
+  max-width: 340px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mre-badge-date.is-stale {
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fde68a;
+}
+
+.mre-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #ecfdf5;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.mre-refresh-btn:hover {
+  background: rgba(16, 185, 129, 0.28);
+  border-color: #10b981;
+}
+
+.mre-refresh-btn.is-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 /* ==========================================================================
    2. SELETOR DE BENCHMARKS BRASIL E ESTADOS UNIDOS EM 2 BLOCOS SIMÉTRICOS
    ========================================================================== */
@@ -433,10 +496,12 @@ body:has(#marketcycle.active) {
   margin-left: 3px;
 }
 
+.mre-stat-ema30,
 .mre-stat-ema72 {
   color: #3b82f6;
 }
 
+.mre-stat-ema30 strong,
 .mre-stat-ema72 strong {
   font-weight: 700;
   margin-left: 3px;
@@ -492,10 +557,73 @@ body:has(#marketcycle.active) {
   color: #faf5ff;
 }
 
+.mre-toggle-pill.is-checked.mre-toggle-ema30,
 .mre-toggle-pill.is-checked.mre-toggle-ema72 {
   background: rgba(59, 130, 246, 0.18);
   border-color: #3b82f6;
   color: #eff6ff;
+}
+
+.mre-distinction-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mre-distinction-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.mre-distinction-badges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mre-distinction-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mre-pill-market-emas {
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+
+.mre-pill-asset-emas {
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #93c5fd;
+}
+
+.mre-distinction-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 22px;
+}
+
+.mre-distinction-body p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+@media (max-width: 1050px) {
+  .mre-distinction-body {
+    grid-template-columns: 1fr;
+  }
 }
 
 .mre-toggle-pill.is-checked.mre-toggle-ema200 {
@@ -867,6 +995,32 @@ body:has(#marketcycle.active) {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.mre-divergence-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #fef3c7;
+}
+
+.mre-divergence-icon {
+  font-size: 15px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.mre-divergence-text strong {
+  color: #fbbf24;
+  display: inline-block;
+  margin-right: 4px;
 }
 
 .mre-current-content-split {

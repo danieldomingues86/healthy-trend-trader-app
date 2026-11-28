@@ -1382,6 +1382,50 @@ const DEFAULT_HISTORY = [
     }
 
     /**
+     * Atualiza manualmente a taxa de câmbio USD/BRL das contas em dólar (Nomad)
+     * e posições em USD, recalculando o saldo equivalente em BRL.
+     */
+    updateUsdFxRate(newFxRate, accountId = null) {
+      let raw = newFxRate;
+      if (typeof raw === 'string') {
+        raw = raw.replace(/R\$|\s/gi, '').replace(',', '.').trim();
+      }
+      const parsed = Number(raw);
+      if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 100) {
+        return { success: false, error: 'Informe uma cotação USD/BRL válida maior que zero.' };
+      }
+
+      const rate = Math.round(parsed * 10000) / 10000;
+      const nowIso = new Date().toISOString();
+      const usdAccounts = (this.accounts || []).filter(a => a.currency === 'USD' && (!accountId || a.id === accountId));
+      if (!usdAccounts.length) {
+        return { success: false, error: 'Nenhuma conta em USD encontrada.' };
+      }
+
+      usdAccounts.forEach(acc => {
+        const currentUsd = Number.isFinite(Number(acc.newBalanceUSD)) && Number(acc.newBalanceUSD) > 0
+          ? Number(acc.newBalanceUSD)
+          : Math.round((Number(acc.newBalance || 0) / Number(acc.fxRate || 5.95)) * 100) / 100;
+        acc.fxRate = rate;
+        acc.fxTimestamp = nowIso;
+        acc.newBalanceUSD = currentUsd;
+        acc.newBalance = Math.round(currentUsd * rate * 100) / 100;
+        acc.updatedAt = nowIso;
+        acc.error = null;
+        acc.status = Math.abs(acc.newBalance - acc.previousBalance) > 0.001 ? 'updated' : 'keep';
+      });
+
+      (this.positions || []).forEach(pos => {
+        if (pos && (pos.currency === 'USD' || (pos.accountId && usdAccounts.some(a => a.id === pos.accountId)))) {
+          pos.fxRate = rate;
+        }
+      });
+
+      this.updateClosingReadiness();
+      return { success: true, fxRate: rate, account: usdAccounts[0], accounts: usdAccounts };
+    }
+
+    /**
      * Confirms that an account's balance remains unchanged from previous closing.
      */
     keepAccountBalance(accountId) {
@@ -1441,12 +1485,48 @@ const DEFAULT_HISTORY = [
     }
 
     /**
+     * Filters strictly active and open positions.
+     * Guaranteed to exclude closed, terminated, zero-quantity, or legacy mock positions when real operational data exists.
+     */
+    getOpenPositions() {
+      const closedSet = new Set(
+        (this.closedPositions || []).map(c => String(c.id || c.databaseId || '')).filter(Boolean)
+      );
+      if (typeof root !== 'undefined' && Array.isArray(root.operationalState?.closedPositions)) {
+        root.operationalState.closedPositions.forEach(c => {
+          if (c.id) closedSet.add(String(c.id));
+          if (c.databaseId) closedSet.add(String(c.databaseId));
+        });
+      }
+
+      const isAuth = typeof root !== 'undefined' && Boolean(root.healthyTrendApi?.isAuthenticated?.());
+      const hasRealOperationalData = typeof root !== 'undefined' && (
+        (Array.isArray(root.operationalState?.positions) && root.operationalState.positions.length > 0) ||
+        (Array.isArray(root.operationalState?.closedPositions) && root.operationalState.closedPositions.length > 0) ||
+        (Array.isArray(root.synchronizedTrades) && root.synchronizedTrades.length > 0)
+      );
+
+      return (this.positions || []).filter(pos => {
+        if (!pos) return false;
+        if (pos.closed || pos.status === 'encerrada' || pos.status === 'closed') return false;
+        if (Number(pos.quantity ?? pos.remaining ?? 0) <= 0) return false;
+        const pid = String(pos.id || '');
+        const dbId = String(pos.databaseId || '');
+        if (pid && closedSet.has(pid)) return false;
+        if (dbId && closedSet.has(dbId)) return false;
+        if ((isAuth || hasRealOperationalData) && (pid.startsWith('pos_') || DEFAULT_POSITIONS.some(d => d.id === pid))) {
+          return false;
+        }
+        return true;
+      });
+    }
+
+    /**
      * Calculates current total market exposure from open positions.
      * Acts as the single source of truth for the KPI and the table totalizer.
      */
     getTotalExposure() {
-      return this.positions
-        .filter(pos => !pos.closed && pos.status !== 'encerrada')
+      return this.getOpenPositions()
         .reduce((sum, pos) => sum + this.getPositionFinancialVolume(pos), 0);
     }
 
@@ -1741,9 +1821,11 @@ const DEFAULT_HISTORY = [
       pos.checkedAt = pos.priceUpdatedAt;
       pos.updatedAt = pos.priceUpdatedAt;
 
-      // Reflect price change in linked account balance
+      // Crucial: Separar atualização dos saldos das contas e dos preços das posições abertas
+      // A atualização do preço de uma posição NÃO deve alterar o saldo de nenhuma conta por padrão (independência entre Etapa 1 e Etapa 2).
+      // Apenas se syncAccount for explicitamente true sincroniza com saldo da conta para compatibilidade legada.
       let affectedAccount = null;
-      if (pos.accountId && deltaTotal !== 0 && options.syncAccount !== false) {
+      if (options.syncAccount === true && pos.accountId && deltaTotal !== 0) {
         const acc = this.accounts.find(a => a.id === pos.accountId);
         if (acc) {
           if (acc.currency === 'USD') {
@@ -2292,8 +2374,7 @@ const DEFAULT_HISTORY = [
      * Returns consolidated unrealized result (in BRL) across all open positions.
      */
     getTotalUnrealizedResult() {
-      const sum = this.positions
-        .filter(pos => !pos.closed && pos.status !== 'encerrada')
+      const sum = this.getOpenPositions()
         .reduce((acc, pos) => acc + this.getPositionUnrealizedResult(pos), 0);
       return Math.round(sum * 100) / 100;
     }
@@ -2303,7 +2384,7 @@ const DEFAULT_HISTORY = [
      * relative to total entry notional.
      */
     getTotalUnrealizedPct() {
-      const openPositions = this.positions.filter(pos => !pos.closed && pos.status !== 'encerrada');
+      const openPositions = this.getOpenPositions();
       const totalEntryNotional = openPositions.reduce((acc, pos) => {
         const qty = Number(pos.quantity ?? pos.remaining ?? 0);
         const entry = Number(pos.entryPrice ?? pos.averageEntry ?? pos.entry ?? 0);
@@ -2445,7 +2526,7 @@ const DEFAULT_HISTORY = [
      */
     getGroupedPositions(options = {}) {
       const includeEmpty = Boolean(options.includeEmpty);
-      const openPositions = this.positions.filter(pos => !pos.closed && pos.status !== 'encerrada');
+      const openPositions = this.getOpenPositions();
 
       const buckets = new Map();
       POSITION_STRATEGY_GROUPS.forEach(group => {
@@ -2758,10 +2839,22 @@ const DEFAULT_HISTORY = [
             });
           }
 
+          const isAuth = typeof root !== 'undefined' && Boolean(root.healthyTrendApi?.isAuthenticated?.());
+          const hasRealOperationalData = typeof root !== 'undefined' && (
+            (Array.isArray(root.operationalState?.positions) && root.operationalState.positions.length > 0) ||
+            (Array.isArray(root.operationalState?.closedPositions) && root.operationalState.closedPositions.length > 0) ||
+            (Array.isArray(root.synchronizedTrades) && root.synchronizedTrades.length > 0)
+          );
+
           const activeList = [];
           parsed.positions.forEach(p => {
             const idStr = String(p.id || '');
-            const isClosed = p.closed || p.status === 'encerrada' || Number(p.quantity ?? 1) <= 0 || knownClosedIds.has(idStr);
+            const isMock = idStr.startsWith('pos_') || (DEFAULT_POSITIONS.some(d => d.id === idStr));
+            if ((isAuth || hasRealOperationalData) && isMock) {
+              return;
+            }
+
+            const isClosed = p.closed || p.status === 'encerrada' || p.status === 'closed' || Number(p.quantity ?? 1) <= 0 || knownClosedIds.has(idStr) || (p.databaseId && knownClosedIds.has(String(p.databaseId)));
             if (isClosed) {
               p.closed = true;
               p.status = 'encerrada';
@@ -2771,7 +2864,7 @@ const DEFAULT_HISTORY = [
               }
             } else {
               const defPos = DEFAULT_POSITIONS.find(d => d.id === p.id || d.ticker === p.ticker);
-              if (defPos) {
+              if (defPos && !isAuth && !hasRealOperationalData) {
                 if (!p.direction && defPos.direction) p.direction = defPos.direction;
                 if (!p.side && defPos.side) p.side = defPos.side;
                 if (!p.assetClass && defPos.assetClass) p.assetClass = defPos.assetClass;

@@ -234,7 +234,8 @@
   function marketCycleKey(value){
     if(value===null||value===undefined||value==='')return null;
     const normalized=String(value||'').trim().toLowerCase();
-    if(['healthy','saudável','saudavel','expansão','expansao','expansion','risk-on','up','positivo','alta','bull'].includes(normalized))return'healthy';
+    if(normalized.includes('≤')||normalized.includes('<=')||normalized.includes('defens')||normalized.includes('baixa'))return'defensive';
+    if(['healthy','saudável','saudavel','expansão','expansao','expansion','risk-on','up','positivo','alta','bull'].includes(normalized)||normalized.includes('>'))return'healthy';
     if(['unavailable','não disponível','nao disponivel','indisponível','indisponivel','none'].includes(normalized))return'unavailable';
     // Regra binária oficial: qualquer outro estado (incluindo transição legada ou defensivo) mapeia para 'defensive'
     return'defensive';
@@ -454,8 +455,44 @@
     return getRubricGradeVisual(grade).color;
   }
 
+  function evaluateIfr2Trigger(input = {}, policy = {}) {
+    const volPolicy = (policy && policy.volatility) || {};
+    const oversoldLevel = Number(input.oversoldLevel ?? volPolicy.oversoldLevel ?? 10);
+    const ifr = input.ifr !== undefined ? Number(input.ifr) : (input.rsi !== undefined ? Number(input.rsi) : null);
+    const close = input.close !== undefined ? Number(input.close) : null;
+    const smaLong = input.smaLong !== undefined ? Number(input.smaLong) : null;
+    const smaShort = input.smaShort !== undefined ? Number(input.smaShort) : null;
+
+    if (ifr === null || !Number.isFinite(ifr)) {
+      return null;
+    }
+    if (close !== null && smaLong !== null && Number.isFinite(close) && Number.isFinite(smaLong) && close <= smaLong) {
+      return { rating: 'bad', score: 0, isValid: false, ifr, oversoldLevel, reason: 'Preço abaixo ou igual à SMA estrutural (SMA 200).' };
+    }
+    if (close !== null && smaShort !== null && Number.isFinite(close) && Number.isFinite(smaShort) && close >= smaShort) {
+      return { rating: 'bad', score: 0, isValid: false, ifr, oversoldLevel, reason: 'Preço acima ou igual à média curta (SMA 7).' };
+    }
+    if (ifr <= 2.0) {
+      return { rating: 'good', score: 1.0, isValid: true, ifr, oversoldLevel, reason: 'Sobrevenda extrema (IFR2 ≤ 2).' };
+    }
+    if (ifr <= Math.min(5.0, oversoldLevel)) {
+      return { rating: 'good', score: 0.90, isValid: true, ifr, oversoldLevel, reason: 'Sobrevenda forte (IFR2 ≤ 5).' };
+    }
+    if (ifr <= oversoldLevel) {
+      return { rating: 'medium', score: 0.70, isValid: true, ifr, oversoldLevel, reason: `Sobrevenda válida (IFR2 ≤ ${oversoldLevel}).` };
+    }
+    return { rating: 'bad', score: 0, isValid: false, ifr, oversoldLevel, reason: `IFR(2) acima do nível de sobrevenda (${oversoldLevel}).` };
+  }
+
   function calculateTrendFollowingRubric(input={},policy){
     const p=normalizePolicy(policy),ratings={...(input.ratings||{})},profile=profileFor(p,input.profileKey);
+    const rawTrigger = input.setupTrigger || input.setup_trigger || input.setup || null;
+    if (rawTrigger && String(rawTrigger).toUpperCase().includes('IFR2') && !ratings.setupQuality && input.setupQualityRating === undefined) {
+      const ifrEval = evaluateIfr2Trigger(input, p);
+      if (ifrEval) {
+        ratings.setupQuality = ifrEval.rating;
+      }
+    }
     if((Number(input.entry)>0&&Number(input.atr)>0)&&(!ratings.volatility||input.autoVolatility!==false)){
       const autoPct=(Number(input.atr)/Number(input.entry))*100;
       const autoVol=classifyAtrVolatility(autoPct,p.atrVolatility);
@@ -511,15 +548,59 @@
         });
       }
     }
+    // Critério Obrigatório (Hard Gate inegociável): Negócios por dia (mínimo de 500 negócios/dia)
+    const rawDailyTrades = input.dailyTrades ??
+      input.tradesCount ??
+      liquidity?.metrics?.dailyTrades ??
+      liquidity?.metrics?.lastDayTrades ??
+      liquidity?.metrics?.averageDailyTrades ??
+      input.trades ??
+      (Array.isArray(input.candles) && input.candles.length > 0 ? (input.candles[input.candles.length - 1]?.trades ?? input.candles[input.candles.length - 1]?.negocios) : null);
+    const observedDailyTrades = rawDailyTrades !== null && rawDailyTrades !== undefined && rawDailyTrades !== '' && Number.isFinite(Number(rawDailyTrades))
+      ? Math.round(Number(rawDailyTrades))
+      : null;
+    const hasTradesInput = input.dailyTrades !== undefined || input.tradesCount !== undefined || input.trades !== undefined || (liquidity && liquidity.metrics && (liquidity.metrics.dailyTrades !== undefined || liquidity.metrics.lastDayTrades !== undefined || liquidity.metrics.averageDailyTrades !== undefined)) || (Array.isArray(input.candles) && input.candles.length > 0);
+    const hasTradesData = observedDailyTrades !== null && observedDailyTrades > 0;
+    const isUsMarket = liquidity?.metrics?.market === 'US' || String(input.market || '').toUpperCase() === 'US';
+    const isTradesPass = !hasTradesInput || isUsMarket || (hasTradesData && observedDailyTrades >= 500);
+
+    if (hasTradesInput && !isTradesPass) {
+      isLiquidityApproved = false;
+      grade = 'D';
+      gates.push({
+        key: 'dailyTrades',
+        name: 'Negócios por dia',
+        status: 'blocked',
+        code: hasTradesData ? 'TRADES_BELOW_MINIMUM' : 'DATA_UNAVAILABLE',
+        observed: hasTradesData ? observedDailyTrades : null,
+        minimum: 500,
+        message: hasTradesData
+          ? `ATIVO SEM LIQUIDEZ — NÃO OPERE: ${observedDailyTrades.toLocaleString('pt-BR')} negócios/dia (mínimo exigido: 500 negócios/dia).`
+          : 'Dados de negócios indisponíveis: bloqueio preventivo (Fail Closed).'
+      });
+    } else if (hasTradesInput) {
+      gates.push({
+        key: 'dailyTrades',
+        name: 'Negócios por dia',
+        status: 'approved',
+        code: 'APPROVED',
+        observed: hasTradesData ? observedDailyTrades : null,
+        minimum: 500,
+        message: hasTradesData
+          ? `Negócios por dia aprovado: ${observedDailyTrades.toLocaleString('pt-BR')} negócios/dia (mínimo: 500).`
+          : 'Negócios por dia aprovado.'
+      });
+    }
     const gradeObj=p.grades.find(item=>item.grade===grade)||p.grades[p.grades.length-1];
     const gradeRiskPct=grade==='D'?0:gradeObj.riskPct;
     const baseBudget=(weightsValid&&complete&&grade!=='D')?gradeRiskPct:0;
     const riskBudgetPct=isLiquidityApproved?baseBudget:0;
     const qualityAllowed=isLiquidityApproved&&weightsValid&&complete&&grade==='A';
     const isBuyPermitted = isLiquidityApproved && cycleKey !== 'defensive' && cycleKey !== 'unavailable';
-        return {
+    return {
       strategyType: 'TREND_FOLLOWING',
       rubricVersion: 'trend-v2',
+      setupTrigger: rawTrigger,
       score,
       maximumScore: 100,
       rawGrade,
@@ -530,6 +611,14 @@
       marketCycle: cycleKey,
       liquidity,
       isLiquidityApproved,
+      dailyTrades: {
+        name: 'Negócios por dia',
+        observed: hasTradesData ? observedDailyTrades : null,
+        minimum: 500,
+        isEligible: isTradesPass,
+        status: isTradesPass ? 'good' : 'bad',
+        obs: hasTradesData ? `${observedDailyTrades.toLocaleString('pt-BR')} / 500 mín.` : 'Dados indisponíveis'
+      },
       liquidityStatus: isLiquidityApproved ? (liquidity ? 'APROVADO' : null) : (liquidity?.status || 'BLOQUEADO_LIQUIDEZ'),
       profile,
       complete,
@@ -571,6 +660,24 @@
         isLiquidityApproved = false;
       }
     }
+    const rawDailyTrades = input.dailyTrades ??
+      input.tradesCount ??
+      liquidity?.metrics?.dailyTrades ??
+      liquidity?.metrics?.lastDayTrades ??
+      liquidity?.metrics?.averageDailyTrades ??
+      input.trades ??
+      (Array.isArray(input.candles) && input.candles.length > 0 ? (input.candles[input.candles.length - 1]?.trades ?? input.candles[input.candles.length - 1]?.negocios) : null);
+    const observedDailyTrades = rawDailyTrades !== null && rawDailyTrades !== undefined && rawDailyTrades !== '' && Number.isFinite(Number(rawDailyTrades))
+      ? Math.round(Number(rawDailyTrades))
+      : null;
+    const hasTradesInput = input.dailyTrades !== undefined || input.tradesCount !== undefined || input.trades !== undefined || (liquidity && liquidity.metrics && (liquidity.metrics.dailyTrades !== undefined || liquidity.metrics.lastDayTrades !== undefined || liquidity.metrics.averageDailyTrades !== undefined)) || (Array.isArray(input.candles) && input.candles.length > 0);
+    const hasTradesData = observedDailyTrades !== null && observedDailyTrades > 0;
+    const isUsMarket = liquidity?.metrics?.market === 'US' || String(input.market || '').toUpperCase() === 'US';
+    const isTradesPass = !hasTradesInput || isUsMarket || (hasTradesData && observedDailyTrades >= 500);
+
+    if (hasTradesInput && !isTradesPass) {
+      isLiquidityApproved = false;
+    }
 
     const contributions = criteria.map(c => {
       let selectedRating = ratings[c.key] || input[c.key + 'Rating'] || (typeof input[c.key] === 'string' || (typeof input[c.key] === 'number' && Number.isFinite(input[c.key])) ? input[c.key] : undefined);
@@ -592,12 +699,15 @@
             }
           }
         } else if (c.key === 'meanReversionTrigger') {
-          const ifr = input.ifr !== undefined ? Number(input.ifr) : (input.rsi !== undefined ? Number(input.rsi) : null);
-          if (ifr !== null && Number.isFinite(ifr)) {
-            if (ifr <= 2.0) { selectedRating = 'good'; value = 1.0; }
-            else if (ifr <= 5.0) { selectedRating = 'good'; value = 0.90; }
-            else if (ifr <= 10.0) { selectedRating = 'medium'; value = 0.70; }
-            else { selectedRating = 'bad'; value = 0; }
+          if (ratings.setupQuality && ratingScale[ratings.setupQuality]) {
+            selectedRating = ratings.setupQuality;
+            value = ratingScale[selectedRating].score;
+          } else {
+            const ifrEval = evaluateIfr2Trigger(input, p);
+            if (ifrEval) {
+              selectedRating = ifrEval.rating;
+              value = ifrEval.score;
+            }
           }
         } else if (c.key === 'distanceShortMa') {
           if (input.close !== undefined && input.smaShort !== undefined) {
@@ -750,6 +860,7 @@
     return {
       strategyType: 'VOLATILITY_TRADING',
       rubricVersion: volConfig.version || 'volatility-v1',
+      setupTrigger: input.setupTrigger || input.setup_trigger || input.setup || 'IFR2',
       score,
       maximumScore: 100,
       rawGrade,
@@ -760,6 +871,14 @@
       liquidity,
       isLiquidityApproved,
       liquidityStatus: isLiquidityApproved ? (liquidity ? 'APROVADO' : null) : (liquidity?.status || 'BLOQUEADO_LIQUIDEZ'),
+      dailyTrades: {
+        name: 'Negócios por dia',
+        observed: hasTradesData ? observedDailyTrades : null,
+        minimum: 500,
+        isEligible: isTradesPass,
+        status: isTradesPass ? 'good' : 'bad',
+        obs: hasTradesData ? `${observedDailyTrades.toLocaleString('pt-BR')} / 500 mín.` : 'Dados indisponíveis'
+      },
       complete,
       contributions,
       gates,
@@ -874,5 +993,5 @@
     return{projectedHeatPct,projectedPositions,heatAllowed,positionsAllowed,allowed:heatAllowed&&positionsAllowed};
   }
 
-  return{DEFAULT_POLICY,DEFAULT_VOLATILITY_POLICY,STRATEGY_RUBRIC_VERSIONS,normalizePolicy,normalizeHistoricalGrade,profileFor,marketCycleKey,riskBaseOptions,calculateGrade,calculateVolatilityGrade,calculateRubric,calculateTrendFollowingRubric,calculateVolatilityRubric,getRubricCriteriaForStrategy,getRubricVersion,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,classifyAtrVolatility,classifyRelativeStrength,getRubricGradeVisual,getRubricGradeColor};
+  return{DEFAULT_POLICY,DEFAULT_VOLATILITY_POLICY,STRATEGY_RUBRIC_VERSIONS,normalizePolicy,normalizeHistoricalGrade,profileFor,marketCycleKey,riskBaseOptions,calculateGrade,calculateVolatilityGrade,calculateRubric,calculateTrendFollowingRubric,calculateVolatilityRubric,evaluateIfr2Trigger,getRubricCriteriaForStrategy,getRubricVersion,calculatePositionSizing,calculatePolicyPositionSizing,calculateOngoingRisk,calculatePeelOff,validatePortfolio,classifyAtrVolatility,classifyRelativeStrength,getRubricGradeVisual,getRubricGradeColor};
 });
