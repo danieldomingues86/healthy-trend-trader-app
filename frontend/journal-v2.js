@@ -795,7 +795,7 @@
                 <select data-trade-id="${esc(trade.id)}" data-trade-field="setup">
                   ${(() => {
                     const catalog = window.SetupTriggersCatalog;
-                    const triggers = catalog ? catalog.getAllTriggers() : [
+                    const triggers = catalog ? catalog.getAllTriggers(trade.strategyType || trade.strategy_type) : [
                       { id: 'INSIDE_BAR', name: 'Inside Bar' },
                       { id: 'PFR_COMPRA', name: 'PFR de Compra' },
                       { id: '123_COMPRA', name: '1-2-3 de Compra' },
@@ -1042,8 +1042,9 @@
               <option value="">${text('— Selecione o gatilho —', '— Select entry trigger —')}</option>
               ${(() => {
                 const catalog = window.SetupTriggersCatalog;
-                const triggers = catalog ? catalog.getAllTriggers() : [
+                const triggers = catalog ? catalog.getAllTriggers('ALL') : [
                   { id: 'INSIDE_BAR', name: 'Inside Bar' },
+                  { id: 'IFR2', name: 'IFR2 (Volatilidade)' },
                   { id: 'PFR_COMPRA', name: 'PFR de Compra' },
                   { id: '123_COMPRA', name: '1-2-3 de Compra' },
                   { id: 'RBI', name: 'Barra Vermelha Ignorada (RBI)' }

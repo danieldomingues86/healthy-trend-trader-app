@@ -773,6 +773,7 @@
               <span class="wl-opp-sector">${escapeHtml(opp.sector || 'Ações')}</span>
             </div>
             <span class="wl-opp-name" title="${escapeHtml(opp.name || opp.ticker)}">${escapeHtml(opp.name || opp.ticker)}</span>
+            ${typeof root.BdrIntelligence?.renderWatchlistCompactBadge === 'function' ? root.BdrIntelligence.renderWatchlistCompactBadge(opp.ticker) : ''}
           </div>
           <div class="wl-opp-price-box">
             <span class="wl-opp-price">${formatMoney(price)}</span>
@@ -906,7 +907,7 @@
 
               return `
                 <tr data-ticker="${opp.ticker}" style="cursor:pointer;">
-                  <td><span class="wl-table-ticker">${opp.ticker}</span></td>
+                  <td><span class="wl-table-ticker">${opp.ticker}</span>${typeof root.BdrIntelligence?.renderWatchlistCompactBadge === 'function' ? root.BdrIntelligence.renderWatchlistCompactBadge(opp.ticker) : ''}</td>
                   <td><span class="wl-table-company">${escapeHtml(opp.name || opp.ticker)}</span></td>
                   <td>${getSectorBadge(opp.sector)}</td>
                   <td>${(opp.strategyType || '').includes('VOLATILITY') ? '<span class="strat-badge-volatility" style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700">⚡ Volatilidade</span>' : '<span class="strat-badge-trend" style="font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700">📈 Trend</span>'}</td>
@@ -1451,7 +1452,13 @@
       el.addEventListener('click', (e) => {
         if (e.target.closest('button')) return; // let buttons handle their own click
         const ticker = el.dataset.ticker;
-        if (ticker) openDrawer(ticker);
+        if (ticker) {
+          if (root.BdrIntelligenceModel?.isBdrTicker(ticker) && typeof root.openBdrIntelligence === 'function') {
+            root.openBdrIntelligence(ticker);
+            return;
+          }
+          openDrawer(ticker);
+        }
       });
     });
 
@@ -1470,7 +1477,13 @@
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const ticker = btn.dataset.ticker;
-        if (ticker) openDrawer(ticker);
+        if (ticker) {
+          if (root.BdrIntelligenceModel?.isBdrTicker(ticker) && typeof root.openBdrIntelligence === 'function') {
+            root.openBdrIntelligence(ticker);
+            return;
+          }
+          openDrawer(ticker);
+        }
       });
     });
 

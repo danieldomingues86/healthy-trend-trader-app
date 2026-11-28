@@ -12,7 +12,7 @@
     ['relativestrength', 'Força Relativa', 'Relative Strength'], ['marketscans', 'Scans de Mercado', 'Market Scans'],
     ['analytics', 'Analytics · Painel da Verdade', 'Analytics · Truth Panel'], ['systemquality', 'Qualidade Estatística do Sistema', 'System Quality Analytics'], ['tradeanatomy', 'Anatomia dos Trades', 'Trade Anatomy'], ['forecast', 'Simulador de Equity', 'Equity Simulator'], ['journal', 'Diário do Trader', 'Trader Journal'], ['tradelibrary', 'Biblioteca de Trades', 'Playbook - Trades'],
     ['emotionalintelligence', 'Analisador Emocional', 'Emotional Analyzer'], ['review', 'Revisão Semanal', 'Weekly Review'], ['platformaccess', 'Uso da plataforma e Monitor do Profit', 'Platform usage and Profit Monitor'],
-    ['zen', 'Trader Zen e Biblioteca Mental', 'Trader Zen and Mental Library'], ['habits', 'Monitor de Hábitos', 'Habit Tracker'],
+    ['zen', 'Trader Zen e Biblioteca Mental', 'Trader Zen and Mental Library'], ['habits', 'Hábitos', 'Habits'],
     ['wisdom', 'Sabedoria do Trader', 'Trader Wisdom'],
     ['traderprofile', 'Testes de Perfil', 'Profile Tests'], ['manual', 'Manual do Software', 'Software Manual'],
     ['glossary', 'Glossário do método', 'Method Glossary'], ['materials', 'Healthy Trend Trader Materials · compras separadas', 'Healthy Trend Trader Materials · separate purchases'], ['settings', 'Configurações gerais', 'General settings'],

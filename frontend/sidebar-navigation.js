@@ -77,6 +77,13 @@
           desc: 'Treemap interativo de todo o mercado acionário da B3.',
           icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
           page: 'markettreemap'
+        },
+        {
+          id: 'bdrintelligence',
+          title: 'Inteligência BDR',
+          desc: 'Análise integrada de mercado de origem, empresa e câmbio.',
+          icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>`,
+          page: 'bdrintelligence'
         }
       ]
     },
@@ -98,8 +105,8 @@
         },
         {
           id: 'habits',
-          label: 'Acompanhar Hábitos',
-          title: 'Acompanhar Hábitos',
+          label: 'Hábitos',
+          title: 'Hábitos',
           desc: 'Acompanhamento e construção de hábitos.',
           icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="6" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
           page: 'habits'
@@ -1084,7 +1091,7 @@
               rebuild: 'Rebuild Mode',
               dailyroutine: 'Rotina Diária',
               watchlist: 'Watchlist',
-              habits: 'Monitor de Hábitos',
+              habits: 'Hábitos',
               plans: 'Loja do Trader',
               materials: 'Loja do Trader',
               settings: 'Configurações Gerais',
@@ -1441,7 +1448,7 @@
         },
         {
           id: 'habits',
-          title: isEn ? 'Habit Tracker' : 'Monitor de Hábitos',
+          title: isEn ? 'Habits' : 'Hábitos',
           desc: isEn ? 'Build the routine of a<br>professional trader.' : 'Construa a rotina de<br>um trader profissional.',
           icon: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`
         },

@@ -26,6 +26,7 @@ const habits = require('./habits');
 const { nasdaqRelativeStrengthEngine } = require('./nasdaq-relative-strength');
 const tickerChart = require('./ticker-chart');
 const bdrInternational = require('./bdr-international');
+const bdrIntelligence = require('./bdr-intelligence');
 const traderTraining = require('./trader-training');
 const tradeSimulator = require('./trade-simulator');
 const marketNews = require('./market-news');
@@ -1199,6 +1200,14 @@ const server = http.createServer(async (request, response) => {
       return send(response, 200, payload);
     }
 
+    if (url.pathname === '/api/bdr-intelligence' && request.method === 'GET') {
+      const tickerParam = url.searchParams.get('ticker') || url.searchParams.get('symbol') || 'AAPL34';
+      const forceParam = ['1', 'true'].includes(String(url.searchParams.get('force') || '').toLowerCase());
+      const cache = await readCache().catch(() => null);
+      const payload = await bdrIntelligence.getBdrIntelligenceData(cache, { ticker: tickerParam, force: forceParam });
+      return send(response, 200, payload);
+    }
+
     if (!['/api/opportunity-radar','/api/market-central','/api/market-cycle','/api/market-scans','/api/relative-strength/classes','/api/relative-strength/classify','/api/relative-strength','/api/trading-analytics/performance-by-regime','/api/market-regime/current','/api/market-regime/history','/api/market-regime/periods','/api/market-regime/configuration'].includes(url.pathname)) return send(response, 404, { error: 'Not found' });
     let cache = await refreshIfDue();
     if (!cache) return send(response, 503, { error: 'Dados ainda não disponíveis. Execute a primeira atualização após configurar BRAPI_TOKEN.' });
@@ -1261,6 +1270,7 @@ const server = http.createServer(async (request, response) => {
 
     if (url.pathname === '/api/market-cycle') {
       const benchmarkQuery = (url.searchParams.get('benchmark') || '').toUpperCase();
+      const forceRefresh = ['1', 'true'].includes(String(url.searchParams.get('force') || url.searchParams.get('refresh') || '').toLowerCase());
       let marketParam = url.searchParams.get('market') || 'stock_b3';
       if (benchmarkQuery === 'BDRX' || marketParam === 'bdr') marketParam = 'bdr';
       else if (benchmarkQuery === 'IFIX' || marketParam === 'fii') marketParam = 'fii';
@@ -1268,7 +1278,7 @@ const server = http.createServer(async (request, response) => {
       else if (['NASDAQ', 'NDX', 'QQQ'].includes(benchmarkQuery) || ['nasdaq', 'ndx', 'qqq'].includes(marketParam.toLowerCase())) marketParam = 'nasdaq';
       else if (benchmarkQuery === 'IBOV' || marketParam === 'stock_b3') marketParam = 'stock_b3';
 
-      const payload = await resolveMarketCycle(cache, marketParam);
+      const payload = await resolveMarketCycle(cache, marketParam, { force: forceRefresh });
       try {
         let benchmarkId = 'IBOV';
         if (marketParam === 'fii') benchmarkId = 'IFIX';
@@ -1276,13 +1286,32 @@ const server = http.createServer(async (request, response) => {
         else if (marketParam === 'sp500') benchmarkId = 'SP500';
         else if (marketParam === 'nasdaq') benchmarkId = 'NASDAQ';
 
-        const regimeData = await marketRegime.getRegimeHistory(benchmarkId);
+        const latestCandleDate = payload?.cycle?.date || payload?.benchmark?.history?.at(-1)?.date || null;
+        const regimeData = await marketRegime.getRegimeHistory(benchmarkId, {
+          force: forceRefresh,
+          latestCandleDate
+        });
+
+        // Garantir sincronia absoluta entre a série do gráfico/ciclo e a série do Regime Atual
+        const historyLastIso = marketRegime.formatDateIso(payload?.benchmark?.history?.at(-1)?.date);
+        const regimeLastIso = marketRegime.formatDateIso(regimeData?.current?.reference_date);
+        if (Array.isArray(regimeData?.candles) && regimeData.candles.length >= 30 && (!historyLastIso || (regimeLastIso && historyLastIso !== regimeLastIso))) {
+          const { scoreCycle, marketCycleSeries, returns } = require('./market-data');
+          payload.cycle = scoreCycle(regimeData.candles);
+          if (payload.benchmark) {
+            payload.benchmark.returns = returns(regimeData.candles);
+            payload.benchmark.history = marketCycleSeries(regimeData.candles);
+          }
+        }
+
+        payload.freshness = regimeData.freshness || null;
         payload.marketRegime = {
           benchmarkId,
           current: regimeData.current,
           periods: regimeData.periods,
           distribution: regimeData.distribution,
           regimes: regimeData.regimes,
+          freshness: regimeData.freshness || null,
           metadata: marketRegime.REGIME_METADATA
         };
         if (Array.isArray(payload?.benchmark?.history) && Array.isArray(regimeData?.regimes)) {
@@ -1304,7 +1333,16 @@ const server = http.createServer(async (request, response) => {
             }
           }
         }
-      } catch (_) {}
+      } catch (err) {
+        console.warn(`[server] Falha ao sincronizar marketRegime para ${marketParam}:`, err.message);
+        payload.freshness = {
+          market: ['sp500', 'nasdaq'].includes(marketParam) ? 'US' : 'BR',
+          status: 'stale',
+          isStale: true,
+          isUpToDate: false,
+          lastError: err.message
+        };
+      }
       return send(response, 200, payload);
     }
     if (url.pathname === '/api/market-scans') {

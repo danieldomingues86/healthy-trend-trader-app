@@ -98,7 +98,8 @@ test('Liquidity Gate Global: Visão do Ativo no Simulator inclui status e badges
     high: 41,
     low: 39,
     close: 40.5,
-    volume: 25000000 // R$ 25 mi diários
+    volume: 25000000, // R$ 25 mi diários
+    trades: 3500 // Negócios por dia (mínimo: 500)
   }));
 
   const sim = {

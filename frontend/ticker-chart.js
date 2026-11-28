@@ -45,6 +45,7 @@
     compass: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
     rubric: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><polyline points="9 11 12 14 22 4"/></svg>`,
     liquidity: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+    trades: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>`,
     chevronDown: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
     check: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
     checkCircle: `<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#10b981"/><path d="M6 10.2L8.7 13L14.2 7.5" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
@@ -864,6 +865,7 @@
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.fundamentals}</span><span>Fundamentos</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.context}</span><span>Contexto</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
             <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.liquidity}</span><span>Liquidez</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
+            <div class="summary-check-row"><div class="summary-check-left"><span class="summary-check-icon">${ICONS.trades}</span><span>Negócios por dia</span></div><div class="summary-check-right"><span class="vision-status good">...</span></div></div>
           </div>
         </div>
       </div>
@@ -1032,10 +1034,14 @@
     return 'good';
   }
 
-  function getCycleStatus(regime) {
+  function getCycleStatus(regime, explicitStatus) {
+    if (explicitStatus && ['good', 'bad', 'neutral', 'alert'].includes(explicitStatus)) {
+      return explicitStatus;
+    }
     const r = String(regime || '').toLowerCase();
-    if (r.includes('defens') || r.includes('baixa') || r.includes('negat')) return 'bad';
-    if (r.includes('transi') || r.includes('neutr')) return 'neutral';
+    if (r.includes('≤') || r.includes('<=') || r.includes('defens') || r.includes('baixa') || r.includes('negat')) return 'bad';
+    if (r.includes('transi') || r.includes('neutr') || r.includes('insufic') || r.includes('identif')) return 'neutral';
+    if (r.includes('>') || r.includes('positivo') || r.includes('health') || r.includes('saud') || r.includes('expans')) return 'good';
     return 'good';
   }
 
@@ -1048,11 +1054,16 @@
     return 'neutral';
   }
 
-  function getStructureStatus(label) {
+  function getStructureStatus(label, explicitStatus) {
+    if (explicitStatus && ['good', 'bad', 'neutral', 'alert'].includes(explicitStatus)) {
+      return explicitStatus;
+    }
     const l = String(label || '').toLowerCase();
-    if (l.includes('degrad') || l.includes('fals')) return 'bad';
-    if (l.includes('neutr')) return 'neutral';
-    return 'good';
+    if (l.includes('baixa') || l.includes('down') || l.includes('degrad') || l.includes('fals')) return 'bad';
+    if (l.includes('lateral') || l.includes('side') || l.includes('neutr') || l.includes('insufic') || l.includes('identif')) return 'neutral';
+    if (l.includes('alta com alta') || l.includes('up & volatile') || l.includes('volatile')) return 'alert';
+    if (l.includes('alta') || l.includes('up')) return 'good';
+    return 'neutral';
   }
 
   function renderRsSparkline(status) {
@@ -1133,6 +1144,20 @@
           if (trigCrit && tickerData.trigger?.hasTrigger) {
             trigCrit.obs = `${tickerData.trigger.name} (${evaluated.finalGrade})`;
           }
+          const trCandle = Array.isArray(tickerData.ohlc) && tickerData.ohlc.length > 0 ? tickerData.ohlc[tickerData.ohlc.length - 1] : null;
+          const trCount = Number(trCandle?.trades ?? trCandle?.negocios ?? tickerData.liquidity?.metrics?.dailyTrades ?? tickerData.liquidity?.metrics?.lastDayTrades ?? tickerData.liquidity?.metrics?.averageDailyTrades ?? 0);
+          const isTrOk = trCount >= 500 && (tickerData.liquidity?.isEligible !== false);
+          let trCrit = tickerData.rubric.criteria.find(c => c && c.name === 'Negócios por dia');
+          const trObs = trCount > 0 ? `${trCount.toLocaleString('pt-BR')} / 500 mín.` : 'Dados indisponíveis';
+          if (!trCrit) {
+            tickerData.rubric.criteria.push({ name: 'Negócios por dia', status: isTrOk, obs: trObs, isHardGate: true });
+          } else {
+            trCrit.status = isTrOk;
+            trCrit.obs = trObs;
+          }
+          if (!isTrOk) {
+            tickerData.rubric.finalGrade = 'D';
+          }
         }
       }
     }
@@ -1143,10 +1168,10 @@
     const gradeVisual = getRubricGradeVisual(tickerData.rubric?.finalGrade);
     const rsStatus = getRsStatus(tickerData.relativeStrength?.score, tickerData.relativeStrength?.classification);
     const trendStatus = getTrendStatus(tickerData.trend?.status);
-    const cycleStatus = getCycleStatus(tickerData.marketCycle?.regime);
+    const cycleStatus = getCycleStatus(tickerData.marketCycle?.regime, tickerData.marketCycle?.status);
     // CUIDADO: Volatilidade baixa é BOA para Trend Following (good/verde)
     const volStatus = getVolatilityStatus(tickerData.volatility?.regime, tickerData.volatility?.atrPct);
-    const structureStatus = getStructureStatus(tickerData.structure?.label);
+    const structureStatus = getStructureStatus(tickerData.structure?.label, tickerData.structure?.status);
     const triggerStatus = Boolean(tickerData.trigger && tickerData.trigger.hasTrigger) ? 'good' : 'neutral';
     const fundEvaluation = tickerData.fundamentals?.evaluation
       || (tickerData.fundamentals?.classification
@@ -1231,12 +1256,45 @@
       `[LIQUIDITY GATE] ${isLiqEligible ? 'APROVADA (Elegível)' : (isLiqUnavailable ? 'DADOS INDISPONÍVEIS (Bloqueado)' : 'REPROVADA (Não Elegível)')}`,
       liqMetrics?.averageDailyVolumeFormatted ? `• Volume Médio Diário: ${liqMetrics.averageDailyVolumeFormatted}` : (compactVol ? `• Volume Médio: ${compactVol}/dia` : null),
       liqMetrics?.minDailyVolumeFormatted ? `• Mínimo Exigido: ${liqMetrics.minDailyVolumeFormatted}` : null,
-      liqMetrics?.averageDailyTrades ? `• Média de Negócios: ${liqMetrics.averageDailyTrades} neg/dia (mínimo: ${liqMetrics.minDailyTrades || 100})` : null,
+      liqMetrics?.averageDailyTrades ? `• Média de Negócios: ${liqMetrics.averageDailyTrades} neg/dia (mínimo: ${liqMetrics.minDailyTrades || 500})` : null,
       `• Janela de Avaliação: ${liqMetrics?.windowSessions || 21} pregões${liqMetrics?.windowStartDate && liqMetrics?.windowEndDate ? ` (${liqMetrics.windowStartDate} a ${liqMetrics.windowEndDate})` : ''}`,
       `• Data-Base: ${liqSessionDate}`,
       `• Fonte dos Dados: ${liqSource}`,
       `• Motivo: ${liqReason}`
     ].filter(Boolean).join('\n');
+
+    // 9. Negócios por dia (Hard Gate obrigatório — mínimo de 500 negócios/dia)
+    const latestCandleObj = Array.isArray(tickerData.ohlc) && tickerData.ohlc.length > 0
+      ? tickerData.ohlc[tickerData.ohlc.length - 1]
+      : null;
+    const rawCandleTrades = Number(latestCandleObj?.trades ?? latestCandleObj?.negocios);
+    const observedTrades = Number.isFinite(rawCandleTrades) && rawCandleTrades > 0
+      ? Math.round(rawCandleTrades)
+      : (Number.isFinite(Number(liqMetrics?.dailyTrades)) && Number(liqMetrics.dailyTrades) > 0)
+        ? Math.round(Number(liqMetrics.dailyTrades))
+        : (Number.isFinite(Number(liqMetrics?.lastDayTrades)) && Number(liqMetrics.lastDayTrades) > 0)
+          ? Math.round(Number(liqMetrics.lastDayTrades))
+          : (Number.isFinite(Number(liqMetrics?.averageDailyTrades)) && Number(liqMetrics.averageDailyTrades) > 0)
+            ? Math.round(Number(liqMetrics.averageDailyTrades))
+            : null;
+
+    let dailyTradesStatus = 'neutral';
+    let dailyTradesText = '● Dados de negócios indisponíveis';
+    let dailyTradesTooltip = 'Quantidade de negócios por dia indisponível para este ativo.';
+
+    if (observedTrades === null || observedTrades === undefined || !Number.isFinite(observedTrades)) {
+      dailyTradesStatus = 'warn';
+      dailyTradesText = '● Dados de negócios indisponíveis';
+      dailyTradesTooltip = 'Dados de negócios indisponíveis. O sistema bloqueia preventivamente operações sem dado confiável.';
+    } else if (observedTrades >= 500 && isLiqEligible) {
+      dailyTradesStatus = 'good';
+      dailyTradesText = `● Aprovado (${observedTrades.toLocaleString('pt-BR')} neg/dia)`;
+      dailyTradesTooltip = `Negócios por dia: ${observedTrades.toLocaleString('pt-BR')} (mínimo obrigatório: 500 negócios/dia). Elegibilidade aprovada.`;
+    } else {
+      dailyTradesStatus = 'bad';
+      dailyTradesText = '● ATIVO SEM LIQUIDEZ — NÃO OPERE';
+      dailyTradesTooltip = `ATIVO SEM LIQUIDEZ — NÃO OPERE: ${observedTrades.toLocaleString('pt-BR')} negócios/dia. O método exige no mínimo 500 negócios por dia.`;
+    }
 
     // Constrói HTML estrutural
     root.innerHTML = `
@@ -1616,7 +1674,7 @@
                 <span class="summary-check-icon">${ICONS.structure}</span> Estrutura
               </div>
               <div class="summary-check-right">
-                <span class="vision-status ${structureStatus}">● ${escapeHtml(tickerData.structure.label)}</span>
+                <span class="vision-status ${structureStatus}">● ${escapeHtml(tickerData.structure.formula || tickerData.structure.condition || tickerData.structure.label)}</span>
               </div>
             </div>
             <div class="summary-check-row">
@@ -1660,6 +1718,14 @@
               </div>
               <div class="summary-check-right">
                 <span class="vision-status ${liqStatus}" id="visionLiquidityPill" role="button" tabindex="0" style="cursor: pointer;">${escapeHtml(liqText)}</span>
+              </div>
+            </div>
+            <div class="summary-check-row" id="visionDailyTradesRow" title="${escapeHtml(dailyTradesTooltip)}">
+              <div class="summary-check-left">
+                <span class="summary-check-icon">${ICONS.trades}</span> Negócios por dia
+              </div>
+              <div class="summary-check-right">
+                <span class="vision-status ${dailyTradesStatus}" id="visionDailyTradesPill">${escapeHtml(dailyTradesText)}</span>
               </div>
             </div>
           </div>
@@ -1799,7 +1865,7 @@
           </div>
           <div class="method-card-body">
             <div class="method-structure-label ${structureStatus}">
-              <span class="structure-arrow ${structureStatus}">▲</span> ${escapeHtml(tickerData.structure.label)}
+              <span class="structure-arrow ${structureStatus}">${structureStatus === 'bad' ? '▼' : (structureStatus === 'neutral' ? '◆' : '▲')}</span> ${escapeHtml(tickerData.structure.label)}
             </div>
             <div class="method-card-desc">${escapeHtml(tickerData.structure.description)}</div>
             <div class="method-micro-visual">
@@ -2771,7 +2837,11 @@
     document.body.appendChild(overlay);
 
     // Eventos do Modal
-    document.getElementById('btnModalClose').onclick = () => overlay.remove();
+    document.getElementById('btnModalClose').onclick = () => {
+      overlay.remove();
+      loadUniverse();
+      loadTickerData(targetTicker);
+    };
 
     document.getElementById('btnDisciplineLeave').onclick = () => {
       overlay.remove();
@@ -2787,6 +2857,7 @@
         window.TickerChartModel.saveDisciplineState(disciplineState);
       }
       overlay.remove();
+      loadUniverse();
       loadTickerData(targetTicker);
     };
   }
@@ -3310,6 +3381,9 @@
     const target = requestedTicker || window.__pendingChartsTicker || currentTicker || defaultTicker;
     window.__pendingChartsTicker = null;
     currentTicker = target;
+
+    // Renderiza layout e skeleton imediatamente para que a tela nunca fique em branco
+    renderLoadingSkeleton(target);
 
     if (window.TickerChartModel && disciplineState) {
       const access = window.TickerChartModel.registerChartAccess(disciplineState);

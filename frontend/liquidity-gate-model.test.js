@@ -16,7 +16,8 @@ test('LiquidityGateModel: Aprovado para ativo líquido com volume médio acima d
       high: 51,
       low: 49,
       close: 50.5,
-      volume: 10000000
+      volume: 10000000,
+      trades: 1500
     });
   }
 
@@ -67,14 +68,15 @@ test('LiquidityGateModel: Zero look-ahead bias — candles na data ou após o si
     ...Array.from({ length: 20 }, (_, i) => ({
       time: `2026-09-${String(i + 1).padStart(2, '0')}`,
       close: 10,
-      volume: 100000
+      volume: 100000,
+      trades: 1000
     })),
     // 21º pregão anterior (volume baixo)
-    { time: '2026-09-21', close: 10, volume: 100000 },
+    { time: '2026-09-21', close: 10, volume: 100000, trades: 1000 },
     // Candle NO DIA DO SINAL com volume artificialmente inflado de R$ 500.000.000
-    { time: '2026-09-22', close: 10, volume: 500000000 },
+    { time: '2026-09-22', close: 10, volume: 500000000, trades: 50000 },
     // Candle posterior
-    { time: '2026-09-23', close: 10, volume: 500000000 }
+    { time: '2026-09-23', close: 10, volume: 500000000, trades: 50000 }
   ];
 
   const result = LiquidityGateModel.evaluateLiquidity({

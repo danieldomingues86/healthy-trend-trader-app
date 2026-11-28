@@ -76,12 +76,8 @@ async function getOpportunityRadarData(cache, options = {}) {
   const seenSymbols = new Set();
 
   for (const group of groups) {
-    // Somente mercados em Ciclo Positivo são elegíveis para o Radar de Oportunidades.
-    // Mercados em transição ou defensivos não autorizam novos setups.
-    if (!group.isPermitted || !isPositiveCycle(group.cycleState)) {
-      continue;
-    }
-
+    // O ciclo de mercado macro orienta o contexto operacional e a exposição ao risco,
+    // mas não bloqueia a detecção de oportunidades em ativos líderes com estrutura individual favorável.
     for (const item of group.list) {
       if (!item || !item.symbol) continue;
       const symbol = String(item.symbol).trim().toUpperCase();
@@ -109,10 +105,23 @@ async function getOpportunityRadarData(cache, options = {}) {
         liquidity: liquidityResult
       };
 
-      const evaluated = OpportunityRadarModel.evaluateAssetReadiness(enrichedItem, candles, group.cycleState);
+      const evaluated = OpportunityRadarModel.evaluateAssetReadiness(enrichedItem, candles, item.marketCycleState || 'healthy');
       if (evaluated) {
+        evaluated.macroCycle = group.cycleState;
         if (!evaluated.liquidity && liquidityResult) {
           evaluated.liquidity = liquidityResult;
+        }
+        if (!evaluated.tradesCount) {
+          const lastCandleTrades = Number(candles.at(-1)?.trades ?? candles.at(-1)?.negocios);
+          const fallbackTrades = Number(evaluated.liquidity?.metrics?.lastDayTrades ?? evaluated.liquidity?.metrics?.averageDailyTrades ?? item.liquidity?.metrics?.averageDailyTrades);
+          const resolvedTrades = Number.isFinite(lastCandleTrades) && lastCandleTrades > 0
+            ? Math.round(lastCandleTrades)
+            : (Number.isFinite(fallbackTrades) && fallbackTrades > 0 ? Math.round(fallbackTrades) : null);
+          evaluated.tradesCount = resolvedTrades;
+          evaluated.dailyTrades = resolvedTrades;
+        }
+        if (!evaluated.tradesCount || evaluated.tradesCount < 500 || (evaluated.dailyTrades && evaluated.dailyTrades < 500)) {
+          continue;
         }
         readyItems.push(evaluated);
       }
@@ -126,10 +135,9 @@ async function getOpportunityRadarData(cache, options = {}) {
     readyItems.map(async (readyItem) => {
       try {
         const chartData = await tickerChart.getTickerChartData(readyItem.symbol, cache);
-        const chartCycleRegime = String(chartData?.marketCycle?.regime || '').trim().toLowerCase();
-        if (chartCycleRegime && (chartCycleRegime.includes('transi') || chartCycleRegime.includes('defens') || chartCycleRegime === 'riskoff')) {
-          readyItem.__excludedByCycle = true;
-          return;
+        if (chartData?.marketCycle) {
+          readyItem.macroCycle = chartData.marketCycle.regime;
+          readyItem.macroCycleDesc = chartData.marketCycle.description || '';
         }
         if (chartData?.liquidity) {
           if (!chartData.liquidity.isEligible) {
@@ -208,6 +216,15 @@ async function getOpportunityRadarData(cache, options = {}) {
       }
 
       const compName = OpportunityRadarModel.cleanCompanyName(symbol);
+      const rawTrades = Number(currentCandle?.trades ?? currentCandle?.negocios);
+      const fallbackTrades = Number(liqCheck?.metrics?.lastDayTrades ?? liqCheck?.metrics?.averageDailyTrades);
+      const tradesCount = Number.isFinite(rawTrades) && rawTrades > 0
+        ? Math.round(rawTrades)
+        : (Number.isFinite(fallbackTrades) && fallbackTrades > 0 ? Math.round(fallbackTrades) : null);
+
+      if (!tradesCount || tradesCount < 500) {
+        continue;
+      }
 
       volatilityItems.push({
         symbol,
@@ -228,6 +245,8 @@ async function getOpportunityRadarData(cache, options = {}) {
         sma200: latestSma200 != null ? Number(latestSma200.toFixed(2)) : null,
         liquidity: liqCheck,
         liquidityApproved: true,
+        tradesCount,
+        dailyTrades: tradesCount,
         lastCandleDate
       });
     }

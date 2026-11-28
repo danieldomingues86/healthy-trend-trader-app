@@ -158,7 +158,7 @@
     { id: 'journal', page: 'journal', name: 'Diário de Trader', category: 'Operação Diária' },
     { id: 'dailyroutine', page: 'dailyroutine', name: 'Rotina Diária', category: 'Operação Diária' },
     { id: 'watchlist', page: 'watchlist', name: 'Watchlist', category: 'Operação Diária' },
-    { id: 'habits', page: 'habits', name: 'Monitor de Hábitos', category: 'Operação Diária' },
+    { id: 'habits', page: 'habits', name: 'Hábitos', category: 'Operação Diária' },
     
     // Treinamento (5)
     { id: 'mission', page: 'mission', name: 'Missão', category: 'Treinamento' },
@@ -167,7 +167,7 @@
     { id: 'deservingdiary', page: 'deservingdiary', name: 'Diário do Merecimento', category: 'Treinamento' },
     { id: 'mistakesbook', page: 'mistakesbook', name: 'Erros & Lições', category: 'Treinamento' },
 
-    // Análise de Mercado (8)
+    // Análise de Mercado (9)
     { id: 'opportunityradar', page: 'opportunityradar', name: 'Radar de Oportunidades', category: 'Análise de Mercado' },
     { id: 'relativestrength', page: 'relativestrength', name: 'Força Relativa', category: 'Análise de Mercado' },
     { id: 'marketcycle', page: 'marketcycle', name: 'Ciclo de Mercado', category: 'Análise de Mercado' },
@@ -175,6 +175,7 @@
     { id: 'capitalintelligence', page: 'capitalintelligence', name: 'Visão Sistêmica', category: 'Análise de Mercado' },
     { id: 'fundamentals', page: 'fundamentals', name: 'Análise Fundamentalista', category: 'Análise de Mercado' },
     { id: 'charts', page: 'charts', name: 'Gráficos', category: 'Análise de Mercado' },
+    { id: 'bdrintelligence', page: 'bdrintelligence', name: 'Inteligência BDR', category: 'Análise de Mercado' },
     { id: 'markettreemap', page: 'markettreemap', name: 'Setores', category: 'Análise de Mercado' },
 
     // Carteira & Risco (6)

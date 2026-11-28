@@ -664,8 +664,7 @@
       }
       if (typeof root.go === 'function') {
         root.go('charts', targetTicker);
-      }
-      if (typeof window.loadTickerChart === 'function') {
+      } else if (typeof window.loadTickerChart === 'function') {
         window.loadTickerChart(targetTicker);
       }
     };

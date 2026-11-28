@@ -201,7 +201,7 @@ test('Menu em Blocos (Tiles Hub): layout de viewport única (100vh), grid 3x6 co
     { id: 'markettreemap', title: 'Setores' },
     { id: 'positions', title: 'Operação Diária' },
     { id: 'dailyroutine', title: 'Rotina Diária' },
-    { id: 'habits', title: 'Monitor de Hábitos' },
+    { id: 'habits', title: 'Hábitos' },
     { id: 'tradertraining', title: 'Treinamento' },
     { id: 'conquests', title: 'Conquistas' }
   ];
@@ -225,5 +225,64 @@ test('Menu em Blocos (Tiles Hub): layout de viewport única (100vh), grid 3x6 co
   // 6. Restrição de escopo: menu lateral e superior não foram modificados
   assert.ok(css.includes('body[data-navigation-layout="sidebar"] .app'), 'Estilos do menu lateral devem ser mantidos');
   assert.ok(css.includes('body[data-navigation-layout="top"] .sidebar'), 'Estilos do menu superior devem ser mantidos');
+});
+
+test('SidebarNavigation: todos os menus expansíveis são renderizados recolhidos por padrão, mantendo apenas Acesso Rápido visível', () => {
+  const { NavigationSystemModel } = require('./navigation-system-model.js');
+  const code = fs.readFileSync(path.join(__dirname, 'sidebar-navigation.js'), 'utf8');
+
+  const model = new NavigationSystemModel();
+  const context = {
+    window: {},
+    document: {
+      querySelector: () => null,
+      querySelectorAll: () => [],
+      getElementById: () => null,
+      createElement: () => ({ setAttribute: () => {}, addEventListener: () => {} }),
+      body: { dataset: {} }
+    },
+    navigationSystem: model,
+    NavigationSystemModel,
+    localStorage: { getItem: () => null, setItem: () => {} }
+  };
+  context.globalThis = context;
+  context.window = context;
+
+  const vmContext = vm.createContext(context);
+  vm.runInContext(code, vmContext);
+
+  const nav = context.SidebarNavigation;
+  assert.ok(nav, 'SidebarNavigation deve existir');
+
+  const navGroupsHtml = nav.renderNavGroups();
+
+  // 1. Acesso Rápido está presente e visível (não usa classe is-collapsed nem accordion recolhido)
+  assert.ok(navGroupsHtml.includes('sidebar-group sidebar-quick-access'), 'Acesso Rápido deve estar presente');
+  assert.ok(navGroupsHtml.includes('Acesso Rápido') || navGroupsHtml.includes('Quick Access'), 'Label de Acesso Rápido deve estar visível');
+
+  // 2. Todos os grupos de categoria aparecem com classe is-collapsed e seus containers de itens com classe collapsed
+  const expectedCategoryIds = [
+    'market-analysis',
+    'daily',
+    'training-recovery',
+    'simulators',
+    'portfolio-risk',
+    'data-performance'
+  ];
+
+  for (const catId of expectedCategoryIds) {
+    assert.ok(
+      navGroupsHtml.includes(`data-group-id="${catId}"`),
+      `Grupo data-group-id="${catId}" deve estar presente na sidebar`
+    );
+    // Cada grupo deve ter as classes 'is-collapsed' e aria-expanded="false"
+    const groupSnippet = navGroupsHtml.slice(navGroupsHtml.indexOf(`data-group-id="${catId}"`) - 100, navGroupsHtml.indexOf(`data-group-id="${catId}"`) + 200);
+    assert.ok(groupSnippet.includes('is-collapsed'), `Grupo ${catId} deve ter a classe is-collapsed`);
+    assert.ok(groupSnippet.includes('aria-expanded="false"'), `Grupo ${catId} deve ter aria-expanded="false"`);
+  }
+
+  // 3. Todos os containers .sidebar-category-items possuem a classe .collapsed
+  const itemsCollapsedMatches = navGroupsHtml.match(/class="sidebar-category-items collapsed"/g) || [];
+  assert.equal(itemsCollapsedMatches.length, expectedCategoryIds.length, 'Todos os grupos expansíveis devem ter a classe collapsed em seus itens');
 });
 

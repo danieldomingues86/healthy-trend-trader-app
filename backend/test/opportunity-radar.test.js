@@ -46,28 +46,38 @@ test('getOpportunityRadarData expõe marketCycles canônico por mercado e reflet
   const rawCache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
   const fiiHist = (rawCache.cycles?.fii?.benchmark?.history || []);
   const lastHealthy = fiiHist.findLast ? fiiHist.findLast(c => c.state === 'healthy') : fiiHist.slice().reverse().find(c => c.state === 'healthy');
+  const marketRegime = require('../src/market-regime');
+  const expectedDate = marketRegime.getExpectedClosedDate('BR', new Date());
+  const histFiltered = (lastHealthy ? fiiHist.filter(c => c.date <= lastHealthy.date) : fiiHist).map((c, i, arr) => {
+    if (i === arr.length - 1) return { ...c, date: expectedDate };
+    return c;
+  });
   const cache = {
     ...rawCache,
     cycles: {
       ...rawCache.cycles,
       fii: {
+        updatedAt: new Date().toISOString(),
         market: 'fii',
         benchmark: {
           symbol: 'IFIX',
           name: 'Índice de Fundos de Investimentos Imobiliários (IFIX)',
           returns: { m1: 1.08, m3: -0.89 },
-          history: lastHealthy ? fiiHist.filter(c => c.date <= lastHealthy.date) : fiiHist
+          history: histFiltered
         },
         cycle: lastHealthy ? {
           state: 'healthy',
           score: 87,
           price: lastHealthy.close,
           ema10: lastHealthy.ema10,
+          ema30: lastHealthy.ema72,
           ema72: lastHealthy.ema72,
           above10: true,
           above72: true,
-          structure: true
-        } : (rawCache.cycles?.fii?.cycle || { state: 'healthy', score: 87 })
+          structure: true,
+          emaSlowPeriod: 30,
+          date: expectedDate
+        } : (rawCache.cycles?.fii?.cycle || { state: 'healthy', score: 87, emaSlowPeriod: 30, date: expectedDate })
       }
     }
   };

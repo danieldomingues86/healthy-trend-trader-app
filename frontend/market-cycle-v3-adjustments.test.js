@@ -182,7 +182,7 @@ test('Ajustes V3: Linha do Tempo SVG e Tooltip têm alinhamento 1:1 sem deslocam
   global.fetch = originalFetch;
 });
 
-test('Ajustes V3: Suporte a 5 EMAs com padrão estrito (apenas EMA 10 e 72 ativas) e persistência', async () => {
+test('Ajustes V3: Suporte a 5 EMAs com padrão estrito (apenas EMA 10 e EMA 30 ativas no Ciclo de Mercado) e persistência', async () => {
   const env = createMockEnvironment();
 
   const originalFetch = global.fetch;
@@ -191,12 +191,12 @@ test('Ajustes V3: Suporte a 5 EMAs com padrão estrito (apenas EMA 10 e 72 ativa
     json: async () => ({
       updatedAt: '2026-09-25T12:00:00Z',
       market: 'stock_b3',
-      cycle: { state: 'healthy', score: 80, price: 100, ema10: 95, ema72: 90, date: '20260925' },
+      cycle: { state: 'healthy', score: 80, price: 100, ema10: 95, ema30: 90, date: '20260925' },
       benchmark: {
         symbol: 'IBOV',
         name: 'Índice Bovespa',
         history: [
-          { date: '2026-01-01', close: 100, ema10: 95, ema20: 94, ema50: 92, ema72: 90, ema200: 85, regime: 'UP_QUIET' }
+          { date: '2026-01-01', close: 100, ema10: 95, ema20: 94, ema30: 90, ema50: 88, ema72: 86, ema200: 85, regime: 'UP_QUIET' }
         ]
       }
     })
@@ -208,10 +208,10 @@ test('Ajustes V3: Suporte a 5 EMAs com padrão estrito (apenas EMA 10 e 72 ativa
 
   await env.mockWindow.loadMarketCycleV2('stock_b3');
 
-  // 1. Padrão inicial: EMA 10 e EMA 72 marcadas; EMA 20, 50, 200 desmarcadas
+  // 1. Padrão inicial do Ciclo de Mercado: EMA 10 e EMA 30 marcadas; EMA 20, 50, 200 desmarcadas
   const html = env.rootElement.innerHTML;
-  assert.ok(html.includes('data-toggle-ema="10" checked'), 'EMA 10 habilitada por padrão');
-  assert.ok(html.includes('data-toggle-ema="72" checked'), 'EMA 72 habilitada por padrão');
+  assert.ok(html.includes('data-toggle-ema="10" checked'), 'EMA 10 habilitada por padrão no Ciclo de Mercado');
+  assert.ok(html.includes('data-toggle-ema="30" checked'), 'EMA 30 habilitada por padrão no Ciclo de Mercado');
   assert.ok(!html.includes('data-toggle-ema="20" checked'), 'EMA 20 desabilitada por padrão');
   assert.ok(!html.includes('data-toggle-ema="50" checked'), 'EMA 50 desabilitada por padrão');
   assert.ok(!html.includes('data-toggle-ema="200" checked'), 'EMA 200 desabilitada por padrão');
@@ -220,8 +220,8 @@ test('Ajustes V3: Suporte a 5 EMAs com padrão estrito (apenas EMA 10 e 72 ativa
   env.mockLocalStorage.setItem('mcv2_emas', JSON.stringify({
     showEma10: false,
     showEma20: true,
+    showEma30: true,
     showEma50: false,
-    showEma72: true,
     showEma200: true
   }));
 
@@ -230,7 +230,7 @@ test('Ajustes V3: Suporte a 5 EMAs com padrão estrito (apenas EMA 10 e 72 ativa
   const updatedHtml = env.rootElement.innerHTML;
   assert.ok(!updatedHtml.includes('data-toggle-ema="10" checked'), 'EMA 10 reflete preferência salva');
   assert.ok(updatedHtml.includes('data-toggle-ema="20" checked'), 'EMA 20 ativada conforme preferência');
-  assert.ok(updatedHtml.includes('data-toggle-ema="72" checked'), 'EMA 72 mantida');
+  assert.ok(updatedHtml.includes('data-toggle-ema="30" checked'), 'EMA 30 mantida');
   assert.ok(updatedHtml.includes('data-toggle-ema="200" checked'), 'EMA 200 ativada conforme preferência');
 
   global.fetch = originalFetch;
@@ -381,6 +381,134 @@ test('Ajustes V4: Novo Layout — Gráfico à esquerda (~78%) e Card Regime Atua
   // 3. Contagem de cards Regime Atual deve ser estritamente 1
   const matches = html.match(/class="[^"]*mre-current-card[^"]*"/g) || [];
   assert.equal(matches.length, 1, 'Card Regime Atual existe exatamente uma única vez na tela');
+
+  global.fetch = originalFetch;
+});
+
+test('Separação Ciclo de Mercado (EMA 10/30) vs Estrutura dos Ativos (EMA 10/72) e Cenários de Recuperação', async () => {
+  const TickerChartModel = require('./ticker-chart-model');
+  const marketData = require('../backend/src/market-data');
+
+  // 1. Configuração independente de médias
+  assert.equal(MarketCycleModel.MARKET_CYCLE_EMA_FAST, 10, 'Ciclo de Mercado usa EMA 10 (rápida)');
+  assert.equal(MarketCycleModel.MARKET_CYCLE_EMA_SLOW, 30, 'Ciclo de Mercado usa EMA 30 (lenta)');
+  assert.equal(TickerChartModel.OFFICIAL_EMA_FAST, 10, 'Gráficos dos Ativos mantêm EMA 10 (rápida)');
+  assert.equal(TickerChartModel.OFFICIAL_EMA_SLOW, 72, 'Gráficos dos Ativos mantêm EMA 72 (estrutural)');
+
+  // 2. Cenário de Recuperação após Queda:
+  // Índice sofre queda por 60 pregões (200 -> 140) e inicia retomada nos últimos 18 pregões (140 -> 158)
+  const indexCandles = [];
+  for (let i = 0; i < 60; i++) {
+    const close = Number((200 - i * 1.0).toFixed(2));
+    indexCandles.push({ date: `2026-01-${String(i + 1).padStart(2, '0')}`, open: close + 0.5, high: close + 1, low: close - 1, close });
+  }
+  for (let i = 0; i < 18; i++) {
+    const close = Number((140 + (i + 1) * 1.1).toFixed(2));
+    indexCandles.push({ date: `2026-04-${String(i + 1).padStart(2, '0')}`, open: close - 0.5, high: close + 1, low: close - 1, close });
+  }
+
+  // Com EMA 10 e EMA 30, o Ciclo de Mercado já percebe a retomada (preço > EMA 10 e > EMA 30),
+  // enquanto a EMA 72 lenta do índice ainda estaria acima do preço!
+  const closes = indexCandles.map(c => c.close);
+  const indexEma30 = MarketCycleModel.calculateEmaSeries(closes, 30).at(-1);
+  const indexEma72 = MarketCycleModel.calculateEmaSeries(closes, 72).at(-1);
+  const indexCycle = MarketCycleModel.scoreMarketCycleFromCandles(indexCandles);
+  const backendCycle = marketData.scoreCycle(indexCandles);
+
+  assert.equal(indexCycle.emaSlowPeriod, 30);
+  assert.equal(Number(indexCycle.ema30.toFixed(2)), Number(indexEma30.toFixed(2)), 'scoreMarketCycleFromCandles utiliza EMA 30');
+  assert.equal(Number(backendCycle.ema30.toFixed(2)), Number(indexEma30.toFixed(2)), 'marketData.scoreCycle utiliza EMA 30');
+  assert.ok(indexCycle.price > indexEma30, 'Na recuperação, índice já superou a EMA 30');
+  assert.ok(indexCycle.price < indexEma72, 'Na mesma data, o índice ainda está abaixo da EMA 72 mais lenta');
+  assert.equal(indexCycle.state, 'healthy', 'Ciclo de mercado (EMA 10/30) reconhece a transição/retomada com maior antecedência');
+
+  // 3. Ativo Líder antecipando a retomada (já acima de sua própria EMA 10 e EMA 72, ambas ascendentes)
+  const leaderCandles = [];
+  for (let i = 0; i < 80; i++) {
+    const close = Number((50 + i * 0.6).toFixed(2));
+    leaderCandles.push({
+      time: `2026-05-${String((i % 28) + 1).padStart(2, '0')}`,
+      date: `2026-05-${String((i % 28) + 1).padStart(2, '0')}`,
+      open: close - 0.3,
+      high: close + 0.5,
+      low: close - 0.5,
+      close
+    });
+  }
+  // Último candle forma um Inside Bar válido acima da EMA 10 e EMA 72
+  const prevLeader = leaderCandles[leaderCandles.length - 1];
+  prevLeader.high = prevLeader.close + 1.5;
+  prevLeader.low = prevLeader.close - 1.5;
+  leaderCandles.push({
+    time: '2026-06-01',
+    date: '2026-06-01',
+    open: prevLeader.close - 0.1,
+    high: prevLeader.high - 0.3,
+    low: prevLeader.low + 0.3,
+    close: prevLeader.close + 0.2
+  });
+
+  const leaderTrigger = TickerChartModel.detectSetupTriggers(leaderCandles);
+  assert.equal(leaderTrigger.hasTrigger, true, 'Ativo líder com EMA 10 > EMA 72 ascendentes tem gatilho confirmado');
+
+  // Mesmo se o índice ainda estiver em transição/defesa, o ciclo de mercado NÃO bloqueia nem invalida o ativo líder
+  const defensiveIndexCandles = indexCandles.slice(0, 62); // logo no início da recuperação, índice ainda abaixo da EMA 30
+  const leaderEval = MarketCycleModel.evaluateMarketAndAssetContext({
+    indexCandles: defensiveIndexCandles,
+    assetCandles: leaderCandles,
+    rsScore: 92
+  });
+  assert.equal(leaderEval.isIndependentConfig, true);
+  assert.equal(leaderEval.marketCycle.state, 'defensive', 'Contexto geral de mercado ainda defensivo/em recuperação');
+  assert.equal(leaderEval.isAssetConfirmed, true, 'Ativo líder já apresenta estrutura própria confirmada (EMA 10/72)');
+  assert.equal(leaderEval.isBlockedByMarketCycle, false, 'Ciclo de mercado não bloqueia nem invalida o ativo líder');
+  assert.equal(leaderEval.canRecognizeOpportunity, true, 'Oportunidade no ativo líder é reconhecida por sua estrutura própria');
+
+  // 4. Ativo Atrasado ainda sem confirmação (abaixo da EMA 72 ou médias descendentes)
+  const laggardCandles = [];
+  for (let i = 0; i < 80; i++) {
+    const close = Number((100 - i * 0.5).toFixed(2));
+    laggardCandles.push({
+      time: `2026-05-${String((i % 28) + 1).padStart(2, '0')}`,
+      date: `2026-05-${String((i % 28) + 1).padStart(2, '0')}`,
+      open: close + 0.2,
+      high: close + 0.6,
+      low: close - 0.6,
+      close
+    });
+  }
+  const laggardEval = MarketCycleModel.evaluateMarketAndAssetContext({
+    indexCandles, // mercado já em expansão (EMA 10/30)
+    assetCandles: laggardCandles,
+    rsScore: 28
+  });
+  assert.equal(laggardEval.marketCycle.state, 'healthy', 'Mercado geral já em expansão pela EMA 10/30');
+  assert.equal(laggardEval.isAssetConfirmed, false, 'Ativo atrasado permanece sem confirmação estrutural (EMA 10/72)');
+  assert.equal(laggardEval.canRecognizeOpportunity, false, 'Ativo atrasado não gera oportunidade sem estrutura própria');
+
+  // 5. Interface do Ciclo de Mercado exibe a explicação "Por que fazemos essa distinção?"
+  const env = createMockEnvironment();
+  const originalFetch = global.fetch;
+  global.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      updatedAt: '2026-11-24T20:00:00Z',
+      market: 'stock_b3',
+      cycle: indexCycle,
+      benchmark: { symbol: 'IBOV', name: 'Índice Bovespa', history: indexCandles }
+    })
+  });
+  const code = fs.readFileSync(path.join(__dirname, 'market-cycle-v2.js'), 'utf8');
+  const runCode = new Function('document', 'window', 'localStorage', 'MutationObserver', 'fetch', code);
+  runCode(env.mockDocument, env.mockWindow, env.mockLocalStorage, env.mockWindow.MutationObserver, global.fetch);
+  await env.mockWindow.loadMarketCycleV2('stock_b3');
+
+  const uiHtml = env.rootElement.innerHTML;
+  assert.ok(uiHtml.includes('Por que fazemos essa distinção?'), 'Exibe o título da explicação metodológica');
+  assert.ok(uiHtml.includes('O mercado e os ativos não se movimentam na mesma velocidade.'), 'Exibe o 1º parágrafo da explicação');
+  assert.ok(uiHtml.includes('Por isso, usamos médias mais curtas (EMA 10 e EMA 30) no ciclo de mercado'), 'Exibe a explicação de EMA 10 e EMA 30 no ciclo de mercado');
+  assert.ok(uiHtml.includes('Nos gráficos individuais, mantemos EMA 10 e EMA 72'), 'Exibe a explicação de EMA 10 e EMA 72 nos gráficos individuais');
+  assert.ok(uiHtml.includes('O ciclo de mercado contextualiza; não deve impedir a leitura individual dos ativos.'), 'Exibe o 4º parágrafo sobre contextualização sem bloqueio absoluto');
 
   global.fetch = originalFetch;
 });

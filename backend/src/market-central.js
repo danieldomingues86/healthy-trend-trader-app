@@ -489,21 +489,21 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
   let volatilityLabel = 'Controlada';
 
   if (regimeState === 'defensive') {
-    regimeLabel = 'DEFESA — EVITAR OPERAR';
+    regimeLabel = 'DEFESA — CONTEXTO CAUTELOSO';
     regimeBadge = 'Modo Defesa';
-    regimeDescription = 'Preço abaixo ou entre as médias EMA 10 e EMA 72. Preservar capital e evitar novas operações.';
+    regimeDescription = 'Preço abaixo ou entre as médias EMA 10 e EMA 30 no Diário. Dimensionar risco com cautela e avaliar ativos líderes por sua própria estrutura (EMA 10 e EMA 72).';
     trendLabel = 'Defensiva';
     volatilityLabel = 'Elevada';
   } else {
     regimeLabel = 'EXPANSÃO — MERCADO SAUDÁVEL';
     regimeBadge = 'Expansão (Saudável)';
-    regimeDescription = 'Preço acima da EMA 10 e da EMA 72. Mercado saudável para buscar oportunidades nos ativos.';
+    regimeDescription = 'Preço acima da EMA 10 e da EMA 30 no Diário. Ambiente favorável para buscar oportunidades nos ativos.';
     trendLabel = 'Positiva';
     volatilityLabel = 'Controlada';
   }
 
   const fastEma = cycle.ema10 || cycle.ema9 || null;
-  const slowEma = cycle.ema72 || cycle.ema30 || null;
+  const slowEma = cycle.ema30 || cycle.ema72 || null;
 
   const marketRegime = {
     marketId: market,
@@ -520,7 +520,7 @@ async function getMarketCentralData({ market = 'stock_b3', universe = 'stock_b3'
       ema72: slowEma,
       above10: Boolean(cycle.above10 ?? cycle.above9),
       above72: Boolean(cycle.above72 ?? cycle.above30),
-      structure: (Number(fastEma) > Number(slowEma)) ? 'Alinhada (EMA 10 > EMA 72)' : 'Desalinhada',
+      structure: (Number(fastEma) > Number(slowEma)) ? 'Alinhada (EMA 10 > EMA 30)' : 'Desalinhada',
       atrPct: isFiniteNumber(cycle.atrPct) ? Number(cycle.atrPct) : null,
       // Compatibilidade legada
       ema9: fastEma,

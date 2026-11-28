@@ -80,22 +80,25 @@ function normalizePlan(payload = {}) {
   const rubricGrade = String(payload.grade || payload.rubricGrade || '').trim();
   if (!['A', 'B', 'C', 'D'].includes(rubricGrade)) throw invalid('Grade da Rubric inválido. Reavalie o trade com a classificação atual.');
 
-  const rawTrigger = payload.setupTrigger || payload.setup_trigger;
+  const rawTrigger = payload.setupTrigger || payload.setup_trigger || payload.setup;
   let setupTrigger = null;
-  if (isVol) {
-    setupTrigger = rawTrigger ? String(rawTrigger).slice(0, 50) : 'VOLATILITY_SWING_IFR2';
-  } else if (rawTrigger) {
+  if (rawTrigger) {
     setupTrigger = setupTriggers.normalizeKey(rawTrigger);
-    if (!setupTrigger || !setupTriggers.isValidTrigger(setupTrigger)) {
-      throw invalid('Gatilho de entrada inválido. Selecione um dos 5 gatilhos homologados.');
+    if (!setupTrigger || !setupTriggers.isValidTrigger(setupTrigger, strategyType)) {
+      throw invalid(isVol ? 'Gatilho de entrada inválido para Volatility Trading.' : 'Gatilho de entrada inválido. Selecione um dos 5 gatilhos homologados.');
     }
-  } else if (payload.setup) {
-    setupTrigger = setupTriggers.normalizeKey(payload.setup);
+    if (rawTrigger === 'VOLATILITY_SWING_IFR2') {
+      setupTrigger = 'VOLATILITY_SWING_IFR2';
+    }
+  } else if (isVol) {
+    setupTrigger = 'VOLATILITY_SWING_IFR2';
   }
 
-  const setupLabel = isVol
-    ? (payload.setup || 'Volatility Swing — IFR2')
-    : (setupTrigger ? setupTriggers.getTriggerLabel(setupTrigger) : (String(payload.setup || '').slice(0, 100) || null));
+  const setupLabel = setupTrigger === 'VOLATILITY_SWING_IFR2'
+    ? 'Volatility Swing — IFR2'
+    : (setupTrigger
+      ? setupTriggers.getTriggerLabel(setupTrigger)
+      : (isVol ? (payload.setup || 'Volatility Swing — IFR2') : (String(payload.setup || '').slice(0, 100) || null)));
 
   const strategyConfigId = (payload.strategyConfigId || payload.strategy_config_id) ? String(payload.strategyConfigId || payload.strategy_config_id).slice(0, 100) : null;
   const strategyConfigVersion = (payload.strategyConfigVersion || payload.strategy_config_version) ? String(payload.strategyConfigVersion || payload.strategy_config_version).slice(0, 50) : null;

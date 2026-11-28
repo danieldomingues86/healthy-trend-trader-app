@@ -210,46 +210,51 @@ function calculateATRPercentageSeries(candles, period = 21) {
 }
 
 /**
- * Classifica a Direção reutilizando estritamente o classificador do Ciclo de Mercado:
- * UP: Preço > EMA 10 E Preço > EMA 72
- * DOWN: Preço < EMA 10 E Preço < EMA 72
+ * Classifica a Direção reutilizando estritamente o classificador do Ciclo de Mercado (EMA 10 e EMA 30 no Diário):
+ * UP: Preço > EMA 10 E Preço > EMA 30
+ * DOWN: Preço < EMA 10 E Preço < EMA 30
  * SIDEWAYS: Preço entre ou sobre as EMAs (nem estritamente UP nem estritamente DOWN)
  */
 function classifyDirection(candlesOrReading) {
-  let price, ema10, ema72;
+  let price, ema10, ema30;
 
   if (candlesOrReading && typeof candlesOrReading === 'object' && !Array.isArray(candlesOrReading)) {
     price = (candlesOrReading.price !== null && candlesOrReading.price !== undefined && candlesOrReading.price !== '') ? Number(candlesOrReading.price) : NaN;
-    ema10 = (candlesOrReading.ema10 != null || candlesOrReading.ema9 != null) ? Number(candlesOrReading.ema10 ?? candlesOrReading.ema9) : NaN;
-    ema72 = (candlesOrReading.ema72 != null || candlesOrReading.ema30 != null) ? Number(candlesOrReading.ema72 ?? candlesOrReading.ema30) : NaN;
+    ema10 = (candlesOrReading.ema10 != null || candlesOrReading.ema_10 != null || candlesOrReading.ema9 != null)
+      ? Number(candlesOrReading.ema10 ?? candlesOrReading.ema_10 ?? candlesOrReading.ema9)
+      : NaN;
+    ema30 = (candlesOrReading.ema30 != null || candlesOrReading.ema_30 != null || candlesOrReading.ema72 != null || candlesOrReading.ema_72 != null)
+      ? Number(candlesOrReading.ema30 ?? candlesOrReading.ema_30 ?? candlesOrReading.ema72 ?? candlesOrReading.ema_72)
+      : NaN;
   } else if (Array.isArray(candlesOrReading)) {
     const candles = candlesOrReading;
     if (candles.length < 30) {
-      return { direction: 'INSUFFICIENT_DATA', price: null, ema10: null, ema72: null };
+      return { direction: 'INSUFFICIENT_DATA', price: null, ema10: null, ema30: null, ema72: null };
     }
     const reading = scoreCycle(candles);
     price = Number(reading?.price);
     ema10 = Number(reading?.ema10 ?? reading?.ema9);
-    ema72 = Number(reading?.ema72 ?? reading?.ema30);
+    ema30 = Number(reading?.ema30 ?? reading?.ema72);
   }
 
-  if (!Number.isFinite(price) || !Number.isFinite(ema10) || !Number.isFinite(ema72)) {
-    return { direction: 'INSUFFICIENT_DATA', price: null, ema10: null, ema72: null };
+  if (!Number.isFinite(price) || !Number.isFinite(ema10) || !Number.isFinite(ema30)) {
+    return { direction: 'INSUFFICIENT_DATA', price: null, ema10: null, ema30: null, ema72: null };
   }
 
   const above10 = price > ema10;
-  const above72 = price > ema72;
+  const above30 = price > ema30;
   const below10 = price < ema10;
-  const below72 = price < ema72;
+  const below30 = price < ema30;
+  const structure = ema10 > ema30;
 
   let direction = 'SIDEWAYS';
-  if (above10 && above72) {
+  if (above10 && above30 && structure) {
     direction = 'UP';
-  } else if (below10 && below72) {
+  } else if (below10 && below30 && !structure) {
     direction = 'DOWN';
   }
 
-  return { direction, price, ema10, ema72 };
+  return { direction, price, ema10, ema30, ema72: ema30, structure };
 }
 
 /**
@@ -327,7 +332,7 @@ function calculateBenchmarkRegimes(candles, benchmarkId = 'IBOV') {
 
   const closes = candles.map(c => Number(c.adjustedClose ?? c.close));
   const ema10Arr = calculateEmaSeries(closes, 10);
-  const ema72Arr = calculateEmaSeries(closes, Math.min(72, closes.length));
+  const ema30Arr = calculateEmaSeries(closes, Math.min(30, closes.length));
   const atrSeries = calculateATRPercentageSeries(candles, 21);
 
   const results = [];
@@ -340,7 +345,7 @@ function calculateBenchmarkRegimes(candles, benchmarkId = 'IBOV') {
     const date = formatDateIso(candle.date);
     const price = closes[i];
     const ema10 = ema10Arr[i];
-    const ema72 = ema72Arr[i];
+    const ema30 = ema30Arr[i];
     const atrInfo = atrSeries[i];
     const atrPct = atrInfo?.atrPct;
 
@@ -352,19 +357,23 @@ function calculateBenchmarkRegimes(candles, benchmarkId = 'IBOV') {
       }
     }
 
-    if (i < 29 || validPcts.length < smaPeriod || !Number.isFinite(ema10) || !Number.isFinite(ema72)) {
+    if (i < 29 || validPcts.length < smaPeriod || !Number.isFinite(ema10) || !Number.isFinite(ema30)) {
       continue;
     }
 
-    // Direção
+    // Direção (Ciclo de Mercado Diário: EMA 10 e EMA 30)
+    // Confirmação mandatória: UP exige alinhamento EMA 10 > EMA 30 e preço acima de ambas.
+    // DOWN exige alinhamento EMA 10 < EMA 30 e preço abaixo de ambas.
+    // Repiques de preço com médias invertidas ou correções parciais são classificados como SIDEWAYS (transição/lateral).
     const above10 = price > ema10;
-    const above72 = price > ema72;
+    const above30 = price > ema30;
     const below10 = price < ema10;
-    const below72 = price < ema72;
+    const below30 = price < ema30;
+    const structure = ema10 > ema30;
 
     let direction = 'SIDEWAYS';
-    if (above10 && above72) direction = 'UP';
-    else if (below10 && below72) direction = 'DOWN';
+    if (above10 && above30 && structure) direction = 'UP';
+    else if (below10 && below30 && !structure) direction = 'DOWN';
 
     // Volatilidade
     const atrPctSma252 = rollingSum252 / smaPeriod;
@@ -380,12 +389,13 @@ function calculateBenchmarkRegimes(candles, benchmarkId = 'IBOV') {
       regime,
       close_price: Number(price.toFixed(4)),
       ema_10: Number(ema10.toFixed(4)),
-      ema_72: Number(ema72.toFixed(4)),
+      ema_30: Number(ema30.toFixed(4)),
+      ema_72: Number(ema30.toFixed(4)),
       atr_21: Number((atrInfo.atr || 0).toFixed(4)),
       atr_percentage: Number(atrPct.toFixed(4)),
       atr_percentage_sma_252: Number(atrPctSma252.toFixed(4)),
       volatility_deviation: Number(volatilityDeviation.toFixed(2)),
-      calculation_version: 'v1'
+      calculation_version: 'v2_ema10_30'
     });
   }
 
@@ -644,6 +654,178 @@ function resolveBenchmarkForAsset(symbol, assetClass = null, market = 'BR') {
 }
 
 /**
+ * Calendário e Fuso Horário Oficial por Mercado (BR: America/Sao_Paulo, US: America/New_York).
+ * - Nunca considera um candle diário ainda aberto como fechamento definitivo.
+ * - Respeita finais de semana, feriados fixos e feriados móveis (Carnaval, Sexta-Feira Santa, Corpus Christi, Thanksgiving, etc.).
+ */
+const FIXED_HOLIDAYS_BR = new Set(['01-01', '04-21', '05-01', '09-07', '10-12', '11-02', '11-15', '11-20', '12-25', '12-31']);
+const FIXED_HOLIDAYS_US = new Set(['01-01', '06-19', '07-04', '12-25']);
+
+function computeEasterUtc(year) {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function addUtcDays(dateObj, days) {
+  const d = new Date(dateObj.getTime());
+  d.setUTCDate(d.getUTCDate() + days);
+  return d;
+}
+
+function getMovableHolidaysForYear(year, market = 'BR') {
+  const easter = computeEasterUtc(year);
+  const set = new Set();
+  const toIso = d => d.toISOString().slice(0, 10);
+
+  // Good Friday (Sexta-Feira Santa) é feriado tanto na B3 quanto na NYSE/NASDAQ
+  set.add(toIso(addUtcDays(easter, -2)));
+
+  if (market === 'BR') {
+    // Segunda e Terça de Carnaval (-48 e -47 dias da Páscoa) e Corpus Christi (+60 dias)
+    set.add(toIso(addUtcDays(easter, -48)));
+    set.add(toIso(addUtcDays(easter, -47)));
+    set.add(toIso(addUtcDays(easter, 60)));
+  } else if (market === 'US') {
+    // Thanksgiving: 4ª quinta-feira de novembro
+    const nov1 = new Date(Date.UTC(year, 10, 1));
+    const dow = nov1.getUTCDay(); // 4 = Thursday
+    const firstThu = 1 + ((4 - dow + 7) % 7);
+    const fourthThu = firstThu + 21;
+    set.add(`${year}-11-${String(fourthThu).padStart(2, '0')}`);
+  }
+  return set;
+}
+
+function isMarketTradingDay(isoDateInput, market = 'BR') {
+  const iso = formatDateIso(isoDateInput);
+  if (!iso) return false;
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  const dow = dt.getUTCDay();
+  if (dow === 0 || dow === 6) return false;
+
+  const mkt = String(market || 'BR').toUpperCase() === 'US' ? 'US' : 'BR';
+  const mmdd = iso.slice(5, 10);
+  const fixed = mkt === 'US' ? FIXED_HOLIDAYS_US : FIXED_HOLIDAYS_BR;
+  if (fixed.has(mmdd)) return false;
+
+  const movable = getMovableHolidaysForYear(y, mkt);
+  if (movable.has(iso)) return false;
+  return true;
+}
+
+function getMarketZonedNow(now = new Date(), market = 'BR') {
+  const mkt = String(market || 'BR').toUpperCase() === 'US' ? 'US' : 'BR';
+  const timeZone = mkt === 'US' ? 'America/New_York' : 'America/Sao_Paulo';
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+  }).formatToParts(now instanceof Date ? now : new Date(now));
+  const map = Object.fromEntries(parts.filter(p => p.type !== 'literal').map(p => [p.type, p.value]));
+  return {
+    isoDate: `${map.year}-${map.month}-${map.day}`,
+    hour: Number(map.hour),
+    minute: Number(map.minute),
+    totalMinutes: Number(map.hour) * 60 + Number(map.minute),
+    timeZone
+  };
+}
+
+/**
+ * Retorna a data ISO (YYYY-MM-DD) do último pregão diário FECHADO para o mercado informado.
+ * - Brasil (B3): fechamento diário consolidado a partir das 18h00 (America/Sao_Paulo).
+ * - EUA (NYSE/NASDAQ): fechamento diário consolidado a partir das 16h05 (America/New_York).
+ */
+function getExpectedClosedDate(market = 'BR', now = new Date()) {
+  const mkt = String(market || 'BR').toUpperCase() === 'US' ? 'US' : 'BR';
+  const zoned = getMarketZonedNow(now, mkt);
+  const closeCutoffMinutes = mkt === 'US' ? (16 * 60 + 5) : (18 * 60);
+
+  let cursorIso = zoned.isoDate;
+  if (isMarketTradingDay(cursorIso, mkt) && zoned.totalMinutes >= closeCutoffMinutes) {
+    return cursorIso;
+  }
+
+  // Recuar para o dia útil imediatamente anterior
+  const [y, m, d] = cursorIso.split('-').map(Number);
+  let cursorDt = new Date(Date.UTC(y, m - 1, d));
+  for (let i = 0; i < 15; i++) {
+    cursorDt = addUtcDays(cursorDt, -1);
+    const candidate = cursorDt.toISOString().slice(0, 10);
+    if (isMarketTradingDay(candidate, mkt)) {
+      return candidate;
+    }
+  }
+  return cursorIso;
+}
+
+/**
+ * Filtra, normaliza, deduplica e ordena candles diários, descartando qualquer candle
+ * aberto/intradiário (data > expectedClosedDate) ou com preço inválido.
+ */
+function filterClosedDailyCandles(candles = [], market = 'BR', now = new Date(), options = {}) {
+  if (!Array.isArray(candles)) return [];
+  const expectedClosed = options.expectedClosedDate || getExpectedClosedDate(market, now);
+  const enforceCutoff = options.enforceCutoff !== false;
+  const byDate = new Map();
+
+  for (const c of candles) {
+    if (!c) continue;
+    const rawDate = c.date || c.datetime || c.reference_date;
+    const iso = formatDateIso(rawDate);
+    if (!iso) continue;
+    if (enforceCutoff && iso > expectedClosed) {
+      // Descarta candle diário ainda em formação / data futura
+      continue;
+    }
+    const close = Number(c.adjustedClose ?? c.close);
+    if (!Number.isFinite(close) || close <= 0) continue;
+    const rawOpen = Number(c.open);
+    const rawHigh = Number(c.high);
+    const rawLow = Number(c.low);
+    const hasRealOhlc = Number.isFinite(rawOpen) && Number.isFinite(rawHigh) && Number.isFinite(rawLow) &&
+      (rawHigh > rawLow || rawOpen !== close);
+
+    const candleObj = {
+      date: iso,
+      close,
+      volume: Number.isFinite(Number(c.volume)) && Number(c.volume) >= 0 ? Number(c.volume) : 0
+    };
+    if (hasRealOhlc) {
+      candleObj.open = rawOpen;
+      candleObj.high = rawHigh;
+      candleObj.low = rawLow;
+    }
+
+    byDate.set(iso, candleObj);
+  }
+
+  return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+// Controle de cooldown em memória para evitar chamadas repetidas quando o provedor falha ou ainda não publicou
+const lastSyncAttemptByBenchmark = new Map();
+const SYNC_RETRY_COOLDOWN_MS = 120 * 1000; // 2 minutos
+
+/**
  * Lê cache em disco ou inicializa.
  */
 async function readDiskCache() {
@@ -667,80 +849,238 @@ async function writeDiskCache(cache) {
   }
 }
 
+async function readUsBenchmarksDiskCache() {
+  try {
+    const raw = await fs.readFile(US_BENCHMARKS_CACHE_PATH, 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return { benchmarks: {} };
+  }
+}
+
+async function writeUsBenchmarksDiskCache(parsed) {
+  try {
+    await fs.mkdir(path.dirname(US_BENCHMARKS_CACHE_PATH), { recursive: true });
+    await fs.writeFile(US_BENCHMARKS_CACHE_PATH, JSON.stringify(parsed, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('[market-regime] Falha ao salvar us-benchmarks-cache.json:', err.message);
+  }
+}
+
 /**
- * Carrega histórico diário de benchmark americano (SP500 / NASDAQ) com fallback determinístico de disco.
+ * Carrega e atualiza histórico diário de benchmark americano (SP500 / NASDAQ) com:
+ * - Verificação de defasagem contra o último pregão fechado esperado (America/New_York)
+ * - Busca incremental na Twelve Data quando defasado ou forçado
+ * - Merge determinístico por data preservando janela longa (>= 700 pregões) para SMA(ATR%, 252)
+ * - Persistência em us-benchmarks-cache.json e fallback seguro com diagnóstico de erro
  */
-async function loadUsBenchmarkCandles(benchmarkId) {
+async function loadUsBenchmarkCandles(benchmarkId, options = {}) {
   const norm = String(benchmarkId || '').toUpperCase();
   const isSp500 = norm === 'SP500' || norm === 'SPX' || norm === 'SPY';
   const targetKey = isSp500 ? 'SP500' : 'NASDAQ';
   const targetSymbol = isSp500 ? 'SPY' : 'QQQ';
-  let candles = [];
+  const now = options.now ? new Date(options.now) : new Date();
+  const expectedClosedDate = options.expectedClosedDate || getExpectedClosedDate('US', now);
+  const force = Boolean(options.force);
 
-  // 1. Tentar ler do cache em disco dedicado
-  try {
-    const raw = await fs.readFile(US_BENCHMARKS_CACHE_PATH, 'utf8');
-    const parsed = JSON.parse(raw);
-    const entry = parsed?.benchmarks?.[targetKey] || parsed?.benchmarks?.[targetSymbol];
-    if (Array.isArray(entry?.candles) && entry.candles.length >= 30) {
-      candles = entry.candles;
-    }
-  } catch (_) {}
+  let usDisk = await readUsBenchmarksDiskCache();
+  usDisk.benchmarks = usDisk.benchmarks || {};
+  const existingEntry = usDisk.benchmarks[targetKey] || usDisk.benchmarks[targetSymbol] || {};
+  let cachedCandles = filterClosedDailyCandles(existingEntry.candles || [], 'US', now, { expectedClosedDate });
 
-  // 2. Se vazio e tiver TwelveData configurada, tenta buscar
-  if (!candles.length && process.env.TWELVE_DATA_API_KEY) {
+  const lastCachedDate = cachedCandles.at(-1)?.date || null;
+  const isBehindExpected = !lastCachedDate || lastCachedDate < expectedClosedDate;
+  const needsMoreHistory = cachedCandles.length < 275;
+
+  const attemptState = lastSyncAttemptByBenchmark.get(targetKey);
+  const withinCooldown = !force && attemptState && (Date.now() - attemptState.atMs < SYNC_RETRY_COOLDOWN_MS) && attemptState.expectedDate === expectedClosedDate;
+
+  let fetchError = null;
+  const providerInstance = options.provider || null;
+  const hasApiKey = Boolean(providerInstance || process.env.TWELVE_DATA_API_KEY);
+
+  if ((force || isBehindExpected || needsMoreHistory) && !withinCooldown && hasApiKey) {
+    lastSyncAttemptByBenchmark.set(targetKey, { atMs: Date.now(), expectedDate: expectedClosedDate });
     try {
-      const { TwelveDataMarketDataProvider } = require('./twelve-data-provider');
-      const provider = new TwelveDataMarketDataProvider();
-      candles = await provider.getHistoricalDailyPrices(targetSymbol, { outputsize: 300 });
+      let provider = providerInstance;
+      if (!provider) {
+        const { TwelveDataMarketDataProvider } = require('./twelve-data-provider');
+        provider = new TwelveDataMarketDataProvider();
+      }
+      const outputsize = cachedCandles.length >= 250 && !needsMoreHistory ? 60 : 500;
+      const fetchedRaw = await provider.getHistoricalDailyPrices(targetSymbol, { outputsize });
+      if (!Array.isArray(fetchedRaw) || fetchedRaw.length === 0) {
+        throw new Error(`Resposta vazia ou inválida do provedor para ${targetSymbol}`);
+      }
+      const fetchedClean = filterClosedDailyCandles(fetchedRaw, 'US', now, { expectedClosedDate });
+      if (!fetchedClean.length) {
+        throw new Error(`Nenhum candle diário fechado válido retornado para ${targetSymbol}`);
+      }
+
+      // Merge preservando histórico longo
+      const merged = filterClosedDailyCandles([...cachedCandles, ...fetchedClean], 'US', now, { expectedClosedDate });
+      if (merged.length >= cachedCandles.length) {
+        cachedCandles = merged;
+        // Re-ler arquivo antes de gravar para não sobrescrever atualização concorrente do outro benchmark
+        const latestDisk = await readUsBenchmarksDiskCache();
+        latestDisk.benchmarks = latestDisk.benchmarks || {};
+        latestDisk.benchmarks[targetKey] = {
+          symbol: targetSymbol,
+          name: isSp500 ? 'S&P 500 (SPY)' : 'Nasdaq-100 (QQQ)',
+          provider: 'twelve_data',
+          updatedAt: now.toISOString(),
+          lastReferenceDate: cachedCandles.at(-1)?.date || null,
+          candles: cachedCandles
+        };
+        await writeUsBenchmarksDiskCache(latestDisk);
+      }
     } catch (err) {
-      console.warn(`[market-regime] Falha Twelve Data para ${targetSymbol}:`, err.message);
+      fetchError = err.message || String(err);
+      console.warn(`[market-regime] Falha ao atualizar benchmark US ${targetKey} (${targetSymbol}): ${fetchError}`);
     }
+  } else if ((isBehindExpected || !cachedCandles.length) && !hasApiKey) {
+    fetchError = 'TWELVE_DATA_API_KEY ausente para atualização online dos benchmarks dos EUA.';
+  } else if (withinCooldown && attemptState?.lastError) {
+    fetchError = attemptState.lastError;
   }
 
-  return candles.map(c => ({
-    date: formatDateIso(c.date || c.datetime),
-    open: Number(c.open) || Number(c.close),
-    high: Number(c.high) || Number(c.close),
-    low: Number(c.low) || Number(c.close),
-    close: Number(c.close),
-    volume: Number(c.volume) || 0
-  })).filter(c => c.date && Number.isFinite(c.close));
+  if (fetchError && lastSyncAttemptByBenchmark.has(targetKey)) {
+    const st = lastSyncAttemptByBenchmark.get(targetKey);
+    st.lastError = fetchError;
+  }
+
+  if (fetchError) {
+    Object.defineProperty(cachedCandles, 'fetchError', { value: fetchError, enumerable: false, configurable: true });
+  }
+  Object.defineProperty(cachedCandles, 'expectedClosedDate', { value: expectedClosedDate, enumerable: false, configurable: true });
+  return cachedCandles;
 }
 
 /**
- * Busca histórico de benchmark e sincroniza registros de regimes.
+ * Busca histórico de benchmark (BR ou US), valida fechamentos diários e sincroniza registros de regimes.
  */
-async function syncBenchmarkRegimes(benchmarkId = 'IBOV') {
-  const normId = (benchmarkId === 'SPX' || benchmarkId === 'SPY') ? 'SP500' : ((benchmarkId === 'NDX' || benchmarkId === 'QQQ') ? 'NASDAQ' : benchmarkId);
+async function syncBenchmarkRegimes(benchmarkId = 'IBOV', options = {}) {
+  const rawUpper = String(benchmarkId || 'IBOV').trim().toUpperCase();
+  const normId = (rawUpper === 'SPX' || rawUpper === 'SPY' || rawUpper === 'SP500')
+    ? 'SP500'
+    : ((rawUpper === 'NDX' || rawUpper === 'QQQ' || rawUpper === 'NASDAQ') ? 'NASDAQ' : rawUpper);
   const isUs = normId === 'SP500' || normId === 'NASDAQ';
-  let candles = [];
+  const marketCode = isUs ? 'US' : 'BR';
+  const now = options.now ? new Date(options.now) : new Date();
+  const expectedClosedDate = options.expectedClosedDate || getExpectedClosedDate(marketCode, now);
 
-  if (isUs) {
+  let candles = [];
+  let syncError = null;
+
+  if (Array.isArray(options.candles) && options.candles.length >= 30) {
+    candles = filterClosedDailyCandles(options.candles, marketCode, now, { expectedClosedDate, enforceCutoff: options.enforceCutoff !== false });
+  } else if (isUs) {
     try {
-      candles = await loadUsBenchmarkCandles(normId);
+      candles = await loadUsBenchmarkCandles(normId, {
+        now,
+        expectedClosedDate,
+        force: options.force,
+        provider: options.provider
+      });
+      if (candles.fetchError) syncError = candles.fetchError;
     } catch (err) {
-      console.warn(`[market-regime] Falha ao carregar histórico US para ${normId}:`, err.message);
+      syncError = err.message || String(err);
+      console.warn(`[market-regime] Falha ao carregar histórico US para ${normId}:`, syncError);
     }
   } else {
-    const years = [new Date().getFullYear() - 2, new Date().getFullYear() - 1, new Date().getFullYear()];
+    const curYear = now.getFullYear();
+    const years = [curYear - 2, curYear - 1, curYear];
     try {
-      candles = await b3IndexHistory.fetchIndexHistory(normId, {
+      const rawB3 = await b3IndexHistory.fetchIndexHistory(normId, {
         years,
-        cacheDirectory: B3_INDEX_HISTORY_CACHE
+        cacheDirectory: options.cacheDirectory || B3_INDEX_HISTORY_CACHE,
+        force: Boolean(options.force),
+        expectedDate: expectedClosedDate,
+        fetchImpl: options.fetchImpl
       });
+      if (rawB3.fetchError) syncError = rawB3.fetchError;
+      candles = filterClosedDailyCandles(rawB3, 'BR', now, { expectedClosedDate });
     } catch (err) {
-      console.warn(`[market-regime] Falha ao carregar histórico B3 para ${normId}:`, err.message);
+      syncError = err.message || String(err);
+      console.warn(`[market-regime] Falha ao carregar histórico B3 para ${normId}:`, syncError);
     }
   }
 
   if (!candles || candles.length < 30) {
-    return { benchmarkId: normId, count: 0, regimes: [] };
+    const prevDisk = await readDiskCache();
+    const prevCached = prevDisk.benchmarks?.[normId];
+    if (prevCached && Array.isArray(prevCached.regimes) && prevCached.regimes.length > 0) {
+      const lastDate = prevCached.current?.reference_date || prevCached.regimes.at(-1)?.reference_date || null;
+      const isStale = Boolean(!lastDate || lastDate < expectedClosedDate);
+      const fallbackFreshness = {
+        benchmarkId: normId,
+        market: marketCode,
+        timezone: isUs ? 'America/New_York' : 'America/Sao_Paulo',
+        lastCandleDate: lastDate,
+        expectedClosedDate,
+        isUpToDate: !isStale,
+        isStale,
+        status: isStale ? 'stale' : 'fresh',
+        updatedAt: prevCached.updatedAt || now.toISOString(),
+        source: isUs ? 'twelve_data_cache' : 'b3_cache',
+        lastError: syncError || 'Histórico insuficiente na atualização; mantendo último cache válido.'
+      };
+      return {
+        benchmarkId: normId,
+        count: prevCached.regimes.length,
+        current: prevCached.current,
+        regimes: prevCached.regimes,
+        periods: prevCached.periods || [],
+        distribution: prevCached.distribution || calculateDistribution(prevCached.regimes),
+        candles: prevCached.candles || [],
+        freshness: fallbackFreshness
+      };
+    }
+    return {
+      benchmarkId: normId,
+      count: 0,
+      current: null,
+      regimes: [],
+      periods: [],
+      distribution: calculateDistribution([]),
+      candles: [],
+      freshness: {
+        benchmarkId: normId,
+        market: marketCode,
+        timezone: isUs ? 'America/New_York' : 'America/Sao_Paulo',
+        lastCandleDate: null,
+        expectedClosedDate,
+        isUpToDate: false,
+        isStale: true,
+        status: 'unavailable',
+        updatedAt: now.toISOString(),
+        source: isUs ? 'twelve_data' : 'b3-indexes',
+        lastError: syncError || 'Histórico indisponível.'
+      }
+    };
   }
 
   const regimes = calculateBenchmarkRegimes(candles, normId);
   const periods = derivePeriods(regimes);
   const distribution = calculateDistribution(regimes);
+  const current = regimes.at(-1) || null;
+  const lastCandleDate = current?.reference_date || candles.at(-1)?.date || null;
+  const isStale = Boolean(!lastCandleDate || lastCandleDate < expectedClosedDate);
+  const syncAtIso = now.toISOString();
+
+  const freshness = {
+    benchmarkId: normId,
+    market: marketCode,
+    timezone: isUs ? 'America/New_York' : 'America/Sao_Paulo',
+    lastCandleDate,
+    expectedClosedDate,
+    isUpToDate: !isStale,
+    isStale,
+    status: isStale ? 'stale' : 'fresh',
+    updatedAt: syncAtIso,
+    source: isUs ? 'twelve_data' : 'b3-indexes',
+    lastError: syncError || null
+  };
 
   // Persistir em PostgreSQL se configurado
   if (database.configured() && regimes.length) {
@@ -767,8 +1107,7 @@ async function syncBenchmarkRegimes(benchmarkId = 'IBOV') {
           ]
         );
 
-        // Inserção em lotes com ON CONFLICT UPDATE
-        for (const r of regimes.slice(-100)) { // sincronizar últimos 100 dias no DB
+        for (const r of regimes.slice(-100)) {
           await client.query(
             `INSERT INTO app.market_regime_daily (
                benchmark_id, reference_date, direction, volatility, regime,
@@ -803,52 +1142,95 @@ async function syncBenchmarkRegimes(benchmarkId = 'IBOV') {
   const diskCache = await readDiskCache();
   diskCache.benchmarks = diskCache.benchmarks || {};
   diskCache.benchmarks[normId] = {
-    updatedAt: new Date().toISOString(),
-    current: regimes.at(-1) || null,
-    regimes: regimes.slice(-260), // últimos 260 pregões (1 ano)
-    periods: periods.slice(-30),
-    distribution
+    updatedAt: syncAtIso,
+    current,
+    regimes,
+    periods,
+    distribution,
+    candles: candles.slice(-800),
+    freshness
   };
   await writeDiskCache(diskCache);
 
   return {
     benchmarkId: normId,
     count: regimes.length,
-    current: regimes.at(-1) || null,
+    current,
     regimes,
     periods,
-    distribution
+    distribution,
+    candles: candles.slice(-800),
+    freshness
   };
 }
 
 /**
- * Obtém o regime atual para um benchmark.
+ * Verifica se o registro em cache de um benchmark precisa ser ressincronizado.
  */
-async function getCurrentRegime(benchmarkId = 'IBOV') {
-  const normId = (benchmarkId === 'SPX' || benchmarkId === 'SPY') ? 'SP500' : ((benchmarkId === 'NDX' || benchmarkId === 'QQQ') ? 'NASDAQ' : (benchmarkId || 'IBOV'));
-  const diskCache = await readDiskCache();
-  if (diskCache.benchmarks?.[normId]?.current) {
-    return diskCache.benchmarks[normId].current;
+async function shouldResyncBenchmarkCache(normId, cached, options = {}) {
+  if (options.force) return true;
+  if (!cached || !Array.isArray(cached.regimes) || !cached.regimes.length || !cached.current) return true;
+  if (cached.current.ema_30 === undefined) return true;
+
+  const isUs = normId === 'SP500' || normId === 'NASDAQ';
+  const marketCode = isUs ? 'US' : 'BR';
+  const now = options.now ? new Date(options.now) : new Date();
+  const expectedClosedDate = options.expectedClosedDate || getExpectedClosedDate(marketCode, now);
+  const currentRefDate = formatDateIso(cached.current.reference_date);
+
+  if (!currentRefDate) return true;
+  // Se o cache contém data futura / candle aberto intradiário, ressincronizar para limpar
+  if (currentRefDate > expectedClosedDate) return true;
+  // Se o chamador informou uma data de candle mais recente que o regime em cache
+  if (options.latestCandleDate && formatDateIso(options.latestCandleDate) > currentRefDate) return true;
+
+  // Se o regime em cache está atrás da última data de fechamento esperada
+  if (currentRefDate < expectedClosedDate) {
+    // Se não possui candles salvos no snapshot ou é um índice B3 (cujo cache de índice já pode ter atualizado em disco), sincronizar!
+    if (!isUs) return true;
+    const attempt = lastSyncAttemptByBenchmark.get(normId);
+    if (!attempt || (Date.now() - attempt.atMs >= SYNC_RETRY_COOLDOWN_MS) || attempt.expectedDate !== expectedClosedDate) {
+      return true;
+    }
   }
-  const syncResult = await syncBenchmarkRegimes(normId);
-  return syncResult.current;
+
+  return false;
 }
 
 /**
- * Obtém o histórico completo de regimes e períodos de um benchmark.
+ * Obtém o regime atual para um benchmark, sincronizando automaticamente quando defasado.
+ */
+async function getCurrentRegime(benchmarkId = 'IBOV', options = {}) {
+  const hist = await getRegimeHistory(benchmarkId, options);
+  return hist.current;
+}
+
+/**
+ * Obtém o histórico completo de regimes, períodos, candles validados e diagnóstico de frescor de um benchmark.
  */
 async function getRegimeHistory(benchmarkId = 'IBOV', options = {}) {
-  const normId = (benchmarkId === 'SPX' || benchmarkId === 'SPY') ? 'SP500' : ((benchmarkId === 'NDX' || benchmarkId === 'QQQ') ? 'NASDAQ' : (benchmarkId || 'IBOV'));
+  const rawUpper = String(benchmarkId || 'IBOV').trim().toUpperCase();
+  const normId = (rawUpper === 'SPX' || rawUpper === 'SPY' || rawUpper === 'SP500')
+    ? 'SP500'
+    : ((rawUpper === 'NDX' || rawUpper === 'QQQ' || rawUpper === 'NASDAQ') ? 'NASDAQ' : rawUpper);
+  const isUs = normId === 'SP500' || normId === 'NASDAQ';
+  const marketCode = isUs ? 'US' : 'BR';
+  const now = options.now ? new Date(options.now) : new Date();
+  const expectedClosedDate = options.expectedClosedDate || getExpectedClosedDate(marketCode, now);
+
   const diskCache = await readDiskCache();
   let cached = diskCache.benchmarks?.[normId];
 
-  if (!cached || !cached.regimes?.length) {
-    const syncResult = await syncBenchmarkRegimes(normId);
+  if (await shouldResyncBenchmarkCache(normId, cached, { ...options, now, expectedClosedDate })) {
+    const syncResult = await syncBenchmarkRegimes(normId, { ...options, now, expectedClosedDate });
     cached = {
+      updatedAt: syncResult.freshness?.updatedAt || now.toISOString(),
       current: syncResult.current,
       regimes: syncResult.regimes,
       periods: syncResult.periods,
-      distribution: syncResult.distribution
+      distribution: syncResult.distribution,
+      candles: syncResult.candles,
+      freshness: syncResult.freshness
     };
   }
 
@@ -860,12 +1242,37 @@ async function getRegimeHistory(benchmarkId = 'IBOV', options = {}) {
     regimes = regimes.filter(r => r.reference_date <= options.to);
   }
 
+  const lastDate = cached.current?.reference_date || regimes.at(-1)?.reference_date || null;
+  const isStale = Boolean(!lastDate || lastDate < expectedClosedDate);
+  const freshness = cached.freshness ? {
+    ...cached.freshness,
+    lastCandleDate: lastDate,
+    expectedClosedDate,
+    isUpToDate: !isStale,
+    isStale,
+    status: isStale ? 'stale' : 'fresh'
+  } : {
+    benchmarkId: normId,
+    market: marketCode,
+    timezone: isUs ? 'America/New_York' : 'America/Sao_Paulo',
+    lastCandleDate: lastDate,
+    expectedClosedDate,
+    isUpToDate: !isStale,
+    isStale,
+    status: isStale ? 'stale' : 'fresh',
+    updatedAt: cached.updatedAt || now.toISOString(),
+    source: isUs ? 'twelve_data' : 'b3-indexes',
+    lastError: null
+  };
+
   return {
     benchmarkId: normId,
     current: cached.current,
     regimes,
     periods: cached.periods || [],
     distribution: cached.distribution || calculateDistribution(regimes),
+    candles: cached.candles || [],
+    freshness,
     metadata: REGIME_METADATA
   };
 }
@@ -966,6 +1373,10 @@ module.exports = {
   REGIME_METADATA,
   DEFAULT_BENCHMARKS,
   formatDateIso,
+  isMarketTradingDay,
+  getExpectedClosedDate,
+  filterClosedDailyCandles,
+  loadUsBenchmarkCandles,
   calculateTrueRange,
   calculateWilderATRSeries,
   calculateATRPercentageSeries,

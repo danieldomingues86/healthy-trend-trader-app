@@ -58,13 +58,16 @@ async function writeYear(cacheDirectory, index, year, payload) {
   await fs.writeFile(path.join(cacheDirectory, `b3-index-${index}-${year}.json`), JSON.stringify(payload));
 }
 
-async function fetchIndexHistory(symbol, { years, fetchImpl = fetch, cacheDirectory, force = false } = {}) {
+async function fetchIndexHistory(symbol, { years, fetchImpl = fetch, cacheDirectory, force = false, expectedDate = null } = {}) {
   const index = b3IndexCode(symbol);
   if (!index) throw new Error(`Índice B3 não suportado: ${symbol}`);
   const selectedYears = [...new Set((years || []).map(Number).filter(Number.isInteger))];
   if (!selectedYears.length) throw new Error('Informe ao menos um ano para o histórico do índice B3.');
   const observations = new Map();
   const currentYear = new Date().getFullYear();
+  const expectedCompact = expectedDate ? String(expectedDate).replace(/-/g, '').slice(0, 8) : null;
+  let lastFetchError = null;
+
   for (const year of selectedYears) {
     const isCurrentYear = year === currentYear;
     let payload = null;
@@ -72,8 +75,16 @@ async function fetchIndexHistory(symbol, { years, fetchImpl = fetch, cacheDirect
     if (cacheDirectory) {
       cached = await readYearWithMeta(cacheDirectory, index, year);
       if (cached?.data) {
-        // Anos anteriores são definitivos. No ano atual, reutiliza apenas se atualizado há menos de 1 hora e sem force
-        if (!isCurrentYear || (!force && Date.now() - cached.mtimeMs < 3600000)) {
+        let cachedIsBehindExpected = false;
+        if (isCurrentYear && expectedCompact) {
+          const parsedCachedRows = parseYearMatrix(year, cached.data);
+          const lastCachedDate = parsedCachedRows.at(-1)?.date || '';
+          if (lastCachedDate < expectedCompact && (Date.now() - cached.mtimeMs >= 60000)) {
+            cachedIsBehindExpected = true;
+          }
+        }
+        // Anos anteriores são definitivos. No ano atual, reutiliza apenas se atualizado há menos de 1 hora, não defasado e sem force
+        if (!isCurrentYear || (!force && !cachedIsBehindExpected && Date.now() - cached.mtimeMs < 3600000)) {
           payload = cached.data;
         }
       }
@@ -86,6 +97,8 @@ async function fetchIndexHistory(symbol, { years, fetchImpl = fetch, cacheDirect
         payload = await response.json();
         await writeYear(cacheDirectory, index, year, payload);
       } catch (error) {
+        lastFetchError = error;
+        console.warn(`[b3-index-history] Falha ao buscar ${index} (${year}) na B3: ${error.message}`);
         if (cached?.data) {
           payload = cached.data;
         } else {
@@ -98,6 +111,9 @@ async function fetchIndexHistory(symbol, { years, fetchImpl = fetch, cacheDirect
   const history = [...observations.values()].sort((a, b) => a.date.localeCompare(b.date));
   if (!history.length) throw new Error(`Sem histórico B3 para ${index}.`);
   Object.defineProperty(history, 'source', { value: 'b3-indexes', enumerable: false });
+  if (lastFetchError) {
+    Object.defineProperty(history, 'fetchError', { value: lastFetchError.message, enumerable: false });
+  }
   return history;
 }
 

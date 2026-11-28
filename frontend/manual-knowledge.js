@@ -53,6 +53,7 @@
     ['opportunityradar','Radar de Oportunidades','Ativos prontos para entrada no Diário.',null,'Consolide em uma visão rápida e objetiva somente os ativos que cumprem todos os critérios obrigatórios do método e possuem gatilho confirmado no gráfico Diário.'],
     ['relativestrength','Força Relativa','Encontre líderes.',null,'Compare os ativos dentro do seu universo. Força relativa indica liderança; a entrada ainda depende do setup.'],
     ['fundamentals','Fundamentalista','Score em 6 dimensões com CVM e SEC.',null,'Pesquise ações B3 ou BDRs internacionais. Score ponderado de 0 a 10 com régua de 5 patamares e Cobertura dos Dados (dado ausente não é zero).'],
+    ['bdrintelligence','Inteligência BDR','Análise integrada de BDRs.',null,'Avalie o ciclo do mercado internacional, a força estrutural da empresa e o impacto cambial (USD/BRL) de forma independente antes de operar.'],
     ['markettreemap','Setores','Treemap interativo de todo o mercado acionário da B3.',null,'Visualize o mercado brasileiro por setor com o tamanho das empresas proporcional ao seu Market Cap, variação diária e navegação direta para análise gráfica.'],
     ['dashboard','Patrimônio','Visão patrimonial e alocações.',null,'Acompanhe a curva de capital da estratégia, separe o rendimento real dos aportes e gerencie as alocações da sua carteira.'],
     ['dailyupdate','Atualização Diária','Rotina de fechamento diário.',null,'Atualize rapidamente o patrimônio total das contas, confira posições abertas e consolide o fechamento diário sem planilhas externas.'],
@@ -90,6 +91,11 @@
     today: [
       'A tela Visão Geral é seu centro de comando diário: visualize o status geral do mercado, as posições que demandam atenção imediata e as próximas ações recomendadas.',
       'Cockpit Matinal: comece seu dia revisando as posições abertas, trailing stops ativos e o alinhamento com a sua Política de Risco antes da abertura do pregão.'
+    ],
+    bdrintelligence: [
+      'A tela Inteligência BDR avalia três fatores independentes antes da execução: 1. Ciclo do mercado internacional (Nasdaq-100 / S&P 500), 2. Força e estrutura individual da ação original nos EUA (EMA 10 e EMA 72), 3. Impacto cambial direto (USD/BRL).',
+      'Matriz de Interpretação e Hierarquia: O câmbio atua como catalisador ou vento contrário, mas nunca compensa fraqueza estrutural ou mercado em baixa. Cenário Ideal exige Mercado Positivo, Empresa Positiva e Câmbio Favorável.',
+      'Decomposição Didática do Preço: Apresenta exatamente a contribuição de cada fator na cotação da BDR em reais através da fórmula: Preço BDR = Preço da ação original × USD/BRL × Fator de Paridade.'
     ],
     newtrade: [
       'A tela Novo Trade estrutura a operação em duas etapas estritas: Etapa 1 (Parâmetros da Operação: Ativo, Direção, Gatilho Oficial, Entrada, Stop, ATR, Ambiente e Tese) e Etapa 2 (Validação pela Trading Rubric de 100 pontos).',

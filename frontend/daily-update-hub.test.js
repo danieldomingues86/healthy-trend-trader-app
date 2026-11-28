@@ -6,6 +6,7 @@ const path = require('node:path');
 const indexHtml = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
 const { NavigationSystemModel } = require('./navigation-system-model.js');
 const DailyUpdateModel = require('./daily-update-model.js');
+const { DailyUpdateHubController } = require('./daily-update.js');
 
 test('DailyUpdateHub: módulo devidamente registrado no NavigationSystemModel e Acesso Rápido', () => {
   const model = new NavigationSystemModel();
@@ -1225,13 +1226,11 @@ test('DailyUpdateHub: Coluna Resultado Atual (substituindo Status) e Agrupamento
   assert.ok(renderedHtml.includes('data-pos-group-count="VOLATILITY_TRADING">(4)</span>'), 'Quantidade (4) ao lado de Volatilidade deve ser exibida');
   assert.ok(!renderedHtml.includes('pos-group-header-metrics'), 'Resultado financeiro no cabeçalho de cada grupo NÃO deve ser exibido');
 
-  // 4. Expansão e recolhimento de grupos de estratégia
-  assert.equal(controller.collapsedPositionGroups.has('TREND_FOLLOWING'), false);
-  controller.togglePositionGroup('TREND_FOLLOWING');
-  assert.equal(controller.collapsedPositionGroups.has('TREND_FOLLOWING'), true);
-  assert.ok(renderedHtml.includes('pos-group-chevron collapsed'), 'Chevron recolhido deve ser renderizado');
-  controller.togglePositionGroup('TREND_FOLLOWING');
-  assert.equal(controller.collapsedPositionGroups.has('TREND_FOLLOWING'), false);
+  // 4. Grupos de estratégia são permanentemente expandidos (sem accordion ou chevrons)
+  assert.ok(!renderedHtml.includes('pos-group-toggle-btn'), 'Botão de toggle/accordion não deve ser renderizado');
+  assert.ok(!renderedHtml.includes('pos-group-chevron'), 'Chevron de accordion não deve ser renderizado');
+  assert.ok(renderedHtml.includes('position-group--trend_following'), 'Grupo de tendência deve estar presente');
+  assert.ok(renderedHtml.includes('position-group--volatility_trading'), 'Grupo de volatilidade deve estar presente');
 
   // 5. Layout horizontal 42% (Atualizar Contas) / 58% (Posições em Aberto) no CSS
   const cssContent = fs.readFileSync(path.join(__dirname, 'daily-update.css'), 'utf8');
@@ -1879,13 +1878,396 @@ test('DailyUpdateHub — Persistência Ponta a Ponta (Salvar → Limpar Draft �
     assert.equal(html2.includes('class="prev-usd-hint'), false, 'Segunda linha prev-usd-hint em Saldo Anterior deve ser removida');
     assert.equal(html2.includes('class="usd-var-hint'), false, 'Segunda linha usd-var-hint em Variação deve ser removida');
     assert.ok(html2.includes('data-nomad-header-fx="true"'), 'Cotação USD/BRL de referência deve aparecer compacta no cabeçalho');
+    assert.ok(html2.includes('data-fx-rate-input="true"'), 'Campo editável de cotação USD/BRL deve estar presente no cabeçalho');
     assert.ok(html2.includes('data-nomad-fx-badge="nomad_daniel"'), 'Informações compactas de USD e câmbio continuam visíveis na linha da Nomad');
     assert.ok(html2.includes('btn-currency-toggle-inline'), 'Alternador BRL/USD deve aparecer inline sem aumentar a altura da linha');
+    const fxRes = s2.controller.updateUsdFxRate('5,80');
+    assert.equal(fxRes.success, true, 'Deve permitir atualizar manualmente o câmbio USD/BRL');
+    assert.equal(fxRes.fxRate, 5.80);
+    const nomadAfterFx = s2.controller.model.accounts.find(a => a.id === 'nomad_daniel');
+    assert.equal(nomadAfterFx.fxRate, 5.80);
+    assert.equal(nomadAfterFx.newBalance, Math.round(nomadAfterFx.newBalanceUSD * 5.80 * 100) / 100, 'Saldo em BRL da Nomad é recalculado imediatamente ao alterar o dólar');
     const cssText = fs.readFileSync(path.join(__dirname, 'daily-update.css'), 'utf8');
     assert.ok(cssText.includes('.accounts-table tbody tr.account-row'), 'CSS deve padronizar altura uniforme de todas as linhas de contas');
   } finally {
     global.localStorage = savedLS;
     global.document = savedDoc;
     global.window = savedWin;
+  }
+});
+
+test('DailyUpdateHub — Ajustes Câmbio USD/BRL (3 casas decimais, layout à direita) e Posições Permanentemente Expandidas (sem accordion e com empty state)', () => {
+  const model = new DailyUpdateModel({
+    accounts: [
+      { id: 'xp_1', label: 'XP Investimentos', person: 'Daniel', type: 'INVESTMENT', previousBalance: 100000, newBalance: 100000, currency: 'BRL' },
+      { id: 'nomad_1', label: 'Nomad Global', person: 'Daniel', type: 'INVESTMENT', previousBalanceUSD: 10000, newBalanceUSD: 10000, fxRate: 5.83, currency: 'USD', previousBalance: 58300, newBalance: 58300 }
+    ],
+    positions: [
+      { id: 'pos-trend-1', ticker: 'WALM34', strategy: 'TREND_FOLLOWING', entryPrice: 50, currentPrice: 52, quantity: 100, closed: false, status: 'conferida' }
+    ]
+  });
+
+  const savedDoc = global.document;
+  const mockContainer = {
+    innerHTML: '',
+    querySelectorAll: () => [],
+    querySelector: () => null
+  };
+  global.document = {
+    getElementById: () => mockContainer,
+    querySelector: () => null,
+    querySelectorAll: () => []
+  };
+
+  try {
+    const controller = new DailyUpdateHubController({ model });
+    controller.render();
+    const html = mockContainer.innerHTML;
+
+    // 1. Câmbio USD/BRL com 3 casas decimais e layout à direita
+    assert.ok(html.includes('class="account-types-legend-group"'), 'Legendas de tipos de conta devem estar agrupadas');
+    assert.ok(html.includes('class="account-fx-header-highlight"'), 'Campo de câmbio deve estar destacado à direita');
+    assert.ok(html.includes('value="5,830"'), 'Câmbio deve ser exibido com 3 casas decimais (5,830)');
+    assert.ok(html.includes('Câmbio: R$ 5,830'), 'Na linha da Nomad, o câmbio também deve exibir 3 casas decimais');
+
+    // Atualização manual para nova taxa com 3 casas decimais
+    const fxRes = controller.updateUsdFxRate('5,835');
+    assert.equal(fxRes.success, true);
+    assert.equal(fxRes.fxRate, 5.835);
+    const updatedNomad = model.accounts.find(a => a.currency === 'USD');
+    assert.equal(updatedNomad.newBalance, 58350);
+
+    // 2. Posições em aberto permanentemente expandidas (sem chevron, sem toggle)
+    assert.ok(!html.includes('pos-group-toggle-btn'), 'Não deve renderizar botão de expandir/recolher');
+    assert.ok(!html.includes('pos-group-chevron'), 'Não deve renderizar chevron');
+    assert.ok(!html.includes('togglePositionGroup'), 'Header não deve ter evento de accordion');
+
+    // 3. Ambas as seções Tendência e Volatilidade sempre presentes
+    assert.ok(html.includes('data-position-group="TREND_FOLLOWING"'), 'Seção Tendência deve estar presente');
+    assert.ok(html.includes('data-position-group="VOLATILITY_TRADING"'), 'Seção Volatilidade deve estar presente');
+
+    // Tendência tem 1 posição -> renderiza tabela
+    assert.ok(html.includes('WALM34'), 'WALM34 deve ser renderizado na tabela de Tendência');
+
+    // Volatilidade tem 0 posições -> renderiza empty state simples sem esconder a seção
+    assert.ok(html.includes('Nenhuma posição aberta em Volatilidade.'), 'Deve apresentar empty state para Volatilidade');
+  } finally {
+    global.document = savedDoc;
+  }
+});
+
+test('DailyUpdateHub — Máscara monetária do Preço Atual/Entrada e recálculo dinâmico das posições', async () => {
+  const model = new DailyUpdateModel({
+    accounts: [
+      { id: 'xp_daniel', label: 'XP - Daniel', person: 'Daniel', type: 'INVESTMENT', previousBalance: 200000, newBalance: 200000, currency: 'BRL' }
+    ],
+    positions: [
+      {
+        id: 'pos-test-1',
+        ticker: 'JNJB34',
+        strategy: 'TREND_FOLLOWING',
+        entryPrice: 110.50,
+        currentPrice: 106.00,
+        quantity: 500,
+        accountId: 'xp_daniel',
+        currency: 'BRL',
+        closed: false,
+        status: 'conferida'
+      },
+      {
+        id: 'pos-test-usd',
+        ticker: 'AAPL',
+        strategy: 'TREND_FOLLOWING',
+        entryPrice: 200.00,
+        currentPrice: 210.00,
+        quantity: 10,
+        currency: 'USD',
+        fxRate: 5.83,
+        closed: false,
+        status: 'conferida'
+      }
+    ]
+  });
+
+  const savedDoc = global.document;
+  const mockContainer = {
+    innerHTML: '',
+    querySelectorAll: () => [],
+    querySelector: () => null
+  };
+  global.document = {
+    getElementById: () => mockContainer,
+    querySelector: () => null,
+    querySelectorAll: () => []
+  };
+
+  try {
+    const controller = new DailyUpdateHubController({ model });
+    controller.render();
+    const html = mockContainer.innerHTML;
+
+    // 1. Formatação monetária inicial conforme moeda do ativo
+    assert.ok(html.includes(DailyUpdateModel.formatBRL(106.00)), 'Preço Atual em BRL deve ter máscara monetária');
+    assert.ok(html.includes(DailyUpdateModel.formatBRL(110.50)), 'Preço Entrada em BRL deve ter máscara monetária');
+
+    // Para USD: US$ 210.00
+    assert.ok(html.includes('value="US$ 210.00"'), 'Preço Atual em USD deve ter máscara monetária US$');
+
+    // 2. Os seletores e atributos de dados necessários para binding estão presentes
+    assert.ok(html.includes('data-position-id="pos-test-1"'), 'Input deve conter data-position-id');
+    assert.ok(html.includes('data-position-price-input="pos-test-1"'), 'Input deve conter data-position-price-input');
+    assert.ok(html.includes('class="pos-price-input pos-price-clean-input'), 'Input deve conter classes de binding');
+
+    // 3. Simula atualização de preço via updatePositionPrice
+    const res = await controller.updatePositionPrice('pos-test-1', '108,00');
+    assert.equal(res.success, true);
+    assert.equal(model.positions[0].currentPrice, 108.00);
+
+    // 4. Recálculo imediato do Resultado Atual e Exposição
+    const pnl = model.getPositionUnrealizedResult(model.positions[0]);
+    // (108.00 - 110.50) * 500 = -1250
+    assert.equal(pnl, -1250);
+
+    const totalExp = model.getTotalExposure();
+    // 108 * 500 + 210 * 10 * 5.83 = 54000 + 12243 = 66243
+    assert.ok(totalExp > 60000, 'Exposição total deve refletir novo preço');
+  } finally {
+    global.document = savedDoc;
+  }
+});
+
+test('DailyUpdateHub — Separação Estrita entre Atualização de Contas (Etapa 1) e Posições em Aberto (Etapa 2)', async () => {
+  const model = new DailyUpdateModel({
+    accounts: [
+      { id: 'xp_test', label: 'XP Teste', person: 'Daniel', type: 'INVESTMENT', currency: 'BRL', previousBalance: 200000.00, newBalance: 200000.00, status: 'keep' },
+      { id: 'nomad_test', label: 'Nomad Teste', person: 'Daniel', type: 'INVESTMENT', currency: 'USD', previousBalanceUSD: 10000.00, newBalanceUSD: 10000.00, fxRate: 5.83, previousBalance: 58300.00, newBalance: 58300.00, status: 'keep' },
+      { id: 'bradesco_test', label: 'Bradesco Teste', person: 'Daniel', type: 'CHECKING', currency: 'BRL', previousBalance: 10000.00, newBalance: 10000.00, status: 'keep' }
+    ],
+    positions: [
+      {
+        id: 'pos_petr4_test',
+        ticker: 'PETR4',
+        accountId: 'xp_test',
+        broker: 'XP Teste',
+        strategy: 'TREND_FOLLOWING',
+        entryDate: '2026-11-20',
+        entryPrice: 30.00,
+        currentPrice: 32.00,
+        stopPrice: 28.00,
+        quantity: 1000,
+        currency: 'BRL',
+        mult: 1,
+        contractMult: 1,
+        closed: false,
+        status: 'conferida',
+        checked: true
+      },
+      {
+        id: 'pos_aapl_test',
+        ticker: 'AAPL',
+        accountId: 'nomad_test',
+        broker: 'Nomad Teste',
+        strategy: 'VOLATILITY_TRADING',
+        entryDate: '2026-11-22',
+        entryPrice: 200.00,
+        currentPrice: 210.00,
+        stopPrice: 190.00,
+        quantity: 20,
+        currency: 'USD',
+        fxRate: 5.83,
+        mult: 1,
+        contractMult: 1,
+        closed: false,
+        status: 'conferida',
+        checked: true
+      }
+    ]
+  });
+
+  const domElements = new Map();
+  function makeMockEl(id) {
+    const el = {
+      id,
+      textContent: '',
+      innerHTML: '',
+      className: '',
+      style: {},
+      classList: {
+        add: () => {},
+        remove: () => {},
+        contains: () => false
+      }
+    };
+    domElements.set(id, el);
+    return el;
+  }
+
+  makeMockEl('kpiRealWealth');
+  makeMockEl('kpiDayVar');
+  makeMockEl('kpiExposureVal');
+  makeMockEl('kpiTotalExposure');
+  makeMockEl('kpiExposurePct');
+  makeMockEl('headerTotalExposure');
+  makeMockEl('headerTotalExposurePct');
+  makeMockEl('headerTotalUnrealizedPill');
+  makeMockEl('headerTotalUnrealizedVal');
+  makeMockEl('headerTotalUnrealizedPct');
+  makeMockEl('tableConsolidatedWealth');
+  makeMockEl('tableDayVar');
+  makeMockEl('badgePositionsChecked');
+  makeMockEl('heroStatusPill');
+
+  const savedDoc = global.document;
+  global.document = {
+    getElementById: (id) => domElements.get(id) || null,
+    querySelector: (sel) => null,
+    querySelectorAll: () => []
+  };
+
+  try {
+    const controller = new DailyUpdateHubController({ model });
+
+    // Estado inicial:
+    // Patrimônio Real inicial: 200.000 + 58.300 + 10.000 = 268.300,00
+    const initialRealWealth = model.getConsolidatedRealWealth();
+    assert.equal(initialRealWealth, 268300.00);
+
+    // Exposição inicial:
+    // PETR4: 1000 * 32 = 32.000
+    // AAPL: 20 * 210 * 5.83 = 24.486
+    // Total: 56.486,00
+    const initialExposure = model.getTotalExposure();
+    assert.equal(initialExposure, 56486.00);
+
+    // =========================================================================
+    // CRITÉRIO 1: Edição e salvamento de saldo de conta atualiza Patrimônio Real no topo
+    // =========================================================================
+    const accRes = model.updateAccountBalance('xp_test', 215000.00);
+    assert.equal(accRes.success, true);
+    assert.equal(model.accounts.find(a => a.id === 'xp_test').newBalance, 215000.00);
+
+    controller.updateTotalsLive({ scope: 'accounts', accountId: 'xp_test', broadcastNow: true });
+    const wealthAfterAcc = model.getConsolidatedRealWealth();
+    assert.equal(wealthAfterAcc, 283300.00, 'Patrimônio Real deve aumentar para 283.300,00 (+15.000)');
+    assert.ok(domElements.get('kpiRealWealth').textContent.includes('283.300'), 'Topo (KPI Real Wealth) deve refletir novo saldo');
+
+    // =========================================================================
+    // CRITÉRIO 5: Atualização de saldo de conta NÃO altera preços ou resultados das posições
+    // =========================================================================
+    const petr4AfterAcc = model.positions.find(p => p.id === 'pos_petr4_test');
+    assert.equal(petr4AfterAcc.currentPrice, 32.00, 'Preço de PETR4 deve permanecer 32.00');
+    assert.equal(petr4AfterAcc.entryPrice, 30.00, 'Preço de entrada deve permanecer 30.00');
+    assert.equal(petr4AfterAcc.quantity, 1000, 'Quantidade deve permanecer 1000');
+    assert.equal(model.getPositionUnrealizedResult(petr4AfterAcc), 2000.00, 'Resultado de PETR4 deve permanecer +2.000,00');
+
+    // =========================================================================
+    // CRITÉRIO 2: Atualização do preço atual recalcula resultado, variação % e exposição
+    // =========================================================================
+    // PETR4 sobe de 32.00 para 35.00 (+3.00/ação => P&L de (35 - 30) * 1000 = +5.000,00)
+    const priceRes = await controller.updatePositionPrice('pos_petr4_test', '35,00');
+    assert.equal(priceRes.success, true);
+    assert.equal(petr4AfterAcc.currentPrice, 35.00);
+
+    const newPnl = model.getPositionUnrealizedResult(petr4AfterAcc);
+    assert.equal(newPnl, 5000.00, 'Resultado Atual de PETR4 deve recalcular para +5.000,00');
+
+    const newVarPct = model.getPositionUnrealizedPct(petr4AfterAcc);
+    // (35 - 30) / 30 = 16.67%
+    assert.ok(Math.abs(newVarPct - 16.67) < 0.05, 'Variação % de PETR4 deve ser ~16.67%');
+
+    const newExposure = model.getTotalExposure();
+    // PETR4: 1000 * 35 = 35.000
+    // AAPL: 24.486
+    // Total Exposição: 59.486,00
+    assert.equal(newExposure, 59486.00, 'Exposição total deve aumentar em 3.000,00');
+    assert.ok(domElements.get('kpiExposureVal').textContent.includes('59.486') || domElements.get('headerTotalExposure').textContent.includes('59.486'));
+
+    // =========================================================================
+    // CRITÉRIO 3: Atualização do preço da posição NÃO altera o saldo de nenhuma conta!
+    // =========================================================================
+    const xpAccAfterPrice = model.accounts.find(a => a.id === 'xp_test');
+    assert.equal(xpAccAfterPrice.newBalance, 215000.00, 'Saldo da conta XP deve permanecer 215.000,00 (independente da cotação)');
+    const nomadAccAfterPrice = model.accounts.find(a => a.id === 'nomad_test');
+    assert.equal(nomadAccAfterPrice.newBalanceUSD, 10000.00, 'Saldo da Nomad deve permanecer US$ 10.000,00');
+
+    // =========================================================================
+    // CRITÉRIO 4: Atualização do preço da posição NÃO altera o Patrimônio Real (Total)!
+    // =========================================================================
+    const wealthAfterPrice = model.getConsolidatedRealWealth();
+    assert.equal(wealthAfterPrice, 283300.00, 'Patrimônio Real deve continuar rigorosamente 283.300,00');
+
+    // =========================================================================
+    // CRITÉRIO 8: Sem dupla contagem de valor bruto de posições no patrimônio total
+    // =========================================================================
+    // Patrimônio Real = soma dos saldos das contas (215.000 + 58.300 + 10.000 = 283.300)
+    // NÃO deve somar a exposição bruta das posições (59.486) sobre os saldos das contas
+    assert.equal(model.getConsolidatedRealWealth(), 283300.00);
+    assert.notEqual(model.getConsolidatedRealWealth(), 283300.00 + newExposure, 'Proibida dupla contagem de posições no patrimônio');
+
+    // =========================================================================
+    // CRITÉRIO 6: Atualizações sequenciais independentes (contas -> posições e posições -> contas)
+    // =========================================================================
+    // 6a. Atualiza posição AAPL: 210 -> 220 USD
+    await controller.updatePositionPrice('pos_aapl_test', '220.00');
+    assert.equal(model.positions.find(p => p.id === 'pos_aapl_test').currentPrice, 220.00);
+    assert.equal(model.accounts.find(a => a.id === 'nomad_test').newBalanceUSD, 10000.00, 'Saldo da conta não move ao alterar cotação');
+    assert.equal(model.getConsolidatedRealWealth(), 283300.00, 'Patrimônio Real intocado');
+
+    // 6b. Em seguida, atualiza conta Nomad: 10.000 -> 12.000 USD
+    model.updateAccountBalance('nomad_test', 12000.00, true);
+    controller.updateTotalsLive({ scope: 'accounts', accountId: 'nomad_test', broadcastNow: true });
+    assert.equal(model.accounts.find(a => a.id === 'nomad_test').newBalanceUSD, 12000.00);
+    assert.equal(model.accounts.find(a => a.id === 'nomad_test').newBalance, Math.round(12000 * 5.83 * 100) / 100); // 69.960,00
+    // Posições continuam intactas
+    assert.equal(model.positions.find(p => p.id === 'pos_aapl_test').currentPrice, 220.00);
+    assert.equal(model.positions.find(p => p.id === 'pos_petr4_test').currentPrice, 35.00);
+    // Patrimônio Real agora reflete o novo saldo da Nomad
+    assert.equal(model.getConsolidatedRealWealth(), 215000.00 + 69960.00 + 10000.00);
+
+    // =========================================================================
+    // CRITÉRIO 7: Recarregar a página mantém ambos os conjuntos consistentes e independentes
+    // =========================================================================
+    const mockStorage = {
+      _data: new Map(),
+      getItem(k) { return this._data.get(k) || null; },
+      setItem(k, v) { this._data.set(k, String(v)); },
+      removeItem(k) { this._data.delete(k); }
+    };
+
+    // Salva contas e metadados de posições
+    model.saveAccounts(mockStorage);
+    model.savePositionMeta(mockStorage);
+    model.saveDraft(mockStorage);
+
+    // Novo modelo limpo simulando F5 / page reload
+    const reloadedModel = new DailyUpdateModel({
+      accounts: JSON.parse(mockStorage.getItem('healthy-daily-update-accounts')),
+      positions: [
+        { id: 'pos_petr4_test', ticker: 'PETR4', entryPrice: 30.00, currentPrice: 30.00, quantity: 1000 },
+        { id: 'pos_aapl_test', ticker: 'AAPL', entryPrice: 200.00, currentPrice: 200.00, quantity: 20 }
+      ]
+    });
+    reloadedModel.loadDraft(mockStorage);
+
+    // Contas recarregadas preservadas
+    assert.equal(reloadedModel.accounts.find(a => a.id === 'xp_test').newBalance, 215000.00);
+    assert.equal(reloadedModel.accounts.find(a => a.id === 'nomad_test').newBalanceUSD, 12000.00);
+    // Posições com preços preservados
+    const reloadedPetr = reloadedModel.positions.find(p => p.id === 'pos_petr4_test');
+    assert.equal(reloadedPetr.currentPrice, 35.00);
+    // Patrimônio independente
+    assert.equal(reloadedModel.getConsolidatedRealWealth(), 215000.00 + 69960.00 + 10000.00);
+
+    // =========================================================================
+    // CRITÉRIO 10: Canonical financials e serviços compartilhados permanecem consistentes
+    // =========================================================================
+    const fin = DailyUpdateModel.getConsolidatedFinancials(mockStorage);
+    assert.ok(fin, 'Serviço financeiro unificado deve responder');
+    assert.equal(typeof fin.realWealth, 'number');
+    assert.equal(typeof fin.investmentWealth, 'number');
+    assert.equal(typeof fin.allocatedCapital, 'number');
+    assert.equal(typeof fin.availableCash, 'number');
+  } finally {
+    global.document = savedDoc;
   }
 });

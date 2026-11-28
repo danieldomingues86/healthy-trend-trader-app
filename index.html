@@ -32,7 +32,7 @@
 <link rel="stylesheet" href="frontend/market-cycle-v2.css?v=20260923-regime-width-1" />
 <link rel="stylesheet" href="frontend/daily-routine.css" />
 <link rel="stylesheet" href="frontend/emerging-leaders.css" />
-<link rel="stylesheet" href="frontend/opportunity-radar.css?v=20261111-vtrade-3" />
+<link rel="stylesheet" href="frontend/opportunity-radar.css?v=20261127-fix-1" />
 <link rel="stylesheet" href="frontend/watchlist.css" />
 <link rel="stylesheet" href="frontend/sidebar-navigation.css?v=20261121-2" />
 <link rel="stylesheet" href="frontend/asset-blacklist.css?v=20260924-fullscreen-1" />
@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="frontend/mindset-hub.css" />
 <link rel="stylesheet" href="frontend/mental-audio-library.css" />
 <link rel="stylesheet" href="frontend/trader-rules.css?v=20261119-premium-1" />
-<link rel="stylesheet" href="frontend/ticker-chart.css?v=20261111-vtrade-3" />
+<link rel="stylesheet" href="frontend/ticker-chart.css?v=20261127-fix-1" />
 <link rel="stylesheet" href="frontend/trade-simulator.css?v=20261115-multi-strategy-1" />
 <link rel="stylesheet" href="frontend/research-lab.css?v=20261027-remove-double-ib-1" />
 <link rel="stylesheet" href="frontend/mission.css" />
@@ -709,6 +709,7 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderprofile .plat
     <button data-page="capitalintelligence"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><path d="M10.5 10.5 6.5 17.5M13.5 13.5l4-7M17 5h4v4M5 19H1v-4"/></svg></span>Visão Sistêmica</button>
     <button data-page="fundamentals"><span class="ico">◔</span>Análise Fundamentalista</button>
     <button data-page="markettreemap"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></span>Setores</button>
+    <button data-page="bdrintelligence"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>Inteligência BDR</button>
   </nav></div>
   <div class="nav-group"><div class="nav-label">Dia a Dia</div><nav class="nav">
     <button data-page="dailyupdate"><span class="ico">📅</span>Atualização Diária</button>
@@ -734,7 +735,7 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderprofile .plat
 
   <div class="nav-group"><div class="nav-label">Alta Performance</div><nav class="nav">
     <button data-page="mindset"><span class="ico">◉</span>Mentalidade</button>
-    <button data-page="habits"><span class="ico">◉</span>Monitor de Hábitos</button>
+    <button data-page="habits"><span class="ico">◉</span>Hábitos</button>
     <button data-page="forecast"><span class="ico">∿</span>Simulador de Equity</button>
     <button data-page="materials"><span class="ico materials-menu-icon" aria-hidden="true"></span>Loja Trader</button>
   </nav></div>
@@ -773,6 +774,7 @@ body:not([data-theme="healthy"]):not([data-theme="pigeon"]) #traderprofile .plat
 <section class="page" id="watchlist" aria-label="Watchlist Inteligente"></section>
 <section class="page" id="charts" aria-label="Gráficos — Central de Análise do Ticker"><div id="tickerChartRoot"></div></section>
 <section class="page" id="markettreemap" aria-label="Setores"></section>
+<section class="page" id="bdrintelligence" aria-label="Inteligência BDR"><div id="bdrIntelligenceRoot"></div></section>
 <section class="page" id="deservingdiary" aria-label="Diário do Merecimento"><div id="deservingDiaryRoot"></div></section>
 <section class="page" id="assetblacklist" aria-label="Ativos Blacklist"><div id="assetBlacklistRoot"></div></section>
 <section class="page" id="dailyupdate" aria-label="Atualização Diária"><div id="dailyUpdateRoot"></div></section>
@@ -1304,7 +1306,7 @@ function setWorkspaceAuthState(isAuthenticated){const authed=Boolean(isAuthentic
 window.setWorkspaceAuthState=setWorkspaceAuthState;
 setWorkspaceAuthState(false);
 function enterWorkspace(event){if(event?.preventDefault)event.preventDefault();setWorkspaceAuthState(true);go('today');}
-const titles={today:'Dashboard',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',fundamentals:'Análise Fundamentalista',positions:'Posições Abertas',closedpositions:'Posições Encerradas',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',systemquality:'Qualidade Estatística do Sistema',tradeanatomy:'Anatomia dos Trades',journal:'Diário de Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Monitor de Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',assetblacklist:'Ativos Blacklist',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
+const titles={today:'Dashboard',dashboard:'Patrimônio',marketcycle:'Ciclo de Mercado',relativestrength:'Força Relativa',fundamentals:'Análise Fundamentalista',positions:'Posições Abertas',closedpositions:'Posições Encerradas',positiondetail:'Gestão da posição',newtrade:'Novo Trade',risk:'Position Sizing',analytics:'Painel da Verdade',systemquality:'Qualidade Estatística do Sistema',tradeanatomy:'Anatomia dos Trades',journal:'Diário de Trader',tradelibrary:'Biblioteca de Trades',emotionalintelligence:'Inteligência Emocional',review:'Revisão Mensal',platformaccess:'Uso da Plataforma',zen:'Trader Zen',wisdom:'Sabedoria do Trader',traderprofile:'Testes de Perfil',habits:'Hábitos',materials:'Loja Trader',profile:'Meus Dados',avatar:'Avatar',plan:'Plano e uso',upgrade:'Conheça o Professional',settings:'Configurações Gerais',riskpolicy:'Política de Risco',assetblacklist:'Ativos Blacklist',portfolioheat:'Portfolio Heat',forecast:'Simulador de Previsão',manual:'Manual do software',glossary:'Glossário do método'};
 Object.assign(titles,{mindset:'Mentalidade',traderrules:'Regras do Trader'});
 titles.emotionalintelligence='Analisador Emocional';titles.forecast='Simulador de Equity';titles.systemquality='Qualidade Estatística do Sistema';
 titles.mistakesbook='Erros e lições';titles.masteredlessons='Lições Dominadas';
@@ -1312,8 +1314,8 @@ titles.dailyroutine='Rotina Diária';
 titles.opportunityradar='Radar de Oportunidades';
 titles.watchlist='Watchlist';
 titles.about='Sobre';
-titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.markettreemap='Setores';titles.deservingdiary='Diário do Merecimento';titles.tradertraining='Prática Deliberada';titles.mission='Missão';titles.rebuild='Rebuild Mode';titles.tradesimulator='Simulador de Trades';titles.researchlab='Laboratório de Pesquisa';titles.riskofruin='Risco de Ruína';titles.marketnews='Notícias';titles.news='Notícias';titles.marketcentral='Central de Mercado';titles.capitalintelligence='Visão Sistêmica';titles.eventplaybook='Registro de Eventos';titles.conquests='Minhas Conquistas';titles.dailyupdate='Atualização Diária';
-function go(id, extra){if(typeof updateThemeFavicon==='function')updateThemeFavicon();if(id==='news'||id==='marketnews')id='marketcentral';if(id==='marketscans')id='opportunityradar';if(id==='emergingleaders')id='relativestrength';if(id==='couragechallenge')id='mission';if(id==='rebuild')id='mission';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='dailyupdate'){crumb.innerHTML='The Healthy Trend Trader / Carteira & Risco / <b>Atualização Diária</b>';}else if(id==='dashboard'){crumb.innerHTML='The Healthy Trend Trader / Dados & Performance / <b>Patrimônio</b>';}else if(id==='systemquality'){crumb.innerHTML='The Healthy Trend Trader / Dados & Performance / <b>Qualidade Estatística do Sistema</b>';}else if(id==='mission'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='rebuild'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Prática Deliberada</b>';}else if(id==='conquests'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Minhas Conquistas</b>';}else if(id==='deservingdiary'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Diário do Merecimento</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='researchlab'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Laboratório de Pesquisa</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='riskofruin'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Risco de Ruína</b>';}else if(id==='marketcentral'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Central de Mercado</b>';}else if(id==='capitalintelligence'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Visão Sistêmica</b>';}else if(id==='eventplaybook'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Registro de Eventos</b>';}else if(id==='opportunityradar'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Radar de Oportunidades</b>';}else if(id==='markettreemap'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Setores</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Dashboard')+'</b>';}}if(id==='dailyupdate'){if(typeof window.DailyUpdateHub?.syncFromOperationalState==='function')window.DailyUpdateHub.syncFromOperationalState();if(typeof window.DailyUpdateHub?.render==='function')window.DailyUpdateHub.render();}if(id==='marketcentral'&&typeof window.renderMarketCentral==='function'){window.renderMarketCentral();}if(id==='capitalintelligence'&&typeof window.CapitalIntelligenceHub?.render==='function'){window.CapitalIntelligenceHub.render();}if(id==='eventplaybook'&&typeof window.EventPlaybook?.render==='function'){window.EventPlaybook.render();}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='opportunityradar'&&typeof window.renderOpportunityRadar==='function'){window.renderOpportunityRadar();}if(id==='markettreemap'&&typeof window.renderMarketTreemap==='function'){window.renderMarketTreemap();}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='relativestrength'){if(typeof window.loadRelativeStrengthClassesForTimeframe==='function'){window.loadRelativeStrengthClassesForTimeframe(window.currentRelativeStrengthTimeframe||'daily');}else if(typeof window.renderRelativeStrengthClassesPage==='function'){window.renderRelativeStrengthClassesPage();}}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='marketcycle'){const targetMarket=extra||window.__pendingMarketCycle;window.__pendingMarketCycle=null;if(targetMarket&&typeof window.loadMarketCycleV2==='function'){window.loadMarketCycleV2(targetMarket);}}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='conquests'&&typeof window.ProfitCelebration?.renderPage==='function'){window.ProfitCelebration.renderPage();}if(id==='deservingdiary'&&typeof window.renderDeservingDiaryPage==='function'){window.renderDeservingDiaryPage();}if(id==='mission'&&typeof window.renderMissionPage==='function'){window.renderMissionPage();}if(id==='rebuild'&&typeof window.renderRebuildPage==='function'){window.renderRebuildPage();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if(id==='researchlab'&&typeof window.ResearchLab?.render==='function'){window.ResearchLab.render();}if(id==='riskofruin'&&typeof window.renderRiskOfRuinPage==='function'){window.renderRiskOfRuinPage();}if(id==='forecast'&&typeof window.renderForecastSimulator==='function'){window.renderForecastSimulator();}if(id==='riskpolicy'&&typeof window.RiskOfRuinController?.renderRiskPolicySection==='function'){window.RiskOfRuinController.renderRiskPolicySection();}if(id==='analytics'&&typeof window.RiskOfRuinController?.renderAnalyticsSummarySection==='function'){window.RiskOfRuinController.renderAnalyticsSummarySection();}if(id==='newtrade'&&typeof window.populateTradeAccountSelect==='function'){window.populateTradeAccountSelect();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&typeof updateTradingRubric==='function'){updateTradingRubric();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(id==='manual'&&typeof window.renderKnowledgeCenter==='function'){window.renderKnowledgeCenter();}if(id==='systemquality'&&typeof window.renderSystemQualityPage==='function'){window.renderSystemQualityPage();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
+titles.couragechallenge='Desafio Grade A';titles.charts='Gráficos';titles.markettreemap='Setores';titles.bdrintelligence='Inteligência BDR';titles.deservingdiary='Diário do Merecimento';titles.tradertraining='Prática Deliberada';titles.mission='Missão';titles.rebuild='Rebuild Mode';titles.tradesimulator='Simulador de Trades';titles.researchlab='Laboratório de Pesquisa';titles.riskofruin='Risco de Ruína';titles.marketnews='Notícias';titles.news='Notícias';titles.marketcentral='Central de Mercado';titles.capitalintelligence='Visão Sistêmica';titles.eventplaybook='Registro de Eventos';titles.conquests='Minhas Conquistas';titles.dailyupdate='Atualização Diária';
+function go(id, extra){if(typeof updateThemeFavicon==='function')updateThemeFavicon();if(id==='news'||id==='marketnews')id='marketcentral';if(id==='marketscans')id='opportunityradar';if(id==='emergingleaders')id='relativestrength';if(id==='couragechallenge')id='mission';if(id==='rebuild')id='mission';document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const targetPage=document.getElementById(id);if(targetPage)targetPage.classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));const crumb=document.querySelector('.crumb')||document.getElementById('crumb');if(crumb){if(id==='dailyupdate'){crumb.innerHTML='The Healthy Trend Trader / Carteira & Risco / <b>Atualização Diária</b>';}else if(id==='dashboard'){crumb.innerHTML='The Healthy Trend Trader / Dados & Performance / <b>Patrimônio</b>';}else if(id==='systemquality'){crumb.innerHTML='The Healthy Trend Trader / Dados & Performance / <b>Qualidade Estatística do Sistema</b>';}else if(id==='mission'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='rebuild'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Missão</b>';}else if(id==='tradertraining'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Prática Deliberada</b>';}else if(id==='conquests'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Minhas Conquistas</b>';}else if(id==='deservingdiary'){crumb.innerHTML='The Healthy Trend Trader / Treinamento / <b>Diário do Merecimento</b>';}else if(id==='tradesimulator'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Trades</b>';}else if(id==='researchlab'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Laboratório de Pesquisa</b>';}else if(id==='forecast'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Simulador de Equity</b>';}else if(id==='riskofruin'){crumb.innerHTML='The Healthy Trend Trader / Simuladores / <b>Risco de Ruína</b>';}else if(id==='marketcentral'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Central de Mercado</b>';}else if(id==='capitalintelligence'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Visão Sistêmica</b>';}else if(id==='eventplaybook'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Registro de Eventos</b>';}else if(id==='opportunityradar'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Radar de Oportunidades</b>';}else if(id==='markettreemap'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Setores</b>';}else if(id==='bdrintelligence'){crumb.innerHTML='The Healthy Trend Trader / Análise de Mercado / <b>Inteligência BDR</b>';}else{const t=typeof uiText==='function'?uiText(titles[id]):titles[id];crumb.innerHTML='The Healthy Trend Trader / <b>'+(t||'Dashboard')+'</b>';}}if(id==='dailyupdate'){if(typeof window.DailyUpdateHub?.syncFromOperationalState==='function')window.DailyUpdateHub.syncFromOperationalState();if(window.healthyTrendApi?.isAuthenticated?.()&&typeof window.DailyUpdateHub?.syncWithBackend==='function'){window.DailyUpdateHub.syncWithBackend().then(()=>{if(typeof window.DailyUpdateHub?.render==='function')window.DailyUpdateHub.render();}).catch(()=>{});}if(typeof window.DailyUpdateHub?.render==='function')window.DailyUpdateHub.render();}if(id==='marketcentral'&&typeof window.renderMarketCentral==='function'){window.renderMarketCentral();}if(id==='capitalintelligence'&&typeof window.CapitalIntelligenceHub?.render==='function'){window.CapitalIntelligenceHub.render();}if(id==='eventplaybook'&&typeof window.EventPlaybook?.render==='function'){window.EventPlaybook.render();}if(id==='mindset'&&typeof renderMindsetHub==='function'){renderMindsetHub();}if(id==='traderrules'&&typeof renderTraderRules==='function'){renderTraderRules();}if(id==='dashboard'&&typeof window.renderWealthV2==='function'){window.renderWealthV2();}if(id==='platformaccess'&&typeof renderPlatformAccessMetrics==='function')renderPlatformAccessMetrics();if(id==='dailyroutine'&&typeof window.DailyRoutineController?.renderDailyRoutineCard==='function'){window.DailyRoutineController.renderDailyRoutineCard();}if(id==='opportunityradar'&&typeof window.renderOpportunityRadar==='function'){window.renderOpportunityRadar();}if(id==='markettreemap'&&typeof window.renderMarketTreemap==='function'){window.renderMarketTreemap();}if(id==='bdrintelligence'&&typeof window.BdrIntelligence?.render==='function'){window.BdrIntelligence.render(extra);}if(id==='watchlist'&&typeof window.renderWatchlistPage==='function'){window.renderWatchlistPage();}if(id==='relativestrength'){if(typeof window.loadRelativeStrengthClassesForTimeframe==='function'){window.loadRelativeStrengthClassesForTimeframe(window.currentRelativeStrengthTimeframe||'daily');}else if(typeof window.renderRelativeStrengthClassesPage==='function'){window.renderRelativeStrengthClassesPage();}}if(id==='couragechallenge'&&typeof window.renderCourageChallengePage==='function'){window.renderCourageChallengePage();}if(id==='charts'&&typeof window.loadTickerChart==='function'){const targetTicker=extra||window.__pendingChartsTicker;window.__pendingChartsTicker=null;window.loadTickerChart(targetTicker);}if(id==='marketcycle'){const targetMarket=extra||window.__pendingMarketCycle;window.__pendingMarketCycle=null;if(targetMarket&&typeof window.loadMarketCycleV2==='function'){window.loadMarketCycleV2(targetMarket);}}if(id==='tradertraining'&&typeof window.renderTraderTraining==='function'){window.renderTraderTraining();}if(id==='conquests'&&typeof window.ProfitCelebration?.renderPage==='function'){window.ProfitCelebration.renderPage();}if(id==='deservingdiary'&&typeof window.renderDeservingDiaryPage==='function'){window.renderDeservingDiaryPage();}if(id==='mission'&&typeof window.renderMissionPage==='function'){window.renderMissionPage();}if(id==='rebuild'&&typeof window.renderRebuildPage==='function'){window.renderRebuildPage();}if(id==='tradesimulator'&&typeof window.TradeSimulator?.render==='function'){window.TradeSimulator.render();}if(id==='researchlab'&&typeof window.ResearchLab?.render==='function'){window.ResearchLab.render();}if(id==='riskofruin'&&typeof window.renderRiskOfRuinPage==='function'){window.renderRiskOfRuinPage();}if(id==='forecast'&&typeof window.renderForecastSimulator==='function'){window.renderForecastSimulator();}if(id==='riskpolicy'&&typeof window.RiskOfRuinController?.renderRiskPolicySection==='function'){window.RiskOfRuinController.renderRiskPolicySection();}if(id==='analytics'&&typeof window.RiskOfRuinController?.renderAnalyticsSummarySection==='function'){window.RiskOfRuinController.renderAnalyticsSummarySection();}if(id==='newtrade'&&typeof window.populateTradeAccountSelect==='function'){window.populateTradeAccountSelect();}if(id==='newtrade'&&typeof window.TraderTraining?.syncWorkbenchFocusBanner==='function'){window.TraderTraining.syncWorkbenchFocusBanner();}if(id==='newtrade'&&typeof updateTradingRubric==='function'){updateTradingRubric();}if(id==='newtrade'&&window.__pendingTradeContext&&typeof window.applyTradeContext==='function'){const pendingCtx=window.__pendingTradeContext;window.__pendingTradeContext=null;window.applyTradeContext(pendingCtx);}if(id==='manual'&&typeof window.renderKnowledgeCenter==='function'){window.renderKnowledgeCenter();}if(id==='systemquality'&&typeof window.renderSystemQualityPage==='function'){window.renderSystemQualityPage();}if(!window.__preserveScrollOnNavigation)window.scrollTo({top:0,behavior:'smooth'});}
 
 function marketCandles(seed=0,count=16){return Array.from({length:count},(_,i)=>{const h=18+((i*17+seed*11)%46),mb=7+((i*13+seed*7)%38),wick=h+13+((i*7+seed)%20),trend=i>count*.62?'down':'up';return `<i class="market-candle ${trend}" style="--h:${h}px;--mb:${mb}px;--wick:${wick}px"></i>`}).join('')}
 function setMarketRange(button){document.querySelectorAll('.market-range button').forEach(item=>item.classList.toggle('active',item===button));}
@@ -1466,7 +1468,7 @@ window.operationalState=operationalState;
 let synchronizedTrades=[];
 window.operationalStrategyFilter='ALL';
 window.setOperationalStrategyFilter=function(strat){window.operationalStrategyFilter=strat;renderOperationalApp();};
-window.duplicateTradePlan=function(id){window.closeAllPositionMenus();const p=(operationalState?.positions||[]).concat(operationalState?.closedPositions||[]).find(x=>String(x.id)===String(id));if(!p){showToast('Operação não encontrada para duplicação.');return;}const strategy=p.strategyType||'TREND_FOLLOWING';go('newtrade');setTimeout(()=>{if(typeof selectTradeStrategy==='function')selectTradeStrategy(strategy);const assetEl=document.getElementById('tradeAsset');if(assetEl)assetEl.value=p.asset;const marketEl=document.getElementById('tradeMarket');if(marketEl&&p.market)marketEl.value=p.market;const entryEl=document.getElementById('entry');if(entryEl&&p.entry)entryEl.value=p.entry;const stopEl=document.getElementById('stop');if(stopEl&&p.initialStop)stopEl.value=p.initialStop;const atrEl=document.getElementById('atr');if(atrEl&&p.atr)atrEl.value=p.atr;const modeEl=document.getElementById('tradeMode');if(modeEl&&p.mode){modeEl.value=p.mode;}if(typeof window.populateTradeAccountSelect==='function'){window.populateTradeAccountSelect(p.accountId||p.account_id);}const qtyEl=document.getElementById('tradeExecutedQty');if(qtyEl&&p.initialQty)qtyEl.value=p.initialQty;const thesisEl=document.getElementById('tradeThesis');if(thesisEl)thesisEl.value=`[Duplicado de ${p.asset}] `+(p.thesis||'');if(typeof recalc==='function')recalc();showToast(`Operação duplicada preservando a estratégia ${strategy==='VOLATILITY_TRADING'?'Volatility Trading':'Trend Following'}.`);},120);};
+window.duplicateTradePlan=function(id){window.closeAllPositionMenus();const p=(operationalState?.positions||[]).concat(operationalState?.closedPositions||[]).find(x=>String(x.id)===String(id));if(!p){showToast('Operação não encontrada para duplicação.');return;}const strategy=p.strategyType||'TREND_FOLLOWING';go('newtrade');setTimeout(()=>{if(typeof selectTradeStrategy==='function')selectTradeStrategy(strategy);if(typeof window.populateTradeSetupOptions==='function')window.populateTradeSetupOptions(strategy,p.setupTrigger||p.setup);const assetEl=document.getElementById('tradeAsset');if(assetEl)assetEl.value=p.asset;const marketEl=document.getElementById('tradeMarket');if(marketEl&&p.market)marketEl.value=p.market;const entryEl=document.getElementById('entry');if(entryEl&&p.entry)entryEl.value=p.entry;const stopEl=document.getElementById('stop');if(stopEl&&p.initialStop)stopEl.value=p.initialStop;const atrEl=document.getElementById('atr');if(atrEl&&p.atr)atrEl.value=p.atr;const modeEl=document.getElementById('tradeMode');if(modeEl&&p.mode){modeEl.value=p.mode;}if(typeof window.populateTradeAccountSelect==='function'){window.populateTradeAccountSelect(p.accountId||p.account_id);}const qtyEl=document.getElementById('tradeExecutedQty');if(qtyEl&&p.initialQty)qtyEl.value=p.initialQty;const thesisEl=document.getElementById('tradeThesis');if(thesisEl)thesisEl.value=`[Duplicado de ${p.asset}] `+(p.thesis||'');if(typeof recalc==='function')recalc();showToast(`Operação duplicada preservando a estratégia ${strategy==='VOLATILITY_TRADING'?'Volatility Trading':'Trend Following'}.`);},120);};
 function saveOperationalState(){}
 function positionFromDatabase(trade){const metadata=trade.metadata&&typeof trade.metadata==='object'?trade.metadata:{};const isPending=trade.status==='pending';const entry=Number(trade.execution_price??trade.entry_price??0),quantity=Number(trade.executed_quantity??trade.planned_quantity??0),stop=Number(trade.stop_price??0),openedAt=trade.executed_at||trade.created_at||new Date().toISOString();const rawEvents=Array.isArray(trade.events)?trade.events:[];const events=(rawEvents.length||isPending)?rawEvents.map(event=>({type:event.type,at:event.at,createdAt:event.createdAt||event.at,qty:Number(event.qty||0),price:Number(event.price||0),stop:Number(event.stop||0),atr:Number(event.atr||0),note:event.note||'',context:event.context||{}})):[{type:'entry',at:openedAt,createdAt:openedAt,qty:quantity,price:entry,note:'Trade registrado no workspace.'}];events.sort((a,b)=>{if(a.type==='entry'&&b.type!=='entry')return -1;if(b.type==='entry'&&a.type!=='entry')return 1;const diff=new Date(a.at)-new Date(b.at);if(diff!==0)return diff;return new Date(a.createdAt||a.at)-new Date(b.createdAt||b.at)});const entryEvent=events.find(event=>event.type==='entry')||events[0],initialStop=Number(entryEvent?.stop||stop);const priceEvents=events.filter(e=>Number(e.price)>0);const latestUpdate=priceEvents.filter(e=>e.type==='update').pop();const latestPrice=latestUpdate?latestUpdate.price:([...priceEvents].pop()?.price||entry);const stopEvents=events.filter(e=>Number(e.stop)>0);const latestStopUpdate=stopEvents.filter(e=>e.type==='update').pop();const latestStop=latestStopUpdate?latestStopUpdate.stop:(stop||initialStop);const atrEvents=events.filter(e=>Number(e.atr)>0);const latestAtrUpdate=atrEvents.filter(e=>e.type==='update').pop();const latestAtr=latestAtrUpdate?latestAtrUpdate.atr:Number(trade.atr??0);const closedAt=trade.closed_at||[...events].reverse().find(event=>event.type==='close')?.at||null;const averageEntry=Number(trade.average_entry_price||entry),totalQty=Number(trade.total_quantity||quantity),scaleIns=events.filter(e=>e.type==='scale_in');const strategyType=trade.strategy_type||trade.strategyType||metadata.strategyType||'TREND_FOLLOWING';const strategyConfigId=trade.strategy_config_id||metadata.strategyConfigId||null;const strategyConfigVersion=trade.strategy_config_version||metadata.strategyConfigVersion||null;const entrySetup=trade.entry_setup||trade.setup||null;const exitReason=trade.exit_reason||metadata.exitReason||null;const rubricVersion=trade.rubric_version||metadata.rubricVersion||null;const resolvedAccountId=trade.account_id||trade.accountId||metadata.accountId||metadata.account_id||(metadata.mode==='paper'?'paper':null);const resolvedBroker=trade.broker||metadata.broker||metadata.accountLabel||(metadata.mode==='paper'?'Paper Trading':null);return{id:trade.id,databaseId:trade.id,status:trade.status,isPending,pendingSnapshot:trade.pending_snapshot||null,discardReason:trade.discard_reason||null,verifiedAt:trade.verified_at||null,mode:metadata.mode==='paper'?'paper':'real',accountId:resolvedAccountId,account_id:resolvedAccountId,broker:resolvedBroker,strategy:strategyType,strategyType,strategy_type:strategyType,strategyConfigId,strategyConfigVersion,entrySetup,exitReason,rubricVersion,asset:trade.ticker,market:trade.market||'Ações',direction:trade.direction||'long',setup:trade.setup||'—',setupTrigger:trade.setup_trigger||metadata.setupTrigger||trade.setup||'—',entry,averageEntry,initialQty:quantity,totalQty,scaleInCount:Number(trade.scale_in_count||scaleIns.length),scaleInEnabled:trade.scale_in_enabled!==false,entries:trade.entries||[],currentPrice:latestPrice,currentStop:latestStop,initialStop,atr:latestAtr,openedAt,closedAt,thesis:metadata.thesis||'',marketCycle:trade.rubric_responses?.marketCycleRegime||'—',rubricScore:Number(trade.rubric_score??0),grade:trade.rubric_grade||'—',riskPct:Number(metadata.executableRiskPct??trade.risk_pct??0),riskBudgetPct:Number(metadata.riskBudgetPct??trade.risk_pct??0),limitingLayer:metadata.limitingLayer||null,limitingLayerName:metadata.limitingLayerName||null,riskProfile:metadata.riskProfile||'standard',marketFactor:Number(metadata.marketFactor??1),positionSizeFinal:quantity,initialRisk:Math.abs(entry-initialStop)*quantity,portfolioHeatAtEntry:0,rubricContributions:[],events:isPending?[]:events}}
 async function syncOperationalFromDatabase(){if(!window.healthyTrendApi?.isAuthenticated())return;try{const result=await window.healthyTrendApi.request('/api/trades');const trades=(Array.isArray(result.trades)?result.trades:[]).map(trade=>({...trade,rubric_grade:TradingRubrics.normalizeHistoricalGrade(trade.rubric_grade,trade.metadata)})),positions=trades.map(positionFromDatabase);synchronizedTrades=trades;window.synchronizedTrades=trades;operationalState.positions=positions.filter(position=>{const st=trades.find(trade=>trade.id===position.id)?.status;return st==='open'||st==='pending';});operationalState.closedPositions=positions.filter(position=>trades.find(trade=>trade.id===position.id)?.status==='closed');operationalState.drafts=trades.filter(trade=>trade.status==='planned').map(trade=>({id:trade.id,databaseId:trade.id,asset:trade.ticker,createdAt:trade.created_at}));saveOperationalState();renderOperationalApp();renderAnalyticsFromDatabase(trades);window.renderWeeklyReview?.();window.dispatchEvent(new CustomEvent('healthyTrend:tradesUpdated'))}catch(error){console.warn('Não foi possível sincronizar as posições.',error)}}
@@ -1561,6 +1563,30 @@ function setupTradePlanner(){
    form.insertAdjacentElement('beforebegin',stratRow);
  }
  
+ window.populateTradeSetupOptions=function(strat,preferredValue){
+   const setupEl=document.getElementById('tradeSetup');
+   if(!setupEl||!window.SetupTriggersCatalog)return;
+   const activeStrat=strat||document.getElementById('tradeStrategyType')?.value||'TREND_FOLLOWING';
+   const isVol=activeStrat==='VOLATILITY_TRADING';
+   const previousVal=preferredValue!==undefined?preferredValue:setupEl.value;
+   const opts=window.SetupTriggersCatalog.getTriggerOptions(activeStrat);
+   setupEl.innerHTML='<option value="">Selecione o gatilho...</option>'+opts.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
+   const normalizedPrev=previousVal?window.SetupTriggersCatalog.normalizeKey(previousVal):null;
+   if(isVol){
+     if(normalizedPrev&&window.SetupTriggersCatalog.isValidTrigger(normalizedPrev,activeStrat)&&normalizedPrev!=='INSIDE_BAR'){
+       setupEl.value=normalizedPrev;
+     }else{
+       setupEl.value='IFR2';
+     }
+   }else{
+     if(normalizedPrev&&window.SetupTriggersCatalog.isValidTrigger(normalizedPrev,activeStrat)){
+       setupEl.value=normalizedPrev;
+     }else{
+       setupEl.value='INSIDE_BAR';
+     }
+   }
+ };
+
  window.selectTradeStrategy=function(strat){
     const isVol=strat==='VOLATILITY_TRADING';
     const typeInput=document.getElementById('tradeStrategyType');
@@ -1576,7 +1602,8 @@ function setupTradePlanner(){
     const stage1=document.getElementById('tradeDataStage')||document.querySelector('.workbench-trade-data');
     if(stage1){stage1.classList.toggle('is-volatility-mode',isVol);}
     const setupField=document.getElementById('tradeSetup')?.closest('.field');
-    if(setupField)setupField.style.display=isVol?'none':'block';
+    if(setupField)setupField.style.display='';
+    window.populateTradeSetupOptions(strat);
     const stopLabel=document.getElementById('stop')?.closest('.field')?.querySelector('label');
     if(stopLabel)stopLabel.textContent=isVol?'Stop inicial (opcional)':'Stop inicial';
     const checksSection=document.getElementById('checks')?.closest('.card');
@@ -1588,24 +1615,24 @@ function setupTradePlanner(){
     else if(typeof rebuildRubricCriteria==='function')rebuildRubricCriteria(strat);
     if(typeof recalc==='function')recalc();
     if(typeof updateTradingRubric==='function')updateTradingRubric();
+    if(typeof refreshWorkbenchRiskGate==='function')refreshWorkbenchRiskGate();
   };
  window.addEventListener('healthyTrend:strategyChanged',e=>{
    if(e.detail?.strategy&&typeof selectTradeStrategy==='function'){
      selectTradeStrategy(e.detail.strategy);
    }
  });
- const currentWsStrat=window.healthyTrendWorkspace?.getStrategy()||'TREND_FOLLOWING';
- if(currentWsStrat==='VOLATILITY_TRADING')window.selectTradeStrategy('VOLATILITY_TRADING');
  const fields=[...form.querySelectorAll('.field')];
  const market=fields[0].querySelector('select'),asset=fields[1].querySelector('input'),direction=fields[2].querySelector('select'),setup=fields[3].querySelector('select'),thesis=form.querySelector('textarea');
  market.id='tradeMarket';asset.id='tradeAsset';direction.id='tradeDirection';setup.id='tradeSetup';thesis.id='tradeThesis';
  const setupLabel=setup.closest('.field')?.querySelector('label');if(setupLabel)setupLabel.textContent='Gatilho de entrada';
- if(window.SetupTriggersCatalog){
-   const currentVal=setup.value;
-   const opts=window.SetupTriggersCatalog.getTriggerOptions();
-   setup.innerHTML='<option value="">Selecione o gatilho...</option>'+opts.map(o=>`<option value="${o.value}">${o.label}</option>`).join('');
-   setup.value=(currentVal&&window.SetupTriggersCatalog.isValidTrigger(currentVal))?currentVal:'INSIDE_BAR';
- }
+ const currentWsStrat=window.healthyTrendWorkspace?.getStrategy()||'TREND_FOLLOWING';
+ window.populateTradeSetupOptions(currentWsStrat, setup.value);
+ setup.addEventListener('change',()=>{
+   if(typeof updateTradingRubric==='function')updateTradingRubric();
+   if(typeof refreshWorkbenchRiskGate==='function')refreshWorkbenchRiskGate();
+ });
+ if(currentWsStrat==='VOLATILITY_TRADING')window.selectTradeStrategy('VOLATILITY_TRADING');
   const riskField=document.getElementById('riskPct').closest('.field');
   const mode=document.createElement('div');mode.className='field';mode.id='fieldTradeMode';mode.innerHTML='<label>Ambiente</label><select id="tradeMode"><option value="real">Conta real</option><option value="paper">Paper Trading</option></select>';
   const account=document.createElement('div');account.className='field';account.id='fieldTradeAccount';account.innerHTML='<label>Conta / Corretora</label><select id="tradeAccount" aria-label="Conta onde a operação será custodiada"></select>';
@@ -1723,8 +1750,9 @@ function plannerPayload(){
   const suggested=Number((document.getElementById('qty').textContent.match(/[\d.]+/)||['0'])[0].replace('.',''))||0;
   const rawSetup=value('tradeSetup');
   const cat=window.SetupTriggersCatalog;
-  const setupTrigger=isVol?'VOLATILITY_SWING_IFR2':(cat?cat.normalizeKey(rawSetup):rawSetup);
-  const setupLabel=isVol?'Volatility Swing — IFR2':(cat?(cat.getTriggerLabel(setupTrigger)||rawSetup):rawSetup);
+  const normalizedSetup=rawSetup?(cat?cat.normalizeKey(rawSetup):rawSetup):(isVol?'IFR2':'');
+  const setupTrigger=normalizedSetup||(isVol?'IFR2':'');
+  const setupLabel=cat?(cat.getTriggerLabel(setupTrigger,rawSetup||(isVol?'IFR2 (Volatilidade)':''))):rawSetup;
   const volPolicy=window.riskPolicyState?.volatility||{};
   const configId=isVol?(volPolicy.activeProfileId||'vol-ifr2-standard'):null;
   const modeVal=value('tradeMode')||'real';
@@ -1789,13 +1817,13 @@ async function saveTradePlan(){
   }
   const plan=plannerPayload();
   const isVol=plan.strategyType==='VOLATILITY_TRADING';
+  if(!plan.setupTrigger||!window.SetupTriggersCatalog?.isValidTrigger(plan.setupTrigger,plan.strategyType)){
+    showToast('⚠️ Selecione um Gatilho de Entrada válido na Etapa 1 para planejar o trade.');
+    const setup=document.getElementById('tradeSetup');
+    if(setup){setup.scrollIntoView({behavior:'smooth',block:'center'});setup.focus();setup.classList.add('field-highlight-error');setTimeout(()=>setup.classList.remove('field-highlight-error'),2500);}
+    return;
+  }
   if(!isVol){
-    if(!plan.setupTrigger||!window.SetupTriggersCatalog?.isValidTrigger(plan.setupTrigger)){
-      showToast('⚠️ Selecione um dos 5 Gatilhos de Entrada na Etapa 1 para planejar o trade.');
-      const setup=document.getElementById('tradeSetup');
-      if(setup){setup.scrollIntoView({behavior:'smooth',block:'center'});setup.focus();setup.classList.add('field-highlight-error');setTimeout(()=>setup.classList.remove('field-highlight-error'),2500);}
-      return;
-    }
     if(!plan.entry||!plan.stop){showToast('⚠️ Preencha preços válidos de entrada e stop inicial.');return}
     if(plan.entry===plan.stop){showToast('⚠️ O preço de entrada e o stop inicial não podem ser iguais.');return}
   } else {
@@ -1821,8 +1849,8 @@ async function saveTradePlan(){
 }
 function confirmTradeExecution(){
   const plan=plannerPayload();
-  if(!plan.setupTrigger||!window.SetupTriggersCatalog?.isValidTrigger(plan.setupTrigger)){
-    showToast('Selecione um dos 5 Gatilhos de Entrada para registrar a execução.');
+  if(!plan.setupTrigger||!window.SetupTriggersCatalog?.isValidTrigger(plan.setupTrigger,plan.strategyType)){
+    showToast('Selecione um Gatilho de Entrada válido para registrar a execução.');
     return;
   }
   if(!plan.entry||!plan.stop||!plan.executedQty){showToast('Informe dados válidos para registrar a execução.');return}
@@ -2094,7 +2122,9 @@ Object.assign(ptToEn,{'Panorama de Mercado':'Market Overview','Patrimônio':'Wea
 Object.assign(ptToEn,{'Realize a parcial de':'Take a partial of','unidades, para ficar dentro do seu limite de risco':'units to stay within your risk limit'});
 Object.assign(ptToEn,{
   'Alta Performance':'High Performance',
+  'Hábitos':'Habits',
   'Monitor de Hábitos':'Habit Monitor',
+  'Acompanhar Hábitos':'Habits',
   'Meus Dados':'My Details',
   'Análise Fundamentalista':'Fundamental Analysis',
   'Sabedoria do Trader':'Trader Wisdom',
@@ -2369,7 +2399,7 @@ const navigationTiles=[
   ['relativestrength','↗',navigationLabel('relativestrength'),'Identificar os ativos líderes do mercado','75% 50%'],
   ['marketcycle','◌','Ciclo de Mercado','Verificar o regime de mercado e o sinal de permissão','50% 50%'],
   ['fundamentals','◔','Análise Fundamentalista','Consultar os fundamentos e a qualidade dos ativos','100% 50%'],
-  ['habits','◉','Monitor de Hábitos','Construa a rotina','100% 75%'],
+  ['habits','◉','Hábitos','Construa a rotina','100% 75%'],
   ['forecast','∿','Simulador de Equity','Projeções e curvas de capital','0% 100%'],
   ['tradesimulator','<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polyline points="6 10 9 7 13 11 18 6"/></svg>','Simulador de Trades','Ambiente de testes e cenários','0% 100%'],
   ['materials','◈',navigationLabel('materials'),'Materiais e ferramentas do método','25% 100%'],
@@ -3657,7 +3687,12 @@ async function applyTradeAssetCache(){
         if (chartData.liquidity) {
           window.currentTradeLiquidity = chartData.liquidity;
           if (!chartData.liquidity.isEligible) {
-            setTradeAssetStatus(`🚫 BLOQUEADO POR LIQUIDEZ: ${chartData.liquidity.metrics?.averageDailyVolumeCompact || '0'}/dia (Mín: ${chartData.liquidity.metrics?.minDailyVolumeCompact || '500 mil'}) · Trade proibido`, 'blocked');
+            const trCount = chartData.liquidity.metrics?.dailyTrades ?? chartData.liquidity.metrics?.averageDailyTrades ?? 0;
+            const isTradesBlock = chartData.liquidity.code === 'TRADES_BELOW_MINIMUM' || (trCount > 0 && trCount < 500);
+            const msg = isTradesBlock
+              ? `🚫 ATIVO SEM LIQUIDEZ — NÃO OPERE: ${trCount} neg/dia (Mín: 500 neg/dia)`
+              : `🚫 BLOQUEADO POR LIQUIDEZ: ${chartData.liquidity.metrics?.averageDailyVolumeCompact || '0'}/dia (Mín: ${chartData.liquidity.metrics?.minDailyVolumeCompact || '500 mil'}) · Trade proibido`;
+            setTradeAssetStatus(msg, 'blocked');
             if (typeof updateTradingRubric === 'function') updateTradingRubric();
             return;
           }
@@ -3665,7 +3700,9 @@ async function applyTradeAssetCache(){
       }
     } catch (_) {}
 
-    setTradeAssetStatus(`RS ${relative.score} → ${MANUAL_RUBRIC_RATINGS[relativeRating].label}  ·  Fund. ${fundamentalLabel}  ·  💧 Liquidez OK`,'ready');
+    const trOkCount = chartData?.liquidity?.metrics?.dailyTrades ?? chartData?.liquidity?.metrics?.averageDailyTrades ?? null;
+    const trOkText = trOkCount ? ` (${trOkCount} neg/dia)` : '';
+    setTradeAssetStatus(`RS ${relative.score} → ${MANUAL_RUBRIC_RATINGS[relativeRating].label}  ·  Fund. ${fundamentalLabel}  ·  💧 Liquidez OK${trOkText}`,'ready');
   }catch(error){
     setTradeAssetStatus(`RS ${relative.score} → ${MANUAL_RUBRIC_RATINGS[relativeRating].label}  /  Fundamentos indisponíveis`,'manual');
   }
@@ -5215,35 +5252,35 @@ renderEffectiveRiskPolicy();
 
         const ind = snapshot?.indicators || snapshot || {};
         const above10 = typeof ind.above10 === 'boolean' ? ind.above10 : (typeof ind.above9 === 'boolean' ? ind.above9 : isHealthy);
-        const above72 = typeof ind.above72 === 'boolean' ? ind.above72 : (typeof ind.above30 === 'boolean' ? ind.above30 : isHealthy);
-        const trendOk = isHealthy && above10 && above72;
-        const trendVal = isHealthy ? 'Preço > EMA 10 > EMA 72' : (above10 && !above72 ? 'Preço entre EMA 10 e EMA 72' : !above10 && above72 ? 'Preço entre EMA 72 e EMA 10' : 'Preço ≤ EMA 10 e ≤ EMA 72');
+        const above30 = typeof ind.above30 === 'boolean' ? ind.above30 : (typeof ind.above72 === 'boolean' ? ind.above72 : isHealthy);
+        const trendOk = isHealthy && above10 && above30;
+        const trendVal = isHealthy ? 'Preço > EMA 10 > EMA 30' : (above10 && !above30 ? 'Preço entre EMA 10 e EMA 30' : !above10 && above30 ? 'Preço entre EMA 30 e EMA 10' : 'Preço ≤ EMA 10 e ≤ EMA 30');
 
         const e10Val = Number(ind.ema10 ?? ind.ema9);
-        const e72Val = Number(ind.ema72 ?? ind.ema30);
-        const structureOk = typeof ind.structure === 'boolean' ? ind.structure : (isHealthy || (e10Val && e72Val && e10Val > e72Val));
-        const structureVal = structureOk ? 'EMA 10 > EMA 72' : 'EMA 10 ≤ EMA 72';
+        const e30Val = Number(ind.ema30 ?? ind.ema72);
+        const structureOk = typeof ind.structure === 'boolean' ? ind.structure : (isHealthy || (e10Val && e30Val && e10Val > e30Val));
+        const structureVal = structureOk ? 'EMA 10 > EMA 30' : 'EMA 10 ≤ EMA 30';
 
-        const permissionVal = isHealthy ? 'Sim (Expansão)' : 'Não (Defesa)';
-        const shortSummary = isHealthy ? 'Preço acima das EMAs 10 e 72' : (above10 !== above72 ? 'Preço entre as EMAs 10 e 72' : 'Preço abaixo das EMAs 10 e 72');
+        const permissionVal = isHealthy ? 'Favorável (Expansão)' : 'Cautela (Defesa / Transição)';
+        const shortSummary = isHealthy ? 'Preço acima das EMAs 10 e 30' : (above10 !== above30 ? 'Preço entre as EMAs 10 e 30' : 'Preço abaixo das EMAs 10 e 30');
 
         const restoreBtn = isOverridden
           ? `<button type="button" class="rubric-sync-restore-btn" onclick="restoreAutomaticMarketCycle()" title="Restaurar ciclo automático (${cycleInfo.benchmarkSymbol}: ${cycleInfo.suggestedLabel})">↻</button>`
           : '';
         const subClass = isOverridden ? 'rubric-compact-summary is-override' : 'rubric-compact-summary';
 
-        const detailedTooltip = `Ciclo de Mercado:
-• Regra: Operar apenas quando o preço estiver acima da EMA 10 e da EMA 72.
-• Tendência: ${trendVal} (${trendOk ? 'OK' : 'Defesa'})
-• Estrutura: ${structureVal} (${structureOk ? 'OK' : 'Defesa'})
-• Permissão Operacional: ${permissionVal}
+        const detailedTooltip = `Ciclo de Mercado (Diário — EMA 10 e EMA 30):
+• Regra do Ciclo: Leitura ágil com EMA 10 e EMA 30 (enquanto ativos individuais usam EMA 10 e EMA 72).
+• Tendência do Índice: ${trendVal} (${trendOk ? 'OK' : 'Defesa'})
+• Estrutura do Índice: ${structureVal} (${structureOk ? 'OK' : 'Defesa'})
+• Contexto de Risco: ${permissionVal}
 ${cycleInfo.description ? '• Status: ' + cycleInfo.description : ''}`;
 
         // Atualiza pill no cabeçalho se existir
         const headerPill = document.getElementById('newTradeCyclePill');
         if (headerPill) {
           headerPill.className = `newtrade-cycle-pill ${isHealthy ? 'is-healthy' : 'is-defensive'}`;
-          headerPill.innerHTML = `<span class="pill-dot">●</span> Ciclo de Mercado: ${isHealthy ? 'Expansão' : 'Defesa'} <span class="pill-info" title="Regra Diário EMA 10 e EMA 72. Clique para abrir tela Ciclo de Mercado">ⓘ</span>`;
+          headerPill.innerHTML = `<span class="pill-dot">●</span> Ciclo de Mercado: ${isHealthy ? 'Expansão' : 'Defesa'} <span class="pill-info" title="Regra Diário EMA 10 e EMA 30. Clique para abrir tela Ciclo de Mercado">ⓘ</span>`;
         }
 
         return `<div class="rubric-criterion rubric-market-permission ${isHealthy ? 'is-healthy' : 'is-defensive'}" data-rubric-key="marketCycle">
@@ -5326,7 +5363,8 @@ ${cycleInfo.description ? '• Status: ' + cycleInfo.description : ''}`;
     if(manualRubricRatings.volatility)ratings.volatility=manualRubricRatings.volatility;
     const currentMarket=document.getElementById('tradeMarket')?.value||'Ações';
     const cycleInfo=getMarketCycleStateForTrade(currentMarket);
-    return {ratings,marketCycleRegime:cycleInfo.state,profileKey:selectedRiskProfile().key};
+    const setupTrigger=document.getElementById('tradeSetup')?.value||null;
+    return {ratings,marketCycleRegime:cycleInfo.state,profileKey:selectedRiskProfile().key,setupTrigger};
   };
   manualRubricIsComplete=function(){return manualKeys().every(key=>Boolean(manualRubricRatings[key]))&&Boolean(manualRubricRatings.volatility)};
   workbenchStageTwoReady=function(){return manualRubricIsComplete()};
@@ -5334,8 +5372,9 @@ ${cycleInfo.description ? '• Status: ' + cycleInfo.description : ''}`;
     const missing=[];
     const asset=document.getElementById('tradeAsset')?.value.trim();
     if(!asset) missing.push({id:'tradeAsset',label:'Ativo (Ticker)'});
+    const currentStrat=document.getElementById('tradeStrategyType')?.value||'TREND_FOLLOWING';
     const setup=document.getElementById('tradeSetup')?.value;
-    if(!setup||(window.SetupTriggersCatalog&&!window.SetupTriggersCatalog.isValidTrigger(setup))){
+    if(!setup||(window.SetupTriggersCatalog&&!window.SetupTriggersCatalog.isValidTrigger(setup,currentStrat))){
       missing.push({id:'tradeSetup',label:'Gatilho de Entrada'});
     }
     const entryVal=Number(document.getElementById('entry')?.value);
@@ -6382,8 +6421,8 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/trader-rules.js"></script>
 <script src="frontend/vendor/lightweight-charts.standalone.production.js"></script>
 <script src="assets/vendor/html2canvas-1.4.1.min.js"></script>
-<script src="frontend/ticker-chart-model.js?v=20261111-vtrade-3"></script>
-<script src="frontend/ticker-chart.js?v=20261111-vtrade-3"></script>
+<script src="frontend/ticker-chart-model.js?v=20261127-fix-1"></script>
+<script src="frontend/ticker-chart.js?v=20261127-fix-1"></script>
 <link rel="stylesheet" href="frontend/trader-training.css?v=20261106-focus-banner-2" />
 <script src="frontend/trader-training-model.js?v=20261003-1"></script>
 <script src="frontend/trader-training.js?v=20261106-focus-banner-2"></script>
@@ -6409,8 +6448,8 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <link rel="stylesheet" href="frontend/profit-celebration.css?v=20261017-1" />
 <script src="frontend/profit-celebration-model.js?v=20261017-1"></script>
 <script src="frontend/profit-celebration.js?v=20261017-1"></script>
-<script src="frontend/opportunity-radar-model.js?v=20261111-vtrade-2"></script>
-<script src="frontend/opportunity-radar.js?v=20261111-vtrade-3"></script>
+<script src="frontend/opportunity-radar-model.js?v=20261127-fix-1"></script>
+<script src="frontend/opportunity-radar.js?v=20261127-fix-1"></script>
 <link rel="stylesheet" href="frontend/risk-of-ruin.css?v=20261018-5" />
 <script src="frontend/risk-of-ruin-model.js?v=20261018-2"></script>
 <script src="frontend/risk-of-ruin.js?v=20261106-no-sim-scenario-1"></script>
@@ -6431,5 +6470,8 @@ go=function(id, ...args){goWithAboutPage(id, ...args);if(id==='about')renderAbou
 <script src="frontend/avatar-customizer.js?v=20261119-avatar-v2"></script>
 <script src="frontend/daily-update-model.js?v=20261123-persist-v2"></script>
 <script src="frontend/daily-update.js?v=20261123-persist-v2"></script>
+<link rel="stylesheet" href="frontend/bdr-intelligence.css?v=20261127-bdr-2" />
+<script src="frontend/bdr-intelligence-model.js?v=20261127-bdr-2"></script>
+<script src="frontend/bdr-intelligence.js?v=20261127-bdr-2"></script>
 </body></html>
 

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-11-21T23:40:48.760Z",
-  "totalScreens": 47,
+  "updatedAt": "2026-11-27T22:04:55.472Z",
+  "totalScreens": 48,
   "totalStylesheets": 11,
   "screens": {
     "today": {
@@ -198,6 +198,19 @@
       "badgesCount": 0,
       "gridsCount": 0,
       "structuralHash": "6055d74ba2ff14f5"
+    },
+    "capitalintelligence": {
+      "screenId": "capitalintelligence",
+      "presentInStaticHtml": true,
+      "headingsCount": 0,
+      "cardsCount": 0,
+      "buttonsCount": 0,
+      "inputsCount": 0,
+      "tablesCount": 0,
+      "svgCount": 0,
+      "badgesCount": 0,
+      "gridsCount": 0,
+      "structuralHash": "4f4a9b8c9253bc7c"
     },
     "fundamentals": {
       "screenId": "fundamentals",
@@ -638,7 +651,7 @@
     },
     "trade-simulator.css": {
       "filename": "trade-simulator.css",
-      "rulesCount": 1480,
+      "rulesCount": 1522,
       "mediaBreakpointsCount": 20,
       "mediaBreakpoints": [
         "@media (max-width: 1024px)",
@@ -663,9 +676,9 @@
         "@media (min-width: 1800px)"
       ],
       "healthyRulesCount": 53,
-      "goldRulesCount": 61,
+      "goldRulesCount": 72,
       "pigeonRulesCount": 56,
-      "footprintHash": "a7550d58d33c066a"
+      "footprintHash": "b0cbee2524646cbe"
     },
     "event-playbook.css": {
       "filename": "event-playbook.css",
@@ -698,17 +711,18 @@
     },
     "market-cycle-v2.css": {
       "filename": "market-cycle-v2.css",
-      "rulesCount": 171,
-      "mediaBreakpointsCount": 3,
+      "rulesCount": 191,
+      "mediaBreakpointsCount": 4,
       "mediaBreakpoints": [
         "@media (max-width: 1000px)",
+        "@media (max-width: 1050px)",
         "@media (max-width: 1200px)",
         "@media (min-width: 1920px)"
       ],
       "healthyRulesCount": 7,
       "goldRulesCount": 7,
       "pigeonRulesCount": 9,
-      "footprintHash": "2e272c7ffea774ef"
+      "footprintHash": "949f62ba6a425597"
     },
     "daily-routine.css": {
       "filename": "daily-routine.css",

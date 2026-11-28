@@ -611,4 +611,106 @@ describe('Sincronização de Trades entre Atualização Diária, Posições Aber
     assert.equal(xpTrades.length, 1, 'Deve conter apenas o trade da XP');
     assert.equal(xpTrades[0].ticker, 'VALE3');
   });
+
+  test('Blindagem da Etapa 2 — Mock demo e trades fechados nunca vazam para posições abertas', async () => {
+    const { windowMock, DailyUpdateModel, DailyUpdateHubModule } = env;
+
+    // Configurar estado operacional com 1 trade real ativo e 1 fechado
+    windowMock.operationalState = {
+      positions: [
+        {
+          id: 'trade-walm-1',
+          ticker: 'WALM34',
+          asset: 'WALM34',
+          direction: 'long',
+          strategy: 'TREND_FOLLOWING',
+          entry: 48.26,
+          currentPrice: 47.85,
+          initialQty: 500,
+          remaining: 500,
+          status: 'open'
+        }
+      ],
+      closedPositions: [
+        {
+          id: 'trade-brav-1',
+          ticker: 'BRAV3',
+          asset: 'BRAV3',
+          status: 'closed'
+        }
+      ]
+    };
+
+    // Criar controller (por padrão inicializaria com DEFAULT_POSITIONS mock)
+    const hub = new DailyUpdateHubModule.DailyUpdateHubController({ root: windowMock });
+    hub.syncFromOperationalState();
+
+    const openPos = hub.model.getOpenPositions();
+    assert.equal(openPos.length, 1, 'Deve conter rigorosamente 1 posição aberta');
+    assert.equal(openPos[0].ticker, 'WALM34', 'A única posição aberta deve ser WALM34');
+
+    // getGroupedPositions também deve retornar apenas o grupo de WALM34
+    const grouped = hub.model.getGroupedPositions();
+    assert.equal(grouped.length, 1);
+    assert.equal(grouped[0].key, 'TREND_FOLLOWING');
+    assert.equal(grouped[0].positions.length, 1);
+    assert.equal(grouped[0].positions[0].ticker, 'WALM34');
+
+    // Confirmar que nenhuma posição mock nem a fechada BRAV3 estão ativas
+    assert.ok(!openPos.some(p => p.ticker === 'BRAV3'), 'BRAV3 fechada não pode constar em abertas');
+    assert.ok(!openPos.some(p => p.id === 'pos_aapl34' || p.id === 'pos_amzn34'), 'Mocks não podem constar');
+  });
+
+  test('Blindagem da Etapa 2 — Fechamento de todas as posições resulta em 0 posições abertas', async () => {
+    const { windowMock, DailyUpdateModel, DailyUpdateHubModule } = env;
+
+    // Trader fechou tudo
+    windowMock.operationalState = {
+      positions: [],
+      closedPositions: [
+        { id: 'trade-1', ticker: 'WALM34', status: 'closed' },
+        { id: 'trade-2', ticker: 'JNUB34', status: 'closed' }
+      ]
+    };
+
+    const hub = new DailyUpdateHubModule.DailyUpdateHubController({ root: windowMock });
+    hub.syncFromOperationalState();
+
+    assert.equal(hub.model.getOpenPositions().length, 0, 'Não deve haver nenhuma posição aberta');
+    assert.equal(hub.model.getGroupedPositions().length, 0, 'Grupos de posições devem estar vazios');
+    assert.equal(hub.model.getTotalExposure(), 0, 'Exposição deve ser 0');
+    assert.equal(hub.model.getTotalUnrealizedResult(), 0, 'Resultado não realizado deve ser 0');
+  });
+
+  test('Blindagem da Etapa 2 — Draft com posições mock antigas é sanitizado ao sincronizar dados reais', async () => {
+    const { windowMock, storageMock, DailyUpdateModel, DailyUpdateHubModule } = env;
+
+    // Simular draft salvo no localStorage com dados mock legados
+    const legacyDraft = {
+      positions: [
+        { id: 'pos_aapl34', ticker: 'AAPL34', quantity: 600, entryPrice: 100.86, currentPrice: 103.21, closed: false, status: 'conferida' },
+        { id: 'pos_brav3', ticker: 'BRAV3', quantity: 500, entryPrice: 14.06, currentPrice: 12.87, closed: false, status: 'conferida' },
+        { id: 'trade-real-1', ticker: 'PETR4', quantity: 400, entryPrice: 38.00, currentPrice: 39.50, closed: false, status: 'conferida' }
+      ]
+    };
+    storageMock.setItem(DailyUpdateModel.STORAGE_KEY_DRAFT, JSON.stringify(legacyDraft));
+
+    // Estado operacional real do usuário (PETR4 é a única posição aberta)
+    windowMock.operationalState = {
+      positions: [
+        { id: 'trade-real-1', ticker: 'PETR4', asset: 'PETR4', remaining: 400, entry: 38.00, currentPrice: 39.50, status: 'open' }
+      ],
+      closedPositions: []
+    };
+
+    const hub = new DailyUpdateHubModule.DailyUpdateHubController({ root: windowMock });
+    hub.loadSavedState(storageMock);
+    hub.syncFromOperationalState();
+
+    const openPos = hub.model.getOpenPositions();
+    assert.equal(openPos.length, 1, 'Deve existir apenas PETR4');
+    assert.equal(openPos[0].ticker, 'PETR4');
+    assert.ok(!openPos.some(p => p.id === 'pos_aapl34'), 'pos_aapl34 mock deve ter sido eliminado');
+    assert.ok(!openPos.some(p => p.id === 'pos_brav3'), 'pos_brav3 mock deve ter sido eliminado');
+  });
 });

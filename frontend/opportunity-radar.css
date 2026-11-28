@@ -860,6 +860,22 @@ body:has(#opportunityradar.active) .content {
   color: #0284c7;
 }
 
+/* Daily Trades Count Pill */
+.radar-trades-count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #1e293b;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Trigger Cell */
 .radar-trigger-cell {
   display: inline-flex;
@@ -1931,6 +1947,12 @@ body[data-theme="gold"] .radar-liquidity-pill {
 
 body[data-theme="gold"] .radar-liquidity-pill svg {
   color: #38bdf8;
+}
+
+body[data-theme="gold"] .radar-trades-count-pill {
+  background: rgba(212, 175, 55, 0.14);
+  color: #f3d58d;
+  border-color: rgba(212, 175, 55, 0.34);
 }
 
 body[data-theme="gold"] .radar-btn-view-chart {

@@ -1468,7 +1468,7 @@
     let marketCycle = 'healthy';
     if (ctx.marketCycle) {
       const reg = String(ctx.marketCycle.regime || '').toLowerCase();
-      if (reg.includes('defens') || reg.includes('down') || reg.includes('baixa')) {
+      if (reg.includes('defens') || reg.includes('down') || reg.includes('baixa') || reg.includes('≤') || reg.includes('<=')) {
         marketCycle = 'defensive';
       } else if (reg.includes('trans') || reg.includes('neutr') || reg.includes('recup') || reg.includes('improv')) {
         marketCycle = 'transition';
@@ -1579,9 +1579,16 @@
         ratings,
         marketCycleRegime: ratings.marketCycle,
         entry,
-        atr
+        atr,
+        candles: tickerData.ohlc,
+        symbol: tickerData.tickerInfo?.symbol,
+        market: tickerData.tickerInfo?.assetClass,
+        liquidity: tickerData.liquidity
       }, policy);
-      const finalGrade = evalResult.grade || 'D';
+      let finalGrade = evalResult.grade || 'D';
+      if (evalResult.isLiquidityApproved === false || (tickerData.liquidity && tickerData.liquidity.isEligible === false)) {
+        finalGrade = 'D';
+      }
       const gradeVisual = getRubricGradeVisual(finalGrade);
       return {
         finalGrade,

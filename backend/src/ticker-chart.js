@@ -12,6 +12,7 @@ const FundamentalScore = require('../../frontend/fundamental-score');
 const LiquidityGateModel = require('../../frontend/liquidity-gate-model');
 const VolatilityTradingEngineModel = require('../../frontend/volatility-trading-engine-model');
 const bdrInternational = require('./bdr-international');
+const marketRegime = require('./market-regime');
 
 const B3_HISTORY_CACHE = process.env.B3_HISTORY_CACHE_DIRECTORY || path.join(__dirname, '..', 'data', 'b3-history-cache');
 const NASDAQ_PRICES_FILE = path.join(__dirname, '..', 'data', 'nasdaq-daily-prices.json');
@@ -79,11 +80,12 @@ function parseSpotStocksFromBuffer(buffer) {
         const high = Number(buffer.toString('ascii', start + 69, start + 82).trim()) / 100;
         const low = Number(buffer.toString('ascii', start + 82, start + 95).trim()) / 100;
         const close = Number(buffer.toString('ascii', start + 108, start + 121).trim()) / 100;
+        const trades = Number(buffer.toString('ascii', start + 147, start + 152).trim()) || 0;
         const volume = Number(buffer.toString('ascii', start + 170, start + 188).trim()) / 100;
         if (open > 0 && high > 0 && low > 0 && close > 0) {
           let arr = map.get(sym);
           if (!arr) { arr = []; map.set(sym, arr); }
-          arr.push({ time: date, open, high, low, close, volume });
+          arr.push({ time: date, open, high, low, close, volume, trades });
         }
       }
     }
@@ -128,9 +130,15 @@ function loadB3History() {
       if (!needsRebuild) {
         const raw = fs.readFileSync(SPOT_CANDLES_CACHE_FILE, 'utf8');
         const parsed = JSON.parse(raw);
-        b3StocksCache = new Map(Object.entries(parsed).map(([sym, candles]) => [sym, adjustCandles(candles, sym)]));
-        b3StocksLoadedAt = Date.now();
-        return b3StocksCache;
+        const sampleCandles = parsed.PETR4 || parsed.VALE3 || Object.values(parsed)[0];
+        const sampleLast = Array.isArray(sampleCandles) ? sampleCandles[sampleCandles.length - 1] : null;
+        if (sampleLast && sampleLast.trades === undefined) {
+          needsRebuild = true;
+        } else {
+          b3StocksCache = new Map(Object.entries(parsed).map(([sym, candles]) => [sym, adjustCandles(candles, sym)]));
+          b3StocksLoadedAt = Date.now();
+          return b3StocksCache;
+        }
       }
     } catch (err) {
       console.warn('Falha ao ler b3-spot-candles-cache.json, reconstruindo:', err.message);
@@ -448,16 +456,70 @@ async function getTickerChartData(rawSymbol) {
   // Detecção de gatilhos
   const trigger = TickerChartModel.detectSetupTriggers(candles, ema10Array, ema72Array);
 
-  // Estrutura
-  let structureLabel = 'Correção';
-  let structureDesc = 'Correção saudável dentro da tendência.';
-  if (trigger.id === 'INSIDE_BAR') {
-    structureLabel = 'Contração';
-    structureDesc = 'Compressão de volatilidade em região de suporte.';
-  } else if (currentPrice > (latestEma10 || 0) * 1.05) {
-    structureLabel = 'Expansão';
-    structureDesc = 'Perna de alta esticada em relação às médias.';
+  // Estrutura — Regime oficial do ativo (EMA 10 e EMA 72 no Diário + Volatilidade canônica)
+  let structureLabel = 'Dados insuficientes';
+  let structureDesc = 'Histórico insuficiente para classificar o regime de estrutura do ativo.';
+  let structureStatus = 'neutral';
+  let structureRegimeCode = 'INSUFFICIENT_DATA';
+
+  const assetDirectionRes = marketRegime.classifyDirection({
+    price: currentPrice,
+    ema10: latestEma10,
+    ema72: latestEma72
+  });
+  const assetVolRes = marketRegime.calculateVolatility(candles, 21, 252);
+  const assetDirection = assetDirectionRes?.direction;
+  const assetVolatility = assetVolRes?.volatility;
+
+  if (assetDirection === 'UP') {
+    if (assetVolatility === 'QUIET') {
+      structureRegimeCode = 'UP_QUIET';
+      structureLabel = 'Alta com baixa volatilidade (Up & Quiet)';
+      structureDesc = 'Tendência de alta com baixa volatilidade no gráfico Diário (Preço > EMA 10 e EMA 72, oscilações controladas).';
+      structureStatus = 'good';
+    } else if (assetVolatility === 'VOLATILE') {
+      structureRegimeCode = 'UP_VOLATILE';
+      structureLabel = 'Alta com alta volatilidade (Up & Volatile)';
+      structureDesc = 'Tendência de alta com oscilações amplas no gráfico Diário (Preço > EMA 10 e EMA 72, volatilidade expandida).';
+      structureStatus = 'alert';
+    } else {
+      structureRegimeCode = 'INSUFFICIENT_DATA';
+      structureLabel = 'Dados insuficientes';
+      structureDesc = 'Histórico insuficiente para apurar a volatilidade e consolidar o regime da estrutura.';
+      structureStatus = 'neutral';
+    }
+  } else if (assetDirection === 'DOWN') {
+    if (assetVolatility === 'QUIET') {
+      structureRegimeCode = 'DOWN_QUIET';
+      structureLabel = 'Baixa com baixa volatilidade (Down & Quiet)';
+      structureDesc = 'Tendência de baixa ordenada e contínua no gráfico Diário (Preço < EMA 10 e EMA 72).';
+      structureStatus = 'bad';
+    } else if (assetVolatility === 'VOLATILE') {
+      structureRegimeCode = 'DOWN_VOLATILE';
+      structureLabel = 'Baixa com alta volatilidade (Down & Volatile)';
+      structureDesc = 'Tendência de baixa com forte volatilidade no gráfico Diário (Preço < EMA 10 e EMA 72, amplitude elevada).';
+      structureStatus = 'bad';
+    } else {
+      structureRegimeCode = 'INSUFFICIENT_DATA';
+      structureLabel = 'Dados insuficientes';
+      structureDesc = 'Histórico insuficiente para apurar a volatilidade e consolidar o regime da estrutura.';
+      structureStatus = 'neutral';
+    }
+  } else if (assetDirection === 'SIDEWAYS') {
+    structureRegimeCode = assetVolatility === 'VOLATILE' ? 'SIDEWAYS_VOLATILE' : (assetVolatility === 'QUIET' ? 'SIDEWAYS_QUIET' : 'SIDEWAYS');
+    structureLabel = 'Mercado lateral (Sideways)';
+    structureDesc = 'Mercado em consolidação ou transição no gráfico Diário (Preço oscilando entre ou cortando as médias EMA 10 e EMA 72).';
+    structureStatus = 'neutral';
+  } else {
+    structureRegimeCode = 'INSUFFICIENT_DATA';
+    structureLabel = 'Dados insuficientes';
+    structureDesc = 'Histórico insuficiente para classificar o regime de estrutura do ativo.';
+    structureStatus = 'neutral';
   }
+
+  const structureFormula = (latestEma10 && latestEma72 && latestEma10 > latestEma72)
+    ? 'Média 10 > Média 72'
+    : 'Média 10 ≤ Média 72';
 
   // 3. Força Relativa do market-cache.json ou nasdaq-market-cache.json
   const nasdaqRanking = getNasdaqRanking();
@@ -501,15 +563,39 @@ async function getTickerChartData(rawSymbol) {
   const benchmarkInfo = resolvedCycle?.benchmark || {};
   const benchmarkSymbol = benchmarkInfo?.symbol || (cycleMarket === 'bdr' ? 'BDRX' : (cycleMarket === 'fii' ? 'IFIX' : 'IBOV'));
 
-  let cycleState = 'Expansão';
-  let cycleDesc = 'Mercado saudável. Preço acima da EMA 10 e da EMA 72.';
-  if (cycleInfo.state === 'healthy') {
-    cycleState = 'Expansão';
-    cycleDesc = 'Mercado saudável. Preço acima da EMA 10 e da EMA 72.';
+  // Leitura oficial do Ciclo de Mercado (exclusivamente EMA 10 e EMA 30 no Diário do índice de referência):
+  // Quando o ciclo estiver positivo/verde: exibir explicitamente "Média 10 > Média 30".
+  // Quando não estiver positivo: exibir a condição real correspondente, ex: "Média 10 ≤ Média 30".
+  const isHealthyCycle = cycleInfo.state === 'healthy' || (cycleInfo.score != null && cycleInfo.score >= 70);
+  let cycleState = 'Média 10 > Média 30';
+  let cycleDesc = `Mercado saudável no índice (${benchmarkSymbol}). Média 10 acima da Média 30 no Diário com preço sustentado.`;
+  let cycleStatus = 'good';
+
+  if (isHealthyCycle) {
+    cycleState = 'Média 10 > Média 30';
+    cycleDesc = `Mercado saudável no índice (${benchmarkSymbol}). Média 10 acima da Média 30 no Diário com sustentação do preço.`;
+    cycleStatus = 'good';
+  } else if (cycleInfo.ema10 != null && cycleInfo.ema30 != null) {
+    if (cycleInfo.ema10 > cycleInfo.ema30) {
+      cycleState = 'Média 10 > Média 30';
+      cycleDesc = `Índice de referência (${benchmarkSymbol}) em transição ou correção com Média 10 acima da Média 30 no Diário, mas preço sob pressão.`;
+      cycleStatus = 'alert';
+    } else {
+      cycleState = 'Média 10 ≤ Média 30';
+      cycleDesc = `Contexto defensivo no índice (${benchmarkSymbol}). Média 10 abaixo ou igual à Média 30 no Diário. Avalie a estrutura própria do ativo (EMA 10 e EMA 72).`;
+      cycleStatus = 'bad';
+    }
+  } else if (cycleInfo.state === 'defensive') {
+    cycleState = 'Média 10 ≤ Média 30';
+    cycleDesc = `Contexto cauteloso no índice (${benchmarkSymbol}). Médias em transição defensiva no Diário.`;
+    cycleStatus = 'bad';
   } else {
-    cycleState = 'Defesa';
-    cycleDesc = 'Modo defesa. Preço abaixo ou entre as médias EMA 10 e EMA 72.';
+    cycleState = 'Dados insuficientes';
+    cycleDesc = `Histórico insuficiente do índice de referência (${benchmarkSymbol}) para apurar o ciclo de mercado.`;
+    cycleStatus = 'neutral';
   }
+
+  const isMarketFavorable = isHealthyCycle;
 
   // 5. Fundamentos da CVM / Fundamentus / BDR
   let fundData = null;
@@ -626,7 +712,12 @@ async function getTickerChartData(rawSymbol) {
       regime: cycleState,
       description: cycleDesc,
       benchmark: benchmarkSymbol,
-      score: cycleInfo.score || 88
+      score: cycleInfo.score || (isMarketFavorable ? 88 : 35),
+      state: cycleInfo.state || (isMarketFavorable ? 'healthy' : 'defensive'),
+      status: cycleStatus,
+      isPositive: isMarketFavorable,
+      ema10: cycleInfo.ema10 || null,
+      ema30: cycleInfo.ema30 || null
     },
     trend: {
       status: trendStatus,
@@ -646,8 +737,12 @@ async function getTickerChartData(rawSymbol) {
     },
     structure: {
       label: structureLabel,
+      formula: structureFormula,
+      condition: structureFormula,
       description: structureDesc,
-      isPullback: structureLabel === 'Correção'
+      status: structureStatus,
+      regimeCode: structureRegimeCode,
+      isPullback: trigger.id === 'INSIDE_BAR' || (currentPrice <= (latestEma10 || 0) * 1.02 && priceAboveEma10)
     },
     trigger: {
       id: trigger.id,
@@ -684,11 +779,21 @@ async function getTickerChartData(rawSymbol) {
         badge: { text: 'BLOQUEADO POR LIQUIDEZ', shortText: 'Sem dados', class: 'badge-liquidity-blocked', color: '#b91c1c' }
       };
 
-  const finalGrade = chartRubricEval.finalGrade || 'B';
+  const observedTrades = Number(liquidity?.metrics?.dailyTrades ?? liquidity?.metrics?.lastDayTrades ?? liquidity?.metrics?.averageDailyTrades ?? latestCandle?.trades ?? latestCandle?.negocios);
+  const hasTradesData = Number.isFinite(observedTrades) && observedTrades > 0;
+  const isTradesApproved = hasTradesData && observedTrades >= 500 && liquidity.isEligible;
+  let tradesObs = 'Dados indisponíveis';
+  if (hasTradesData) {
+    tradesObs = `${observedTrades.toLocaleString('pt-BR')} / 500 mín.`;
+  }
+
+  let finalGrade = chartRubricEval.finalGrade || 'B';
+  if (!isTradesApproved || !liquidity.isEligible) {
+    finalGrade = 'D';
+  }
   const gradeVisual = TradingRubrics.getRubricGradeVisual(finalGrade);
 
-  const isMarketFavorable = cycleState === 'Expansão' || cycleState === 'Positivo' || cycleState === 'healthy';
-  const triggerHasTrigger = trigger.hasTrigger === true && isMarketFavorable;
+  const triggerHasTrigger = trigger.hasTrigger === true;
 
   const criteriaTable = [
     { name: 'Força Relativa', status: rsInfo.status === 'good', obs: `${rsClassification} (${rsScore})` },
@@ -696,9 +801,10 @@ async function getTickerChartData(rawSymbol) {
     { name: 'Preço > EMA 10', status: priceAboveEma10, obs: priceAboveEma10 ? 'Sim' : 'Não' },
     { name: 'EMA 10 > EMA 72', status: ema10AboveEma72, obs: ema10AboveEma72 ? 'Sim' : 'Não' },
     { name: 'Volatilidade (ATR)', status: atrPctVal < 5.0, obs: `${atrRegime} (${atrPctVal.toFixed(1)}%)` },
-    { name: 'Estrutura', status: true, obs: structureLabel },
-    { name: 'Gatilho', status: triggerHasTrigger, obs: triggerHasTrigger ? `${trigger.name} (${finalGrade})` : (trigger.hasTrigger ? `${trigger.name} (Bloqueado — Ciclo Defensivo)` : 'Nenhum') },
-    { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation }
+    { name: 'Estrutura', status: structureStatus === 'good' || structureStatus === 'alert', obs: structureLabel },
+    { name: 'Gatilho', status: triggerHasTrigger, obs: triggerHasTrigger ? `${trigger.name} (${finalGrade})` : 'Nenhum' },
+    { name: 'Fundamentos', status: fundCriteriaStatus, obs: fundEvaluation },
+    { name: 'Negócios por dia', status: isTradesApproved, obs: tradesObs, isHardGate: true }
   ];
 
   const bdrInfo = await bdrInternational.getBdrIntegrationData(symbol, {
@@ -754,7 +860,12 @@ async function getTickerChartData(rawSymbol) {
       regime: cycleState,
       description: cycleDesc,
       benchmark: benchmarkSymbol,
-      score: cycleInfo.score || 88
+      score: cycleInfo.score || (isMarketFavorable ? 88 : 35),
+      state: cycleInfo.state || (isMarketFavorable ? 'healthy' : 'defensive'),
+      status: cycleStatus,
+      isPositive: isMarketFavorable,
+      ema10: cycleInfo.ema10 || null,
+      ema30: cycleInfo.ema30 || null
     },
     trend: {
       status: trendStatus,
@@ -774,8 +885,12 @@ async function getTickerChartData(rawSymbol) {
     },
     structure: {
       label: structureLabel,
+      formula: structureFormula,
+      condition: structureFormula,
       description: structureDesc,
-      isPullback: structureLabel === 'Correção'
+      status: structureStatus,
+      regimeCode: structureRegimeCode,
+      isPullback: trigger.id === 'INSIDE_BAR' || (currentPrice <= (latestEma10 || 0) * 1.02 && priceAboveEma10)
     },
     trigger: {
       id: trigger.id,

@@ -942,7 +942,8 @@ test('trade-simulator-model: generateHistoricalSimulations gera massa de trades 
         close,
         ema10: Number((48 + idx * 0.5).toFixed(2)),
         ema72: Number((45 + idx * 0.4).toFixed(2)),
-        volume: 1000000
+        volume: 1000000,
+        trades: 3500
       };
     });
     candlesMap.set(sym, candles);

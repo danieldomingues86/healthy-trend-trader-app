@@ -71,4 +71,46 @@ test('Radar de Oportunidades: Tabela de oportunidades exibe coluna LIQUIDEZ e pi
   // CSS deve definir a estilização padrão e tema Gold
   assert.ok(radarCss.includes('.radar-liquidity-pill'), 'CSS deve conter .radar-liquidity-pill');
   assert.ok(radarCss.includes('body[data-theme="gold"] .radar-liquidity-pill'), 'CSS deve suportar tema Gold para a pill de liquidez');
+
+  // Cabeçalho e linhas também devem exibir a coluna NEGÓCIOS (DIA) (número de negócios realizados no dia)
+  assert.ok(radarJs.includes('>NEGÓCIOS (DIA)</th>'), 'Tabela do radar deve ter cabeçalho NEGÓCIOS (DIA)');
+  assert.ok(radarJs.includes('class="radar-trades-count-pill'), 'Linhas devem renderizar radar-trades-count-pill com número de negócios');
+  assert.ok(radarCss.includes('.radar-trades-count-pill'), 'CSS deve conter .radar-trades-count-pill');
+  assert.ok(radarCss.includes('body[data-theme="gold"] .radar-trades-count-pill'), 'CSS deve suportar tema Gold para a pill de negócios');
+});
+
+test('Radar de Oportunidades: Requisito de Ciclo de Mercado Positivo é especificado em texto nas linhas do card', () => {
+  const radarModel = require('./opportunity-radar-model');
+  const radarJsPath = path.join(__dirname, 'opportunity-radar.js');
+  const radarJs = fs.readFileSync(radarJsPath, 'utf8');
+
+  const EXPECTED_DEFINITION =
+    'Ciclo de Mercado Positivo: mercado com tendência predominante de alta, caracterizada pelo alinhamento das EMAs 10 e 30 no gráfico Diário, ambas com inclinação favorável. O comportamento do preço e a persistência do alinhamento também são considerados. Após correções, o sistema observa sinais de retomada da tendência.';
+
+  // 1. Definição canônica exportada pelo modelo e idêntica à especificação
+  assert.strictEqual(
+    radarModel.MARKET_CYCLE_DEFINITION,
+    EXPECTED_DEFINITION,
+    'O modelo deve exportar a definição canônica exata do Ciclo de Mercado Positivo'
+  );
+
+  // 2. No card de requisitos obrigatórios, a regra é exibida diretamente em texto igual às outras linhas (sem ícone interativo)
+  assert.ok(
+    radarJs.includes('Ciclo de Mercado Positivo: alinhamento das EMAs 10 e 30 com inclinação favorável (Diário)'),
+    'Deve conter a especificação técnica em texto puro na linha do card, alinhado ao padrão das demais linhas'
+  );
+  assert.ok(
+    !radarJs.includes('class="radar-info-tooltip-trigger"'),
+    'Não deve conter ícone interativo no checklist, devendo ser texto direto'
+  );
+
+  // 3. Cabeçalho da tabela mantém a definição via atributo title sem poluição visual
+  assert.ok(
+    radarJs.includes('<th class="col-center" title="'),
+    'Cabeçalho deve possuir atributo title com a definição completa'
+  );
+  assert.ok(
+    radarJs.includes('>CICLO DE MERCADO</th>'),
+    'Cabeçalho CICLO DE MERCADO deve permanecer limpo em texto'
+  );
 });
